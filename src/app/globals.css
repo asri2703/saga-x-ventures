@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------------------
+   Design tokens
+   ---------------------------------------------------------------------------
+   Deliberately dark. Two reasons:
+   1. SMEs have seen a hundred identical bright-blue agency templates. This
+      does not look like those.
+   2. This site is the portfolio. It has to look built, not assembled.
+
+   To rebrand, change the accent values below — no component references a raw
+   colour anywhere else in the codebase.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Surfaces, darkest to lightest */
+  --color-ink: #08090b;
+  --color-surface: #101318;
+  --color-elevated: #171b22;
+  --color-line: #242932;
+  --color-line-bright: #333a46;
+
+  /* Text */
+  --color-body: #f3f5f8;
+  --color-muted: #9aa3b0;
+  --color-faint: #6b7484;
+
+  /* Accent — warm amber. Confidence without the cliché of agency blue. */
+  --color-accent: #f5b23e;
+  --color-accent-hot: #ffc35c;
+  --color-accent-deep: #b8801f;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-ink);
+  color: var(--color-body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Respect users who get motion sickness — also an accessibility point real
+   audits check for. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Visible keyboard focus. Removing this is the most common a11y failure on
+   agency sites; keeping it is free credibility. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #08090b;
+}
+
+/* Subtle grid texture used behind hero sections. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
 }
