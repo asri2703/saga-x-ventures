@@ -136,7 +136,7 @@ export function QuoteForm() {
                 type="checkbox"
                 name="services"
                 value={s.name}
-                className="h-4 w-4 accent-[#f5b23e]"
+                className="h-4 w-4 accent-accent"
               />
               {s.name}
             </label>

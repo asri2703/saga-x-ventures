@@ -13,22 +13,26 @@
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* Surfaces, darkest to lightest */
-  --color-ink: #08090b;
-  --color-surface: #101318;
-  --color-elevated: #171b22;
-  --color-line: #242932;
-  --color-line-bright: #333a46;
+  /* Surfaces, darkest to lightest. Cooled slightly toward blue so the dark
+     UI reads as part of the brand rather than a neutral grey it sits on. */
+  --color-ink: #070910;
+  --color-surface: #0e1320;
+  --color-elevated: #141b2b;
+  --color-line: #1f2839;
+  --color-line-bright: #2e3a51;
 
   /* Text */
-  --color-body: #f3f5f8;
-  --color-muted: #9aa3b0;
-  --color-faint: #6b7484;
+  --color-body: #f2f5fa;
+  --color-muted: #98a3b8;
+  --color-faint: #68738a;
 
-  /* Accent — warm amber. Confidence without the cliché of agency blue. */
-  --color-accent: #f5b23e;
-  --color-accent-hot: #ffc35c;
-  --color-accent-deep: #b8801f;
+  /* Accent — derived from the Sagax brand blue (#004aad).
+     The brand blue itself is too dark to read on a near-black background, so
+     interactive elements use a brightened tint of it and reserve the true
+     brand colour for solid fills on light surfaces. */
+  --color-accent: #2b7fff; /* 5.3:1 on --color-ink — passes AA */
+  --color-accent-hot: #5f9dff;
+  --color-accent-deep: #004aad; /* the actual brand blue */
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -69,7 +73,7 @@ body {
 
 ::selection {
   background: var(--color-accent);
-  color: #08090b;
+  color: var(--color-ink);
 }
 
 /* Subtle grid texture used behind hero sections. */
