@@ -72,7 +72,7 @@ export const services: Service[] = [
       },
       {
         q: "What about hosting?",
-        a: "We deploy to modern hosting that is fast and, for most SME sites, free or under RM50 a month. We set it up in your name so the account belongs to you.",
+        a: "We deploy to modern hosting that is fast and, for a typical SME site, costs very little — often nothing at all at your traffic levels. We set the account up in your name so it belongs to you, and we tell you the running cost before we build.",
       },
     ],
   },
@@ -106,7 +106,7 @@ export const services: Service[] = [
     faqs: [
       {
         q: "How much should I budget for ads?",
-        a: "For most Malaysian SMEs we suggest starting at RM1,500 to RM3,000 a month in ad spend, separate from our management fee. Below that there is rarely enough data to optimise properly. We will tell you honestly if your market needs more.",
+        a: "It depends entirely on your industry — a click costs very different amounts in legal services and in food delivery. During the free audit we check what your competitors are paying in your area, then recommend a starting budget with the reasoning behind it. If your market needs more than you can commit, we will say so rather than take the work and let it underperform.",
       },
       {
         q: "How fast will I see results?",
@@ -164,7 +164,7 @@ export const services: Service[] = [
       },
       {
         q: "What budget do I need?",
-        a: "We suggest starting from RM1,500 a month in ad spend. Social needs enough volume to exit the learning phase, otherwise you are paying for data you never get to use.",
+        a: "Enough for the platform to exit its learning phase — below that you are paying for data you never get to use. What that figure is depends on your audience size and industry, so we work it out during the audit and tell you before you commit anything.",
       },
     ],
   },

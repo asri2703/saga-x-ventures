@@ -69,7 +69,7 @@ const process = [
 const homeFaqs = [
   {
     q: "How much does it cost?",
-    a: "It depends on scope, so we quote per project rather than publishing packages that would not fit you. As a rough guide: SME websites typically run from RM4,000, ad management from RM1,200 a month plus your ad spend, and SEO from RM1,500 a month. You get a fixed written quote before any work starts.",
+    a: "We quote per project rather than publishing packages, because a five-page site and a booking system are not the same job and should not carry the same price. The free audit comes first: we look at what you have, agree the scope, then give you one fixed written price before any work begins. No hourly billing, and no line items appearing later.",
   },
   {
     q: "You look like a new agency. Why should I trust you?",
