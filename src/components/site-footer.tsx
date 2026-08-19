@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { services } from "@/lib/services";
-import { site } from "@/lib/site";
+import { fullAddress, site } from "@/lib/site";
 import { Container } from "@/components/ui";
 import { Logo } from "@/components/logo";
 
@@ -109,7 +109,12 @@ export function SiteFooter() {
                   {site.phoneDisplay}
                 </a>
               </li>
-              <li className="text-sm text-faint">{site.location}</li>
+              <li className="text-sm leading-relaxed text-faint">
+                {/* Full address in the footer on every page — a consistent
+                    NAP (name, address, phone) across the site is what local
+                    SEO is built on. */}
+                <address className="not-italic">{fullAddress}</address>
+              </li>
             </ul>
           </div>
         </div>

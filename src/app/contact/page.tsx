@@ -6,7 +6,7 @@ import { Card, Container, Eyebrow } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Contact & Free Audit",
   description:
-    "Request a free marketing audit or a quote from Sagax Ventures. Based in Kuala Lumpur, working with SMEs across Malaysia.",
+    "Request a free marketing audit or a quote from Sagax Ventures. Based in Seremban, Negeri Sembilan, working with SMEs across Malaysia.",
   alternates: { canonical: "/contact" },
 };
 
@@ -95,8 +95,14 @@ export default function ContactPage() {
                   </a>
                 </li>
                 <li>
-                  <p className="text-faint">Based in</p>
-                  <p className="text-body">{site.location}</p>
+                  <p className="text-faint">Office</p>
+                  <address className="not-italic leading-relaxed text-body">
+                    {site.address.street}
+                    <br />
+                    {site.address.postcode} {site.address.city}
+                    <br />
+                    {site.address.state}
+                  </address>
                 </li>
                 <li>
                   <p className="text-faint">Serving</p>

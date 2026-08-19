@@ -85,7 +85,7 @@ const homeFaqs = [
   },
   {
     q: "Do we need to meet in person?",
-    a: "Not necessarily. We are based in Kuala Lumpur and can meet locally, but most work runs over WhatsApp, email, and video calls. Clients across Malaysia are welcome.",
+    a: "Not necessarily. Our office is in Seremban, Negeri Sembilan, so we can meet in person around Seremban, Nilai, Port Dickson, and the Klang Valley. Most work runs over WhatsApp, email, and video calls, and we take clients from anywhere in Malaysia.",
   },
   {
     q: "How quickly can you start?",

@@ -24,12 +24,17 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
+  // Local terms first, deliberately. "Marketing agency Seremban" is winnable
+  // within months; "marketing agency Malaysia" is a years-long fight against
+  // established agencies. Rank locally, then widen.
   keywords: [
-    "marketing agency Malaysia",
+    "marketing agency Seremban",
+    "digital marketing Negeri Sembilan",
+    "web design Seremban",
+    "Google Ads agency Seremban",
+    "SEO Seremban",
     "web development Malaysia",
-    "Google Ads agency Malaysia",
-    "SEO agency Malaysia",
-    "digital marketing for SME",
+    "digital marketing for SME Malaysia",
   ],
   openGraph: {
     type: "website",
@@ -63,7 +68,10 @@ const orgSchema = {
   areaServed: { "@type": "Country", name: "Malaysia" },
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Kuala Lumpur",
+    streetAddress: site.address.street,
+    postalCode: site.address.postcode,
+    addressLocality: site.address.city,
+    addressRegion: site.address.state,
     addressCountry: "MY",
   },
 };
