@@ -15,10 +15,11 @@ export const site = {
   // TODO: replace with your real domain once you buy it
   url: "https://sagaxventures.com",
 
-  // TODO: replace with your real contact details
+  // TODO: replace with your real email address
   email: "hello@sagaxventures.com",
-  phoneDisplay: "+60 12-345 6789",
-  phoneRaw: "60123456789", // digits only, no + or spaces — used for WhatsApp links
+  phoneDisplay: "+60 13-773 2703",
+  phoneRaw: "60137732703", // digits only, no + or spaces — used for WhatsApp links
+  // TODO: confirm — change if you are not based in KL
   location: "Kuala Lumpur, Malaysia",
 
   // TODO: add your social profiles (leave "" to hide the link)
