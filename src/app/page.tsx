@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { formatDate, getPosts } from "@/lib/blog";
 import { services } from "@/lib/services";
 import { site, waLink } from "@/lib/site";
 import { Faq } from "@/components/faq";
@@ -95,6 +96,10 @@ const homeFaqs = [
 ];
 
 export default function Home() {
+  // Three most recent — enough to show the blog is alive without pushing the
+  // conversion sections further down the page.
+  const posts = getPosts().slice(0, 3);
+
   return (
     <>
       {/* ---------------------------------------------------------------- Hero */}
@@ -391,6 +396,55 @@ export default function Home() {
           </div>
         </div>
       </Section>
+
+      {/* ------------------------------------------------------------ Insights */}
+      {posts.length > 0 ? (
+        <Section>
+          <SectionHeading
+            eyebrow="Insights"
+            title="Things worth knowing before you hire anyone"
+            lead="We write down what we end up explaining to clients anyway. Free to read, useful whether or not you work with us."
+          />
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {posts.map((post, i) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                data-reveal
+                style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
+                className="group flex flex-col rounded-2xl border border-line bg-elevated/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:bg-elevated"
+              >
+                <p className="text-xs text-faint">
+                  {formatDate(post.date)} · {post.readingMinutes} min read
+                </p>
+                <h3 className="mt-3 flex-1 text-lg font-semibold leading-snug text-body transition-colors group-hover:text-accent">
+                  {post.title}
+                </h3>
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                  Read it
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 16 16"
+                    className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-10">
+            <ButtonLink href="/blog" variant="outline">
+              All insights
+            </ButtonLink>
+          </div>
+        </Section>
+      ) : null}
 
       {/* ----------------------------------------------------------------- FAQ */}
       <Section>
