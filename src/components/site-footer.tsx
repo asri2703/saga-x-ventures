@@ -75,6 +75,14 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
+                  href="/blog"
+                  className="text-sm text-muted transition-colors hover:text-accent"
+                >
+                  Insights
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/#process"
                   className="text-sm text-muted transition-colors hover:text-accent"
                 >

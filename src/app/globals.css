@@ -182,6 +182,142 @@ body {
       visitor who has asked their system for less movement gets a static page —
       not a faster version of the same animation.
 --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   Article typography
+   ---------------------------------------------------------------------------
+   Written by hand rather than pulled from a plugin. A typography plugin is
+   tuned for light backgrounds and would need overriding at almost every rule
+   to sit on this palette — at which point it is only adding weight.
+--------------------------------------------------------------------------- */
+.prose {
+  color: var(--color-muted);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.prose > * + * {
+  margin-top: 1.5em;
+}
+
+.prose h2 {
+  margin-top: 2.75em;
+  margin-bottom: -0.4em;
+  color: var(--color-body);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  scroll-margin-top: 6rem;
+}
+
+.prose h3 {
+  margin-top: 2em;
+  margin-bottom: -0.5em;
+  color: var(--color-body);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+  scroll-margin-top: 6rem;
+}
+
+.prose strong {
+  color: var(--color-body);
+  font-weight: 600;
+}
+
+.prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.prose a:hover {
+  color: var(--color-accent-hot);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li {
+  margin-top: 0.6em;
+  padding-left: 0.35em;
+}
+
+.prose li::marker {
+  color: var(--color-accent);
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--color-accent);
+  padding-left: 1.25em;
+  color: var(--color-body);
+  font-style: italic;
+}
+
+.prose code {
+  border-radius: 0.35em;
+  background: var(--color-elevated);
+  padding: 0.15em 0.4em;
+  color: var(--color-body);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.prose pre {
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 0.9em;
+  background: var(--color-surface);
+  padding: 1.1em 1.3em;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+
+.prose hr {
+  border-color: var(--color-line);
+  margin-top: 2.75em;
+  margin-bottom: 2.75em;
+}
+
+.prose img {
+  border-radius: 0.9em;
+}
+
+/* Tables in an article must never widen the page on a phone. */
+.prose table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.prose th,
+.prose td {
+  border-bottom: 1px solid var(--color-line);
+  padding: 0.7em 1em;
+  text-align: left;
+}
+
+.prose th {
+  color: var(--color-body);
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .motion-ready [data-reveal] {
     opacity: 0;
