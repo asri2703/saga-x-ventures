@@ -28,8 +28,34 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    // Escape closes the menu — expected of any overlay, and the only way out
+    // for someone navigating by keyboard.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    // The panel is md:hidden, so widening past the breakpoint hides it while
+    // `open` stays true — leaving the body scroll-locked with no visible way
+    // to release it. Close on the breakpoint crossing instead.
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const onBreakpoint = (event: MediaQueryListEvent) => {
+      if (event.matches) setOpen(false);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    desktop.addEventListener("change", onBreakpoint);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      desktop.removeEventListener("change", onBreakpoint);
+    };
+  }, [open]);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-line/70 bg-ink/85 backdrop-blur-md">
+    <>
+      <header className="sticky top-0 z-50 border-b border-line/70 bg-ink/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
@@ -127,12 +153,20 @@ export function SiteHeader() {
           </svg>
         </button>
       </div>
+      </header>
 
-      {/* Mobile menu */}
+      {/*
+        Mobile menu — deliberately a sibling of <header>, not a child.
+        The header carries backdrop-blur, and any backdrop-filter makes an
+        element the containing block for its fixed-position descendants. Nested
+        inside, this panel resolved top-16/bottom-0 against the 64px header
+        instead of the viewport and collapsed to zero height: the button
+        toggled, the state changed, and nothing appeared.
+      */}
       {open ? (
         <div
           id="mobile-menu"
-          className="fixed inset-x-0 top-16 bottom-0 overflow-y-auto border-t border-line bg-ink px-5 py-6 md:hidden"
+          className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto border-t border-line bg-ink px-5 py-6 md:hidden"
         >
           <nav aria-label="Mobile">
             <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-faint">
@@ -177,6 +211,6 @@ export function SiteHeader() {
           </ButtonAnchor>
         </div>
       ) : null}
-    </header>
+    </>
   );
 }
