@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import { site, waLink } from "@/lib/site";
 import {
   ButtonAnchor,
@@ -76,18 +77,29 @@ export default function AboutPage() {
       <Section tone="surface">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
           <div>
-            {/* TODO: replace this placeholder block with a real photo.
-                Drop the file in /public and swap in next/image. A real face
-                measurably improves enquiry rates. */}
-            <div className="flex aspect-4/5 max-w-sm items-end rounded-2xl border border-line bg-elevated p-6">
-              <div>
+            <div
+              data-reveal
+              className="group relative aspect-4/5 max-w-sm overflow-hidden rounded-2xl border border-line bg-elevated"
+            >
+              <Image
+                src={site.founder.photo}
+                alt={`${site.founder.name}, ${site.founder.role} of ${site.name}`}
+                fill
+                sizes="(min-width: 1024px) 24rem, (min-width: 640px) 50vw, 100vw"
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+              />
+              {/* Scrim so the name stays legible whatever the photo does
+                  behind it — a caption that depends on the image being dark
+                  in the right place will eventually break. */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-ink via-ink/70 to-transparent"
+              />
+              <div className="absolute inset-x-0 bottom-0 p-6">
                 <p className="text-xl font-semibold text-body">
                   {site.founder.name}
                 </p>
                 <p className="mt-1 text-sm text-accent">{site.founder.role}</p>
-                <p className="mt-4 text-xs text-faint">
-                  Placeholder — add your photo to /public
-                </p>
               </div>
             </div>
           </div>

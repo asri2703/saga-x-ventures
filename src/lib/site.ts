@@ -46,6 +46,8 @@ export const site = {
   founder: {
     name: "Asri Zulzali",
     role: "Founder",
+    /** Lives in /public. Portrait crop works best — it renders 4:5. */
+    photo: "/asri-zulzali.jpg",
   },
 } as const;
 
