@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { services } from "@/lib/services";
 import { site, waLink } from "@/lib/site";
@@ -98,15 +99,24 @@ export default function Home() {
     <>
       {/* ---------------------------------------------------------------- Hero */}
       <section className="relative overflow-hidden border-b border-line/60">
-        <div aria-hidden className="bg-grid absolute inset-0" />
+        <div aria-hidden className="bg-grid bg-grid-fade absolute inset-0" />
+        {/* Two blurred orbs drifting on different cycles. They never align, so
+            the background keeps moving without ever looking like a loop. */}
         <div
           aria-hidden
-          className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent/15 blur-[110px]"
+          className="animate-drift-a absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent/20 blur-[110px]"
+        />
+        <div
+          aria-hidden
+          className="animate-drift-b absolute -right-32 top-40 h-[380px] w-[520px] rounded-full bg-accent-deep/30 blur-[120px]"
         />
         <Container className="relative py-24 sm:py-32">
           <div className="max-w-3xl">
-            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line-bright bg-elevated/70 px-4 py-1.5 text-xs font-medium text-muted">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-line-bright bg-elevated/70 px-4 py-1.5 text-xs font-medium text-muted">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping-soft absolute inline-flex h-full w-full rounded-full bg-accent" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              </span>
               Taking on founding clients for 2026
             </p>
             <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight text-body sm:text-6xl">
@@ -140,10 +150,24 @@ export default function Home() {
           {/* Risk-reversal strip. Stands in for the client logos we do not
               have yet, and arguably says more than logos would. */}
           <ul className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {trustPoints.map((point) => (
-              <li key={point.label} className="bg-surface px-6 py-5">
-                <p className="text-sm font-semibold text-body">{point.label}</p>
-                <p className="mt-1 text-sm text-faint">{point.detail}</p>
+            {trustPoints.map((point, i) => (
+              <li
+                key={point.label}
+                data-reveal
+                style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
+                className="group relative overflow-hidden bg-surface px-6 py-5"
+              >
+                {/* Light sweeps across on hover. */}
+                <span
+                  aria-hidden
+                  className="animate-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-linear-to-r from-transparent via-white/[0.06] to-transparent"
+                />
+                <p className="relative text-sm font-semibold text-body">
+                  {point.label}
+                </p>
+                <p className="relative mt-1 text-sm text-faint">
+                  {point.detail}
+                </p>
               </li>
             ))}
           </ul>
@@ -158,13 +182,19 @@ export default function Home() {
           lead="Most SMEs we speak to are already spending money online. The problem is rarely effort — it is that nobody can point to what is working."
         />
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {problems.map((p) => (
-            <Card key={p.title}>
-              <h3 className="text-lg font-semibold leading-snug text-body">
-                {p.title}
-              </h3>
-              <p className="mt-3 leading-relaxed text-muted">{p.body}</p>
-            </Card>
+          {problems.map((p, i) => (
+            <div
+              key={p.title}
+              data-reveal
+              style={{ "--reveal-delay": `${i * 110}ms` } as CSSProperties}
+            >
+              <Card className="h-full">
+                <h3 className="text-lg font-semibold leading-snug text-body">
+                  {p.title}
+                </h3>
+                <p className="mt-3 leading-relaxed text-muted">{p.body}</p>
+              </Card>
+            </div>
           ))}
         </div>
       </Section>
@@ -181,7 +211,9 @@ export default function Home() {
             <Link
               key={s.slug}
               href={`/services/${s.slug}`}
-              className="group flex flex-col rounded-2xl border border-line bg-elevated/60 p-7 transition-colors hover:border-accent/50"
+              data-reveal
+              style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
+              className="group flex flex-col rounded-2xl border border-line bg-elevated/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:bg-elevated"
             >
               <span className="font-mono text-xs text-faint">
                 {String(i + 1).padStart(2, "0")}
@@ -210,7 +242,11 @@ export default function Home() {
             </Link>
           ))}
 
-          <div className="flex flex-col justify-center rounded-2xl border border-dashed border-line-bright p-7">
+          <div
+            data-reveal
+            style={{ "--reveal-delay": "400ms" } as CSSProperties}
+            className="flex flex-col justify-center rounded-2xl border border-dashed border-line-bright p-7 transition-colors duration-300 hover:border-accent/40"
+          >
             <h3 className="text-lg font-semibold text-body">
               Not sure which you need?
             </h3>
@@ -293,12 +329,14 @@ export default function Home() {
           lead="Agencies that hide their process are usually hiding something. Here is ours, start to finish."
         />
         <ol className="mt-14 space-y-px overflow-hidden rounded-2xl border border-line bg-line">
-          {process.map((p) => (
+          {process.map((p, i) => (
             <li
               key={p.step}
-              className="grid gap-4 bg-surface px-6 py-7 sm:grid-cols-[auto_1fr] sm:gap-8 sm:px-8"
+              data-reveal
+              style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
+              className="group grid gap-4 bg-surface px-6 py-7 transition-colors duration-300 hover:bg-elevated sm:grid-cols-[auto_1fr] sm:gap-8 sm:px-8"
             >
-              <span className="font-mono text-sm text-accent sm:pt-1">
+              <span className="font-mono text-sm text-accent transition-transform duration-300 group-hover:translate-x-0.5 sm:pt-1">
                 {p.step}
               </span>
               <div>
@@ -314,10 +352,13 @@ export default function Home() {
 
       {/* ------------------------------------------------- Founding client offer */}
       <Section tone="surface">
-        <div className="relative overflow-hidden rounded-3xl border border-accent/25 bg-elevated p-8 sm:p-12">
+        <div
+          data-reveal
+          className="relative overflow-hidden rounded-3xl border border-accent/25 bg-elevated p-8 sm:p-12"
+        >
           <div
             aria-hidden
-            className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-accent/15 blur-3xl"
+            className="animate-drift-a absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-accent/20 blur-3xl"
           />
           <div className="relative max-w-2xl">
             <Eyebrow>Founding clients</Eyebrow>
@@ -366,10 +407,13 @@ export default function Home() {
       <section className="relative overflow-hidden border-t border-line bg-surface">
         <div
           aria-hidden
-          className="absolute left-1/2 top-full h-[380px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/15 blur-[110px]"
+          className="animate-drift-b absolute left-1/2 top-full h-[380px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[110px]"
         />
         <Container className="relative py-24 text-center sm:py-32">
-          <h2 className="mx-auto max-w-2xl text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-5xl">
+          <h2
+            data-reveal
+            className="mx-auto max-w-2xl text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-5xl"
+          >
             Find out what your marketing is actually doing
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">

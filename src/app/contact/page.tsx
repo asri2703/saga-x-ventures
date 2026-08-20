@@ -29,10 +29,10 @@ export default function ContactPage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-line/60">
-        <div aria-hidden className="bg-grid absolute inset-0" />
+        <div aria-hidden className="bg-grid bg-grid-fade absolute inset-0" />
         <div
           aria-hidden
-          className="absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/12 blur-[100px]"
+          className="animate-drift-a absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/18 blur-[100px]"
         />
         <Container className="relative py-20 sm:py-24">
           <div className="max-w-3xl">

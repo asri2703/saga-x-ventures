@@ -62,7 +62,9 @@ export function SectionHeading({
 }) {
   const centered = align === "center";
   return (
-    <div className={`max-w-2xl ${centered ? "mx-auto text-center" : ""}`}>
+    // Every section heading reveals on scroll — one attribute, picked up by
+    // the single observer in MotionRoot.
+    <div data-reveal className={`max-w-2xl ${centered ? "mx-auto text-center" : ""}`}>
       {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
       <h2 className="text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-4xl">
         {title}
@@ -147,7 +149,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-line bg-elevated/60 p-6 sm:p-7 ${className}`}
+      className={`rounded-2xl border border-line bg-elevated/60 p-6 transition-colors duration-300 hover:border-line-bright sm:p-7 ${className}`}
     >
       {children}
     </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { services } from "@/lib/services";
 import { waLink } from "@/lib/site";
@@ -20,7 +21,11 @@ export default function ServicesPage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-line/60">
-        <div aria-hidden className="bg-grid absolute inset-0" />
+        <div aria-hidden className="bg-grid bg-grid-fade absolute inset-0" />
+        <div
+          aria-hidden
+          className="animate-drift-a absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/18 blur-[100px]"
+        />
         <Container className="relative py-20 sm:py-28">
           <div className="max-w-3xl">
             <p className="mb-4 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
@@ -44,7 +49,9 @@ export default function ServicesPage() {
             <Link
               key={s.slug}
               href={`/services/${s.slug}`}
-              className="group grid gap-6 rounded-2xl border border-line bg-elevated/60 p-7 transition-colors hover:border-accent/50 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-8 sm:p-9"
+              data-reveal
+              style={{ "--reveal-delay": `${i * 70}ms` } as CSSProperties}
+              className="group grid gap-6 rounded-2xl border border-line bg-elevated/60 p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/50 hover:bg-elevated sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-8 sm:p-9"
             >
               <span className="font-mono text-sm text-faint">
                 {String(i + 1).padStart(2, "0")}

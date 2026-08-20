@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { site, waLink } from "@/lib/site";
 import {
   ButtonAnchor,
@@ -49,10 +50,10 @@ export default function AboutPage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-line/60">
-        <div aria-hidden className="bg-grid absolute inset-0" />
+        <div aria-hidden className="bg-grid bg-grid-fade absolute inset-0" />
         <div
           aria-hidden
-          className="absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/12 blur-[100px]"
+          className="animate-drift-a absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/18 blur-[100px]"
         />
         <Container className="relative py-20 sm:py-28">
           <div className="max-w-3xl">
@@ -143,15 +144,21 @@ export default function AboutPage() {
         />
         <div className="mt-14 grid gap-6 md:grid-cols-2">
           {principles.map((p, i) => (
-            <Card key={p.title}>
-              <span className="font-mono text-xs text-faint">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-4 text-lg font-semibold text-body">
-                {p.title}
-              </h3>
-              <p className="mt-3 leading-relaxed text-muted">{p.body}</p>
-            </Card>
+            <div
+              key={p.title}
+              data-reveal
+              style={{ "--reveal-delay": `${i * 100}ms` } as CSSProperties}
+            >
+              <Card className="h-full">
+                <span className="font-mono text-xs text-faint">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold text-body">
+                  {p.title}
+                </h3>
+                <p className="mt-3 leading-relaxed text-muted">{p.body}</p>
+              </Card>
+            </div>
           ))}
         </div>
       </Section>
@@ -167,10 +174,12 @@ export default function AboutPage() {
             />
           </div>
           <ul className="grid gap-3 sm:grid-cols-2 lg:mt-4">
-            {capabilities.map((c) => (
+            {capabilities.map((c, i) => (
               <li
                 key={c}
-                className="rounded-xl border border-line bg-elevated/50 px-5 py-4 text-sm text-muted"
+                data-reveal
+                style={{ "--reveal-delay": `${i * 70}ms` } as CSSProperties}
+                className="rounded-xl border border-line bg-elevated/50 px-5 py-4 text-sm text-muted transition-colors duration-300 hover:border-line-bright hover:text-body"
               >
                 {c}
               </li>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getService, services } from "@/lib/services";
@@ -52,10 +53,10 @@ export default async function ServicePage({
     <>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line/60">
-        <div aria-hidden className="bg-grid absolute inset-0" />
+        <div aria-hidden className="bg-grid bg-grid-fade absolute inset-0" />
         <div
           aria-hidden
-          className="absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/12 blur-[100px]"
+          className="animate-drift-a absolute left-1/2 top-0 h-80 w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/18 blur-[100px]"
         />
         <Container className="relative py-20 sm:py-28">
           {/* Breadcrumb — helps users and gives Google the page hierarchy. */}
@@ -116,10 +117,12 @@ export default async function ServicePage({
               title="The problems this solves"
             />
             <ul className="mt-8 space-y-4">
-              {service.pain.map((p) => (
+              {service.pain.map((p, i) => (
                 <li
                   key={p}
-                  className="flex gap-3 rounded-xl border border-line bg-elevated/50 px-5 py-4 leading-relaxed text-muted"
+                  data-reveal
+                  style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
+                  className="flex gap-3 rounded-xl border border-line bg-elevated/50 px-5 py-4 leading-relaxed text-muted transition-colors duration-300 hover:border-line-bright"
                 >
                   <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                   {p}
@@ -174,11 +177,13 @@ export default async function ServicePage({
       <Section>
         <SectionHeading eyebrow="Also from us" title="Other services" />
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {others.map((s) => (
+          {others.map((s, i) => (
             <Link
               key={s.slug}
               href={`/services/${s.slug}`}
-              className="group rounded-xl border border-line bg-elevated/50 px-6 py-5 transition-colors hover:border-accent/50"
+              data-reveal
+              style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
+              className="group rounded-xl border border-line bg-elevated/50 px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/50"
             >
               <h3 className="font-semibold text-body transition-colors group-hover:text-accent">
                 {s.name}
