@@ -115,6 +115,18 @@ export function SiteFooter() {
                     SEO is built on. */}
                 <address className="not-italic">{fullAddress}</address>
               </li>
+              {site.googleBusiness ? (
+                <li>
+                  <a
+                    href={site.googleBusiness}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-muted transition-colors hover:text-accent"
+                  >
+                    Find us on Google
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>

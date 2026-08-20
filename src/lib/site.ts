@@ -36,12 +36,22 @@ export const site = {
   /** Compact form for footers and tight spaces. */
   locationShort: "Seremban, Negeri Sembilan",
 
-  // TODO: add your social profiles (leave "" to hide the link)
+  // Leave any entry "" to hide that link everywhere.
   social: {
-    facebook: "",
-    instagram: "",
+    facebook: "https://www.facebook.com/sagaxmedia",
+    instagram: "https://www.instagram.com/sagaxmarketing",
     linkedin: "",
   },
+
+  /**
+   * Google Business Profile.
+   *
+   * Kept separate from `social` because it does a different job: it is where
+   * reviews accumulate and it is the listing that decides whether you appear
+   * in the Seremban map pack. Linking to it from the site — and declaring it
+   * in `sameAs` — is how Google ties this domain to that listing.
+   */
+  googleBusiness: "https://share.google/rJc8CdRsPfCCpPZLY",
 
   founder: {
     name: "Asri Zulzali",

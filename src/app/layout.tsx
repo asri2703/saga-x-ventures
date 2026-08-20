@@ -67,6 +67,17 @@ const orgSchema = {
   email: site.email,
   telephone: `+${site.phoneRaw}`,
   areaServed: { "@type": "Country", name: "Malaysia" },
+  /**
+   * sameAs is how you tell Google that this domain and these profiles are one
+   * business rather than several. It is the strongest signal available for
+   * linking a site to its Business Profile.
+   */
+  sameAs: [
+    site.googleBusiness,
+    site.social.facebook,
+    site.social.instagram,
+    site.social.linkedin,
+  ].filter(Boolean),
   address: {
     "@type": "PostalAddress",
     streetAddress: site.address.street,
