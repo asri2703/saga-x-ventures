@@ -7,7 +7,7 @@
  */
 
 export const site = {
-  name: "Sagax Ventures",
+  name: "Saga X Ventures",
   tagline: "Marketing & development for Malaysian SMEs",
   description:
     "We build the website, run the ads, and fix the SEO — one team, one invoice, one person accountable. Serving small and medium businesses across Malaysia.",
@@ -65,6 +65,6 @@ export const site = {
 export const fullAddress = `${site.address.street}, ${site.address.postcode} ${site.address.city}, ${site.address.state}`;
 
 /** Pre-filled WhatsApp link. Pass a custom message per page for better context. */
-export function waLink(message = "Hi Sagax Ventures, I'd like a free audit.") {
+export function waLink(message = "Hi Saga X Ventures, I'd like a free audit.") {
   return `https://wa.me/${site.phoneRaw}?text=${encodeURIComponent(message)}`;
 }

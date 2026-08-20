@@ -26,7 +26,7 @@
   --color-muted: #98a3b8;
   --color-faint: #68738a;
 
-  /* Accent — derived from the Sagax brand blue (#004aad).
+  /* Accent — derived from the Saga X brand blue (#004aad).
      The brand blue itself is too dark to read on a near-black background, so
      interactive elements use a brightened tint of it and reserve the true
      brand colour for solid fills on light surfaces. */

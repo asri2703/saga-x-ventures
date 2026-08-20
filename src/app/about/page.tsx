@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Sagax Ventures is a Malaysian marketing and development agency for SMEs — websites, ads, SEO, and custom systems handled by one accountable team.",
+    "Saga X Ventures is a Malaysian marketing and development agency for SMEs — websites, ads, SEO, and custom systems handled by one accountable team.",
   alternates: { canonical: "/about" },
 };
 

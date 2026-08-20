@@ -52,7 +52,7 @@ export function LogoFull({ className = "h-10 w-16" }: { className?: string }) {
   return (
     <span
       role="img"
-      aria-label="Sagax Ventures"
+      aria-label="Saga X Ventures"
       className={`block shrink-0 bg-current ${className}`}
       style={maskStyle("/logo-full.svg")}
     />

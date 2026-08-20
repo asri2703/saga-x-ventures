@@ -6,7 +6,7 @@ import { Card, Container, Eyebrow } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Contact & Free Audit",
   description:
-    "Request a free marketing audit or a quote from Sagax Ventures. Based in Seremban, Negeri Sembilan, working with SMEs across Malaysia.",
+    "Request a free marketing audit or a quote from Saga X Ventures. Based in Seremban, Negeri Sembilan, working with SMEs across Malaysia.",
   alternates: { canonical: "/contact" },
 };
 
