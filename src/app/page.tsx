@@ -1,10 +1,12 @@
+import Image from "next/image";
 import Link from "next/link";
+import CoreHero from "@/components/ui/core-hero";
 import { site, waLink } from "@/lib/site";
 import { products } from "@/lib/products";
+import { Survey } from "@/components/survey";
 import {
   ButtonAnchor,
   ButtonLink,
-  Container,
   Section,
   SectionHeading,
 } from "@/components/ui";
@@ -12,288 +14,226 @@ import {
 export default function HomePage() {
   return (
     <>
-      <Hero />
-      <Fork />
-      <Umbrella />
+      <CoreHero />
+      <Start />
+      <Paths />
+      <Founder />
       <Lounge />
-      <Close />
     </>
   );
 }
 
 /**
- * The brand board pins the hero: navy field, the wordmark tagline set large,
- * and a single eyebrow of the three brand words. That eyebrow is the one
- * all-caps label on the site — it belongs to the identity, so it is kept here
- * and nowhere else.
+ * The survey, directly under the core.
+ *
+ * It lost the top of the screen to the core, so it takes the first full band
+ * instead — still the first thing a visitor can act on, and still one screen
+ * from the top on a phone.
  */
-function Hero() {
+function Start() {
   return (
-    <section className="relative overflow-hidden bg-navy text-on-dark">
-      <div aria-hidden className="absolute inset-0 bg-grid bg-grid-fade opacity-[0.35]" />
-      <div
-        aria-hidden
-        className="absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full bg-sky/20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="absolute -bottom-56 -left-24 h-[28rem] w-[28rem] rounded-full bg-pink/20 blur-3xl"
-      />
-
-      <Container className="relative py-24 sm:py-32">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky">
-          Markets · Technology · Innovation
-        </p>
-
-        <h1 className="mt-6 max-w-3xl font-display text-5xl font-extrabold leading-[0.98] sm:text-7xl">
-          Beyond Trading<span className="text-pink">.</span>
-        </h1>
-
-        <p className="mt-7 max-w-xl text-xl leading-relaxed text-on-dark-muted">
-          {site.plain}
-        </p>
-
-        <div className="mt-10 flex flex-wrap gap-3">
-          <ButtonLink href="/mula" variant="brand" size="lg">
-            Mula — tiga soalan
-          </ButtonLink>
-          <ButtonLink href="#jalan" variant="light" size="lg">
-            Saya dah tahu apa saya nak
-          </ButtonLink>
+    <Section tone="panel">
+      <div className="grid items-start gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12">
+        <div>
+          <h2 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
+            Tiga soalan, kemudian satu cadangan
+          </h2>
+          <p className="mt-3 leading-relaxed text-text-muted">
+            Bukan borang pendaftaran. Tiada e-mel diminta, dan jawapan awak
+            tidak dihantar ke mana-mana sehingga awak sendiri menekan WhatsApp.
+          </p>
+          <p className="mt-5 text-sm leading-relaxed text-text-faint">
+            {site.riskLine}
+          </p>
         </div>
-
-        <p className="mt-10 max-w-xl text-sm leading-relaxed text-on-dark-muted">
-          {site.riskLine}
-        </p>
-      </Container>
-    </section>
+        <Survey />
+      </div>
+    </Section>
   );
 }
 
-/**
- * The fork — the one loud moment on the page.
- *
- * No scroll reveal here, or anywhere on this page. The panels are the point of
- * the page, and content that matters should not depend on JavaScript having
- * run and an observer having fired. The hero's drifting colour is the only
- * motion, and nothing is hidden behind it.
- *
- * Two paths meeting at a seam, rather than two matching cards side by side,
- * because the content really is a divergence and the logo is already a
- * crossing. The seam is decorative and hidden from assistive tech; the two
- * panels remain ordinary stacked sections on a phone.
- */
-function Fork() {
+/** The two destinations, as dense tiles rather than long marketing cards. */
+function Paths() {
   return (
-    <section id="jalan" className="scroll-mt-20 bg-mist py-20 sm:py-28">
-      <Container>
-        <SectionHeading
-          title="Satu soalan memisahkan semuanya"
-          lead="Bukan soalan tentang produk. Soalan tentang berapa banyak masa awak ada, dan sama ada awak mahu faham atau mahu ia jalan sendiri."
+    <Section id="jalan" tone="base">
+      <SectionHeading
+        title="Dua jalan"
+        lead="Yang memisahkan bukan produk, tetapi berapa banyak masa awak ada dan sama ada awak mahu faham."
+      />
+      <div className="mt-7 grid gap-3 sm:grid-cols-2">
+        <PathTile
+          kicker="Kalau awak mahu faham"
+          title="Belajar trade sendiri"
+          body="Awak baca pasaran, awak tekan butang. Tiga kursus, dan signal sebagai sokongan."
+          meta="Perlu sejam dua sehari"
+          href="/belajar"
         />
-      </Container>
-
-      <div className="relative mt-14">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-y-6 left-1/2 hidden w-px -translate-x-1/2 rotate-[4deg] bg-gradient-to-b from-transparent via-line-strong to-transparent lg:block"
+        <PathTile
+          kicker="Kalau awak tiada masa"
+          title="Trading automatik"
+          body="Sistem berjalan pada akaun awak sendiri. Akaun dan modal kekal milik awak."
+          meta="Kurang 30 minit sehari"
+          href="/automatik"
+          accent
         />
-        <Container>
-          <div className="grid gap-6 lg:grid-cols-2 lg:gap-16">
-            <PathPanel
-              kicker="Kalau awak mahu faham"
-              title="Belajar trade sendiri"
-              body="Awak yang baca pasaran, awak yang tekan butang. Kami ajar asas, cara berdagang waktu berita keluar, dan cara bina strategi yang boleh diulang. Mastery Signal menyokong keputusan awak — ia tidak membuat keputusan untuk awak."
-              points={["Perlu sejam dua sehari", "Awak faham setiap posisi", "Kemahiran kekal milik awak"]}
-              href="/belajar"
-              cta="Lihat jalan belajar"
-            />
-            <PathPanel
-              kicker="Kalau awak tiada masa"
-              title="Trading automatik"
-              body="Sistem berjalan pada akaun awak sendiri, tanpa awak perlu depan skrin. Awak buka akaun atas nama awak, dan ia kekal milik awak sepenuhnya — kami tidak pernah memegang wang awak."
-              points={["Kurang 30 minit sehari", "Akaun dan modal kekal milik awak", "Dipasang dan disambung ke VPS"]}
-              href="/automatik"
-              cta="Lihat cara ia berfungsi"
-              tone="navy"
-            />
-          </div>
-        </Container>
       </div>
 
-      <Container>
-        <p className="mt-12 text-center text-text-muted">
-          Tak pasti yang mana?{" "}
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {products.map((p) => (
           <Link
-            href="/mula"
-            className="font-semibold text-navy underline underline-offset-4"
+            key={p.slug}
+            href={`/${p.slug}`}
+            className="flex items-center justify-between gap-4 rounded-xl bg-panel px-5 py-4 ring-1 ring-line transition-colors hover:ring-line-strong"
           >
-            Jawab tiga soalan
-          </Link>{" "}
-          dan kami cadangkan satu.
-        </p>
-      </Container>
-    </section>
+            <span>
+              <span className="block font-semibold">{p.label}</span>
+              <span className="block text-sm text-text-faint">{p.brand}</span>
+            </span>
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              className="h-5 w-5 shrink-0 text-text-faint"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="m9 5 7 7-7 7" />
+            </svg>
+          </Link>
+        ))}
+      </div>
+    </Section>
   );
 }
 
-function PathPanel({
+function PathTile({
   kicker,
   title,
   body,
-  points,
+  meta,
   href,
-  cta,
-  tone = "paper",
+  accent = false,
 }: {
   kicker: string;
   title: string;
   body: string;
-  points: string[];
+  meta: string;
   href: string;
-  cta: string;
-  tone?: "paper" | "navy";
+  accent?: boolean;
 }) {
-  const dark = tone === "navy";
   return (
-    <div
-      className={`flex flex-col rounded-3xl border p-8 sm:p-10 ${
-        dark ? "border-navy bg-navy text-on-dark" : "border-line bg-paper text-text"
+    <Link
+      href={href}
+      className={`group flex flex-col rounded-2xl p-6 ring-1 transition-colors ${
+        accent
+          ? "bg-raised ring-line-strong hover:ring-sky"
+          : "bg-panel ring-line hover:ring-line-strong"
       }`}
     >
-      <p
-        className={`text-sm font-semibold ${dark ? "text-sky" : "text-text-muted"}`}
-      >
-        {kicker}
-      </p>
-      <h3
-        className={`mt-3 font-display text-3xl font-bold leading-tight ${
-          dark ? "text-on-dark" : "text-navy"
-        }`}
-      >
+      <p className="text-sm font-semibold text-sky">{kicker}</p>
+      <h3 className="mt-2 font-display text-2xl font-bold leading-tight">
         {title}
       </h3>
-      <p
-        className={`mt-5 leading-relaxed ${dark ? "text-on-dark-muted" : "text-text-muted"}`}
-      >
-        {body}
+      <p className="mt-3 flex-1 leading-relaxed text-text-muted">{body}</p>
+      <p className="mt-5 flex items-center gap-2 text-sm font-semibold text-text">
+        {meta}
+        <svg
+          aria-hidden
+          viewBox="0 0 24 24"
+          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        >
+          <path d="m9 5 7 7-7 7" />
+        </svg>
       </p>
-      <ul className={`mt-7 space-y-2.5 text-sm ${dark ? "text-on-dark-muted" : "text-text-muted"}`}>
-        {points.map((p) => (
-          <li key={p} className="flex gap-3">
-            <span
-              aria-hidden
-              className={`mt-2 h-1 w-4 shrink-0 rounded-full ${dark ? "bg-sky" : "bg-pink"}`}
-            />
-            {p}
-          </li>
-        ))}
-      </ul>
-      <div className="mt-9">
-        <ButtonLink href={href} variant={dark ? "light" : "primary"}>
-          {cta}
-        </ButtonLink>
-      </div>
-    </div>
-  );
-}
-
-function Umbrella() {
-  return (
-    <Section tone="paper">
-      <SectionHeading
-        title="Apa itu Saga X Ventures"
-        lead="Satu syarikat, dua produk, dan satu tempat belajar. Nama produk mungkin awak dah kenal; label di bawah menerangkan apa setiap satu buat."
-      />
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
-        {products.map((p) => (
-          <div
-            key={p.slug}
-            className="rounded-2xl border border-line bg-mist p-7"
-          >
-            <h3 className="font-display text-xl font-bold text-navy">
-              {p.label}
-            </h3>
-            <p className="mt-1 text-sm font-semibold text-text-faint">{p.brand}</p>
-            <p className="mt-4 leading-relaxed text-text-muted">{p.summary}</p>
-            <Link
-              href={`/${p.slug}`}
-              className="mt-6 inline-block font-semibold text-navy underline underline-offset-4"
-            >
-              Selengkapnya
-            </Link>
-          </div>
-        ))}
-      </div>
-      <p className="mt-10 max-w-2xl leading-relaxed text-text-muted">
-        <strong className="font-semibold text-text">Traders Lounge</strong> ialah
-        tempat semuanya diajar — video, artikel, webinar dan kelas. Ia sebahagian
-        daripada laman ini, bukan brand berasingan.
-      </p>
-    </Section>
+    </Link>
   );
 }
 
 /**
- * Empty by design, for now.
+ * Founder panel.
  *
- * There is no library yet, and dressing the gap with placeholder cards would
- * only teach visitors to distrust the rest of the page. An empty state that
- * says what is coming and offers to tell you when is more use than three fake
- * thumbnails.
+ * The portrait was shot on white, so it is framed on a light surface rather
+ * than knocked out — a cut-out of a full-length studio shot would fray at the
+ * hair and the chair legs, and a deliberate light panel inside a dark app
+ * reads as a choice rather than an accident.
  */
-function Lounge() {
+function Founder() {
   return (
-    <Section tone="mist">
-      <SectionHeading
-        title="Traders Lounge"
-        lead="Video, tutorial, webinar dan kelas — semuanya di satu tempat."
-      />
-      <div
-        className="mt-10 rounded-2xl border border-dashed border-line-strong bg-paper p-10 text-center"
-      >
-        <p className="mx-auto max-w-md leading-relaxed text-text-muted">
-          Pustaka sedang disiapkan. Video pertama dan jadual webinar akan
-          diumumkan tidak lama lagi.
-        </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <ButtonAnchor
-            href={waLink("Hi, beritahu saya bila video dan webinar Traders Lounge bermula.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="outline"
-          >
-            Beritahu saya bila ia bermula
-          </ButtonAnchor>
+    <Section tone="panel">
+      <div className="overflow-hidden rounded-2xl bg-mist ring-1 ring-line">
+        <div className="grid items-end gap-0 sm:grid-cols-[1fr_0.85fr]">
+          <div className="p-7 sm:p-10">
+            <p className="text-sm font-semibold text-navy/60">
+              {site.founder.role}
+            </p>
+            <h2 className="mt-2 font-display text-3xl font-extrabold leading-tight text-navy sm:text-4xl">
+              {site.founder.name}
+            </h2>
+            <p className="mt-4 max-w-sm leading-relaxed text-navy/70">
+              Setiap kelas, setiap video dan setiap sistem di sini datang
+              daripada satu orang yang namanya ada di atas. Kalau ada yang tak
+              kena, awak tahu siapa nak ditanya.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-2.5">
+              <ButtonLink
+                href="/tentang"
+                className="bg-navy text-mist hover:bg-navy/90"
+                variant="ghost"
+              >
+                Tentang Asri
+              </ButtonLink>
+              <ButtonAnchor
+                href={waLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="ghost"
+                className="text-navy ring-1 ring-navy/20 hover:bg-navy/5"
+              >
+                WhatsApp
+              </ButtonAnchor>
+            </div>
+          </div>
+
+          <div className="relative mx-auto h-72 w-full max-w-xs sm:h-96 sm:max-w-none">
+            <Image
+              src={site.founder.portrait}
+              alt={site.founder.name}
+              fill
+              sizes="(min-width: 640px) 24rem, 20rem"
+              className="object-contain object-bottom"
+            />
+          </div>
         </div>
       </div>
     </Section>
   );
 }
 
-function Close() {
+function Lounge() {
   return (
-    <Section tone="navy">
-      <div className="max-w-2xl">
-        <h2 className="font-display text-3xl font-bold leading-tight sm:text-4xl">
-          Tiga soalan. Kemudian awak tahu jalan mana.
-        </h2>
-        <p className="mt-5 text-lg leading-relaxed text-on-dark-muted">
-          Tiada e-mel diminta, tiada panggilan jualan. Kalau jawapannya ialah
-          awak belum sedia beli apa-apa, kami akan kata begitu.
+    <Section tone="base">
+      <SectionHeading
+        title="Traders Lounge"
+        lead="Video, tutorial, webinar dan kelas — semuanya di satu tempat."
+      />
+      <div className="mt-6 rounded-2xl border border-dashed border-line-strong bg-panel p-8 text-center">
+        <p className="mx-auto max-w-sm leading-relaxed text-text-muted">
+          Pustaka sedang disiapkan. Video pertama dan jadual webinar akan
+          diumumkan tidak lama lagi.
         </p>
-        <div className="mt-9 flex flex-wrap gap-3">
-          <ButtonLink href="/mula" variant="brand" size="lg">
-            Mula — tiga soalan
-          </ButtonLink>
+        <div className="mt-5 flex justify-center">
           <ButtonAnchor
-            href={waLink()}
+            href={waLink("Hi, beritahu saya bila video dan webinar Traders Lounge bermula.")}
             target="_blank"
             rel="noopener noreferrer"
-            variant="light"
-            size="lg"
+            variant="panel"
           >
-            Tanya di WhatsApp
+            Beritahu saya bila ia bermula
           </ButtonAnchor>
         </div>
       </div>

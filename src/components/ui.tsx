@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
-/** Consistent page gutter. Every section uses this so nothing drifts. */
+/** Consistent page gutter. */
 export function Container({
   children,
   className = "",
@@ -10,70 +10,68 @@ export function Container({
   className?: string;
 }) {
   return (
-    <div className={`mx-auto w-full max-w-6xl px-5 sm:px-8 ${className}`}>
+    <div className={`mx-auto w-full max-w-5xl px-4 sm:px-6 ${className}`}>
       {children}
     </div>
   );
 }
 
 /**
- * Vertical rhythm wrapper. `tone` picks the band.
+ * A band of the app.
  *
- * Three bands only: the mist page, a white card-like band for contrast, and
- * the navy band that carries the brand. Navy flips the text colours, so every
- * child inside it inherits readable defaults without each one re-stating them.
+ * Spacing is tighter than a marketing page on purpose: a product surface packs
+ * more into a screen, and the long airy sections were most of what made the
+ * last pass read as a brochure.
  */
 export function Section({
   children,
   id,
-  tone = "mist",
+  tone = "base",
   className = "",
 }: {
   children: ReactNode;
   id?: string;
-  tone?: "mist" | "paper" | "navy";
+  tone?: "base" | "panel" | "light";
   className?: string;
 }) {
   const bands = {
-    mist: "bg-mist text-text",
-    paper: "bg-paper text-text border-y border-line",
-    navy: "bg-navy text-on-dark",
+    base: "bg-base text-text",
+    panel: "bg-panel text-text",
+    light: "bg-mist text-navy",
   };
   return (
     <section
       id={id}
-      className={`${bands[tone]} scroll-mt-20 py-20 sm:py-28 ${className}`}
+      className={`${bands[tone]} scroll-mt-16 py-12 sm:py-16 ${className}`}
     >
       <Container>{children}</Container>
     </section>
   );
 }
 
+/** Section label — small, quiet, and always paired with a heading. */
 export function SectionHeading({
   title,
   lead,
-  align = "left",
-  onDark = false,
+  onLight = false,
 }: {
   title: ReactNode;
   lead?: ReactNode;
-  align?: "left" | "center";
-  onDark?: boolean;
+  onLight?: boolean;
 }) {
-  const centered = align === "center";
   return (
-    <div className={`max-w-2xl ${centered ? "mx-auto text-center" : ""}`}>
+    <div className="max-w-2xl">
       <h2
-        className={`font-display text-3xl font-bold leading-[1.12] sm:text-4xl ${
-          onDark ? "text-on-dark" : "text-text"
+        className={`font-display text-2xl font-bold leading-tight sm:text-3xl ${
+          onLight ? "text-navy" : "text-text"
         }`}
       >
         {title}
       </h2>
       {lead ? (
         <p
-          className={`mt-5 text-lg leading-relaxed ${
-            onDark ? "text-on-dark-muted" : "text-text-muted"
+          className={`mt-3 leading-relaxed ${
+            onLight ? "text-navy/70" : "text-text-muted"
           }`}
         >
           {lead}
@@ -84,25 +82,23 @@ export function SectionHeading({
 }
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60";
 
 const buttonSizes = {
-  md: "px-5 py-2.5 text-sm",
-  lg: "px-7 py-3.5 text-base",
+  md: "px-4 py-2.5 text-sm",
+  lg: "px-5 py-3 text-[15px]",
+  block: "w-full px-5 py-3.5 text-[15px]",
 };
 
 /**
- * Hot Pink never carries white text.
- *
- * White on #FF3D9A measures about 3.3:1, under the 4.5:1 that WCAG AA asks of
- * normal text, so every pink surface here takes a navy label instead — about
- * 5.0:1, and sharper to look at besides.
+ * Hot Pink never carries white type: white on #FF3D9A is about 3.3:1, under
+ * the 4.5:1 AA asks of normal text. Navy on pink reaches 5.0:1.
  */
 const buttonVariants = {
-  brand: "bg-pink text-navy hover:bg-pink-600 hover:text-on-dark",
-  primary: "bg-navy text-on-dark hover:bg-navy-700",
-  outline: "border border-line-strong text-text hover:border-navy hover:bg-paper",
-  light: "bg-mist text-navy hover:bg-white",
+  brand: "bg-pink text-navy hover:bg-pink-600 hover:text-mist",
+  primary: "bg-sky text-navy hover:bg-sky-300",
+  panel: "bg-raised text-text ring-1 ring-line hover:ring-line-strong",
+  outline: "ring-1 ring-line-strong text-text hover:bg-raised",
   ghost: "text-text-muted hover:text-text",
 };
 
@@ -125,7 +121,6 @@ export function ButtonLink({
   );
 }
 
-/** For external destinations (WhatsApp, product domains) where prefetch is pointless. */
 export function ButtonAnchor({
   variant = "brand",
   size = "md",
@@ -154,7 +149,8 @@ export function Button({
   );
 }
 
-export function Card({
+/** Raised surface. The app's basic unit. */
+export function Panel({
   children,
   className = "",
 }: {
@@ -163,7 +159,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-line bg-paper p-6 sm:p-7 ${className}`}
+      className={`rounded-2xl bg-panel p-5 ring-1 ring-line sm:p-6 ${className}`}
     >
       {children}
     </div>
@@ -182,7 +178,7 @@ export function CheckItem({
       <svg
         aria-hidden
         viewBox="0 0 20 20"
-        className={`mt-0.5 h-5 w-5 shrink-0 ${tone === "yes" ? "text-navy" : "text-text-faint"}`}
+        className={`mt-0.5 h-5 w-5 shrink-0 ${tone === "yes" ? "text-sky" : "text-text-faint"}`}
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
@@ -196,14 +192,10 @@ export function CheckItem({
   );
 }
 
-/**
- * Risk notice. Appears on every product surface rather than once in the footer,
- * because a visitor deciding on one product should not have to go looking for
- * what it can cost them.
- */
+/** Risk notice. On every product surface, not once in the footer. */
 export function RiskNote({ children }: { children: ReactNode }) {
   return (
-    <p className="rounded-xl border border-line bg-paper px-4 py-3 text-sm leading-relaxed text-text-muted">
+    <p className="rounded-xl bg-raised px-4 py-3 text-sm leading-relaxed text-text-muted ring-1 ring-line">
       <span className="font-semibold text-text">Risiko: </span>
       {children}
     </p>

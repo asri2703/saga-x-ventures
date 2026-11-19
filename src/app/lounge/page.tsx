@@ -21,34 +21,34 @@ export default function LoungePage() {
 
   return (
     <>
-      <section className="bg-navy text-on-dark">
+      <section className="border-b border-line">
         <Container className="py-20 sm:py-28">
           <h1 className="font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
             Traders Lounge
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-on-dark-muted">
+          <p className="mt-6 max-w-xl text-xl leading-relaxed text-text-muted">
             Tempat semuanya diajar. Sebahagian daripada Saga X Ventures, bukan
             brand berasingan.
           </p>
         </Container>
       </section>
 
-      <Section tone="mist">
+      <Section tone="base">
         <div className="grid gap-6 md:grid-cols-3">
           {areas.map((a) => (
             <Link
               key={a.href}
               href={a.href}
-              className="rounded-2xl border border-line bg-paper p-7 transition-colors hover:border-line-strong"
+              className="rounded-2xl bg-panel ring-1 ring-line p-7 transition-colors hover:ring-line-strong"
             >
-              <h2 className="font-display text-xl font-bold text-navy">{a.title}</h2>
+              <h2 className="font-display text-xl font-bold text-text">{a.title}</h2>
               <p className="mt-3 leading-relaxed text-text-muted">{a.body}</p>
             </Link>
           ))}
         </div>
 
         {posts.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-dashed border-line-strong bg-paper p-10 text-center">
+          <div className="mt-12 rounded-2xl border border-dashed border-line-strong bg-panel p-10 text-center">
             <p className="mx-auto max-w-md leading-relaxed text-text-muted">
               Belum ada kandungan diterbitkan. Yang pertama akan keluar tidak
               lama lagi.

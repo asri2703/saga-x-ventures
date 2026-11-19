@@ -37,21 +37,21 @@ export default async function CoursePage({ params }: PageProps<"/belajar/[slug]"
 
   return (
     <>
-      <section className="bg-navy text-on-dark">
+      <section className="border-b border-line">
         <Container className="py-20 sm:py-28">
           <p className="text-sm font-semibold text-sky">{course.level}</p>
           <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
             {course.name}
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-on-dark-muted">
+          <p className="mt-6 max-w-xl text-xl leading-relaxed text-text-muted">
             {course.summary}
           </p>
         </Container>
       </section>
 
-      <Section tone="mist">
+      <Section tone="base">
         <div className="max-w-2xl">
-          <h2 className="font-display text-2xl font-bold text-navy">
+          <h2 className="font-display text-2xl font-bold text-text">
             Selepas habis, awak boleh
           </h2>
           <ul className="mt-6 space-y-3">
@@ -63,8 +63,8 @@ export default async function CoursePage({ params }: PageProps<"/belajar/[slug]"
           {/* Phase one: interest, not checkout. The course is not recorded yet,
               and a Buy button in front of something that does not exist is the
               fastest way to lose the person who clicks it. */}
-          <div className="mt-10 rounded-2xl border border-line bg-paper p-7">
-            <h3 className="font-display text-lg font-bold text-navy">
+          <div className="mt-10 rounded-2xl bg-panel ring-1 ring-line p-7">
+            <h3 className="font-display text-lg font-bold text-text">
               Kelas ini belum dibuka
             </h3>
             <p className="mt-3 leading-relaxed text-text-muted">

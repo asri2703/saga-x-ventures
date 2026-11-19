@@ -10,20 +10,20 @@ export const metadata: Metadata = {
 
 export default function HubungiPage() {
   return (
-    <Section tone="mist" className="pt-16 sm:pt-20">
+    <Section tone="base" className="pt-16 sm:pt-20">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
+        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-text sm:text-5xl">
           Hubungi
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-text-muted">
           WhatsApp paling cepat. Kalau awak belum pasti nak tanya apa,{" "}
-          <Link href="/mula" className="font-semibold text-navy underline underline-offset-4">
+          <Link href="/mula" className="font-semibold text-text underline underline-offset-4">
             tiga soalan itu
           </Link>{" "}
           biasanya lebih berguna daripada mesej kosong.
         </p>
 
-        <dl className="mt-10 space-y-6 rounded-2xl border border-line bg-paper p-8">
+        <dl className="mt-10 space-y-6 rounded-2xl bg-panel ring-1 ring-line p-8">
           <div>
             <dt className="text-sm font-semibold text-text-faint">WhatsApp</dt>
             <dd className="mt-1">
@@ -31,7 +31,7 @@ export default function HubungiPage() {
                 href={waLink()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-display text-xl font-bold text-navy underline underline-offset-4"
+                className="font-display text-xl font-bold text-text underline underline-offset-4"
               >
                 {site.phoneDisplay}
               </a>
@@ -42,7 +42,7 @@ export default function HubungiPage() {
             <dd className="mt-1">
               <a
                 href={`mailto:${site.email}`}
-                className="font-display text-xl font-bold text-navy underline underline-offset-4"
+                className="font-display text-xl font-bold text-text underline underline-offset-4"
               >
                 {site.email}
               </a>

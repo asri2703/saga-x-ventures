@@ -10,18 +10,19 @@ export const metadata: Metadata = {
 
 export default function MulaPage() {
   return (
-    <div className="py-16 sm:py-24">
+    <div className="py-10 sm:py-14">
       <Container>
-        <div className="mx-auto mb-12 max-w-2xl">
-          <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
-            Tiga soalan, kemudian kami cadang satu jalan
+        <div className="mx-auto max-w-xl">
+          <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">
+            Tiga soalan, kemudian satu cadangan
           </h1>
-          <p className="mt-5 text-lg leading-relaxed text-text-muted">
-            Bukan borang pendaftaran. Tiada e-mel diminta. Jawapan awak
-            menentukan apa yang kami tunjuk selepas ini.
+          <p className="mt-4 leading-relaxed text-text-muted">
+            Bukan borang pendaftaran. Tiada e-mel diminta.
           </p>
+          <div className="mt-8">
+            <Survey />
+          </div>
         </div>
-        <Survey />
       </Container>
     </div>
   );

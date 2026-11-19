@@ -37,9 +37,9 @@ const points = [
 
 export default function RisikoPage() {
   return (
-    <Section tone="mist" className="pt-16 sm:pt-20">
+    <Section tone="base" className="pt-16 sm:pt-20">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
+        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-text sm:text-5xl">
           Penzahiran risiko
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-text-muted">
@@ -49,7 +49,7 @@ export default function RisikoPage() {
         <div className="mt-12 space-y-10">
           {points.map((pt) => (
             <section key={pt.h}>
-              <h2 className="font-display text-xl font-bold text-navy">{pt.h}</h2>
+              <h2 className="font-display text-xl font-bold text-text">{pt.h}</h2>
               <p className="mt-3 leading-relaxed text-text-muted">{pt.p}</p>
             </section>
           ))}

@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 export default function TentangPage() {
   return (
     <>
-      <section className="bg-navy text-on-dark">
-        <Container className="py-20 sm:py-28">
+      <section className="border-b border-line">
+        <Container className="py-12 sm:py-16">
           <div className="grid items-center gap-12 lg:grid-cols-[1.3fr_1fr]">
             <div>
               <h1 className="font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
@@ -26,17 +26,20 @@ export default function TentangPage() {
               <p className="mt-4 text-sm font-semibold text-sky">
                 {site.founder.role}, {site.name}
               </p>
-              <p className="mt-6 max-w-xl text-xl leading-relaxed text-on-dark-muted">
+              <p className="mt-6 max-w-xl text-xl leading-relaxed text-text-muted">
                 {site.plain}
               </p>
             </div>
-            <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden rounded-2xl border border-white/10">
+            {/* Shot on white, so it is framed on a light panel rather than
+                knocked out — a cut-out of a full-length studio shot frays at
+                the hair and the chair legs. */}
+            <div className="relative mx-auto h-80 w-full max-w-xs overflow-hidden rounded-2xl bg-mist ring-1 ring-line sm:h-[26rem]">
               <Image
-                src={site.founder.photo}
+                src={site.founder.portrait}
                 alt={site.founder.name}
                 fill
                 sizes="(min-width: 1024px) 20rem, 60vw"
-                className="object-cover"
+                className="object-contain object-bottom"
                 priority
               />
             </div>
@@ -50,12 +53,12 @@ export default function TentangPage() {
         category this crowded an unverifiable claim is the fastest way to be
         grouped with everyone else making them.
       */}
-      <Section tone="mist">
+      <Section tone="base">
         <div className="mx-auto max-w-2xl">
-          <h2 className="font-display text-2xl font-bold text-navy">
+          <h2 className="font-display text-2xl font-bold text-text">
             Rekod dan pengalaman
           </h2>
-          <div className="mt-6 rounded-2xl border border-dashed border-line-strong bg-paper p-8">
+          <div className="mt-6 rounded-2xl border border-dashed border-line-strong bg-panel p-8">
             <p className="leading-relaxed text-text-muted">
               Bahagian ini menunggu isi: berapa lama berdagang, berapa ramai
               pernah diajar, testimoni, dan latar belakang sebelum ini.
@@ -68,9 +71,9 @@ export default function TentangPage() {
         </div>
       </Section>
 
-      <Section tone="paper">
+      <Section tone="panel">
         <div className="mx-auto max-w-2xl">
-          <h2 className="font-display text-2xl font-bold text-navy">
+          <h2 className="font-display text-2xl font-bold text-text">
             Apa yang kami buat, dan apa yang tidak
           </h2>
           <dl className="mt-8 space-y-6">

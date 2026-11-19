@@ -2,30 +2,37 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { site, waLink } from "@/lib/site";
-import { ButtonAnchor, ButtonLink } from "@/components/ui";
+import { waLink, site } from "@/lib/site";
+import { ButtonAnchor } from "@/components/ui";
 import { Logo, Wordmark } from "@/components/logo";
 
 /**
- * Nav labels name the job, not the brand.
+ * App bar.
  *
- * "Fukyaa" and "Mastery Signal" mean nothing to someone arriving for the first
- * time, so the menu says what each one does and the brand name rides along on
- * the page itself.
+ * Compact on purpose — 56px, not the 64px of the marketing build. On a phone
+ * the tab bar at the bottom carries the main destinations, so this strip only
+ * needs the brand, one action, and a way into the pages that do not earn a
+ * permanent slot.
  */
-const navLinks = [
+const primary = [
+  { href: "/mula", label: "Mula" },
   { href: "/belajar", label: "Belajar" },
   { href: "/automatik", label: "Automatik" },
   { href: "/signal", label: "Signal" },
   { href: "/lounge", label: "Lounge" },
+];
+
+const secondary = [
+  { href: "/signal", label: "Signal" },
   { href: "/tentang", label: "Tentang" },
+  { href: "/hubungi", label: "Hubungi" },
+  { href: "/risiko", label: "Penzahiran risiko" },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
-  // Stop the page scrolling behind the open mobile menu.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -35,19 +42,15 @@ export function SiteHeader() {
 
   useEffect(() => {
     if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
     };
-
-    // The panel is md:hidden, so widening past the breakpoint hides it while
-    // `open` stays true — leaving the body scroll-locked with no visible way
-    // out. Close on the breakpoint crossing instead.
+    // The sheet is md:hidden; widening past the breakpoint would otherwise
+    // leave the body scroll-locked with nothing visible to close.
     const desktop = window.matchMedia("(min-width: 768px)");
-    const onBreakpoint = (event: MediaQueryListEvent) => {
-      if (event.matches) setOpen(false);
+    const onBreakpoint = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpen(false);
     };
-
     document.addEventListener("keydown", onKeyDown);
     desktop.addEventListener("change", onBreakpoint);
     return () => {
@@ -58,36 +61,36 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-line bg-mist/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+      <header className="sticky top-0 z-50 border-b border-line bg-base/90 backdrop-blur-md">
+        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-navy"
+            className="flex items-center gap-2.5 text-text"
             aria-label={`${site.name} — laman utama`}
           >
-            <Logo className="h-8 w-8" />
-            <Wordmark className="text-[15px]" />
+            <Logo className="h-7 w-7" />
+            <Wordmark className="text-sm" />
           </Link>
 
-          <nav aria-label="Utama" className="hidden items-center gap-1 md:flex">
-            <Link
-              href="/mula"
-              className="rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-paper"
-            >
-              Mula di sini
-            </Link>
-            {navLinks.map((l) => (
+          <nav aria-label="Utama" className="hidden items-center gap-0.5 md:flex">
+            {primary.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="rounded-full px-4 py-2 text-sm text-text-muted transition-colors hover:text-text"
+                className="rounded-lg px-3 py-1.5 text-sm text-text-muted transition-colors hover:bg-panel hover:text-text"
               >
                 {l.label}
               </Link>
             ))}
+            <Link
+              href="/tentang"
+              className="rounded-lg px-3 py-1.5 text-sm text-text-muted transition-colors hover:bg-panel hover:text-text"
+            >
+              Tentang
+            </Link>
           </nav>
 
-          <div className="hidden md:block">
+          <div className="flex items-center gap-2">
             <ButtonAnchor
               href={waLink()}
               target="_blank"
@@ -96,76 +99,50 @@ export function SiteHeader() {
             >
               WhatsApp
             </ButtonAnchor>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-            aria-label={open ? "Tutup menu" : "Buka menu"}
-            className="-mr-2 inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy md:hidden"
-          >
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              aria-controls="more-menu"
+              aria-label={open ? "Tutup menu" : "Menu lain"}
+              className="-mr-1 inline-flex h-9 w-9 items-center justify-center rounded-lg text-text-muted md:hidden"
             >
-              {open ? (
-                <path d="M6 6l12 12M18 6L6 18" />
-              ) : (
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              )}
-            </svg>
-          </button>
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+              >
+                {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Mobile panel. Rendered outside the header so the sticky bar keeps its
-          own height and the panel can own the rest of the viewport. */}
+      {/* Secondary sheet. The tab bar at the bottom handles the main
+          destinations, so this holds only what is left. */}
       {open ? (
         <div
-          id="mobile-menu"
-          className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto border-t border-line bg-mist px-5 py-6 md:hidden"
+          id="more-menu"
+          className="fixed inset-x-0 bottom-0 top-14 z-40 overflow-y-auto border-t border-line bg-base px-4 py-5 md:hidden"
         >
-          <nav aria-label="Utama (mudah alih)" className="flex flex-col gap-1">
-            <Link
-              href="/mula"
-              onClick={close}
-              className="rounded-xl bg-paper px-4 py-3.5 font-display text-lg font-bold text-navy"
-            >
-              Mula di sini
-            </Link>
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={close}
-                className="rounded-xl px-4 py-3.5 text-lg text-text transition-colors hover:bg-paper"
-              >
-                {l.label}
-              </Link>
+          <ul className="space-y-1">
+            {secondary.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  onClick={close}
+                  className="block rounded-xl bg-panel px-4 py-3.5 text-[15px] ring-1 ring-line"
+                >
+                  {l.label}
+                </Link>
+              </li>
             ))}
-          </nav>
-          <div className="mt-6 flex flex-col gap-3">
-            <ButtonAnchor
-              href={waLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="brand"
-              size="lg"
-              onClick={close}
-            >
-              WhatsApp
-            </ButtonAnchor>
-            <ButtonLink href="/hubungi" variant="outline" size="lg" onClick={close}>
-              Hubungi
-            </ButtonLink>
-          </div>
+          </ul>
         </div>
       ) : null}
     </>

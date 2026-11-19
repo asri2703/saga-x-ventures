@@ -52,13 +52,13 @@ const steps = [
 export default function AutomatikPage() {
   return (
     <>
-      <section className="bg-navy text-on-dark">
+      <section className="border-b border-line">
         <Container className="py-20 sm:py-28">
           <p className="text-sm font-semibold text-sky">{product.brand}</p>
           <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
             {product.label}
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-on-dark-muted">
+          <p className="mt-6 max-w-xl text-xl leading-relaxed text-text-muted">
             {product.summary}
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
@@ -69,7 +69,7 @@ export default function AutomatikPage() {
               href={waLink("Hi, saya nak tanya pasal Trading Automatik (Fukyaa).")}
               target="_blank"
               rel="noopener noreferrer"
-              variant="light"
+              variant="panel"
               size="lg"
             >
               Tanya dulu
@@ -78,10 +78,10 @@ export default function AutomatikPage() {
         </Container>
       </section>
 
-      <Section tone="paper">
+      <Section tone="panel">
         <div className="grid gap-12 lg:grid-cols-2">
           <div>
-            <h2 className="font-display text-2xl font-bold text-navy">
+            <h2 className="font-display text-2xl font-bold text-text">
               Sesuai untuk awak kalau
             </h2>
             <ul className="mt-6 space-y-3">
@@ -91,7 +91,7 @@ export default function AutomatikPage() {
             </ul>
           </div>
           <div>
-            <h2 className="font-display text-2xl font-bold text-navy">
+            <h2 className="font-display text-2xl font-bold text-text">
               Bukan untuk awak kalau
             </h2>
             <ul className="mt-6 space-y-3">
@@ -105,7 +105,7 @@ export default function AutomatikPage() {
               Kalau yang kedua lebih dekat dengan awak,{" "}
               <Link
                 href="/belajar"
-                className="font-semibold text-navy underline underline-offset-4"
+                className="font-semibold text-text underline underline-offset-4"
               >
                 jalan belajar
               </Link>{" "}
@@ -116,7 +116,7 @@ export default function AutomatikPage() {
         </div>
       </Section>
 
-      <Section tone="mist" id="langkah">
+      <Section tone="base" id="langkah">
         <SectionHeading
           title="Empat langkah"
           lead="Urutan ini tidak boleh ditukar — sistem tidak boleh berjalan sebelum ada akaun untuk ia berjalan di atasnya."
@@ -127,22 +127,22 @@ export default function AutomatikPage() {
           {steps.map((s, i) => (
             <li
               key={s.title}
-              className="flex gap-5 rounded-2xl border border-line bg-paper p-6 sm:gap-7 sm:p-8"
+              className="flex gap-5 rounded-2xl bg-panel ring-1 ring-line p-6 sm:gap-7 sm:p-8"
             >
               <span
                 aria-hidden
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy font-display text-base font-bold text-on-dark"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy font-display text-base font-bold text-text"
               >
                 {i + 1}
               </span>
               <div>
-                <h3 className="font-display text-xl font-bold text-navy">
+                <h3 className="font-display text-xl font-bold text-text">
                   <span className="sr-only">Langkah {i + 1}: </span>
                   {s.title}
                 </h3>
                 <p className="mt-3 leading-relaxed text-text-muted">{s.body}</p>
                 {s.note ? (
-                  <p className="mt-4 rounded-lg bg-mist px-4 py-3 text-sm leading-relaxed text-text-muted">
+                  <p className="mt-4 rounded-lg bg-base px-4 py-3 text-sm leading-relaxed text-text-muted">
                     {s.note}
                   </p>
                 ) : null}
@@ -181,14 +181,14 @@ export default function AutomatikPage() {
         </p>
       </Section>
 
-      <Section tone="navy">
+      <Section tone="panel">
         <div className="max-w-2xl">
           <h2 className="font-display text-3xl font-bold leading-tight">
             Siapa pegang apa
           </h2>
-          <dl className="mt-8 space-y-6 text-on-dark-muted">
+          <dl className="mt-8 space-y-6 text-text-muted">
             <div>
-              <dt className="font-semibold text-on-dark">Akaun dan modal</dt>
+              <dt className="font-semibold text-text">Akaun dan modal</dt>
               <dd className="mt-1.5 leading-relaxed">
                 Milik awak. Dibuka atas nama awak, di broker, dan awak yang
                 pegang kata laluan. Kami tidak memegang wang awak pada
@@ -196,14 +196,14 @@ export default function AutomatikPage() {
               </dd>
             </div>
             <div>
-              <dt className="font-semibold text-on-dark">Sistem dan VPS</dt>
+              <dt className="font-semibold text-text">Sistem dan VPS</dt>
               <dd className="mt-1.5 leading-relaxed">
                 Bahagian kami. Kos VPS dan siapa menanggungnya akan dinyatakan
                 sebelum awak mula, bukan selepas.
               </dd>
             </div>
             <div>
-              <dt className="font-semibold text-on-dark">Keputusan berhenti</dt>
+              <dt className="font-semibold text-text">Keputusan berhenti</dt>
               <dd className="mt-1.5 leading-relaxed">
                 Milik awak. Awak boleh matikan sistem atau tutup akaun bila-bila
                 masa tanpa melalui kami.

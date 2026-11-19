@@ -36,6 +36,8 @@ export const site = {
     name: "Asri Zulzali",
     role: "Pengasas",
     photo: "/asri-zulzali.jpg",
+    /** Full-length studio shot. Shot on white, so it is framed on a light panel. */
+    portrait: "/asri-zulzali-seated.jpg",
   },
 
   /**

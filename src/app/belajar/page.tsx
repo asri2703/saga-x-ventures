@@ -21,12 +21,12 @@ export const metadata: Metadata = {
 export default function BelajarPage() {
   return (
     <>
-      <section className="bg-navy text-on-dark">
+      <section className="border-b border-line">
         <Container className="py-20 sm:py-28">
           <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
             Belajar trade sendiri
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-on-dark-muted">
+          <p className="mt-6 max-w-xl text-xl leading-relaxed text-text-muted">
             Awak yang baca pasaran dan awak yang tekan butang. Tiga kursus,
             disusun ikut keadaan awak sekarang — bukan ikut apa yang paling
             mahal.
@@ -34,7 +34,7 @@ export default function BelajarPage() {
         </Container>
       </section>
 
-      <Section tone="mist">
+      <Section tone="base">
         <SectionHeading
           title="Tiga kursus"
           lead="Setiap satu dinyatakan dengan apa yang awak boleh buat selepas habis, bukan senarai topik yang dilalui."
@@ -43,10 +43,10 @@ export default function BelajarPage() {
           {courses.map((c) => (
             <article
               key={c.slug}
-              className="flex flex-col rounded-2xl border border-line bg-paper p-7"
+              className="flex flex-col rounded-2xl bg-panel ring-1 ring-line p-7"
             >
               <p className="text-sm font-semibold text-text-faint">{c.level}</p>
-              <h3 className="mt-2 font-display text-xl font-bold text-navy">
+              <h3 className="mt-2 font-display text-xl font-bold text-text">
                 {c.name}
               </h3>
               <p className="mt-4 flex-1 leading-relaxed text-text-muted">
@@ -54,7 +54,7 @@ export default function BelajarPage() {
               </p>
               <Link
                 href={`/belajar/${c.slug}`}
-                className="mt-6 font-semibold text-navy underline underline-offset-4"
+                className="mt-6 font-semibold text-text underline underline-offset-4"
               >
                 Selengkapnya
               </Link>
@@ -66,9 +66,9 @@ export default function BelajarPage() {
         </div>
       </Section>
 
-      <Section tone="paper">
+      <Section tone="panel">
         <div className="max-w-2xl">
-          <h2 className="font-display text-2xl font-bold text-navy">
+          <h2 className="font-display text-2xl font-bold text-text">
             Dan selepas kursus?
           </h2>
           <p className="mt-5 leading-relaxed text-text-muted">

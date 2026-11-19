@@ -40,13 +40,13 @@ export function SiteFooter() {
   ].filter((s) => s.href);
 
   return (
-    <footer className="bg-navy text-on-dark-muted">
-      <Container className="py-16 sm:py-20">
+    <footer className="border-t border-line bg-panel text-text-muted">
+      <Container className="py-12 sm:py-14">
         <div className="grid gap-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <Link
               href="/"
-              className="flex items-center gap-2.5 text-on-dark"
+              className="flex items-center gap-2.5 text-text"
               aria-label={`${site.name} — laman utama`}
             >
               <Logo className="h-8 w-8" />
@@ -65,7 +65,7 @@ export function SiteFooter() {
 
           {columns.map((col) => (
             <div key={col.title}>
-              <h2 className="font-display text-sm font-bold text-on-dark">
+              <h2 className="font-display text-sm font-bold text-text">
                 {col.title}
               </h2>
               <ul className="mt-4 space-y-2.5">
@@ -73,7 +73,7 @@ export function SiteFooter() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="text-sm transition-colors hover:text-on-dark"
+                      className="text-sm transition-colors hover:text-text"
                     >
                       {l.label}
                     </Link>
@@ -87,7 +87,7 @@ export function SiteFooter() {
         {/* The risk line sits above the copyright, at full width, rather than
             being folded into the small print beside it. It is the most
             consequential sentence on the site. */}
-        <p className="mt-14 border-t border-white/10 pt-8 text-sm leading-relaxed text-on-dark-muted">
+        <p className="mt-14 border-t border-line pt-8 text-sm leading-relaxed text-text-muted">
           {site.riskLine} Saga X Ventures menjual perisian, signal dan
           pendidikan. Kami tidak menguruskan dana pelanggan dan tidak memegang
           wang awak — setiap akaun dagangan dibuka dan dimiliki oleh awak
@@ -106,7 +106,7 @@ export function SiteFooter() {
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors hover:text-on-dark"
+                    className="transition-colors hover:text-text"
                   >
                     {s.label}
                   </a>

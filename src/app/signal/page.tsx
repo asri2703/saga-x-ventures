@@ -20,22 +20,22 @@ export const metadata: Metadata = {
 export default function SignalPage() {
   return (
     <>
-      <section className="bg-navy text-on-dark">
+      <section className="border-b border-line">
         <Container className="py-20 sm:py-28">
           <p className="text-sm font-semibold text-sky">{product.brand}</p>
           <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
             {product.label}
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-on-dark-muted">
+          <p className="mt-6 max-w-xl text-xl leading-relaxed text-text-muted">
             {product.summary}
           </p>
         </Container>
       </section>
 
-      <Section tone="mist">
+      <Section tone="base">
         <div className="grid gap-12 lg:grid-cols-2">
           <div>
-            <h2 className="font-display text-2xl font-bold text-navy">
+            <h2 className="font-display text-2xl font-bold text-text">
               Sesuai untuk awak kalau
             </h2>
             <ul className="mt-6 space-y-3">
@@ -45,7 +45,7 @@ export default function SignalPage() {
             </ul>
           </div>
           <div>
-            <h2 className="font-display text-2xl font-bold text-navy">
+            <h2 className="font-display text-2xl font-bold text-text">
               Bukan untuk awak kalau
             </h2>
             <ul className="mt-6 space-y-3">

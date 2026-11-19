@@ -6,15 +6,16 @@ import { site } from "@/lib/site";
 import { ButtonAnchor, ButtonLink } from "@/components/ui";
 
 /**
- * The three-question router.
+ * The three-question router — the app's main control.
  *
- * The questions ask about the visitor's life, never about our products. A
- * newcomer does not know what an EA is, so "Signal or EA?" would be answered
- * with the back button. Time available and appetite to learn are things anyone
- * can answer about themselves, and they separate the two paths cleanly.
+ * It sits on the home screen rather than behind a link, because arriving and
+ * immediately using something is most of what separates a product from a page.
  *
- * No email gate before the result. The recommendation is shown first and the
- * contact step comes after, once there is something worth sending.
+ * The questions ask about the visitor's day, never about our products: someone
+ * who does not know what an EA is cannot answer "signal or EA?". Everything
+ * runs in the browser, nothing is stored, and no email is asked for before the
+ * result — the contact step comes after, with the answers already written into
+ * a WhatsApp message.
  */
 
 type Answers = { time?: string; want?: string; level?: string };
@@ -64,10 +65,10 @@ function decide({ time, want, level }: Answers): Result {
     why:
       want === "auto"
         ? "Awak mahu sistem yang jalan sendiri, jadi tiada sebab untuk awak duduk depan carta."
-        : "Masa awak kurang 30 minit sehari. Belajar trade manual memerlukan lebih daripada itu, dan separuh jalan lebih merugikan daripada tidak mula.",
+        : "Masa awak kurang 30 minit sehari. Belajar trade manual perlukan lebih daripada itu, dan separuh jalan lebih merugikan daripada tidak mula.",
     href: "/automatik",
     cta: "Lihat cara ia berfungsi",
-    alt: { label: "Asas Trading, bila awak ada masa nanti", href: "/belajar/asas" },
+    alt: { label: "Asas Trading, bila ada masa nanti", href: "/belajar/asas" },
   };
 
   if (want === "auto" || time === "little") return automatik;
@@ -76,7 +77,7 @@ function decide({ time, want, level }: Answers): Result {
     return {
       path: "Tengok dulu, percuma",
       why:
-        "Awak belum pasti, dan itu jawapan yang jujur. Tiada gunanya awak beli apa-apa hari ini. Tengok dulu bagaimana kami terangkan sesuatu, kemudian baru putuskan.",
+        "Awak belum pasti, dan itu jawapan yang jujur. Tiada gunanya awak beli apa-apa hari ini.",
       href: "/lounge/video",
       cta: "Tonton video pengenalan",
       alt: { label: "Bandingkan dua jalan", href: "/#jalan" },
@@ -144,59 +145,45 @@ export function Survey() {
     ].join("\n");
 
     return (
-      <div className="mx-auto max-w-2xl">
-        <p className="text-sm font-semibold text-text-muted">
-          Berdasarkan jawapan awak
+      <div className="rounded-2xl bg-panel p-5 ring-1 ring-line sm:p-7">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sky">
+          Jalan awak
         </p>
+        <h2 className="mt-3 font-display text-2xl font-bold leading-tight sm:text-3xl">
+          {result.path}
+        </h2>
+        <p className="mt-3 leading-relaxed text-text-muted">{result.why}</p>
 
-        <div className="mt-4 rounded-2xl border border-line bg-paper p-7 sm:p-9">
-          <h2 className="font-display text-3xl font-bold leading-tight text-navy sm:text-4xl">
-            {result.path}
-          </h2>
-          <p className="mt-4 text-lg leading-relaxed text-text-muted">
-            {result.why}
-          </p>
-
-          <div className="mt-7 flex flex-wrap gap-3">
-            <ButtonLink href={result.href} variant="brand" size="lg">
-              {result.cta}
-            </ButtonLink>
-            <ButtonLink href={result.alt.href} variant="outline" size="lg">
-              {result.alt.label}
-            </ButtonLink>
-          </div>
+        <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
+          <ButtonLink href={result.href} variant="brand" size="block">
+            {result.cta}
+          </ButtonLink>
+          <ButtonLink href={result.alt.href} variant="panel" size="block">
+            {result.alt.label}
+          </ButtonLink>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-line bg-mist p-6">
-          <p className="text-sm leading-relaxed text-text-muted">
-            Nak kami hantar pelan ini kepada awak dan jawab soalan? Mesej
-            WhatsApp di bawah sudah terisi dengan jawapan awak.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <ButtonAnchor
-              href={`https://wa.me/${site.phoneRaw}?text=${encodeURIComponent(message)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="primary"
-            >
-              Hantar pelan ini ke WhatsApp
-            </ButtonAnchor>
-            <button
-              type="button"
-              onClick={() => {
-                setAnswers({});
-                setStep(0);
-              }}
-              className="text-sm font-semibold text-text-muted underline underline-offset-4 hover:text-text"
-            >
-              Jawab semula
-            </button>
-          </div>
+        <div className="mt-5 border-t border-line pt-5">
+          <ButtonAnchor
+            href={`https://wa.me/${site.phoneRaw}?text=${encodeURIComponent(message)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="primary"
+            size="block"
+          >
+            Hantar pelan ini ke WhatsApp
+          </ButtonAnchor>
+          <button
+            type="button"
+            onClick={() => {
+              setAnswers({});
+              setStep(0);
+            }}
+            className="mt-3 w-full text-sm font-semibold text-text-muted underline underline-offset-4 hover:text-text"
+          >
+            Jawab semula
+          </button>
         </div>
-
-        <p className="mt-6 text-sm leading-relaxed text-text-muted">
-          {site.riskLine}
-        </p>
       </div>
     );
   }
@@ -204,24 +191,26 @@ export function Survey() {
   const q = questions[step];
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="rounded-2xl bg-panel p-5 ring-1 ring-line sm:p-7">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm font-semibold text-text-muted" role="status">
+        <p
+          className="text-xs font-semibold uppercase tracking-[0.14em] text-sky"
+          role="status"
+        >
           Soalan {step + 1} dari {questions.length}
         </p>
         {step > 0 ? (
           <button
             type="button"
             onClick={() => setStep((s) => s - 1)}
-            className="text-sm font-semibold text-text-muted underline underline-offset-4 hover:text-text"
+            className="text-sm font-semibold text-text-muted hover:text-text"
           >
             Kembali
           </button>
         ) : null}
       </div>
 
-      {/* Progress is three segments, not a bar — three questions is few enough
-          that a person can see the whole thing at once. */}
+      {/* Three segments rather than a bar: three is few enough to see whole. */}
       <div className="mt-3 flex gap-1.5" aria-hidden>
         {questions.map((item, i) => (
           <span
@@ -231,24 +220,22 @@ export function Survey() {
         ))}
       </div>
 
-      <fieldset className="mt-8">
-        <legend className="font-display text-2xl font-bold leading-snug text-navy sm:text-3xl">
+      <fieldset className="mt-6">
+        <legend className="font-display text-xl font-bold leading-snug sm:text-2xl">
           {q.legend}
         </legend>
         {q.help ? (
-          <p className="mt-3 text-text-muted">{q.help}</p>
+          <p className="mt-2 text-sm text-text-muted">{q.help}</p>
         ) : null}
 
-        <div className="mt-7 space-y-3">
+        <div className="mt-5 space-y-2.5">
           {q.options.map((o) => {
             const checked = answers[q.key] === o.value;
             return (
               <label
                 key={o.value}
-                className={`flex cursor-pointer items-start gap-3.5 rounded-xl border p-4 transition-colors sm:p-5 ${
-                  checked
-                    ? "border-navy bg-paper"
-                    : "border-line bg-paper hover:border-line-strong"
+                className={`flex cursor-pointer items-center gap-3.5 rounded-xl bg-raised p-4 ring-1 transition-colors ${
+                  checked ? "ring-sky" : "ring-line hover:ring-line-strong"
                 }`}
               >
                 <input
@@ -257,36 +244,26 @@ export function Survey() {
                   value={o.value}
                   checked={checked}
                   onChange={() => choose(q.key, o.value)}
-                  className="mt-1 h-5 w-5 shrink-0 accent-pink"
+                  className="h-5 w-5 shrink-0 accent-pink"
                 />
-                <span className="text-lg leading-snug text-text">{o.label}</span>
+                <span className="leading-snug">{o.label}</span>
               </label>
             );
           })}
         </div>
       </fieldset>
 
-      {/* Some people arrive knowing exactly what they came for. Making them
-          play the quiz first would lose them. */}
-      <div className="mt-8 border-t border-line pt-6">
-        <p className="text-sm text-text-muted">
-          Saya dah tahu apa saya nak —{" "}
-          <Link
-            href="/automatik"
-            className="font-semibold text-navy underline underline-offset-4"
-          >
-            trading automatik
-          </Link>{" "}
-          atau{" "}
-          <Link
-            href="/belajar"
-            className="font-semibold text-navy underline underline-offset-4"
-          >
-            belajar trade sendiri
-          </Link>
-          .
-        </p>
-      </div>
+      {/* Some people arrive knowing exactly what they want. */}
+      <p className="mt-5 border-t border-line pt-5 text-sm text-text-muted">
+        Dah tahu?{" "}
+        <Link href="/automatik" className="font-semibold text-sky underline underline-offset-4">
+          Trading automatik
+        </Link>{" "}
+        atau{" "}
+        <Link href="/belajar" className="font-semibold text-sky underline underline-offset-4">
+          belajar sendiri
+        </Link>
+      </p>
     </div>
   );
 }

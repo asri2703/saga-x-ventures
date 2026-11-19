@@ -19,29 +19,30 @@
 --------------------------------------------------------------------------- */
 
 @theme {
+  /* App surfaces, deepest first. A trading product is read in the dark; the
+     brand's Ink Navy becomes the panel colour sitting on a deeper base. */
+  --color-base: #060d1c;
+  --color-panel: #0b1f44;
+  --color-raised: #112a55;
+  --color-line: #1c3059;
+  --color-line-strong: #2a4575;
+
   /* Brand */
   --color-navy: #0b1f44;
-  --color-navy-800: #112a55;
-  --color-navy-700: #16305f;
   --color-sky: #65b9f2;
   --color-sky-300: #9ad3f8;
   --color-pink: #ff3d9a;
   --color-pink-600: #e62a84;
-
-  /* Light surfaces */
   --color-mist: #f7f9fc;
-  --color-paper: #ffffff;
-  --color-line: #dde4f0;
-  --color-line-strong: #bfcce2;
 
-  /* Text on light */
-  --color-text: #0b1f44;
-  --color-text-muted: #4e5e7a;
-  --color-text-faint: #8694ae;
-
-  /* Text on navy */
-  --color-on-dark: #f7f9fc;
-  --color-on-dark-muted: #a9bbd6;
+  /* Text. Every pair below was checked against --color-base:
+       text        15.4:1      muted      9.9:1
+       sky          9.2:1      pink       5.9:1
+     and navy on a pink fill stays 5.0:1, which is why pink never takes
+     white type. */
+  --color-text: #f2f6fc;
+  --color-text-muted: #a9bbd6;
+  --color-text-faint: #6c7f9f;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif, sans-serif;
@@ -50,10 +51,11 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--color-base);
 }
 
 body {
-  background-color: var(--color-mist);
+  background-color: var(--color-base);
   color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

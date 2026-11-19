@@ -6,7 +6,7 @@ export default function NotFound() {
       {/* Navy, not pink: pink text on the mist background measures about
           3.1:1, under the 4.5:1 AA asks of normal text. */}
       <p className="font-mono text-sm font-semibold text-text-muted">404</p>
-      <h1 className="mt-4 font-display text-3xl font-bold text-navy sm:text-4xl">
+      <h1 className="mt-4 font-display text-3xl font-bold text-text sm:text-4xl">
         Halaman itu tiada
       </h1>
       <p className="mx-auto mt-4 max-w-md leading-relaxed text-text-muted">

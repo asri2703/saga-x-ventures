@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MotionRoot } from "@/components/motion-root";
+import { BottomNav } from "@/components/bottom-nav";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -82,14 +83,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ms-MY"
       className={`${manrope.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-mist text-text">
+      <body className="flex min-h-full flex-col bg-base text-text">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-navy focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-on-dark"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-sky focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-navy"
         >
           Terus ke kandungan
         </a>
@@ -98,6 +99,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <SiteFooter />
+        {/* Clears the fixed tab bar so the footer's last row is never trapped
+            underneath it. */}
+        <div aria-hidden className="h-[4.25rem] md:hidden" />
+        <BottomNav />
         <MotionRoot />
       </body>
     </html>

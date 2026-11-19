@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 
 export default function PrivasiPage() {
   return (
-    <Section tone="mist" className="pt-16 sm:pt-20">
+    <Section tone="base" className="pt-16 sm:pt-20">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
+        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-text sm:text-5xl">
           Privasi
         </h1>
 
         <div className="mt-10 space-y-10">
           <section>
-            <h2 className="font-display text-xl font-bold text-navy">
+            <h2 className="font-display text-xl font-bold text-text">
               Apa yang laman ini kumpul
             </h2>
             <p className="mt-3 leading-relaxed text-text-muted">
@@ -30,7 +30,7 @@ export default function PrivasiPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-bold text-navy">
+            <h2 className="font-display text-xl font-bold text-text">
               Bila awak hubungi kami
             </h2>
             <p className="mt-3 leading-relaxed text-text-muted">
@@ -41,14 +41,14 @@ export default function PrivasiPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-bold text-navy">
+            <h2 className="font-display text-xl font-bold text-text">
               Hubungi
             </h2>
             <p className="mt-3 leading-relaxed text-text-muted">
               Soalan tentang maklumat awak boleh dihantar ke{" "}
               <a
                 href={`mailto:${site.email}`}
-                className="font-semibold text-navy underline underline-offset-4"
+                className="font-semibold text-text underline underline-offset-4"
               >
                 {site.email}
               </a>

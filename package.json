@@ -9,11 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
+    "lucide-react": "^1.76.0",
     "marked": "^18.0.10",
+    "motion": "^14.14.0",
     "next": "16.3.1",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

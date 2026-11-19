@@ -74,7 +74,7 @@ export default async function ArticlePage({
             {post.readingMinutes} minit bacaan
           </p>
 
-          <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.08] text-text sm:text-5xl">
             {post.title}
           </h1>
 
@@ -101,9 +101,9 @@ export default async function ArticlePage({
       </Container>
 
       {related.length ? (
-        <Section tone="paper">
+        <Section tone="panel">
           <div className="mx-auto max-w-2xl">
-            <h2 className="font-display text-xl font-bold text-navy">
+            <h2 className="font-display text-xl font-bold text-text">
               Bacaan lain
             </h2>
             <ul className="mt-6 space-y-3">
@@ -111,9 +111,9 @@ export default async function ArticlePage({
                 <li key={p.slug}>
                   <Link
                     href={`/lounge/artikel/${p.slug}`}
-                    className="block rounded-xl border border-line bg-mist p-5 transition-colors hover:border-line-strong"
+                    className="block rounded-xl border border-line bg-base p-5 transition-colors hover:ring-line-strong"
                   >
-                    <span className="font-semibold text-navy">{p.title}</span>
+                    <span className="font-semibold text-text">{p.title}</span>
                   </Link>
                 </li>
               ))}

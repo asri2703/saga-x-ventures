@@ -15,9 +15,9 @@ export default function ArtikelPage() {
   const posts = getPosts();
 
   return (
-    <Section tone="mist" className="pt-16 sm:pt-20">
+    <Section tone="base" className="pt-16 sm:pt-20">
       <div className="mx-auto max-w-3xl">
-        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
+        <h1 className="font-display text-4xl font-extrabold leading-[1.08] text-text sm:text-5xl">
           Artikel
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-text-muted">
@@ -25,7 +25,7 @@ export default function ArtikelPage() {
         </p>
 
         {posts.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-dashed border-line-strong bg-paper p-10 text-center">
+          <div className="mt-12 rounded-2xl border border-dashed border-line-strong bg-panel p-10 text-center">
             <p className="mx-auto max-w-md leading-relaxed text-text-muted">
               Belum ada artikel diterbitkan. Yang pertama akan keluar tidak lama
               lagi.
@@ -47,14 +47,14 @@ export default function ArtikelPage() {
               <li key={post.slug}>
                 <Link
                   href={`/lounge/artikel/${post.slug}`}
-                  className="block rounded-2xl border border-line bg-paper p-7 transition-colors hover:border-line-strong"
+                  className="block rounded-2xl bg-panel ring-1 ring-line p-7 transition-colors hover:ring-line-strong"
                 >
                   <p className="text-sm text-text-faint">
                     <time dateTime={post.date}>{formatDate(post.date)}</time>
                     <span aria-hidden> · </span>
                     {post.readingMinutes} minit bacaan
                   </p>
-                  <h2 className="mt-2 font-display text-xl font-bold leading-snug text-navy">
+                  <h2 className="mt-2 font-display text-xl font-bold leading-snug text-text">
                     {post.title}
                   </h2>
                   {post.excerpt ? (
