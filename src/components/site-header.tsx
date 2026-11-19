@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { site, waLink } from "@/lib/site";
 import { ButtonAnchor, ButtonLink } from "@/components/ui";
-import { Logo } from "@/components/logo";
+import { Logo, Wordmark } from "@/components/logo";
 
 /**
  * Nav labels name the job, not the brand.
@@ -66,9 +66,7 @@ export function SiteHeader() {
             aria-label={`${site.name} — laman utama`}
           >
             <Logo className="h-8 w-8" />
-            <span className="font-display text-[15px] font-bold tracking-tight">
-              {site.name}
-            </span>
+            <Wordmark className="text-[15px]" />
           </Link>
 
           <nav aria-label="Utama" className="hidden items-center gap-1 md:flex">

@@ -228,6 +228,21 @@ Daripada brand board.
 
 Manrope untuk tajuk. Inter untuk teks badan. Kedua-dua di Google Fonts.
 
+### Logo
+
+Mark ialah dua parallelogram pada slant yang sama, dilukis terus sebagai SVG
+dalam komponen — bukan dimask daripada fail — kerana ia dua warna tetap dan
+CSS mask hanya boleh mewarna satu.
+
+Wordmark ialah teks hidup, bukan imej. Ia mewarisi `currentColor`, jadi satu
+komponen berfungsi navy atas header terang dan hampir-putih dalam footer navy,
+tanpa aset kedua, dan kekal tajam pada sebarang saiz.
+
+PNG yang dibekalkan merender warna lebih gelap daripada board — lebih kurang
+`#2AA5EF` dan `#EB0A78`. Warna board digunakan, kerana pada `#EB0A78` teks
+putih hanya mencapai 4.33:1 dan navy 3.77:1: kedua-duanya gagal AA, dan dua
+pink berbeza atas skrin nampak seperti kesilapan.
+
 ### Pembetulan kontras — wajib
 
 Teks putih atas Hot Pink ≈ **3.3:1**. Piawai WCAG AA untuk teks biasa ialah

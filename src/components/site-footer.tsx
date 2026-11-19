@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { site, waLink } from "@/lib/site";
 import { Container } from "@/components/ui";
-import { Logo } from "@/components/logo";
+import { Logo, Wordmark } from "@/components/logo";
 
 const columns = [
   {
@@ -50,9 +50,7 @@ export function SiteFooter() {
               aria-label={`${site.name} — laman utama`}
             >
               <Logo className="h-8 w-8" />
-              <span className="font-display text-[15px] font-bold tracking-tight">
-                {site.name}
-              </span>
+              <Wordmark className="text-[15px]" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed">{site.plain}</p>
             <a

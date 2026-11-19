@@ -4,7 +4,6 @@ import "./globals.css";
 import { site } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { WhatsAppFloat } from "@/components/whatsapp-float";
 import { MotionRoot } from "@/components/motion-root";
 
 const manrope = Manrope({
@@ -99,7 +98,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <SiteFooter />
-        <WhatsAppFloat />
         <MotionRoot />
       </body>
     </html>
