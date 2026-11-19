@@ -1,70 +1,53 @@
 /**
  * Central site configuration.
  *
- * >>> EDIT THIS FILE FIRST. <<<
- * Everything marked TODO is a placeholder — change it to your real details
- * and it updates everywhere on the site at once.
+ * Saga X Ventures is the parent brand. Mastery Signal and Fukyaa are the
+ * products under it; Traders Lounge is a section of this site, not a brand of
+ * its own — it has no logo, no palette and no domain. Two brand layers, not
+ * three, because a third would make the thing it is meant to fix worse.
  */
 
 export const site = {
   name: "Saga X Ventures",
-  tagline: "Marketing & development for Malaysian SMEs",
-  description:
-    "We build the website, run the ads, and fix the SEO — one team, one invoice, one person accountable. Serving small and medium businesses across Malaysia.",
+  tagline: "Beyond Trading.",
 
-  // TODO: replace with your real domain once you buy it
+  /** Plain-language line that sits under the tagline. The tagline sets tone; this one is understood. */
+  plain: "Belajar trade sendiri, atau biar sistem yang jalan. Dua jalan, satu tempat.",
+
+  description:
+    "Saga X Ventures membantu trader Malaysia pilih jalan yang betul — belajar trade sendiri dengan kursus dan signal, atau jalankan trading automatik. Jawab tiga soalan dan kami tunjuk yang mana sesuai.",
+
   url: "https://sagaxventures.com",
 
   email: "enquiry@sagaxventures.com",
   phoneDisplay: "+60 13-773 2703",
-  phoneRaw: "60137732703", // digits only, no + or spaces — used for WhatsApp links
+  phoneRaw: "60137732703",
 
-  /**
-   * Broken into parts so the LocalBusiness schema can use each field
-   * separately. A complete, consistent address is what lets Google connect
-   * this site to your Google Business Profile — the single biggest local
-   * ranking factor for an SME.
-   */
-  address: {
-    street: "136-1, Jalan Komersial Senawang, Taipan 1",
-    postcode: "70450",
-    city: "Seremban",
-    state: "Negeri Sembilan",
-    country: "Malaysia",
-  },
+  locationShort: "Negeri Sembilan, Malaysia",
 
-  /** Compact form for footers and tight spaces. */
-  locationShort: "Seremban, Negeri Sembilan",
-
-  // Leave any entry "" to hide that link everywhere.
   social: {
     facebook: "https://www.facebook.com/sagaxmedia",
     instagram: "https://www.instagram.com/sagaxmarketing",
+    youtube: "",
     linkedin: "",
   },
 
-  /**
-   * Google Business Profile.
-   *
-   * Kept separate from `social` because it does a different job: it is where
-   * reviews accumulate and it is the listing that decides whether you appear
-   * in the Seremban map pack. Linking to it from the site — and declaring it
-   * in `sameAs` — is how Google ties this domain to that listing.
-   */
-  googleBusiness: "https://share.google/rJc8CdRsPfCCpPZLY",
-
   founder: {
     name: "Asri Zulzali",
-    role: "Founder",
-    /** Lives in /public. Portrait crop works best — it renders 4:5. */
+    role: "Pengasas",
     photo: "/asri-zulzali.jpg",
   },
+
+  /**
+   * One sentence that must appear on every product page, not only the footer.
+   * Trading carries real loss; saying so plainly is both the honest thing and
+   * the thing that separates this from the hype in the same category.
+   */
+  riskLine:
+    "Trading melibatkan risiko kerugian. Prestasi lepas bukan jaminan hasil masa depan, dan awak boleh kehilangan sebahagian atau keseluruhan modal.",
 } as const;
 
-/** Single-line address — used in the footer and structured data. */
-export const fullAddress = `${site.address.street}, ${site.address.postcode} ${site.address.city}, ${site.address.state}`;
-
-/** Pre-filled WhatsApp link. Pass a custom message per page for better context. */
-export function waLink(message = "Hi Saga X Ventures, I'd like a free audit.") {
+/** Pre-filled WhatsApp link. Pass a message per page so context travels with the enquiry. */
+export function waLink(message = "Hi Saga X Ventures, saya nak tanya pasal trading.") {
   return `https://wa.me/${site.phoneRaw}?text=${encodeURIComponent(message)}`;
 }

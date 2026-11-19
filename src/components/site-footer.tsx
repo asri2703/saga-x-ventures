@@ -1,148 +1,121 @@
 import Link from "next/link";
-import { services } from "@/lib/services";
-import { fullAddress, site } from "@/lib/site";
+import { site, waLink } from "@/lib/site";
 import { Container } from "@/components/ui";
 import { Logo } from "@/components/logo";
 
-const socialLabels: Record<string, string> = {
-  facebook: "Facebook",
-  instagram: "Instagram",
-  linkedin: "LinkedIn",
-};
+const columns = [
+  {
+    title: "Jalan awak",
+    links: [
+      { href: "/mula", label: "Mula di sini" },
+      { href: "/belajar", label: "Belajar trade sendiri" },
+      { href: "/automatik", label: "Trading automatik" },
+      { href: "/signal", label: "Signal" },
+    ],
+  },
+  {
+    title: "Traders Lounge",
+    links: [
+      { href: "/lounge/video", label: "Video" },
+      { href: "/lounge/artikel", label: "Artikel" },
+      { href: "/lounge/event", label: "Event" },
+    ],
+  },
+  {
+    title: "Syarikat",
+    links: [
+      { href: "/tentang", label: "Tentang" },
+      { href: "/hubungi", label: "Hubungi" },
+      { href: "/risiko", label: "Penzahiran risiko" },
+      { href: "/privasi", label: "Privasi" },
+    ],
+  },
+];
 
 export function SiteFooter() {
-  const activeSocial = Object.entries(site.social).filter(([, url]) => url);
-  const year = 2026; // Static: avoids a hydration mismatch and needs no client JS.
+  const socials = [
+    { href: site.social.facebook, label: "Facebook" },
+    { href: site.social.instagram, label: "Instagram" },
+    { href: site.social.youtube, label: "YouTube" },
+  ].filter((s) => s.href);
 
   return (
-    <footer className="border-t border-line bg-surface">
-      <Container className="py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5">
+    <footer className="bg-navy text-on-dark-muted">
+      <Container className="py-16 sm:py-20">
+        <div className="grid gap-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+          <div>
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 text-on-dark"
+              aria-label={`${site.name} — laman utama`}
+            >
               <Logo className="h-8 w-8" />
-              <span className="text-[15px] font-semibold tracking-tight text-body">
+              <span className="font-display text-[15px] font-bold tracking-tight">
                 {site.name}
               </span>
             </Link>
-            <p className="mt-4 max-w-sm leading-relaxed text-muted">
-              {site.description}
-            </p>
-            {activeSocial.length > 0 ? (
-              <ul className="mt-6 flex gap-4">
-                {activeSocial.map(([key, url]) => (
-                  <li key={key}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-muted transition-colors hover:text-accent"
+            <p className="mt-4 max-w-xs text-sm leading-relaxed">{site.plain}</p>
+            <a
+              href={waLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-block text-sm font-semibold text-sky underline decoration-sky/40 underline-offset-4 hover:decoration-sky"
+            >
+              {site.phoneDisplay}
+            </a>
+          </div>
+
+          {columns.map((col) => (
+            <div key={col.title}>
+              <h2 className="font-display text-sm font-bold text-on-dark">
+                {col.title}
+              </h2>
+              <ul className="mt-4 space-y-2.5">
+                {col.links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="text-sm transition-colors hover:text-on-dark"
                     >
-                      {socialLabels[key] ?? key}
-                    </a>
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
-            ) : null}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          <div>
-            <h2 className="text-sm font-semibold text-body">Services</h2>
-            <ul className="mt-4 space-y-3">
-              {services.map((s) => (
-                <li key={s.slug}>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    className="text-sm text-muted transition-colors hover:text-accent"
+        {/* The risk line sits above the copyright, at full width, rather than
+            being folded into the small print beside it. It is the most
+            consequential sentence on the site. */}
+        <p className="mt-14 border-t border-white/10 pt-8 text-sm leading-relaxed text-on-dark-muted">
+          {site.riskLine} Saga X Ventures menjual perisian, signal dan
+          pendidikan. Kami tidak menguruskan dana pelanggan dan tidak memegang
+          wang awak — setiap akaun dagangan dibuka dan dimiliki oleh awak
+          sendiri.
+        </p>
+
+        <div className="mt-8 flex flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} {site.name}. {site.locationShort}.
+          </p>
+          {socials.length ? (
+            <ul className="flex gap-5">
+              {socials.map((s) => (
+                <li key={s.label}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-on-dark"
                   >
-                    {s.name}
-                  </Link>
+                    {s.label}
+                  </a>
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-body">Company</h2>
-            <ul className="mt-4 space-y-3">
-              <li>
-                <Link
-                  href="/about"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  Insights
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#process"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  How we work
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-
-            <h2 className="mt-8 text-sm font-semibold text-body">Get in touch</h2>
-            <ul className="mt-4 space-y-3">
-              <li>
-                <a
-                  href={`mailto:${site.email}`}
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  {site.email}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`tel:+${site.phoneRaw}`}
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  {site.phoneDisplay}
-                </a>
-              </li>
-              <li className="text-sm leading-relaxed text-faint">
-                {/* Full address in the footer on every page — a consistent
-                    NAP (name, address, phone) across the site is what local
-                    SEO is built on. */}
-                <address className="not-italic">{fullAddress}</address>
-              </li>
-              {site.googleBusiness ? (
-                <li>
-                  <a
-                    href={site.googleBusiness}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted transition-colors hover:text-accent"
-                  >
-                    Find us on Google
-                  </a>
-                </li>
-              ) : null}
-            </ul>
-          </div>
-        </div>
-
-        <div className="mt-14 border-t border-line pt-8">
-          <p className="text-sm text-faint">
-            © {year} {site.name}. All rights reserved.
-          </p>
+          ) : null}
         </div>
       </Container>
     </footer>

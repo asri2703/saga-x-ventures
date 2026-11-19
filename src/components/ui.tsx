@@ -16,79 +16,94 @@ export function Container({
   );
 }
 
-/** Vertical rhythm wrapper. `tone` picks the background band. */
+/**
+ * Vertical rhythm wrapper. `tone` picks the band.
+ *
+ * Three bands only: the mist page, a white card-like band for contrast, and
+ * the navy band that carries the brand. Navy flips the text colours, so every
+ * child inside it inherits readable defaults without each one re-stating them.
+ */
 export function Section({
   children,
   id,
-  tone = "ink",
+  tone = "mist",
   className = "",
 }: {
   children: ReactNode;
   id?: string;
-  tone?: "ink" | "surface";
+  tone?: "mist" | "paper" | "navy";
   className?: string;
 }) {
-  const bg = tone === "surface" ? "bg-surface" : "bg-ink";
+  const bands = {
+    mist: "bg-mist text-text",
+    paper: "bg-paper text-text border-y border-line",
+    navy: "bg-navy text-on-dark",
+  };
   return (
     <section
       id={id}
-      className={`${bg} scroll-mt-20 border-t border-line/60 py-20 sm:py-28 ${className}`}
+      className={`${bands[tone]} scroll-mt-20 py-20 sm:py-28 ${className}`}
     >
       <Container>{children}</Container>
     </section>
   );
 }
 
-/** Small uppercase label that sits above a heading. */
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <p className="mb-4 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-      <span aria-hidden className="h-px w-6 bg-accent/60" />
-      {children}
-    </p>
-  );
-}
-
 export function SectionHeading({
-  eyebrow,
   title,
   lead,
   align = "left",
+  onDark = false,
 }: {
-  eyebrow?: string;
   title: ReactNode;
   lead?: ReactNode;
   align?: "left" | "center";
+  onDark?: boolean;
 }) {
   const centered = align === "center";
   return (
-    // Every section heading reveals on scroll — one attribute, picked up by
-    // the single observer in MotionRoot.
-    <div data-reveal className={`max-w-2xl ${centered ? "mx-auto text-center" : ""}`}>
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-      <h2 className="text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-4xl">
+    <div className={`max-w-2xl ${centered ? "mx-auto text-center" : ""}`}>
+      <h2
+        className={`font-display text-3xl font-bold leading-[1.12] sm:text-4xl ${
+          onDark ? "text-on-dark" : "text-text"
+        }`}
+      >
         {title}
       </h2>
       {lead ? (
-        <p className="mt-5 text-lg leading-relaxed text-muted">{lead}</p>
+        <p
+          className={`mt-5 text-lg leading-relaxed ${
+            onDark ? "text-on-dark-muted" : "text-text-muted"
+          }`}
+        >
+          {lead}
+        </p>
       ) : null}
     </div>
   );
 }
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60";
 
 const buttonSizes = {
-  md: "px-5 py-2.5",
+  md: "px-5 py-2.5 text-sm",
   lg: "px-7 py-3.5 text-base",
 };
 
+/**
+ * Hot Pink never carries white text.
+ *
+ * White on #FF3D9A measures about 3.3:1, under the 4.5:1 that WCAG AA asks of
+ * normal text, so every pink surface here takes a navy label instead — about
+ * 5.0:1, and sharper to look at besides.
+ */
 const buttonVariants = {
-  primary: "bg-accent text-ink hover:bg-accent-hot",
-  outline:
-    "border border-line-bright text-body hover:border-accent hover:text-accent",
-  ghost: "text-muted hover:text-body",
+  brand: "bg-pink text-navy hover:bg-pink-600 hover:text-on-dark",
+  primary: "bg-navy text-on-dark hover:bg-navy-700",
+  outline: "border border-line-strong text-text hover:border-navy hover:bg-paper",
+  light: "bg-mist text-navy hover:bg-white",
+  ghost: "text-text-muted hover:text-text",
 };
 
 type ButtonStyle = {
@@ -97,7 +112,7 @@ type ButtonStyle = {
 };
 
 export function ButtonLink({
-  variant = "primary",
+  variant = "brand",
   size = "md",
   className = "",
   ...props
@@ -110,9 +125,9 @@ export function ButtonLink({
   );
 }
 
-/** For external destinations (WhatsApp, mail) where Link's prefetch is pointless. */
+/** For external destinations (WhatsApp, product domains) where prefetch is pointless. */
 export function ButtonAnchor({
-  variant = "primary",
+  variant = "brand",
   size = "md",
   className = "",
   ...props
@@ -126,7 +141,7 @@ export function ButtonAnchor({
 }
 
 export function Button({
-  variant = "primary",
+  variant = "brand",
   size = "md",
   className = "",
   ...props
@@ -139,7 +154,6 @@ export function Button({
   );
 }
 
-/** Bordered card used for services, process steps, and trust points. */
 export function Card({
   children,
   className = "",
@@ -149,29 +163,49 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-line bg-elevated/60 p-6 transition-colors duration-300 hover:border-line-bright sm:p-7 ${className}`}
+      className={`rounded-2xl border border-line bg-paper p-6 sm:p-7 ${className}`}
     >
       {children}
     </div>
   );
 }
 
-export function CheckItem({ children }: { children: ReactNode }) {
+export function CheckItem({
+  children,
+  tone = "yes",
+}: {
+  children: ReactNode;
+  tone?: "yes" | "no";
+}) {
   return (
-    <li className="flex gap-3 text-muted">
+    <li className="flex gap-3 text-text-muted">
       <svg
         aria-hidden
         viewBox="0 0 20 20"
-        className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+        className={`mt-0.5 h-5 w-5 shrink-0 ${tone === "yes" ? "text-navy" : "text-text-faint"}`}
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="m4 10.5 4 4 8-9" />
+        {tone === "yes" ? <path d="m4 10.5 4 4 8-9" /> : <path d="M5 5l10 10M15 5L5 15" />}
       </svg>
       <span className="leading-relaxed">{children}</span>
     </li>
+  );
+}
+
+/**
+ * Risk notice. Appears on every product surface rather than once in the footer,
+ * because a visitor deciding on one product should not have to go looking for
+ * what it can cost them.
+ */
+export function RiskNote({ children }: { children: ReactNode }) {
+  return (
+    <p className="rounded-xl border border-line bg-paper px-4 py-3 text-sm leading-relaxed text-text-muted">
+      <span className="font-semibold text-text">Risiko: </span>
+      {children}
+    </p>
   );
 }

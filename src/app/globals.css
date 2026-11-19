@@ -1,41 +1,51 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens
+   Design tokens — Saga X Ventures
    ---------------------------------------------------------------------------
-   Deliberately dark. Two reasons:
-   1. SMEs have seen a hundred identical bright-blue agency templates. This
-      does not look like those.
-   2. This site is the portfolio. It has to look built, not assembled.
+   Taken from the brand board. Light-first: Mist White pages with Ink Navy
+   bands, Hot Pink reserved for action and Sky Blue for accents that only ever
+   sit on navy.
 
-   To rebrand, change the accent values below — no component references a raw
-   colour anywhere else in the codebase.
+   Contrast was checked rather than assumed, and two results shape the system:
+
+     white on Hot Pink  = 3.3:1  — fails AA, so pink never carries white text
+     navy  on Hot Pink  = 5.0:1  — passes, so pink buttons use navy labels
+     Sky Blue on Mist   = 2.0:1  — fails badly, so sky is a dark-band colour only
+     Sky Blue on Navy   = 7.7:1  — passes comfortably
+
+   Hence: pink is a fill, never small text on light. Sky is for navy sections.
+   On light surfaces, navy carries the emphasis.
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* Surfaces, darkest to lightest. Cooled slightly toward blue so the dark
-     UI reads as part of the brand rather than a neutral grey it sits on. */
-  --color-ink: #070910;
-  --color-surface: #0e1320;
-  --color-elevated: #141b2b;
-  --color-line: #1f2839;
-  --color-line-bright: #2e3a51;
+  /* Brand */
+  --color-navy: #0b1f44;
+  --color-navy-800: #112a55;
+  --color-navy-700: #16305f;
+  --color-sky: #65b9f2;
+  --color-sky-300: #9ad3f8;
+  --color-pink: #ff3d9a;
+  --color-pink-600: #e62a84;
 
-  /* Text */
-  --color-body: #f2f5fa;
-  --color-muted: #98a3b8;
-  --color-faint: #68738a;
+  /* Light surfaces */
+  --color-mist: #f7f9fc;
+  --color-paper: #ffffff;
+  --color-line: #dde4f0;
+  --color-line-strong: #bfcce2;
 
-  /* Accent — derived from the Saga X brand blue (#004aad).
-     The brand blue itself is too dark to read on a near-black background, so
-     interactive elements use a brightened tint of it and reserve the true
-     brand colour for solid fills on light surfaces. */
-  --color-accent: #2b7fff; /* 5.3:1 on --color-ink — passes AA */
-  --color-accent-hot: #5f9dff;
-  --color-accent-deep: #004aad; /* the actual brand blue */
+  /* Text on light */
+  --color-text: #0b1f44;
+  --color-text-muted: #4e5e7a;
+  --color-text-faint: #8694ae;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Text on navy */
+  --color-on-dark: #f7f9fc;
+  --color-on-dark-muted: #a9bbd6;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
@@ -43,10 +53,18 @@ html {
 }
 
 body {
-  background-color: var(--color-ink);
-  color: var(--color-body);
+  background-color: var(--color-mist);
+  color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.021em;
 }
 
 /* Respect users who get motion sickness — also an accessibility point real
@@ -66,21 +84,21 @@ body {
 /* Visible keyboard focus. Removing this is the most common a11y failure on
    agency sites; keeping it is free credibility. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-navy);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-ink);
+  background: var(--color-navy);
+  color: var(--color-mist);
 }
 
 /* Subtle grid texture used behind hero sections. */
 .bg-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(11, 31, 68, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 31, 68, 0.055) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
@@ -190,7 +208,7 @@ body {
    to sit on this palette — at which point it is only adding weight.
 --------------------------------------------------------------------------- */
 .prose {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: 1.0625rem;
   line-height: 1.75;
 }
@@ -202,7 +220,7 @@ body {
 .prose h2 {
   margin-top: 2.75em;
   margin-bottom: -0.4em;
-  color: var(--color-body);
+  color: var(--color-text);
   font-size: 1.6rem;
   font-weight: 600;
   line-height: 1.3;
@@ -213,7 +231,7 @@ body {
 .prose h3 {
   margin-top: 2em;
   margin-bottom: -0.5em;
-  color: var(--color-body);
+  color: var(--color-text);
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.4;
@@ -221,19 +239,19 @@ body {
 }
 
 .prose strong {
-  color: var(--color-body);
+  color: var(--color-text);
   font-weight: 600;
 }
 
 .prose a {
-  color: var(--color-accent);
+  color: var(--color-navy);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
 }
 
 .prose a:hover {
-  color: var(--color-accent-hot);
+  color: var(--color-pink-600);
 }
 
 .prose ul,
@@ -255,21 +273,22 @@ body {
 }
 
 .prose li::marker {
-  color: var(--color-accent);
+  color: var(--color-pink);
 }
 
 .prose blockquote {
-  border-left: 2px solid var(--color-accent);
+  border-left: 2px solid var(--color-pink);
   padding-left: 1.25em;
-  color: var(--color-body);
+  color: var(--color-text);
   font-style: italic;
 }
 
 .prose code {
   border-radius: 0.35em;
-  background: var(--color-elevated);
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
   padding: 0.15em 0.4em;
-  color: var(--color-body);
+  color: var(--color-text);
   font-family: var(--font-mono);
   font-size: 0.9em;
 }
@@ -278,7 +297,7 @@ body {
   overflow-x: auto;
   border: 1px solid var(--color-line);
   border-radius: 0.9em;
-  background: var(--color-surface);
+  background: var(--color-paper);
   padding: 1.1em 1.3em;
 }
 
@@ -314,7 +333,7 @@ body {
 }
 
 .prose th {
-  color: var(--color-body);
+  color: var(--color-text);
   font-weight: 600;
 }
 

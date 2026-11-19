@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope, Inter } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
@@ -7,39 +7,38 @@ import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppFloat } from "@/components/whatsapp-float";
 import { MotionRoot } from "@/components/motion-root";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  weight: ["600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    // Every page sets its own title; this template appends the brand.
     default: `${site.name} — ${site.tagline}`,
     template: `%s | ${site.name}`,
   },
   description: site.description,
-  // Local terms first, deliberately. "Marketing agency Seremban" is winnable
-  // within months; "marketing agency Malaysia" is a years-long fight against
-  // established agencies. Rank locally, then widen.
+  // Malay first. These are the words the buyer actually types; the brand looks
+  // international, but nobody searches for it in English here.
   keywords: [
-    "marketing agency Seremban",
-    "digital marketing Negeri Sembilan",
-    "web design Seremban",
-    "Google Ads agency Seremban",
-    "SEO Seremban",
-    "web development Malaysia",
-    "digital marketing for SME Malaysia",
+    "belajar trading Malaysia",
+    "kursus trading",
+    "robot trading",
+    "trading automatik",
+    "signal forex Malaysia",
+    "kelas trading online",
+    "EA forex Malaysia",
   ],
   openGraph: {
     type: "website",
-    locale: "en_MY",
+    locale: "ms_MY",
     url: site.url,
     siteName: site.name,
     title: `${site.name} — ${site.tagline}`,
@@ -54,57 +53,46 @@ export const metadata: Metadata = {
 };
 
 /**
- * LocalBusiness structured data. This is what lets Google show your business
- * details in search — worth having from day one, and it demonstrates the SEO
- * work you sell.
+ * Organization rather than LocalBusiness.
+ *
+ * The previous build declared a street address and a Google Business Profile.
+ * Both are gone — the office is closed and the listing retired — and leaving
+ * them in structured data would be telling Google something untrue about a
+ * place that no longer trades. Organization describes a business that exists
+ * without claiming a counter you can walk into.
  */
 const orgSchema = {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
+  "@type": "Organization",
   name: site.name,
+  slogan: site.tagline,
   description: site.description,
   url: site.url,
   email: site.email,
   telephone: `+${site.phoneRaw}`,
   areaServed: { "@type": "Country", name: "Malaysia" },
-  /**
-   * sameAs is how you tell Google that this domain and these profiles are one
-   * business rather than several. It is the strongest signal available for
-   * linking a site to its Business Profile.
-   */
-  sameAs: [
-    site.googleBusiness,
-    site.social.facebook,
-    site.social.instagram,
-    site.social.linkedin,
-  ].filter(Boolean),
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: site.address.street,
-    postalCode: site.address.postcode,
-    addressLocality: site.address.city,
-    addressRegion: site.address.state,
-    addressCountry: "MY",
-  },
+  founder: { "@type": "Person", name: site.founder.name },
+  sameAs: [site.social.facebook, site.social.instagram, site.social.youtube].filter(
+    Boolean,
+  ),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en-MY"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="ms-MY"
+      className={`${manrope.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-ink text-body">
+      <body className="flex min-h-full flex-col bg-mist text-text">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
-        {/* Keyboard users should be able to jump past the nav. */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-navy focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-on-dark"
         >
-          Skip to content
+          Terus ke kandungan
         </a>
         <SiteHeader />
         <main id="main" className="flex-1">
