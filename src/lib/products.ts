@@ -75,8 +75,12 @@ export const products: Product[] = [
       { label: "Take out membership", outbound: "mastery-membership" },
     ],
     requirement: "Deposit sized to the package you choose",
-    href: "/go/mastery-broker",
-    external: true,
+    // Mastery Signal has a page here now. Sending someone straight to a
+    // broker signup they cannot complete — it needs a funded account before
+    // membership means anything — produced dead registrations. The page
+    // explains the order first, then hands over the same links.
+    href: "/mastery-signal",
+    external: false,
   },
   {
     key: "fukyaa",

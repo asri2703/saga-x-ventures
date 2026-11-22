@@ -12,6 +12,7 @@ test("the sitemap lists the trading pages", () => {
   expect(paths()).toEqual(
     expect.arrayContaining([
       "",
+      "/mastery-signal",
       "/coaching",
       "/events",
       "/blog",

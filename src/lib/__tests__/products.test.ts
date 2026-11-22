@@ -30,8 +30,17 @@ test("each external product's first action points at a real outbound key", () =>
     const key = p.href.replace("/go/", "");
     expect(Object.keys(outbound), `${p.key} href`).toContain(key);
   }
-  expect(getProduct("mastery-signal")!.href).toBe("/go/mastery-broker");
   expect(getProduct("fukyaa")!.href).toBe("/go/fukyaa-broker");
+});
+
+test("a product with a page on this site links to the page, not past it", () => {
+  // Both external products need a funded broker account before the product
+  // itself does anything. Dropping someone on a signup form without saying
+  // so produces registrations that go nowhere.
+  const mastery = getProduct("mastery-signal")!;
+  expect(mastery.external).toBe(false);
+  expect(mastery.href).toBe("/mastery-signal");
+  expect(mastery.steps.length).toBeGreaterThan(1);
 });
 
 test("every step that links out names a real outbound key", () => {
