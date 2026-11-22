@@ -4,14 +4,7 @@ import { fullAddress, site } from "@/lib/site";
 import { Container } from "@/components/ui";
 import { Logo } from "@/components/logo";
 
-const socialLabels: Record<string, string> = {
-  facebook: "Facebook",
-  instagram: "Instagram",
-  linkedin: "LinkedIn",
-};
-
 export function SiteFooter() {
-  const activeSocial = Object.entries(site.social).filter(([, url]) => url);
   const year = 2026; // Static: avoids a hydration mismatch and needs no client JS.
 
   return (
@@ -28,22 +21,6 @@ export function SiteFooter() {
             <p className="mt-4 max-w-sm leading-relaxed text-muted">
               {site.description}
             </p>
-            {activeSocial.length > 0 ? (
-              <ul className="mt-6 flex gap-4">
-                {activeSocial.map(([key, url]) => (
-                  <li key={key}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-muted transition-colors hover:text-accent"
-                    >
-                      {socialLabels[key] ?? key}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
           </div>
 
           <div>
@@ -123,18 +100,6 @@ export function SiteFooter() {
                     SEO is built on. */}
                 <address className="not-italic">{fullAddress}</address>
               </li>
-              {site.googleBusiness ? (
-                <li>
-                  <a
-                    href={site.googleBusiness}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted transition-colors hover:text-accent"
-                  >
-                    Find us on Google
-                  </a>
-                </li>
-              ) : null}
             </ul>
           </div>
         </div>

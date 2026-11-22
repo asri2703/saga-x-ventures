@@ -1,30 +1,22 @@
 /**
  * Central site configuration.
  *
- * >>> EDIT THIS FILE FIRST. <<<
- * Everything marked TODO is a placeholder — change it to your real details
- * and it updates everywhere on the site at once.
+ * Everything the business says about itself lives here, so it changes in one
+ * place. Pages read from this; they do not restate it.
  */
 
 export const site = {
   name: "Saga X Ventures",
-  tagline: "Marketing & development for Malaysian SMEs",
+  tagline: "Signals, automation and one-to-one coaching for traders",
   description:
-    "We build the website, run the ads, and fix the SEO — one team, one invoice, one person accountable. Serving small and medium businesses across Malaysia.",
+    "Asri Zulzali's trading practice. Signals for traders who can already read a chart, automated trading for those who cannot, and one-to-one coaching for anyone who wants to learn. Serving Malaysia and Indonesia.",
 
-  // TODO: replace with your real domain once you buy it
   url: "https://sagaxventures.com",
 
   email: "enquiry@sagaxventures.com",
   phoneDisplay: "+60 13-773 2703",
-  phoneRaw: "60137732703", // digits only, no + or spaces — used for WhatsApp links
+  phoneRaw: "60137732703", // digits only — used for WhatsApp links
 
-  /**
-   * Broken into parts so the LocalBusiness schema can use each field
-   * separately. A complete, consistent address is what lets Google connect
-   * this site to your Google Business Profile — the single biggest local
-   * ranking factor for an SME.
-   */
   address: {
     street: "136-1, Jalan Komersial Senawang, Taipan 1",
     postcode: "70450",
@@ -36,28 +28,27 @@ export const site = {
   /** Compact form for footers and tight spaces. */
   locationShort: "Seremban, Negeri Sembilan",
 
-  // Leave any entry "" to hide that link everywhere.
-  social: {
-    facebook: "https://www.facebook.com/sagaxmedia",
-    instagram: "https://www.instagram.com/sagaxmarketing",
-    linkedin: "",
-  },
-
-  /**
-   * Google Business Profile.
-   *
-   * Kept separate from `social` because it does a different job: it is where
-   * reviews accumulate and it is the listing that decides whether you appear
-   * in the Seremban map pack. Linking to it from the site — and declaring it
-   * in `sameAs` — is how Google ties this domain to that listing.
-   */
-  googleBusiness: "https://share.google/rJc8CdRsPfCCpPZLY",
-
   founder: {
     name: "Asri Zulzali",
     role: "Founder",
     /** Lives in /public. Portrait crop works best — it renders 4:5. */
     photo: "/asri-zulzali.jpg",
+
+    /**
+     * These two numbers carry the site's entire credibility claim, so read
+     * the rule before using them anywhere.
+     *
+     * `tradersGuided` is a CAREER TOTAL across `yearsExperience` years. It is
+     * not a current member count of Mastery Signal or of anything else, it is
+     * not verifiable from any database, and copy must never let a reader take
+     * it that way. Write "more than 1,200 traders over twelve years", never
+     * "1,200 members" or "1,200 active traders".
+     *
+     * There are no performance claims on this site — no win rates, no profit
+     * figures, no guarantees. A test enforces this; see the claims guard.
+     */
+    yearsExperience: 12,
+    tradersGuided: 1200,
   },
 } as const;
 
@@ -65,6 +56,6 @@ export const site = {
 export const fullAddress = `${site.address.street}, ${site.address.postcode} ${site.address.city}, ${site.address.state}`;
 
 /** Pre-filled WhatsApp link. Pass a custom message per page for better context. */
-export function waLink(message = "Hi Saga X Ventures, I'd like a free audit.") {
+export function waLink(message = "Hi Saga X Ventures, I'd like to ask about trading.") {
   return `https://wa.me/${site.phoneRaw}?text=${encodeURIComponent(message)}`;
 }

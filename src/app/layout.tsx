@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
@@ -7,14 +7,21 @@ import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppFloat } from "@/components/whatsapp-float";
 import { MotionRoot } from "@/components/motion-root";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * One family for the whole site.
+ *
+ * The `wdth` axis is requested explicitly — by default Next only ships the
+ * weight axis to keep the file small. Width is the typographic device here:
+ * display type is this same font at a wider cut, not a second typeface. That
+ * is a deliberate avoidance of the cream-background-plus-high-contrast-serif
+ * combination that every generated page currently uses.
+ *
+ * Archivo also carries tabular figures, which matter wherever prices line up.
+ */
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -68,16 +75,11 @@ const orgSchema = {
   telephone: `+${site.phoneRaw}`,
   areaServed: { "@type": "Country", name: "Malaysia" },
   /**
-   * sameAs is how you tell Google that this domain and these profiles are one
-   * business rather than several. It is the strongest signal available for
-   * linking a site to its Business Profile.
+   * No `sameAs`. The agency-era Facebook and Instagram handles were removed
+   * rather than left declaring the old business as this one, and the trading
+   * accounts do not exist yet. Declaring nothing is correct; declaring the
+   * wrong profiles would tell Google this domain is the marketing agency.
    */
-  sameAs: [
-    site.googleBusiness,
-    site.social.facebook,
-    site.social.instagram,
-    site.social.linkedin,
-  ].filter(Boolean),
   address: {
     "@type": "PostalAddress",
     streetAddress: site.address.street,
@@ -92,7 +94,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-MY"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${archivo.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-ink text-body">
         <script

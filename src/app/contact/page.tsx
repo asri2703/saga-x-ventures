@@ -108,19 +108,6 @@ export default function ContactPage() {
                   <p className="text-faint">Serving</p>
                   <p className="text-body">SMEs across Malaysia</p>
                 </li>
-                {site.googleBusiness ? (
-                  <li>
-                    <p className="text-faint">On Google</p>
-                    <a
-                      href={site.googleBusiness}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-semibold text-accent hover:underline"
-                    >
-                      View our Business Profile
-                    </a>
-                  </li>
-                ) : null}
               </ul>
             </Card>
 

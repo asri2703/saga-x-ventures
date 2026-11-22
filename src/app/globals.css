@@ -1,41 +1,71 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens
+   Design tokens — the marked-up chart
    ---------------------------------------------------------------------------
-   Deliberately dark. Two reasons:
-   1. SMEs have seen a hundred identical bright-blue agency templates. This
-      does not look like those.
-   2. This site is the portfolio. It has to look built, not assembled.
+   A trader's working document is a chart with annotations: zones boxed,
+   levels ruled, entries marked. That is this site's visual language.
 
-   To rebrand, change the accent values below — no component references a raw
-   colour anywhere else in the codebase.
+     Vanilla (60%)  the paper
+     Pine    (30%)  the ink — every chart line and every word
+     Ruby    (10%)  the mark the teacher makes
+
+   Ruby has one job and one rule: it marks the single thing to do next, once
+   per screen. It is never used for running text, because it measures ~3.5:1
+   against the paper and fails AA for body copy. Pine on Vanilla is ~9.9:1 and
+   is the default pairing everywhere.
+
+   Why so quiet: the competition is dark dashboards, neon green and profit
+   screenshots. Looking calm is the differentiator.
+
+   The `--color-ink`/`surface`/`body`/`accent` names below are kept as aliases
+   so components written against the old dark theme keep compiling while they
+   are rewritten. New work uses the real names.
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* Surfaces, darkest to lightest. Cooled slightly toward blue so the dark
-     UI reads as part of the brand rather than a neutral grey it sits on. */
-  --color-ink: #070910;
-  --color-surface: #0e1320;
-  --color-elevated: #141b2b;
-  --color-line: #1f2839;
-  --color-line-bright: #2e3a51;
+  /* The palette */
+  --color-paper: #efe6d3; /* Vanilla Line */
+  --color-paper-raised: #f6f0e2;
+  --color-paper-sunk: #e4d9c1;
+  --color-pine: #163a30; /* Pine Lacquer */
+  --color-pine-soft: #3e5d53;
+  --color-pine-faint: #566e65;
+  --color-ruby: #f0283c; /* Ruby Flare */
+  --color-ruby-deep: #c81f30;
 
-  /* Text */
-  --color-body: #f2f5fa;
-  --color-muted: #98a3b8;
-  --color-faint: #68738a;
+  /* Rules and borders — pine at low strength, never pure grey */
+  --color-rule: #d9cfb8;
+  --color-rule-strong: #c4b89c;
 
-  /* Accent — derived from the Saga X brand blue (#004aad).
-     The brand blue itself is too dark to read on a near-black background, so
-     interactive elements use a brightened tint of it and reserve the true
-     brand colour for solid fills on light surfaces. */
-  --color-accent: #2b7fff; /* 5.3:1 on --color-ink — passes AA */
-  --color-accent-hot: #5f9dff;
-  --color-accent-deep: #004aad; /* the actual brand blue */
+  /* Aliases for not-yet-rewritten components */
+  --color-ink: var(--color-paper);
+  --color-surface: var(--color-paper-raised);
+  --color-elevated: var(--color-paper-sunk);
+  --color-line: var(--color-rule);
+  --color-line-bright: var(--color-rule-strong);
+  --color-body: var(--color-pine);
+  --color-muted: var(--color-pine-soft);
+  --color-faint: var(--color-pine-faint);
+  --color-accent: var(--color-ruby);
+  --color-accent-hot: var(--color-ruby-deep);
+  --color-accent-deep: var(--color-pine);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* One family, two widths. The contrast is width, not serif against sans —
+     a high-contrast serif on a cream background is the commonest tell of a
+     generated page, and this palette is already cream. */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Display type is the same family at a wider cut — Archivo is loaded with its
+   `wdth` axis, so this costs no extra download. Width is the typographic
+   device on this site; there is no second typeface. */
+.display {
+  font-family: var(--font-display);
+  font-stretch: 115%;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 html {
@@ -43,14 +73,17 @@ html {
 }
 
 body {
-  background-color: var(--color-ink);
-  color: var(--color-body);
+  background-color: var(--color-paper);
+  color: var(--color-pine);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Respect users who get motion sickness — also an accessibility point real
-   audits check for. */
+/* Prices and any figure in a table line up only with tabular figures. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -63,134 +96,120 @@ body {
   }
 }
 
-/* Visible keyboard focus. Removing this is the most common a11y failure on
-   agency sites; keeping it is free credibility. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-ruby);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-ink);
-}
-
-/* Subtle grid texture used behind hero sections. */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-}
-
-/* Fades the grid out toward the edges so it reads as texture, not a table. */
-.bg-grid-fade {
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 35%, transparent 100%);
-  -webkit-mask-image: radial-gradient(
-    ellipse 90% 70% at 50% 0%,
-    #000 35%,
-    transparent 100%
-  );
+  background: var(--color-ruby);
+  color: var(--color-paper);
 }
 
 /* ---------------------------------------------------------------------------
-   Motion
+   Chart grid
    ---------------------------------------------------------------------------
-   Everything below animates only `transform`, `opacity`, and `filter` — the
-   properties a browser can composite on the GPU without recalculating layout.
-   Nothing here triggers reflow, so none of it costs us the speed we sell.
+   Drafting language belongs to the hero diagram and nowhere else. Hairline
+   rules spread across every section is the broadsheet default and reads as
+   templated, so this is deliberately scoped to one zone.
 --------------------------------------------------------------------------- */
-
-/* Slow, uneven drift for the blurred colour orbs behind hero sections. Two
-   variants at different durations so they never fall into visible lockstep. */
-@keyframes drift-a {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(5%, -6%, 0) scale(1.15);
-  }
+.bg-chart-grid {
+  background-image:
+    linear-gradient(to right, rgba(22, 58, 48, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(22, 58, 48, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
-@keyframes drift-b {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1.1);
-  }
-  50% {
-    transform: translate3d(-7%, 5%, 0) scale(0.92);
-  }
-}
+/* ---------------------------------------------------------------------------
+   The hero draw
+   ---------------------------------------------------------------------------
+   One orchestrated moment on load: the price path strokes itself, the zones
+   fade in, then a single ruby level lands. It runs once and stops.
 
-.animate-drift-a {
-  animation: drift-a 22s ease-in-out infinite;
-  will-change: transform;
-}
-
-.animate-drift-b {
-  animation: drift-b 28s ease-in-out infinite;
-  will-change: transform;
-}
-
-/* Expanding ring on the "founding clients" status dot — signals live activity
-   rather than a static badge. */
-@keyframes ping-soft {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
+   Everything is behind `prefers-reduced-motion: no-preference`, so a visitor
+   who asked for less movement gets the finished diagram immediately rather
+   than a faster animation of it.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .draw-path {
+    stroke-dasharray: var(--draw-length, 1200);
+    stroke-dashoffset: var(--draw-length, 1200);
+    animation: draw-in 1100ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
-  70%,
-  100% {
-    transform: scale(2.6);
+
+  .draw-zone {
     opacity: 0;
+    animation: zone-in 420ms ease-out forwards;
+    animation-delay: 900ms;
+  }
+
+  .draw-level {
+    opacity: 0;
+    transform: translateX(-8px);
+    animation: level-in 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 1250ms;
   }
 }
 
-.animate-ping-soft {
-  animation: ping-soft 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-/* A light sweep that crosses a surface once on hover. */
-@keyframes sheen {
-  from {
-    transform: translateX(-120%) skewX(-18deg);
-  }
+@keyframes draw-in {
   to {
-    transform: translateX(320%) skewX(-18deg);
+    stroke-dashoffset: 0;
   }
 }
 
-.group:hover .animate-sheen {
-  animation: sheen 0.9s ease-out;
+@keyframes zone-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes level-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------
    Scroll reveal
    ---------------------------------------------------------------------------
-   Elements marked `data-reveal` fade and rise as they enter the viewport.
+   Two safeguards worth keeping from the previous build:
 
-   Two deliberate safeguards:
+   1. The hidden starting state lives behind `.motion-ready`, a class only
+      JavaScript adds. If a script fails or is blocked, the selector never
+      matches and everything renders plainly visible. Content is never hostage
+      to an animation.
 
-   1. The hidden starting state lives behind `.motion-ready`, a class that only
-      JavaScript adds. If a script fails, is blocked, or has not run yet, the
-      selector never matches and every element renders plainly visible. Content
-      is never hostage to an animation.
-
-   2. The whole block sits inside `prefers-reduced-motion: no-preference`, so a
-      visitor who has asked their system for less movement gets a static page —
-      not a faster version of the same animation.
+   2. The block sits inside `prefers-reduced-motion: no-preference`, so a
+      visitor who asked for less movement gets a static page, not a faster
+      version of the same animation.
 --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  .motion-ready [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Article typography
    ---------------------------------------------------------------------------
-   Written by hand rather than pulled from a plugin. A typography plugin is
-   tuned for light backgrounds and would need overriding at almost every rule
-   to sit on this palette — at which point it is only adding weight.
+   Written by hand rather than pulled from a plugin, now tuned for paper
+   rather than a dark background. Measure is held under 80 characters by the
+   container, not here.
 --------------------------------------------------------------------------- */
 .prose {
-  color: var(--color-muted);
+  color: var(--color-pine-soft);
   font-size: 1.0625rem;
   line-height: 1.75;
 }
@@ -202,9 +221,10 @@ body {
 .prose h2 {
   margin-top: 2.75em;
   margin-bottom: -0.4em;
-  color: var(--color-body);
+  color: var(--color-pine);
+  font-family: var(--font-display);
   font-size: 1.6rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.015em;
   scroll-margin-top: 6rem;
@@ -213,7 +233,7 @@ body {
 .prose h3 {
   margin-top: 2em;
   margin-bottom: -0.5em;
-  color: var(--color-body);
+  color: var(--color-pine);
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.4;
@@ -221,19 +241,20 @@ body {
 }
 
 .prose strong {
-  color: var(--color-body);
+  color: var(--color-pine);
   font-weight: 600;
 }
 
 .prose a {
-  color: var(--color-accent);
+  color: var(--color-pine);
   text-decoration: underline;
+  text-decoration-color: var(--color-ruby);
   text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 2px;
 }
 
 .prose a:hover {
-  color: var(--color-accent-hot);
+  color: var(--color-ruby-deep);
 }
 
 .prose ul,
@@ -255,30 +276,28 @@ body {
 }
 
 .prose li::marker {
-  color: var(--color-accent);
+  color: var(--color-ruby);
 }
 
 .prose blockquote {
-  border-left: 2px solid var(--color-accent);
+  border-left: 2px solid var(--color-ruby);
   padding-left: 1.25em;
-  color: var(--color-body);
+  color: var(--color-pine);
   font-style: italic;
 }
 
 .prose code {
   border-radius: 0.35em;
-  background: var(--color-elevated);
+  background: var(--color-paper-sunk);
   padding: 0.15em 0.4em;
-  color: var(--color-body);
-  font-family: var(--font-mono);
+  color: var(--color-pine);
   font-size: 0.9em;
 }
 
 .prose pre {
   overflow-x: auto;
-  border: 1px solid var(--color-line);
-  border-radius: 0.9em;
-  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
   padding: 1.1em 1.3em;
 }
 
@@ -288,13 +307,13 @@ body {
 }
 
 .prose hr {
-  border-color: var(--color-line);
+  border-color: var(--color-rule);
   margin-top: 2.75em;
   margin-bottom: 2.75em;
 }
 
 .prose img {
-  border-radius: 0.9em;
+  border-radius: 0.25em;
 }
 
 /* Tables in an article must never widen the page on a phone. */
@@ -304,33 +323,17 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95em;
+  font-variant-numeric: tabular-nums;
 }
 
 .prose th,
 .prose td {
-  border-bottom: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-rule);
   padding: 0.7em 1em;
   text-align: left;
 }
 
 .prose th {
-  color: var(--color-body);
+  color: var(--color-pine);
   font-weight: 600;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .motion-ready [data-reveal] {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  .motion-ready [data-reveal].is-visible {
-    opacity: 1;
-    transform: none;
-    /* Decelerating curve — quick to start, settles softly. */
-    transition:
-      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    transition-delay: var(--reveal-delay, 0ms);
-  }
 }
