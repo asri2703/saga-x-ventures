@@ -149,6 +149,41 @@ answer nobody has given would be a false statement about someone's money.
 funded with 500 USD. That is a single gateway with a single minimum, and two
 things the client can then do with it.
 
+### 5.2a Payment routes — ask before you explain
+
+Every product page opens the same way: **deposit, or pay directly?** The owner
+asked for this explicitly, and it also filters well — people know which of the
+two they are without being told.
+
+| Product | Deposit route | Direct-payment route |
+|---|---|---|
+| Mastery Signal | tier deposit: $100 Basic · $300 Pro · $500 Premium | FPX / QR through this site |
+| Fukyaa | 500 USD to Harmovest (promo; normally 1000) — VPS included | any broker + **RM100/month** VPS rental |
+| Copytrade | 500 USD — no VPS fee | — (30% of the weekly gain instead) |
+
+**Mastery Signal is not a second checkout.** masterysignal.com already sells
+by card through Stripe at `/join`. This site is a **parallel rail for people
+who will not pay by card**: they pay by FPX or QR here, then register at
+`masterysignal.com/membership`, choose **Pro**, and the owner approves by hand
+on the Mastery side. Both routes through this site — deposit and direct
+payment — end at the same `/membership` registration page. One customer list,
+one approval point, no second source of truth. This site never links to
+`/join`.
+
+**The broker is the client's choice on the VPS route.** Harmovest is what the
+owner recommends, not a requirement. Say so plainly; the rental path works
+with any broker.
+
+**The promo has a real expiry: 31 December 2026.** It goes in config as a
+price pair plus a date, and the page falls back to the standard figure on its
+own. A promotional number written into a page becomes a false price on a date
+everybody already knows, and nobody notices until a customer is angry.
+
+**Never state what the business earns in return.** No rebate, no commission,
+no revenue share — not in copy, not in a code comment. The owner's
+instruction, and it is also better writing: nobody reads a page to learn the
+seller's margin.
+
 ### 5.3 Voice
 
 The owner's standing instruction, repeated twice: the copy reads as AI. The

@@ -23,6 +23,11 @@
 - **Motion bans (unslop):** no glows, no gradient washes as decoration, no `hover:scale` on cards, no `animate-pulse`, no `transition-all`. Motion shows what changed; it does not ask for attention.
 - **One typeface, Archivo**, width axis for display.
 - All outbound `<Link>` to `/go/*` carries `prefetch={false}`.
+- **Never state what the business earns in return** — no rebate, commission or revenue share, in copy or in a comment.
+- **Every product page opens with the same fork: deposit, or pay directly?** (spec §5.2a)
+- **This site never links to `masterysignal.com/join`.** Both routes end at `/membership`, where the client registers, chooses Pro, and is approved by hand.
+- **Harmovest is a recommendation on the VPS route, not a requirement** — the broker is the client's choice.
+- **The Fukyaa promo expires 31 December 2026** and must fall back on its own.
 
 ## Review Focus
 
@@ -168,14 +173,16 @@ git commit -m "feat: six products across a retail and an IB lane"
 
 ---
 
-### Task 3: Copytrade config
+### Task 3: Commercial terms config
 
 **Files:**
-- Create: `src/lib/copytrade.ts`
-- Test: `src/lib/__tests__/copytrade.test.ts`
+- Create: `src/lib/commercial.ts`
+- Test: `src/lib/__tests__/commercial.test.ts`
 
 **Interfaces:**
 - Produces: `copytrade = { minimumUsd: 500, masterShare: 30, investorShare: 70, example: { funded: 500, grown: 600 } }` and `exampleSplit(): { gain: number; master: number; investor: number }`.
+- Produces: `fukyaa = { depositStandardUsd: 1000, depositPromoUsd: 500, promoEndsOn: "2026-12-31", vpsMonthlyMyr: 100 }` and `fukyaaDeposit(on: Date): { usd: number; isPromo: boolean }`.
+- Produces: `masteryTiers = [{ key: "basic", minDepositUsd: 100 }, { key: "pro", minDepositUsd: 300 }, { key: "premium", minDepositUsd: 500 }]` and `masterySubscriptionMyr: number | null` — null until the owner sets the FPX price, rendering through `formatPrice` as "Price on enquiry" like the coaching ladder.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -196,6 +203,21 @@ test("the example derives from the shares rather than repeating them", () => {
   const s = exampleSplit();
   expect(s.master).toBe((s.gain * copytrade.masterShare) / 100);
 });
+
+test("the Fukyaa promo expires on its own", () => {
+  // A promotional figure typed into a page becomes a false price on a date
+  // everybody already knows, and nobody notices until a customer is angry.
+  expect(fukyaaDeposit(new Date("2026-12-31T23:59:00Z"))).toEqual({ usd: 500, isPromo: true });
+  expect(fukyaaDeposit(new Date("2027-01-01T00:00:00Z"))).toEqual({ usd: 1000, isPromo: false });
+});
+
+test("the Mastery tiers carry the deposits the live site states", () => {
+  expect(masteryTiers.map((t) => t.minDepositUsd)).toEqual([100, 300, 500]);
+});
+
+test("an unset subscription price reads as an enquiry, not a broken number", () => {
+  expect(formatPrice(masterySubscriptionMyr)).toBe("Price on enquiry");
+});
 ```
 
 - [ ] **Step 2: Run to verify it fails**
@@ -215,8 +237,8 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/lib/copytrade.ts src/lib/__tests__/copytrade.test.ts
-git commit -m "feat: copytrade terms as config, with the worked example derived"
+git add src/lib/commercial.ts src/lib/__tests__/commercial.test.ts
+git commit -m "feat: commercial terms as config, with a self-expiring promo"
 ```
 
 ---
@@ -297,7 +319,8 @@ git commit -m "feat: graph-paper grid, and ban the decoration utilities we rejec
 
 **Interfaces:**
 - Consumes: `Product`, `outbound` (Task 1–2).
-- Produces: `<ProductGuide product={Product} steps={GuideStep[]} intro={ReactNode} />`, and `type GuideStep = { n: number; title: string; body: string; outbound: OutboundKey | null; cta: string | null }`.
+- Produces: `<ProductGuide product={Product} routes={PaymentRoute[]} intro={ReactNode} />`, with `type PaymentRoute = { key: "deposit" | "direct"; label: string; summary: string; steps: GuideStep[] }` and `type GuideStep = { n: number; title: string; body: string; outbound: OutboundKey | null; cta: string | null }`.
+- The guide opens by asking which route the visitor wants, then shows that route's steps. Both routes for Mastery Signal end at `mastery-membership`; the guide never links to `/join`.
 - A step whose `outbound` resolves to an empty destination renders a labelled placeholder instead of a link.
 
 - [ ] **Step 1: Write the failing test**
