@@ -13,6 +13,8 @@ test("the sitemap lists the trading pages", () => {
     expect.arrayContaining([
       "",
       "/mastery-signal",
+      "/copytrade",
+      "/fukyaa",
       "/coaching",
       "/events",
       "/blog",

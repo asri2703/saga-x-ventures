@@ -124,6 +124,8 @@ test("every page declares a canonical URL", async () => {
   const pages: [string, Promise<unknown>][] = [
     ["/about", import("@/app/about/page")],
     ["/mastery-signal", import("@/app/mastery-signal/page")],
+    ["/copytrade", import("@/app/copytrade/page")],
+    ["/fukyaa", import("@/app/fukyaa/page")],
     ["/coaching", import("@/app/coaching/page")],
     ["/contact", import("@/app/contact/page")],
     ["/events", import("@/app/events/page")],
