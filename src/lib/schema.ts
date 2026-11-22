@@ -52,6 +52,7 @@ export const personSchema = {
   url: `${site.url}/about`,
   image: `${site.url}${site.founder.photo}`,
   worksFor: { "@id": ORG_ID },
+  award: `${site.founder.award.title}, ${site.founder.award.body} ${site.founder.award.year}`,
   knowsAbout: [
     "Forex trading",
     "Technical analysis",

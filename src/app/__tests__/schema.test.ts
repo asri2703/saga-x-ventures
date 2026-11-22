@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { orgSchema, personSchema } from "@/lib/schema";
+import { site } from "@/lib/site";
 
 test("the organisation declares no social profiles at all", () => {
   // Declaring the agency-era handles would tell Google this domain is the
@@ -32,4 +33,15 @@ test("the address survived the pivot", () => {
     addressLocality: "Seremban",
     addressCountry: "MY",
   });
+});
+
+test("the award is declared on the person, with its year", () => {
+  expect(personSchema.award).toMatch(/Best In-House Trader/);
+  expect(JSON.stringify(personSchema)).toContain("2026");
+});
+
+test("the former alias is named rather than left unexplained", () => {
+  // An award screen showing a different name reads as borrowed unless the
+  // page says whose name it was.
+  expect(site.founder.award.alias).toBe("Zack King");
 });

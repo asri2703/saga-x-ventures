@@ -49,6 +49,26 @@ export const site = {
      */
     yearsExperience: 12,
     tradersGuided: 1200,
+
+    /**
+     * An award is a fact about recognition, not a claim about results, which
+     * is why it survives the claims rule when almost no other proof does.
+     *
+     * The year only: the owner does not recall the date and the badge in the
+     * photograph is not legible enough to read one off. An invented date
+     * would be worse than no date.
+     *
+     * `alias` is the name on the award screen. He traded under it then. Left
+     * unexplained, a different name on an award reads as borrowed; one line
+     * turns it into a fact about him.
+     */
+    award: {
+      title: "Best In-House Trader",
+      body: "TradingLive Trading Influencers Awards",
+      year: 2026,
+      alias: "Zack King",
+      image: "/award-tradinglive.webp",
+    },
   },
 } as const;
 

@@ -241,6 +241,93 @@ export default function HomePage() {
           </div>
         </Container>
       </Section>
+      {/* ---------------------------------------------------------------
+          5. Award and recognition.
+      --------------------------------------------------------------- */}
+      <Section>
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
+            <div data-reveal className="border border-rule bg-paper-raised p-3">
+              <Image
+                src={site.founder.award.image}
+                alt={`${site.founder.name} receiving the ${site.founder.award.title} award`}
+                width={1076}
+                height={919}
+                className="h-auto w-full"
+                sizes="(min-width: 1024px) 600px, 100vw"
+              />
+            </div>
+
+            <div>
+              <SectionHeading
+                eyebrow="Recognition"
+                title={site.founder.award.title}
+              />
+              <div className="mt-6 space-y-5 text-lg leading-relaxed text-pine-soft">
+                <p>
+                  {site.founder.award.body},{" "}
+                  <span className="tnum">{site.founder.award.year}</span>.
+                </p>
+                <p>
+                  The name on the screen is {site.founder.award.alias}. That is
+                  what I traded under then.
+                </p>
+                <p>
+                  I put this here because it is one of the few things I can
+                  show you that is a fact rather than a promise. It says
+                  somebody watched the work. It does not say what your account
+                  will do.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          6. Coaching and classes — the close.
+      --------------------------------------------------------------- */}
+      <Section tone="raised">
+        <Container>
+          <div
+            data-reveal
+            className="border border-rule bg-paper p-8 sm:p-12"
+          >
+            <SectionHeading
+              eyebrow="Coaching and classes"
+              title="Learn to do this yourself"
+            >
+              <p>
+                Three classes, one to one, about a day each. Basic trading,
+                then advance, then trading the news. Take them in order or take
+                one on its own.
+              </p>
+            </SectionHeading>
+
+            <p className="mt-6 max-w-2xl leading-relaxed text-pine-soft">
+              Tell me what you have traded so far and which one you think you
+              need. We fix the dates first, and payment comes after that.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-5">
+              <a
+                href="/go/whatsapp?m=coaching"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
+              >
+                Ask about coaching
+              </a>
+              <Link
+                href="/coaching"
+                className="text-base text-pine underline decoration-ruby decoration-2 underline-offset-4"
+              >
+                See the three classes
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </Section>
     </>
   );
 }
