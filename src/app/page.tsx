@@ -20,7 +20,11 @@ export default function HomePage() {
       --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          {/* The portrait is a full-length 2:3. Given a wide column it makes
+              the hero taller than a screen and buries the fork below the
+              fold, so the column is capped rather than the image cropped —
+              the shoes and the whole seated pose are the shot. */}
+          <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,420px)] lg:gap-16">
             <div>
               <h1 className="display text-4xl leading-[1.05] text-pine sm:text-5xl lg:text-6xl">
                 Twelve years reading the same few charts.
@@ -62,7 +66,25 @@ export default function HomePage() {
               </div>
             </div>
 
-            <MarkedChart />
+            {/* The hero is the person, not the product. He is what the three
+                products have in common, and a trading site that leads with a
+                face rather than a dashboard is already saying something its
+                competitors are not.
+
+                The studio backdrop was a cool #F2F1F4 and read as a grey patch
+                on warm paper; it was shifted warm to #F6F2E9, which lands on
+                the paper-raised token, so the panel has no visible seam. */}
+            <div className="border border-rule bg-paper-raised">
+              <Image
+                src="/asri-hero.jpg"
+                alt={`${site.founder.name}, founder of ${site.name}`}
+                width={1024}
+                height={1536}
+                className="h-auto w-full"
+                sizes="(min-width: 1024px) 420px, 100vw"
+                priority
+              />
+            </div>
           </div>
         </Container>
       </Section>
@@ -96,16 +118,13 @@ export default function HomePage() {
       {/* --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <div className="grid gap-12 md:grid-cols-[320px_1fr] md:gap-16">
+          {/* The chart moved here from the hero when the portrait took that
+              slot. It belongs next to this text better than it did up there:
+              the hero says who he is, this section says how he works, and a
+              diagram of how a level gets chosen is exactly that. */}
+          <div className="grid gap-12 md:grid-cols-[1fr_1fr] md:gap-16">
             <div>
-              <Image
-                src={site.founder.photo}
-                alt={site.founder.name}
-                width={640}
-                height={800}
-                className="w-full border border-rule object-cover"
-                sizes="(min-width: 768px) 320px, 100vw"
-              />
+              <MarkedChart />
             </div>
             <div>
               <h2 className="display text-3xl text-pine sm:text-4xl">
