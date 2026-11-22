@@ -62,13 +62,16 @@ export function MarkedChart({ className = "" }: { className?: string }) {
             />
           </g>
 
-          {/* The path. stroke-dasharray is set from --draw-length, which only
-              has to be at least the path's real length for the reveal to
-              work; a generous value is safer than a measured one that drifts
-              when the path is edited. */}
+          {/* pathLength normalises the real geometry to 1000 units, so the
+              dasharray and dashoffset below stay exact however the `d` is
+              edited. A hardcoded length is wrong in both directions: too
+              long and the line snaps in early leaving dead air before the
+              zones, too short and everything past the ceiling never renders
+              at all — silently, with no error. */}
           <path
             className="draw-path"
-            style={{ ["--draw-length" as string]: "1600" }}
+            pathLength={1000}
+            style={{ ["--draw-length" as string]: "1000" }}
             d="M16 268 L58 246 L96 272 L134 206 L172 230 L210 178 L248 202 L286 128 L324 158 L362 104 L400 140 L438 108 L476 132 L504 86"
             fill="none"
             stroke="#163A30"

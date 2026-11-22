@@ -47,3 +47,53 @@ test("the redirect is temporary so the count is not cached away", async () => {
   expect(res.status).toBe(302);
   expect(res.headers.get("cache-control")).toMatch(/no-store/);
 });
+
+/* ------------------------------------------------------------------ *
+ * WhatsApp prefills.
+ *
+ * The float was the only CTA routed through the counter, while the five
+ * that people actually press went straight to wa.me. The counter would
+ * have measured the demoted channel and missed the primary one. Each page
+ * carries its own prefill, so the key travels in the query string and the
+ * message is resolved server-side.
+ * ------------------------------------------------------------------ */
+
+test("a prefill key reaches WhatsApp as encoded text", async () => {
+  const res = await GET(
+    new Request("https://sagaxventures.com/go/whatsapp?m=coaching"),
+    ctx("whatsapp"),
+  );
+  const location = res.headers.get("location")!;
+  expect(res.status).toBe(302);
+  expect(location).toContain("wa.me/");
+  expect(decodeURIComponent(location)).toContain("coaching");
+});
+
+test("an unknown prefill key still sends the visitor to WhatsApp", async () => {
+  // A bad key is our bug, not theirs. Dropping them on a 404 to protect a
+  // counter would be the wrong trade.
+  const res = await GET(
+    new Request("https://sagaxventures.com/go/whatsapp?m=nonsense"),
+    ctx("whatsapp"),
+  );
+  expect(res.status).toBe(302);
+  expect(res.headers.get("location")).toContain("wa.me/");
+});
+
+test("no page builds a WhatsApp href that bypasses the counter", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const walk = (dir: string): string[] =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) return e.name === "__tests__" ? [] : walk(full);
+      return /\.tsx$/.test(e.name) ? [full] : [];
+    });
+
+  for (const file of walk(path.join(process.cwd(), "src"))) {
+    const text = fs.readFileSync(file, "utf8");
+    expect(text, `${file} links straight to wa.me`).not.toMatch(
+      /href=\{?\s*(waLink\(|["`]https:\/\/wa\.me)/,
+    );
+  }
+});

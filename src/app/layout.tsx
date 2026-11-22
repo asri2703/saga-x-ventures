@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
+  alternates: { canonical: "/" },
   /**
    * Retargeted from the agency's Seremban-first set.
    *

@@ -42,6 +42,7 @@ export function SiteFooter() {
                 <li key={product.key}>
                   <Link
                     href={product.href}
+                    prefetch={false}
                     className="text-sm text-pine-soft transition-colors hover:text-ruby-deep"
                   >
                     {product.name}

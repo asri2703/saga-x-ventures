@@ -1,4 +1,4 @@
-import { outbound, type OutboundKey } from "@/lib/products";
+import { outbound, whatsappUrl, type OutboundKey } from "@/lib/products";
 
 /**
  * Logged outbound redirect.
@@ -19,7 +19,7 @@ function destinationFor(product: string): string | undefined {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/go/[product]">,
 ) {
   const { product } = await ctx.params;
@@ -29,6 +29,14 @@ export async function GET(
     return new Response("Unknown destination", { status: 404 });
   }
 
+  // WhatsApp carries a per-page opening line. The page sends a key rather
+  // than the sentence so the message stays in one place and the link stays
+  // short enough to read.
+  const resolved =
+    product === "whatsapp"
+      ? whatsappUrl(new URL(request.url).searchParams.get("m"))
+      : destination;
+
   /**
    * 302, not 301. A permanent redirect lets the browser go straight to the
    * destination on every later click, which would quietly stop the counting
@@ -37,7 +45,7 @@ export async function GET(
   return new Response(null, {
     status: 302,
     headers: {
-      location: destination,
+      location: resolved,
       "cache-control": "no-store, max-age=0",
     },
   });

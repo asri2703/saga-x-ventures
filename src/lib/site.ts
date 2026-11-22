@@ -54,8 +54,3 @@ export const site = {
 
 /** Single-line address — used in the footer and structured data. */
 export const fullAddress = `${site.address.street}, ${site.address.postcode} ${site.address.city}, ${site.address.state}`;
-
-/** Pre-filled WhatsApp link. Pass a custom message per page for better context. */
-export function waLink(message = "Hi Saga X Ventures, I'd like to ask about trading.") {
-  return `https://wa.me/${site.phoneRaw}?text=${encodeURIComponent(message)}`;
-}

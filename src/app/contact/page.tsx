@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { fullAddress, site, waLink } from "@/lib/site";
+import { fullAddress, site } from "@/lib/site";
 import { Container, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact",
   description: `Message ${site.name} on WhatsApp, by phone or by email.`,
 };
@@ -30,7 +31,7 @@ export default function ContactPage() {
           </p>
 
           <a
-            href={waLink("Hi Asri, I have a question about ")}
+            href="/go/whatsapp?m=contact"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-9 inline-block bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"

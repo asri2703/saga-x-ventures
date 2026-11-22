@@ -12,6 +12,8 @@
  * `href` names its FIRST action, and `steps` carries the rest.
  */
 
+import { site } from "@/lib/site";
+
 export type OutboundKey =
   | "mastery-broker"
   | "mastery-membership"
@@ -32,7 +34,10 @@ export const outbound: Record<OutboundKey, string> = {
   "fukyaa-broker":
     "https://platform.hmvestportal.com/regist-real?invitid=004VL9-TRMRV13456",
   "fukyaa-register": "https://fukyaa.com/register",
-  whatsapp: "https://wa.me/60137732703",
+  // Built from site.ts rather than copied. A second set of digits means
+  // changing the number updates the footer, the tel: link and the schema
+  // while the float on every page keeps dialling the old one.
+  whatsapp: `https://wa.me/${site.phoneRaw}`,
 };
 
 export type ProductKey = "mastery-signal" | "fukyaa" | "coaching";
@@ -103,4 +108,33 @@ export const products: Product[] = [
 
 export function getProduct(key: string): Product | undefined {
   return products.find((p) => p.key === key);
+}
+
+/**
+ * WhatsApp prefills.
+ *
+ * Every WhatsApp call to action goes through /go/whatsapp so the volume is
+ * counted, which means the per-page opening line cannot live in the href any
+ * more. The page passes a key, the route resolves the sentence.
+ *
+ * An unrecognised key falls back to the general line rather than failing:
+ * a bad key is our bug, and dropping a visitor to protect a counter would be
+ * the wrong trade.
+ */
+export const whatsappPrefills = {
+  general: "Hi Saga X Ventures, I have a question.",
+  coaching: "Hi Asri, I'd like to ask about coaching. I'm interested in: ",
+  contact: "Hi Asri, I have a question about ",
+  events: "Hi, when is the next session?",
+  topic: "Hi Asri, something I'd like you to write about: ",
+} as const;
+
+export type WhatsAppPrefill = keyof typeof whatsappPrefills;
+
+export function whatsappUrl(key: string | null): string {
+  const prefill =
+    key && Object.hasOwn(whatsappPrefills, key)
+      ? whatsappPrefills[key as WhatsAppPrefill]
+      : whatsappPrefills.general;
+  return `${outbound.whatsapp}?text=${encodeURIComponent(prefill)}`;
 }

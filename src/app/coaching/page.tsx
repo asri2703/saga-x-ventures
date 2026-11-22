@@ -7,10 +7,11 @@ import {
   type CoachingMode,
 } from "@/lib/coaching";
 import { getProduct } from "@/lib/products";
-import { site, waLink } from "@/lib/site";
+import { site } from "@/lib/site";
 import { Container, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/coaching" },
   title: "Coaching",
   description:
     "One-to-one trading coaching with Asri Zulzali. Three classes — basic, advanced and news trading — online or in person.",
@@ -177,9 +178,7 @@ export default function CoachingPage() {
             </p>
 
             <a
-              href={waLink(
-                "Hi Asri, I'd like to ask about coaching. I'm interested in: ",
-              )}
+              href="/go/whatsapp?m=coaching"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-7 inline-block bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"

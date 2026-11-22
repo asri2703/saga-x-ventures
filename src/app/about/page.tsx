@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 import { Container, Section } from "@/components/ui";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
   title: "About",
   description: `${site.founder.name} has traded for ${site.founder.yearsExperience} years and built Mastery Signal. Saga X Ventures is where that work lives.`,
 };

@@ -18,9 +18,10 @@
    Why so quiet: the competition is dark dashboards, neon green and profit
    screenshots. Looking calm is the differentiator.
 
-   The `--color-ink`/`surface`/`body`/`accent` names below are kept as aliases
-   so components written against the old dark theme keep compiling while they
-   are rewritten. New work uses the real names.
+   There are no compatibility aliases. An earlier pass kept the old dark-theme
+   token names pointing at the new palette so un-migrated components would
+   still compile — which is exactly what let two pages ship still selling a
+   marketing agency: they looked plausible instead of rendering unstyled.
 --------------------------------------------------------------------------- */
 
 @theme {
@@ -37,19 +38,6 @@
   /* Rules and borders — pine at low strength, never pure grey */
   --color-rule: #d9cfb8;
   --color-rule-strong: #c4b89c;
-
-  /* Aliases for not-yet-rewritten components */
-  --color-ink: var(--color-paper);
-  --color-surface: var(--color-paper-raised);
-  --color-elevated: var(--color-paper-sunk);
-  --color-line: var(--color-rule);
-  --color-line-bright: var(--color-rule-strong);
-  --color-body: var(--color-pine);
-  --color-muted: var(--color-pine-soft);
-  --color-faint: var(--color-pine-faint);
-  --color-accent: var(--color-ruby);
-  --color-accent-hot: var(--color-ruby-deep);
-  --color-accent-deep: var(--color-pine);
 
   /* One family, two widths. The contrast is width, not serif against sans —
      a high-contrast serif on a cream background is the commonest tell of a

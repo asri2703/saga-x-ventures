@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui";
-import { site, waLink } from "@/lib/site";
+import { site } from "@/lib/site";
 
 /**
  * Placeholder.
@@ -12,6 +12,7 @@ import { site, waLink } from "@/lib/site";
  */
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/events" },
   title: "Events",
   description:
     "Webinars and in-person sessions with Asri Zulzali. Registration opens here.",
@@ -35,7 +36,7 @@ export default function EventsPage() {
           </p>
 
           <a
-            href={waLink("Hi, when is the next session?")}
+            href="/go/whatsapp?m=events"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-8 inline-block bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"

@@ -17,6 +17,7 @@ import { Container, Section } from "@/components/ui";
  */
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "Privacy",
   description: `How ${site.name} collects, uses and stores personal information, under Malaysia's Personal Data Protection Act.`,
   robots: { index: true, follow: false },
@@ -44,9 +45,13 @@ export default function PrivacyPage() {
 
             <h2>What is collected, and when</h2>
             <p>
-              Nothing is collected from simply reading this site. Information is
-              collected only when you hand it over:
+              Reading this site collects nothing that identifies you. When you
+              follow a link out to one of our products, the site counts that a
+              link was used — a tally only, with no cookie and nothing tied to
+              you. Our hosting provider keeps standard server logs, as every
+              web host does.
             </p>
+            <p>Beyond that, information is collected only when you hand it over:</p>
             <ul>
               <li>
                 <strong>When you message or email us</strong> — your name, your

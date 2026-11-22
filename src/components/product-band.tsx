@@ -63,6 +63,7 @@ export function ProductBand({
         <div className="shrink-0">
           <Link
             href={product.href}
+            prefetch={false}
             {...(product.external
               ? { target: "_blank", rel: "noopener noreferrer" }
               : {})}

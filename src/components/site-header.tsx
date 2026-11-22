@@ -15,6 +15,7 @@ const navLinks = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
 
   // Closing on link click (rather than watching the pathname in an effect)
   // avoids a cascading re-render on every navigation.
@@ -28,14 +29,22 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  // Escape closes whichever thing is open. This listener is deliberately not
+  // gated on the mobile panel's state: when it was, the desktop dropdown had
+  // no Escape path at all, which is the only way out for a keyboard user who
+  // opened it and does not want any of the three products.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      setProductsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-
-    // Escape closes the menu — expected of any overlay, and the only way out
-    // for someone navigating by keyboard.
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
 
     // The panel is md:hidden, so widening past the breakpoint hides it while
     // `open` stays true — leaving the body scroll-locked with no visible way
@@ -45,12 +54,8 @@ export function SiteHeader() {
       if (event.matches) setOpen(false);
     };
 
-    document.addEventListener("keydown", onKeyDown);
     desktop.addEventListener("change", onBreakpoint);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      desktop.removeEventListener("change", onBreakpoint);
-    };
+    return () => desktop.removeEventListener("change", onBreakpoint);
   }, [open]);
 
   return (
@@ -71,17 +76,36 @@ export function SiteHeader() {
             {/* Products opens a menu because none of the three is one click —
                 each needs a broker account first, and saying so here stops a
                 visitor bouncing off a signup form they cannot complete. */}
-            <div className="group relative">
+            {/* A disclosure, not a menu.
+                It previously carried aria-haspopup="true" — which a screen
+                reader announces as "has menu popup" — over a plain list of
+                links, with no aria-expanded and no handler on the button. The
+                one action the announcement implies did nothing. Now the state
+                is real: click or Enter toggles it, aria-expanded says which
+                way it is, and the panel is removed from the tree when shut
+                rather than merely made invisible. */}
+            <div
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                  setProductsOpen(false);
+                }
+              }}
+            >
               <button
                 type="button"
-                aria-haspopup="true"
+                onClick={() => setProductsOpen((v) => !v)}
+                aria-expanded={productsOpen}
+                aria-controls="products-panel"
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-pine-soft transition-colors hover:text-pine"
               >
                 Products
                 <svg
                   aria-hidden
                   viewBox="0 0 12 12"
-                  className="h-3 w-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180"
+                  className={`h-3 w-3 transition-transform ${productsOpen ? "rotate-180" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
@@ -90,25 +114,32 @@ export function SiteHeader() {
                 </svg>
               </button>
 
-              <div className="invisible absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-                <ul className="overflow-hidden border border-rule bg-paper-raised p-1.5 shadow-lg shadow-pine/10">
-                  {products.map((product) => (
-                    <li key={product.key}>
-                      <Link
-                        href={product.href}
-                        className="block px-3 py-2.5 transition-colors hover:bg-paper-sunk"
-                      >
-                        <span className="block text-sm font-semibold text-pine">
-                          {product.name}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-pine-faint">
-                          {product.forWho}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {productsOpen ? (
+                <div
+                  id="products-panel"
+                  className="absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2"
+                >
+                  <ul className="overflow-hidden border border-rule bg-paper-raised p-1.5 shadow-lg shadow-pine/10">
+                    {products.map((product) => (
+                      <li key={product.key}>
+                        <Link
+                          href={product.href}
+                          prefetch={false}
+                          onClick={() => setProductsOpen(false)}
+                          className="block px-3 py-2.5 transition-colors hover:bg-paper-sunk"
+                        >
+                          <span className="block text-sm font-semibold text-pine">
+                            {product.name}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-pine-faint">
+                            {product.forWho}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
 
             {navLinks.map((link) => (
@@ -175,6 +206,7 @@ export function SiteHeader() {
               <li key={product.key}>
                 <Link
                   href={product.href}
+                  prefetch={false}
                   onClick={close}
                   className="block border-b border-rule py-3"
                 >
