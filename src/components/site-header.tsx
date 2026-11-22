@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { products } from "@/lib/products";
-import { site, waLink } from "@/lib/site";
-import { ButtonAnchor } from "@/components/ui";
+import { site } from "@/lib/site";
 import { Logo } from "@/components/logo";
 
 const navLinks = [
-  { href: "/coaching", label: "Coaching" },
-  { href: "/blog", label: "Insights" },
+  { href: "/events", label: "Events" },
+  { href: "/blog", label: "Writing" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -56,160 +55,161 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-line/70 bg-ink/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5"
-          aria-label={`${site.name} — home`}
-        >
-          <Logo className="h-8 w-8" />
-          <span className="text-[15px] font-semibold tracking-tight text-body">
-            {site.name}
-          </span>
-        </Link>
+      <header className="sticky top-0 z-50 border-b border-rule bg-paper/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5"
+            aria-label={`${site.name} — home`}
+          >
+            <Logo className="h-8 w-8" />
+            <span className="display text-[15px] text-pine">{site.name}</span>
+          </Link>
 
-        {/* Desktop nav */}
-        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
-          {/* Products gets a dropdown so every service page is one click from
-              anywhere — good for users, good for internal linking. */}
-          <div className="group relative">
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-1 md:flex">
+            {/* Products opens a menu because none of the three is one click —
+                each needs a broker account first, and saying so here stops a
+                visitor bouncing off a signup form they cannot complete. */}
+            <div className="group relative">
+              <button
+                type="button"
+                aria-haspopup="true"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-pine-soft transition-colors hover:text-pine"
+              >
+                Products
+                <svg
+                  aria-hidden
+                  viewBox="0 0 12 12"
+                  className="h-3 w-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M2.5 4.5 6 8l3.5-3.5" />
+                </svg>
+              </button>
+
+              <div className="invisible absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <ul className="overflow-hidden border border-rule bg-paper-raised p-1.5 shadow-lg shadow-pine/10">
+                  {products.map((product) => (
+                    <li key={product.key}>
+                      <Link
+                        href={product.href}
+                        className="block px-3 py-2.5 transition-colors hover:bg-paper-sunk"
+                      >
+                        <span className="block text-sm font-semibold text-pine">
+                          {product.name}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-pine-faint">
+                          {product.forWho}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-2 text-sm text-pine-soft transition-colors hover:text-pine"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Quiet on purpose. Ruby marks the one thing to do next, once
+                per screen — and on every page except the homepage that one
+                thing is in the page, not in the chrome. A ruby button here
+                would compete with it on every single view. */}
             <Link
               href="/coaching"
-              className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-body"
+              className="ml-3 border border-pine px-4 py-2 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
             >
-              Products
-              <svg
-                aria-hidden
-                viewBox="0 0 12 12"
-                className="h-3 w-3 transition-transform group-hover:rotate-180"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m3 4.5 3 3 3-3" />
-              </svg>
+              Start here
             </Link>
-            <div className="invisible absolute left-1/2 top-full w-64 -translate-x-1/2 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-              <ul className="overflow-hidden rounded-xl border border-line bg-elevated p-1.5 shadow-2xl shadow-black/50">
-                {products.map((s) => (
-                  <li key={s.key}>
-                    <Link
-                      href={s.href}
-                      className="block rounded-lg px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface hover:text-body"
-                    >
-                      {s.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          </nav>
 
-          {navLinks.slice(1).map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-body"
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="-mr-2 p-2 text-pine md:hidden"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              aria-hidden
             >
-              {l.label}
-            </Link>
-          ))}
-
-          <ButtonAnchor
-            href={waLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-3"
-          >
-            Get a free audit
-          </ButtonAnchor>
-        </nav>
-
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
-          className="-mr-2 rounded-lg p-2 text-body md:hidden"
-        >
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          >
-            {open ? (
-              <path d="M6 6l12 12M18 6L6 18" />
-            ) : (
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            )}
-          </svg>
-        </button>
-      </div>
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </header>
 
-      {/*
-        Mobile menu — deliberately a sibling of <header>, not a child.
-        The header carries backdrop-blur, and any backdrop-filter makes an
-        element the containing block for its fixed-position descendants. Nested
-        inside, this panel resolved top-16/bottom-0 against the 64px header
-        instead of the viewport and collapsed to zero height: the button
-        toggled, the state changed, and nothing appeared.
-      */}
+      {/* Mobile panel. Positioned below the 4rem header and sized with dvh so
+          it fills the screen on phones whose browser chrome changes height —
+          vh alone collapsed this panel on a previous build. */}
       {open ? (
         <div
           id="mobile-menu"
-          className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto border-t border-line bg-ink px-5 py-6 md:hidden"
+          className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto border-t border-rule bg-paper px-5 py-6 md:hidden"
         >
-          <nav aria-label="Mobile">
-            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-faint">
-              Products
-            </p>
-            <ul className="mb-6">
-              {products.map((s) => (
-                <li key={s.key}>
-                  <Link
-                    href={s.href}
-                    onClick={close}
-                    className="block rounded-lg px-3 py-3 text-base text-muted"
-                  >
-                    {s.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <ul className="border-t border-line pt-4">
-              {navLinks.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    onClick={close}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-body"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <ButtonAnchor
-            href={waLink()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <p className="text-xs uppercase tracking-wide text-pine-faint">
+            Products
+          </p>
+          <ul className="mt-3 space-y-1">
+            {products.map((product) => (
+              <li key={product.key}>
+                <Link
+                  href={product.href}
+                  onClick={close}
+                  className="block border-b border-rule py-3"
+                >
+                  <span className="block font-semibold text-pine">
+                    {product.name}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-pine-faint">
+                    {product.forWho}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <ul className="mt-6 space-y-1">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={close}
+                  className="block border-b border-rule py-3 text-pine"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            href="/coaching"
             onClick={close}
-            size="lg"
-            className="mt-6 w-full"
+            className="mt-8 block border border-pine px-5 py-3.5 text-center text-base font-semibold text-pine"
           >
-            Get a free audit
-          </ButtonAnchor>
+            Start here
+          </Link>
         </div>
       ) : null}
     </>
