@@ -116,13 +116,34 @@ imply otherwise.
 **The split is settled weekly, on profit.** 30% of the week's gain to the
 master, 70% to the investor. Confirmed by the owner.
 
-**What the page must NOT state**, because it has not been confirmed: whether
-the 30% is gross or net of the broker's own spread and commission, and
-whether a high-water mark applies — that is, whether a losing week must be
-recovered before the master is paid again. Both were asked and neither was
-answered. The page states the weekly profit split and points to the broker's
-own terms for the mechanics. Writing either answer without knowing it would
-be a false statement about someone's money.
+**The base is the account's gain, so trading costs are already inside it.**
+The owner's worked example: an account funded with 500 rises to 600, the gain
+is 100, the master takes 30 and the investor keeps 70. Because the figure is
+measured on the account balance rather than on individual trades, the
+broker's spread and commission have already been deducted before the split.
+
+That example belongs on the page. Concrete arithmetic explains a fee in a way
+no description does, and it is the kind of sentence that does not read as
+machine-written.
+
+**But it must be framed as the mechanics of the fee, never as an earnings
+illustration.** "If the account goes from 500 to 600, the 100 is split 30/70"
+explains the term. "Turn 500 into 600" is a performance claim and is banned
+by §5.4. The difference is whether the numbers are explaining the split or
+suggesting an outcome.
+
+**The numbers go in config.** `claims.test.ts` fails the build on any money
+literal in a page or component, which is correct and already caught one real
+bug. The example's figures live in a `copytrade.ts` module beside the other
+pricing config and render from there.
+
+**What the page must still NOT state**, because it has not been confirmed:
+whether a **high-water mark** applies — that is, whether a losing week must
+be recovered before the master is paid again. Asked three times, not
+answered. Without one, a week that loses 50 followed by a week that gains 100
+pays the master while the investor is still down overall. The page states the
+weekly split and points to the broker's own terms for that detail. Writing an
+answer nobody has given would be a false statement about someone's money.
 
 **Both cent-account products share one entry requirement**: a cent account
 funded with 500 USD. That is a single gateway with a single minimum, and two
@@ -317,21 +338,20 @@ The builder review of 23 November 2026 raised seven points. Four were settled
 by the author or answered by the project and are marked where they appear.
 The remaining three went to the owner:
 
-1. **What the 30% is calculated on** → 30% of **weekly profit** (§5.2). Two
-   sub-questions were asked and not answered — gross or net, and whether a
-   high-water mark applies — so the page states neither.
-2. **Copytrade entry requirement** → **500 USD minimum**, the same as Fukyaa,
-   which makes the cent account a single gateway with a single minimum
-   (§5.2).
-3. **Award year** → **2026**, year only.
+1. **What the 30% is calculated on** → 30% of the **weekly gain in the
+   account**, illustrated by the owner's own example: 500 funded, 600 reached,
+   100 split as 30 and 70. Measuring on the account rather than on trades
+   means the broker's costs are already deducted, which answers the
+   gross-or-net half of this question. The high-water-mark half remains open.
+2. 3. **Award year** → **2026**, year only.
 
 ### Still outstanding, not blocking
 
 - **The Copytrade join link** — not set up yet (§7.4). Step 3 is a labelled
   placeholder until it exists.
-- **Gross or net, and the high-water mark** (§5.2). Worth settling before
-  `/copytrade` goes public, since both affect what an investor is actually
-  agreeing to.
+- **The high-water mark** (§5.2). Gross-or-net is now answered; this is not.
+  Worth settling before `/copytrade` goes public, because it decides whether
+  an investor who is down overall can still be charged.
 - **Is RM10,000 shown publicly?** Showing it filters hard and saves the
   owner's time; hiding it opens more conversations, most with the wrong
   people.
