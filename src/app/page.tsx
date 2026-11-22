@@ -27,27 +27,33 @@ export default function HomePage() {
           <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,440px)] lg:gap-16">
             <div>
               <h1 className="display text-4xl leading-[1.05] text-pine sm:text-5xl lg:text-6xl">
-                Twelve years on the same few charts
+                Trade Shouldn&rsquo;t Be Complicated.
               </h1>
 
-              {/* Credibility as a sentence, not three numbers in a row. The
-                  figures carry weight by being set in the wider cut, not by
-                  being blown up into a stat strip. */}
               <p className="mt-7 max-w-xl text-lg leading-relaxed text-pine-soft">
-                I am{" "}
+                We believe trading shouldn&rsquo;t be complicated. That&rsquo;s
+                why we build innovative trading solutions designed to make the
+                trading experience simpler, smarter and more flexible,
+                empowering traders to focus on what matters most.
+              </p>
+
+              {/* The portrait beside this is a man with no name attached once
+                  the headline stopped introducing him. This line is the
+                  smallest thing that fixes that, and it carries the two
+                  figures the whole site's credibility rests on. */}
+              <p className="mt-6 max-w-xl text-pine-faint">
                 <span className="font-semibold text-pine">
                   {site.founder.name}
                 </span>
-                . I have traded for{" "}
-                <span className="display text-pine">
+                , founder.{" "}
+                <span className="display tnum text-pine">
                   {site.founder.yearsExperience} years
                 </span>{" "}
-                and taught more than{" "}
+                trading,{" "}
                 <span className="display tnum text-pine">
-                  {site.founder.tradersGuided.toLocaleString("en-MY")} traders
+                  {site.founder.tradersGuided.toLocaleString("en-MY")}+ traders
                 </span>{" "}
-                across Malaysia and Indonesia over that time. Saga X Ventures is
-                the company I run it all under.
+                taught across Malaysia and Indonesia.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
