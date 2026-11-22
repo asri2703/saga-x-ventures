@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { site, waLink } from "@/lib/site";
-import { QuoteForm } from "@/components/quote-form";
 import { Card, Container, Eyebrow } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -60,7 +59,7 @@ export default function ContactPage() {
               Only your name and phone number are required.
             </p>
             <div className="mt-10">
-              <QuoteForm />
+              <p className="text-muted">Enquiry form coming shortly. For now, WhatsApp or email is fastest.</p>
             </div>
           </div>
 

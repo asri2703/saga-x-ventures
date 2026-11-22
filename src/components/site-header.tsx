@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { services } from "@/lib/services";
+import { products } from "@/lib/products";
 import { site, waLink } from "@/lib/site";
 import { ButtonAnchor } from "@/components/ui";
 import { Logo } from "@/components/logo";
 
 const navLinks = [
-  { href: "/services", label: "Services" },
+  { href: "/coaching", label: "Coaching" },
   { href: "/blog", label: "Insights" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -71,14 +71,14 @@ export function SiteHeader() {
 
         {/* Desktop nav */}
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
-          {/* Services gets a dropdown so every service page is one click from
+          {/* Products gets a dropdown so every service page is one click from
               anywhere — good for users, good for internal linking. */}
           <div className="group relative">
             <Link
-              href="/services"
+              href="/coaching"
               className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-body"
             >
-              Services
+              Products
               <svg
                 aria-hidden
                 viewBox="0 0 12 12"
@@ -94,10 +94,10 @@ export function SiteHeader() {
             </Link>
             <div className="invisible absolute left-1/2 top-full w-64 -translate-x-1/2 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <ul className="overflow-hidden rounded-xl border border-line bg-elevated p-1.5 shadow-2xl shadow-black/50">
-                {services.map((s) => (
-                  <li key={s.slug}>
+                {products.map((s) => (
+                  <li key={s.key}>
                     <Link
-                      href={`/services/${s.slug}`}
+                      href={s.href}
                       className="block rounded-lg px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface hover:text-body"
                     >
                       {s.name}
@@ -171,13 +171,13 @@ export function SiteHeader() {
         >
           <nav aria-label="Mobile">
             <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-faint">
-              Services
+              Products
             </p>
             <ul className="mb-6">
-              {services.map((s) => (
-                <li key={s.slug}>
+              {products.map((s) => (
+                <li key={s.key}>
                   <Link
-                    href={`/services/${s.slug}`}
+                    href={s.href}
                     onClick={close}
                     className="block rounded-lg px-3 py-3 text-base text-muted"
                   >

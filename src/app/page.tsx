@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { formatDate, getPosts } from "@/lib/blog";
-import { services } from "@/lib/services";
+import { products } from "@/lib/products";
 import { site, waLink } from "@/lib/site";
 import { Faq } from "@/components/faq";
 import {
@@ -142,7 +142,7 @@ export default function Home() {
               >
                 Get a free audit
               </ButtonAnchor>
-              <ButtonLink href="/services" variant="outline" size="lg">
+              <ButtonLink href="/coaching" variant="outline" size="lg">
                 See what we do
               </ButtonLink>
             </div>
@@ -212,10 +212,10 @@ export default function Home() {
           lead="Take one or take all of them. Most clients start with the one thing that is costing them the most, then expand once it works."
         />
         <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((s, i) => (
+          {products.map((s, i) => (
             <Link
-              key={s.slug}
-              href={`/services/${s.slug}`}
+              key={s.key}
+              href={s.href}
               data-reveal
               style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
               className="group flex flex-col rounded-2xl border border-line bg-elevated/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:bg-elevated"

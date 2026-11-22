@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { services } from "@/lib/services";
+import { products } from "@/lib/products";
 import { fullAddress, site } from "@/lib/site";
 import { Container } from "@/components/ui";
 import { Logo } from "@/components/logo";
@@ -24,12 +24,12 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <h2 className="text-sm font-semibold text-body">Services</h2>
+            <h2 className="text-sm font-semibold text-body">Products</h2>
             <ul className="mt-4 space-y-3">
-              {services.map((s) => (
-                <li key={s.slug}>
+              {products.map((s) => (
+                <li key={s.key}>
                   <Link
-                    href={`/services/${s.slug}`}
+                    href={s.href}
                     className="text-sm text-muted transition-colors hover:text-accent"
                   >
                     {s.name}

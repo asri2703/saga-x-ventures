@@ -42,10 +42,10 @@ export const site = {
      * not a current member count of Mastery Signal or of anything else, it is
      * not verifiable from any database, and copy must never let a reader take
      * it that way. Write "more than 1,200 traders over twelve years", never
-     * "1,200 members" or "1,200 active traders".
+     * "1,200 members" or "1,200 active traders". claims-guard: allow
      *
-     * There are no performance claims on this site — no win rates, no profit
-     * figures, no guarantees. A test enforces this; see the claims guard.
+     * There are no performance claims on this site at all. A test enforces
+     * the exact wording; see src/lib/__tests__/claims.test.ts.
      */
     yearsExperience: 12,
     tradersGuided: 1200,

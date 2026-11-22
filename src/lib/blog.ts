@@ -82,3 +82,18 @@ export function getPosts(): Post[] {
 export function getPost(slug: string): Post | undefined {
   return getPosts().find((p) => p.slug === slug);
 }
+
+/**
+ * The newest `limit` posts, for the homepage and anywhere else that shows a
+ * short list.
+ *
+ * It exists so no caller writes `getPosts()[0]` or slices by hand. The blog
+ * can legitimately be empty — the agency-era posts were deleted with the
+ * pivot and replacements are written as they are written — so every surface
+ * that shows "latest writing" has to render nothing gracefully rather than
+ * reach into an empty array.
+ */
+export function latestPosts(limit: number): PostMeta[] {
+  if (limit <= 0) return [];
+  return getPosts().slice(0, limit);
+}

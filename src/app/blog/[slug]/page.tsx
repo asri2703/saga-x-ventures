@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatDate, getPost, getPosts } from "@/lib/blog";
-import { getService } from "@/lib/services";
 import { site, waLink } from "@/lib/site";
 import { ButtonAnchor, ButtonLink, Container } from "@/components/ui";
 
@@ -39,7 +38,6 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
   const related = getPosts()
     .filter((p) => p.slug !== post.slug)
     .slice(0, 2);
-  const service = post.service ? getService(post.service) : undefined;
 
   /* BlogPosting schema. Gives Google the author, dates, and headline
      explicitly instead of leaving it to infer them from the markup. */
@@ -146,18 +144,9 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
               >
                 WhatsApp us
               </ButtonAnchor>
-              {service ? (
-                <ButtonLink
-                  href={`/services/${service.slug}`}
-                  variant="outline"
-                >
-                  About our {service.name.toLowerCase()}
-                </ButtonLink>
-              ) : (
-                <ButtonLink href="/services" variant="outline">
-                  See our services
-                </ButtonLink>
-              )}
+              <ButtonLink href="/coaching" variant="outline">
+                See the coaching
+              </ButtonLink>
             </div>
           </div>
         </Container>
