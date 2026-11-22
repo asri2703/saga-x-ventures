@@ -1,15 +1,19 @@
-import { waLink } from "@/lib/site";
-
 /**
  * Persistent WhatsApp button.
  *
- * For Malaysian SMEs this consistently out-converts a contact form — it is the
- * channel they already use, and it costs the visitor nothing to start.
+ * Kept deliberately, and deliberately demoted below the forms.
+ *
+ * Removing it would be the tidy answer for lead capture — a WhatsApp chat
+ * never reaches the database the forms fill. It would also be the wrong one:
+ * Malaysian buyers answer WhatsApp and abandon forms, and suppressing the
+ * channel people actually use in order to protect a table would cost real
+ * enquiries. It routes through /go/whatsapp so the volume is at least counted
+ * even when the conversation itself is not captured.
  */
 export function WhatsAppFloat() {
   return (
     <a
-      href={waLink()}
+      href="/go/whatsapp"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
