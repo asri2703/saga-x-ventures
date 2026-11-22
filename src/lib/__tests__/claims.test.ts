@@ -80,6 +80,32 @@ test("the 1,200 figure is never phrased as membership", () => {
   }
 });
 
+/**
+ * Prices are config.
+ *
+ * The owner is still settling the coaching numbers and expects to change them
+ * without a code change, so a ringgit figure typed into a page is a bug even
+ * when the figure is currently right. Everything goes through formatPrice.
+ */
+const PRICE_LITERAL = /RM\s?\d|\d\s?USD/;
+
+test("the money detector actually catches a hardcoded figure", () => {
+  // Without this the scan below could pass because the regex is wrong.
+  expect("Onsite RM4,970 all in").toMatch(PRICE_LITERAL);
+  expect("Minimum 500 USD deposit").toMatch(PRICE_LITERAL);
+  expect("Price on enquiry").not.toMatch(PRICE_LITERAL);
+});
+
+test("no money figure is hardcoded in a page or component", () => {
+  // Both the coaching prices and Fukyaa's deposit minimum are config. A
+  // figure typed into prose is a bug even while it is still correct: it goes
+  // stale silently and then two pages disagree about the same number.
+  for (const { file, text } of readAllCopy()) {
+    if (!file.includes("app") && !file.includes("components")) continue;
+    expect(text, file).not.toMatch(PRICE_LITERAL);
+  }
+});
+
 test("no agency-era social profiles remain", () => {
   for (const { file, text } of readAllCopy()) {
     expect(text, file).not.toMatch(/sagaxmedia|sagaxmarketing/i);
