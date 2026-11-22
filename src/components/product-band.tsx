@@ -25,7 +25,7 @@ export function ProductBand({
           <p className="display text-xl text-pine sm:text-2xl">
             “{product.forWho}”
           </p>
-          <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-pine-faint">
+          <p className="mt-4 text-sm font-semibold text-pine-faint">
             {product.name}
           </p>
           <p className="mt-2 leading-relaxed text-pine-soft">
@@ -73,7 +73,7 @@ export function ProductBand({
                 : "inline-block border border-pine px-5 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
             }
           >
-            {product.external ? "Open an account" : "See the classes"}
+            {product.cta}
           </Link>
         </div>
       </div>

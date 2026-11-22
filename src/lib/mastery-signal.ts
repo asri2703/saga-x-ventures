@@ -24,14 +24,14 @@ export const joinSteps: JoinStep[] = [
   {
     n: 1,
     title: "Open a broker account",
-    body: "Signals are placed on your own account with your own broker. Open it through the link below so the account is tied to this desk — that is what lets us see your setup when something goes wrong with it.",
+    body: "Signals are placed on your own account with your own broker. Open it through the link below so the account is tied to this desk. That is what lets me see your setup when something goes wrong with it.",
     outbound: "mastery-broker",
     cta: "Open the account",
   },
   {
     n: 2,
     title: "Fund it to match the package you want",
-    body: "The deposit is not a fee to us — it stays in your account and it is what you trade with. How much depends on which membership package you take, and a package that outruns your balance will not help you.",
+    body: "The deposit is not a fee. It stays in your account and it is what you trade with. How much depends on the membership package you take. A package that outruns your balance will not help you.",
     outbound: null,
     cta: null,
   },
@@ -45,7 +45,7 @@ export const joinSteps: JoinStep[] = [
   {
     n: 4,
     title: "I approve you by hand",
-    body: "Every member is approved manually. It is slower than a self-serve signup and it is deliberate: it is how the people who come through here stay identifiable as mine, and it is why I know who you are when you message.",
+    body: "Every member is approved by hand. It is slower than a self-serve signup. It also means I know who you are when you message me, and it keeps the people who came through here identifiable as mine.",
     outbound: null,
     cta: null,
   },
@@ -66,13 +66,13 @@ export const features: Feature[] = [
   {
     key: "signals",
     title: "Signals with the reasoning attached",
-    body: "Entry, stop and target, plus why the level was chosen. Copying a number teaches you nothing; the reasoning is the part you keep.",
+    body: "Entry, stop and target, plus why that level was picked. The reasoning is the part you still have after the trade closes.",
     image: null,
   },
   {
     key: "alerts",
     title: "Alerts that reach you",
-    body: "Push notification the moment a setup is posted, so you are not refreshing a dashboard waiting for one.",
+    body: "Push notification the moment a setup is posted, so you are not sitting on a dashboard refreshing it.",
     image: null,
   },
   {
@@ -90,7 +90,7 @@ export const features: Feature[] = [
   {
     key: "risk",
     title: "Risk sizing built in",
-    body: "Position size worked out from your balance rather than copied from someone whose account is nothing like yours.",
+    body: "Position size worked out from your balance, not copied from someone whose account looks nothing like yours.",
     image: null,
   },
 ];

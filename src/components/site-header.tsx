@@ -198,7 +198,7 @@ export function SiteHeader() {
           id="mobile-menu"
           className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto border-t border-rule bg-paper px-5 py-6 md:hidden"
         >
-          <p className="text-xs uppercase tracking-wide text-pine-faint">
+          <p className="text-xs text-pine-faint">
             Products
           </p>
           <ul className="mt-3 space-y-1">

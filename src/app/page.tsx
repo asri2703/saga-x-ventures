@@ -27,7 +27,7 @@ export default function HomePage() {
           <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,440px)] lg:gap-16">
             <div>
               <h1 className="display text-4xl leading-[1.05] text-pine sm:text-5xl lg:text-6xl">
-                Twelve years reading the same few charts.
+                Twelve years on the same few charts
               </h1>
 
               {/* Credibility as a sentence, not three numbers in a row. The
@@ -47,7 +47,7 @@ export default function HomePage() {
                   {site.founder.tradersGuided.toLocaleString("en-MY")} traders
                 </span>{" "}
                 across Malaysia and Indonesia over that time. Saga X Ventures is
-                where that work lives.
+                the company I run it all under.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -102,8 +102,9 @@ export default function HomePage() {
             Which one are you?
           </h2>
           <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
-            Three different problems. Picking the wrong one wastes your money,
-            so read the three lines below and take the one that sounds like you.
+            These three solve different problems. Take the one that sounds like
+            you. If none of them does, message me and I will tell you
+            straight whether I can help.
           </p>
 
           <div className="mt-12">
@@ -131,24 +132,31 @@ export default function HomePage() {
             </div>
             <div>
               <h2 className="display text-3xl text-pine sm:text-4xl">
-                Still trading, which is the point
+                I still trade
               </h2>
               <div className="mt-6 space-y-5 text-lg leading-relaxed text-pine-soft">
                 <p>
-                  Most people selling trading education stopped trading a long
-                  time ago. I did not. Everything I teach is what I am doing
-                  this week, on the same instruments, with the same hesitation
-                  before clicking.
+                  Most weeks that means a few positions. Some weeks it means
+                  none, because nothing I wanted showed up.
                 </p>
                 <p>
-                  I built Mastery Signal because traders kept asking me what I
-                  was looking at, and a screenshot never explained the reason.
-                  Fukyaa exists for the people who asked honestly whether they
-                  should be trading by hand at all.
+                  It matters for what I teach. When I talk about waiting for a
+                  level, it is because I sat on my hands waiting for one last
+                  week, not because it reads well in a lesson.
                 </p>
                 <p>
-                  What I will not do is tell you what you are going to earn. I
-                  do not know, and neither does anyone who tells you otherwise.
+                  Mastery Signal started because people kept asking what I was
+                  looking at. A screenshot of an entry never answered that, so
+                  the signals carry the reason the level was picked.
+                </p>
+                <p>
+                  Fukyaa came out of a different conversation. Some people told
+                  me straight that they were never going to learn to read a
+                  chart. Automation suits them better than a course would.
+                </p>
+                <p>
+                  I will not tell you what you are going to earn. I do not know
+                  what I am going to earn either.
                 </p>
               </div>
               <Link
@@ -173,8 +181,8 @@ export default function HomePage() {
               Sessions, online and in person
             </h2>
             <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
-              Webinars on Zoom, and seminars where we sit in the same room. The
-              schedule goes up here.
+              Webinars on Zoom, and seminars where we sit in the same room.
+              Dates go up here as they are set.
             </p>
             <Link
               href="/events"

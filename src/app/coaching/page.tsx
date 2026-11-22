@@ -21,12 +21,12 @@ const modes: { key: CoachingMode; label: string; note: string }[] = [
   {
     key: "online",
     label: "Online",
-    note: "Screen to screen. Same class, same attention, no travel for either of us.",
+    note: "Screen to screen. Same class, same hours, no travel for either of us.",
   },
   {
     key: "onsite",
     label: "In person",
-    note: "Two days and a night, face to face. The price is all in — my transport, hotel and expenses are already inside it, wherever you are.",
+    note: "Two days and a night, face to face. The price is all in. My transport, hotel and meals are already inside it, wherever you are.",
   },
 ];
 
@@ -39,13 +39,12 @@ export default function CoachingPage() {
         <Container>
           <div className="max-w-2xl">
             <h1 className="display text-4xl leading-[1.1] text-pine sm:text-5xl">
-              One to one. No class of thirty.
+              One to one, not a class of thirty
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-pine-soft">
-              Three classes, taken in order or taken one at a time. Each is
-              about a day of work, just the two of us, and we go at whatever
-              pace it actually takes — some things land in an hour and some
-              take the whole afternoon.
+              Three classes. Take them in order or take one on its own. Each
+              runs about a day, just the two of us. Some things land in an
+              hour. Some take the whole afternoon.
             </p>
           </div>
         </Container>
@@ -64,9 +63,8 @@ export default function CoachingPage() {
                 Take this if you want to trade yourself
               </h2>
               <p className="mt-3 leading-relaxed text-pine-soft">
-                You want to understand what you are looking at, place your own
-                trades, and know why you were wrong when you were wrong. That is
-                what these days are for.
+                You want to place your own trades and understand what you are
+                looking at while you do it. That is what these days are for.
               </p>
             </div>
             <div>
@@ -74,8 +72,8 @@ export default function CoachingPage() {
                 Do not take it if you want it handled
               </h2>
               <p className="mt-3 leading-relaxed text-pine-soft">
-                If you want the market traded for you rather than to learn to
-                read it, coaching is the wrong spend.{" "}
+                If you want the market traded for you, this is the wrong
+                spend.{" "}
                 {fukyaa ? (
                   <Link
                     href={fukyaa.href}
@@ -101,8 +99,8 @@ export default function CoachingPage() {
             The three classes
           </h2>
           <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
-            Each one assumes the one before it. Most people start at the top
-            even when they think they are past it.
+            Each one assumes the one before it. Most people should start at
+            the top, including the ones who think they are past it.
           </p>
 
           <div className="mt-12">
@@ -173,8 +171,8 @@ export default function CoachingPage() {
             </h2>
             <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
               Message me with what you have traded so far and which class you
-              think you need. We agree the dates first, then I send you a
-              payment link — never the other way round.
+              think you need. We fix the dates first. The payment link comes
+              after that, not before.
             </p>
 
             <a

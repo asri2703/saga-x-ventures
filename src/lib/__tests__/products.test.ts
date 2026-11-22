@@ -57,3 +57,14 @@ test("every product opens in the visitor's own voice, not the product name", () 
     expect(p.forWho.toLowerCase()).not.toContain(p.name.toLowerCase());
   }
 });
+
+test("every product says what its button does, rather than guessing from a flag", () => {
+  // The label used to be derived from `external`, so the moment Mastery
+  // Signal got a page of its own its button read "See the classes" on a
+  // product with no classes.
+  for (const p of products) {
+    expect(p.cta, p.key).toBeTruthy();
+    expect(p.cta.length, p.key).toBeLessThan(24);
+  }
+  expect(getProduct("mastery-signal")!.cta).not.toMatch(/class/i);
+});

@@ -15,7 +15,7 @@ import { Container, Section } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Writing",
   description:
-    "Notes on trading from Asri Zulzali — how a market is read, what the week looked like, and the mistakes worth describing out loud.",
+    "Notes on trading from Asri Zulzali: reading a market, what the week looked like, and the mistakes worth writing down.",
   alternates: { canonical: "/blog" },
 };
 
@@ -28,9 +28,9 @@ export default function BlogIndex() {
         <div className="max-w-2xl">
           <h1 className="display text-4xl text-pine sm:text-5xl">Writing</h1>
           <p className="mt-6 text-lg leading-relaxed text-pine-soft">
-            Notes on how a market gets read, what this week actually looked
-            like, and the mistakes worth describing out loud. No tips, and
-            nothing that tells you what to buy.
+            Notes on reading a market, what the week looked like, and the
+            mistakes I keep making. No tips, and nothing telling you what to
+            buy.
           </p>
         </div>
 
@@ -63,8 +63,8 @@ export default function BlogIndex() {
               Nothing published yet.
             </p>
             <p className="mt-3 leading-relaxed text-pine-soft">
-              The first notes are being written. If there is something you want
-              explained, say so and it may well become the first one.
+              I am writing the first ones. If there is something you want
+              explained, tell me and I will start there.
             </p>
             <a
               href="/go/whatsapp?m=topic"

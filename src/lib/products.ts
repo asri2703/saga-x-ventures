@@ -59,6 +59,12 @@ export type Product = {
   requirement: string | null;
   /** The first action. `/go/<OutboundKey>` when external. */
   href: string;
+  /**
+   * What the button says. Derived from `external` until Mastery Signal got a
+   * page: the label flipped to "See the classes" on a product that has no
+   * classes, because one boolean was standing in for three different actions.
+   */
+  cta: string;
   external: boolean;
 };
 
@@ -68,7 +74,7 @@ export const products: Product[] = [
     name: "Mastery Signal",
     forWho: "I can trade. I just need the setups.",
     summary:
-      "Live signals with the reasoning attached, so you are reading the market rather than copying someone who is.",
+      "Live signals with the level and the reason for it, so you can check the call before you take it.",
     steps: [
       { label: "Open a broker account", outbound: "mastery-broker" },
       { label: "Fund it to match the package you want", outbound: null },
@@ -80,6 +86,7 @@ export const products: Product[] = [
     // membership means anything — produced dead registrations. The page
     // explains the order first, then hands over the same links.
     href: "/mastery-signal",
+    cta: "See how to join",
     external: false,
   },
   {
@@ -87,7 +94,7 @@ export const products: Product[] = [
     name: "Fukyaa AI Auto Trade",
     forWho: "I don't know how to trade.",
     summary:
-      "An expert advisor places the trades for you. You fund the account and leave it running.",
+      "An expert advisor places the trades. You fund the account and leave it running.",
     steps: [
       { label: "Open a broker account", outbound: "fukyaa-broker" },
       { label: "Fund it with at least 500 USD", outbound: null },
@@ -95,6 +102,7 @@ export const products: Product[] = [
     ],
     requirement: "Minimum 500 USD deposit",
     href: "/go/fukyaa-broker",
+    cta: "Open an account",
     external: true,
   },
   {
@@ -106,6 +114,7 @@ export const products: Product[] = [
     steps: [],
     requirement: null,
     href: "/coaching",
+    cta: "See the classes",
     external: false,
   },
 ];

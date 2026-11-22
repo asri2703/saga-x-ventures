@@ -17,17 +17,15 @@ export default function AboutPage() {
         <Container>
           <div className="max-w-2xl">
             <h1 className="display text-4xl leading-[1.1] text-pine sm:text-5xl">
-              {site.founder.yearsExperience} years, and still the same few
-              instruments
+              How I got here
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-pine-soft">
-              Saga X Ventures is {site.founder.name}&rsquo;s trading practice.
-              Everything under it — the signals, the automation, the coaching —
-              comes out of the same work, done daily, for{" "}
+              Saga X Ventures is my company. The signals, the automation and
+              the coaching all come out of the same{" "}
               <span className="display tnum text-pine">
                 {site.founder.yearsExperience} years
-              </span>
-              .
+              </span>{" "}
+              of work.
             </p>
           </div>
         </Container>
@@ -53,35 +51,31 @@ export default function AboutPage() {
 
             <div className="space-y-6 text-lg leading-relaxed text-pine-soft">
               <p>
-                I started trading because I wanted the money, which is the same
-                reason everyone starts. I kept trading because the part that
-                actually interested me turned out to be different: why a market
-                stops in one place and not another, and why I kept doing the
-                wrong thing even after I knew better.
+                I started trading for the money. Everyone does.
+              </p>
+              <p>
+                What kept me at it was narrower. Why a market turns at one
+                price and not the one ten pips above it. Why I kept taking the
+                trade I already knew was wrong.
               </p>
               <p>
                 Over those years I have taught more than{" "}
                 <span className="display tnum text-pine">
                   {site.founder.tradersGuided.toLocaleString("en-MY")} traders
                 </span>{" "}
-                across Malaysia and Indonesia — in rooms, on calls, and
-                one-to-one. That number is the whole span of the work, not a
-                membership count and not people currently subscribed to
-                anything.
+                across Malaysia and Indonesia. In rooms, on calls, and one to
+                one. That number covers the whole span of the work. It is not a
+                membership count, and nobody is currently subscribed to it.
               </p>
               <p>
-                I built Mastery Signal because the same question kept arriving:
-                what are you looking at right now? A signal on its own answers
-                that badly. A signal with the reasoning attached teaches
-                something, and the people who read the reasoning stopped needing
-                me.
+                Mastery Signal started with one question I kept getting: what
+                are you looking at right now. An entry price does not answer
+                it, so the signals carry the level and the reason for it.
               </p>
               <p>
-                Fukyaa came from the opposite conversation — people who were
-                honest enough to say they did not want to learn to trade and
-                never would. Automation is a reasonable answer to that, and
-                pretending otherwise just to sell a course would have been
-                dishonest.
+                Fukyaa came from people who told me plainly that they did not
+                want to learn and never would. I would rather hand them
+                automation than sell them a course they will not finish.
               </p>
 
               <h2 className="display pt-4 text-2xl text-pine">
@@ -89,13 +83,11 @@ export default function AboutPage() {
               </h2>
               <p>
                 I will not tell you what you are going to earn. Not a monthly
-                figure, not a percentage, not a screenshot of a good week. I do
-                not know, nobody does, and the people who put a number on it are
-                selling you the number rather than the skill.
+                figure, not a percentage, not a screenshot of a good week.
               </p>
               <p>
-                Trading carries real risk of losing real money. Anything on this
-                site is education, not financial advice, and none of it is a
+                Trading carries real risk of losing real money. Everything here
+                is education. None of it is financial advice or a
                 recommendation to buy or sell anything.
               </p>
             </div>

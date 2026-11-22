@@ -41,20 +41,20 @@ export default function MasterySignalPage() {
             />
 
             <h1 className="display mt-8 text-4xl leading-[1.1] text-pine sm:text-5xl">
-              The reasoning, not just the number
+              What I am looking at, and why
             </h1>
 
             <div className="mt-7 space-y-5 text-lg leading-relaxed text-pine-soft">
               <p>
-                Mastery Signal is the desk I built after the same question kept
-                arriving: what are you looking at right now? A signal on its own
-                answers that badly. You copy a number, it works or it does not,
-                and you have learned nothing either way.
+                Mastery Signal is the desk I built after one question kept
+                coming back: what are you looking at right now. An entry price
+                on its own does not answer it. You copy a number, it works or
+                it does not, and you are no better at this afterwards.
               </p>
               <p>
                 So every call carries the level it is built on and why that
-                level matters. Members who read the reasoning stop needing the
-                signals, which is the only honest outcome to aim for.
+                level is there. Members who read that part start calling the
+                same levels themselves. That is the point of writing it.
               </p>
               <p>
                 It serves{" "}
@@ -109,9 +109,9 @@ export default function MasterySignalPage() {
               Joining, in order
             </h2>
             <p className="mt-4 leading-relaxed text-pine-soft">
-              Four steps, and the order is not optional. Membership does
-              nothing until there is a funded account behind it, which is the
-              step most people skip and then wonder why nothing happens.
+              Four steps, and the order matters. Membership does nothing
+               until there is a funded account behind it. That is the step
+               people skip, and then nothing works and they cannot see why.
             </p>
 
             {product.requirement ? (
@@ -158,8 +158,8 @@ export default function MasterySignalPage() {
 
           <div className="mt-14 max-w-2xl">
             <p className="leading-relaxed text-pine-soft">
-              Stuck on any step, or not sure which package fits what you have
-              to trade with? Ask before you pay, not after.
+              Stuck on a step, or not sure which package fits what you have
+              to trade with? Ask me before you pay.
             </p>
             <a
               href="/go/whatsapp?m=contact"
