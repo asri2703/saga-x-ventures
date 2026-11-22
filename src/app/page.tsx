@@ -75,22 +75,20 @@ export default function HomePage() {
               <SectionHeading eyebrow="Who I am" title="I still trade" />
               <div className="mt-6 space-y-5 text-lg leading-relaxed text-pine-soft">
                 <p>
-                  I am {site.founder.name}. Most weeks that means a few
-                  positions. Some weeks it means none, because nothing I wanted
-                  showed up.
+                  I am {site.founder.name}. Twelve years trading, and I still
+                  trade now.
                 </p>
                 <p>
-                  Twelve years of it, and more than{" "}
+                  A normal week is a few positions. Some weeks there is nothing
+                  worth taking and I take nothing.
+                </p>
+                <p>
+                  More than{" "}
                   <span className="display tnum text-pine">
                     {site.founder.tradersGuided.toLocaleString("en-MY")} traders
                   </span>{" "}
-                  taught across Malaysia and Indonesia over that time. In rooms,
-                  on calls, one to one.
-                </p>
-                <p>
-                  It matters for what I teach. When I talk about waiting for a
-                  level, it is because I sat on my hands waiting for one last
-                  week.
+                  have been through a class or a call with me, across Malaysia
+                  and Indonesia.
                 </p>
               </div>
               <Link

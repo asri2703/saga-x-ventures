@@ -32,8 +32,8 @@ export default function FukyaaPage() {
             <div className="mt-7 space-y-5 text-lg leading-relaxed text-pine-soft">
               <p>
                 Some people told me straight that they were never going to sit
-                and learn this. They were right about themselves, and selling
-                them a course would have been a waste of their money.
+                and learn this. Selling them a course would have wasted their
+                money.
               </p>
               <p>
                 So: an expert advisor places the trades, running on a server
