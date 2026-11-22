@@ -24,7 +24,7 @@ export default function HomePage() {
               the hero taller than a screen and buries the fork below the
               fold, so the column is capped rather than the image cropped —
               the shoes and the whole seated pose are the shot. */}
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,420px)] lg:gap-16">
+          <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,440px)] lg:gap-16">
             <div>
               <h1 className="display text-4xl leading-[1.05] text-pine sm:text-5xl lg:text-6xl">
                 Twelve years reading the same few charts.
@@ -71,20 +71,23 @@ export default function HomePage() {
                 face rather than a dashboard is already saying something its
                 competitors are not.
 
-                The studio backdrop was a cool #F2F1F4 and read as a grey patch
-                on warm paper; it was shifted warm to #F6F2E9, which lands on
-                the paper-raised token, so the panel has no visible seam. */}
-            <div className="border border-rule bg-paper-raised">
-              <Image
-                src="/asri-hero.jpg"
-                alt={`${site.founder.name}, founder of ${site.name}`}
-                width={1024}
-                height={1536}
-                className="h-auto w-full"
-                sizes="(min-width: 1024px) 420px, 100vw"
-                priority
-              />
-            </div>
+                No frame. The earlier version was a studio shot with a cool
+                white backdrop that had to be warmed and boxed so it would not
+                read as a grey patch on warm paper. This one is cut out, so it
+                sits directly on the page — which is the stronger picture and
+                removes the panel entirely rather than disguising it.
+
+                WebP because the cutout needs its alpha channel; at 172KB it
+                is an eighth of the equivalent PNG. */}
+            <Image
+              src="/asri-hero.webp"
+              alt={`${site.founder.name}, founder of ${site.name}`}
+              width={1003}
+              height={1516}
+              className="h-auto w-full"
+              sizes="(min-width: 1024px) 440px, 100vw"
+              priority
+            />
           </div>
         </Container>
       </Section>
