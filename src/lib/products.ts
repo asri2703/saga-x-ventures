@@ -15,10 +15,11 @@
 import { site } from "@/lib/site";
 
 export type OutboundKey =
-  | "mastery-broker"
+  | "broker-cent"
+  | "broker-standard"
   | "mastery-membership"
-  | "fukyaa-broker"
   | "fukyaa-register"
+  | "copytrade-join"
   | "whatsapp";
 
 /**
@@ -28,12 +29,20 @@ export type OutboundKey =
  * once, here, and never inlined anywhere else.
  */
 export const outbound: Record<OutboundKey, string> = {
-  "mastery-broker":
-    "https://platform.hmvestportal.com/regist-real?invitid=1AA974-WAVJR35865",
-  "mastery-membership": "https://www.masterysignal.com/membership",
-  "fukyaa-broker":
+  // Cent: smaller contract sizes, which is why the EA and copy-trading
+  // products sit here — finer position sizing, smaller risk per step.
+  "broker-cent":
     "https://platform.hmvestportal.com/regist-real?invitid=004VL9-TRMRV13456",
+  "broker-standard":
+    "https://platform.hmvestportal.com/regist-real?invitid=1AA974-WAVJR35865",
+  // Both routes through this site end here: the client registers, chooses
+  // their tier, and is approved by hand. This site never links to /join,
+  // which is the card checkout and has its own customer list.
+  "mastery-membership": "https://www.masterysignal.com/membership",
   "fukyaa-register": "https://fukyaa.com/register",
+  // Not set up yet. Empty rather than absent so the type stays closed and a
+  // step renders a placeholder instead of linking to the current page.
+  "copytrade-join": "",
   // Built from site.ts rather than copied. A second set of digits means
   // changing the number updates the footer, the tel: link and the schema
   // while the float on every page keeps dialling the old one.
@@ -57,6 +66,14 @@ export type Product = {
   steps: Step[];
   /** The qualifier that decides whether someone should bother. */
   requirement: string | null;
+  /**
+   * Which broker account type this product needs.
+   *
+   * This is what actually divides the products — the two invite codes are
+   * per account type, not per product, and three products share two codes.
+   * null where no broker account is involved.
+   */
+  account: "cent" | "standard" | null;
   /** The first action. `/go/<OutboundKey>` when external. */
   href: string;
   /**
@@ -76,11 +93,12 @@ export const products: Product[] = [
     summary:
       "Live signals with the level and the reason for it, so you can check the call before you take it.",
     steps: [
-      { label: "Open a broker account", outbound: "mastery-broker" },
+      { label: "Open a standard account", outbound: "broker-standard" },
       { label: "Fund it to match the package you want", outbound: null },
       { label: "Take out membership", outbound: "mastery-membership" },
     ],
-    requirement: "Deposit sized to the package you choose",
+    requirement: "Deposit sized to the tier you choose",
+    account: "standard",
     // Mastery Signal has a page here now. Sending someone straight to a
     // broker signup they cannot complete — it needs a funded account before
     // membership means anything — produced dead registrations. The page
@@ -96,12 +114,13 @@ export const products: Product[] = [
     summary:
       "An expert advisor places the trades. You fund the account and leave it running.",
     steps: [
-      { label: "Open a broker account", outbound: "fukyaa-broker" },
+      { label: "Open a cent account", outbound: "broker-cent" },
       { label: "Fund it with at least 500 USD", outbound: null },
       { label: "Register for auto trade", outbound: "fukyaa-register" },
     ],
     requirement: "Minimum 500 USD deposit",
-    href: "/go/fukyaa-broker",
+    account: "cent",
+    href: "/go/broker-cent",
     cta: "Open an account",
     external: true,
   },
@@ -113,6 +132,7 @@ export const products: Product[] = [
       "One to one, a day per class, from reading a chart to trading the news.",
     steps: [],
     requirement: null,
+    account: null,
     href: "/coaching",
     cta: "See the classes",
     external: false,

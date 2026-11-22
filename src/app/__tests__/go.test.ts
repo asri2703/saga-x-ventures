@@ -14,14 +14,14 @@ const req = (product: string) =>
   new Request(`https://sagaxventures.com/go/${product}`);
 
 test("a known key redirects to its destination", async () => {
-  const res = await GET(req("fukyaa-broker"), ctx("fukyaa-broker"));
+  const res = await GET(req("broker-cent"), ctx("broker-cent"));
   expect(res.status).toBe(302);
   expect(res.headers.get("location")).toContain("invitid=004VL9-TRMRV13456");
 });
 
 test("the two products do not share a broker link", async () => {
-  const fukyaa = await GET(req("fukyaa-broker"), ctx("fukyaa-broker"));
-  const mastery = await GET(req("mastery-broker"), ctx("mastery-broker"));
+  const fukyaa = await GET(req("broker-cent"), ctx("broker-cent"));
+  const mastery = await GET(req("broker-standard"), ctx("broker-standard"));
   expect(mastery.headers.get("location")).toContain("invitid=1AA974-WAVJR35865");
   expect(mastery.headers.get("location")).not.toEqual(
     fukyaa.headers.get("location"),

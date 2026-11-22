@@ -1,14 +1,27 @@
 import { expect, test } from "vitest";
 import { products, getProduct, outbound } from "@/lib/products";
 
-test("the two broker invite codes are distinct and correctly assigned", () => {
-  expect(outbound["mastery-broker"]).toContain("invitid=1AA974-WAVJR35865");
-  expect(outbound["fukyaa-broker"]).toContain("invitid=004VL9-TRMRV13456");
-  expect(outbound["mastery-broker"]).not.toEqual(outbound["fukyaa-broker"]);
+test("the invite codes are per account type, not per product", () => {
+  expect(outbound["broker-cent"]).toContain("invitid=004VL9-TRMRV13456");
+  expect(outbound["broker-standard"]).toContain("invitid=1AA974-WAVJR35865");
+  expect(outbound["broker-cent"]).not.toEqual(outbound["broker-standard"]);
 });
 
-test("every outbound destination is an absolute https URL", () => {
-  for (const url of Object.values(outbound)) expect(url).toMatch(/^https:\/\//);
+test("each existing product names its account type", () => {
+  // Copytrade does not exist until Task 2; its assertion lives there.
+  expect(getProduct("fukyaa")!.account).toBe("cent");
+  expect(getProduct("mastery-signal")!.account).toBe("standard");
+});
+
+test("a destination that is not set yet is empty, not a broken URL", () => {
+  expect(outbound["copytrade-join"]).toBe("");
+});
+
+test("every non-empty destination is an absolute https URL", () => {
+  for (const [key, url] of Object.entries(outbound)) {
+    if (url === "") continue;
+    expect(url, key).toMatch(/^https:\/\//);
+  }
 });
 
 test("fukyaa states its deposit minimum", () => {
@@ -30,7 +43,7 @@ test("each external product's first action points at a real outbound key", () =>
     const key = p.href.replace("/go/", "");
     expect(Object.keys(outbound), `${p.key} href`).toContain(key);
   }
-  expect(getProduct("fukyaa")!.href).toBe("/go/fukyaa-broker");
+  expect(getProduct("fukyaa")!.href).toBe("/go/broker-cent");
 });
 
 test("a product with a page on this site links to the page, not past it", () => {
