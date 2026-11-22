@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ibProducts, retailProducts, getProduct } from "@/lib/products";
@@ -136,10 +137,11 @@ export default function HomePage() {
                 q: "Can you build it for me?",
                 a: "Other people with their own clients wanted the same tools under their own name. I had already built mine, so I build theirs.",
               },
-            ].map((item) => (
+            ].map((item, i) => (
               <div
                 key={item.k}
                 data-reveal
+                style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
                 className="border border-rule bg-paper-raised p-7"
               >
                 <p className="display text-xl leading-snug text-pine">
