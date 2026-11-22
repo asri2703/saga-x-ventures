@@ -37,24 +37,6 @@ export default function HomePage() {
                 empowering traders to focus on what matters most.
               </p>
 
-              {/* The portrait beside this is a man with no name attached once
-                  the headline stopped introducing him. This line is the
-                  smallest thing that fixes that, and it carries the two
-                  figures the whole site's credibility rests on. */}
-              <p className="mt-6 max-w-xl text-pine-faint">
-                <span className="font-semibold text-pine">
-                  {site.founder.name}
-                </span>
-                , founder.{" "}
-                <span className="display tnum text-pine">
-                  {site.founder.yearsExperience} years
-                </span>{" "}
-                trading,{" "}
-                <span className="display tnum text-pine">
-                  {site.founder.tradersGuided.toLocaleString("en-MY")}+ traders
-                </span>{" "}
-                taught across Malaysia and Indonesia.
-              </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Link
