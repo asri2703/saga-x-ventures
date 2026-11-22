@@ -63,3 +63,48 @@ test("no exclamation marks in visible copy", () => {
     expect(prose, file).toHaveLength(0);
   }
 });
+
+/* ------------------------------------------------------------------ *
+ * Decoration and motion.
+ *
+ * The bans come from unslop, which the owner brought in. Motion shows what
+ * changed; it does not ask for attention.
+ * ------------------------------------------------------------------ */
+
+const BANNED_DECORATION =
+  /animate-pulse|animate-ping|transition-all|hover:scale|drop-shadow-\[|shadow-\[0_0_|bg-gradient-to-/;
+
+test("the decoration detector works", () => {
+  expect('className="transition-all"').toMatch(BANNED_DECORATION);
+  expect('className="hover:scale-105"').toMatch(BANNED_DECORATION);
+  expect('className="transition-colors"').not.toMatch(BANNED_DECORATION);
+});
+
+test("no banned motion or decoration utilities are used", () => {
+  for (const { file, text } of files()) {
+    expect(text, file).not.toMatch(BANNED_DECORATION);
+  }
+});
+
+test("the retired grid class is gone", () => {
+  for (const { file, text } of files()) {
+    expect(text, file).not.toMatch(/bg-chart-grid/);
+  }
+});
+
+test("revealed content is only ever hidden behind a class JavaScript adds", () => {
+  // The hidden starting state must sit under .motion-ready. Written as a
+  // bare [data-reveal] rule, every revealed section disappears for anyone
+  // whose JavaScript failed or was blocked.
+  const selectors = fs
+    .readFileSync("src/app/globals.css", "utf8")
+    .split(/\r?\n/)
+    .filter((line) => line.includes("[data-reveal]") && line.includes("{"));
+
+  expect(selectors.length).toBeGreaterThan(0);
+  for (const selector of selectors) {
+    expect(selector, "a [data-reveal] rule outside .motion-ready").toContain(
+      ".motion-ready",
+    );
+  }
+});
