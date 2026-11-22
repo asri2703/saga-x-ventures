@@ -6,50 +6,78 @@
  * site.ts and products.ts exist.
  */
 
-export type JoinStep = {
-  n: number;
-  title: string;
-  body: string;
-  /** The outbound key this step hands over to, if it leaves the site. */
-  outbound: "mastery-broker" | "mastery-membership" | null;
-  cta: string | null;
-};
+import type { PaymentRoute } from "@/components/product-guide";
+import { masteryTiers } from "@/lib/commercial";
 
 /**
- * The order matters and is the whole reason this page exists: membership
- * means nothing without a funded account, so anyone sent straight to the
- * signup form registers and then stalls.
+ * Mastery Signal's two ways in.
+ *
+ * Both end at the same place: the client registers at masterysignal.com and
+ * is approved by hand. This site never links to /join — that is the card
+ * checkout, it has its own customer list, and a second one here would mean
+ * two records of who is a member.
+ *
+ * The order matters and is the whole reason this page exists: registering
+ * before there is a funded account behind it leaves people stalled.
  */
-export const joinSteps: JoinStep[] = [
-  {
-    n: 1,
-    title: "Open a broker account",
-    body: "Signals are placed on your own account with your own broker. Open it through the link below so the account is tied to this desk. That is what lets me see your setup when something goes wrong with it.",
-    outbound: "mastery-broker",
-    cta: "Open the account",
-  },
-  {
-    n: 2,
-    title: "Fund it to match the package you want",
-    body: "The deposit is not a fee. It stays in your account and it is what you trade with. How much depends on the membership package you take. A package that outruns your balance will not help you.",
-    outbound: null,
-    cta: null,
-  },
-  {
-    n: 3,
-    title: "Take out membership",
-    body: "Pick the package on the Mastery Signal site. Once payment is through, your access key is issued against your email.",
-    outbound: "mastery-membership",
-    cta: "See the packages",
-  },
-  {
-    n: 4,
-    title: "I approve you by hand",
-    body: "Every member is approved by hand. It is slower than a self-serve signup. It also means I know who you are when you message me, and it keeps the people who came through here identifiable as mine.",
-    outbound: null,
-    cta: null,
-  },
-];
+export function masterySignalRoutes(): PaymentRoute[] {
+  const tiers = masteryTiers
+    .map((t) => `${t.name} from ${t.minDepositUsd} USD`)
+    .join(", ");
+
+  return [
+    {
+      key: "deposit",
+      label: "Fund a trading account",
+      summary: `Deposit into your own trading account and the subscription costs nothing. How much decides which tools you get: ${tiers}.`,
+      steps: [
+        {
+          n: 1,
+          title: "Open a standard account",
+          body: "Signals are placed on your own account with your own broker. Open it through the link below so I can see your setup when something goes wrong with it.",
+          outbound: "broker-standard",
+          cta: "Open the account",
+        },
+        {
+          n: 2,
+          title: "Fund it to the tier you want",
+          body: "The money stays in your account and it is what you trade with. It is not a fee. A tier that outruns your balance will not help you.",
+          outbound: null,
+          cta: null,
+        },
+        {
+          n: 3,
+          title: "Register and choose your tier",
+          body: "Submit your account details on the Mastery Signal site. Your access key is emailed once it is verified.",
+          outbound: "mastery-membership",
+          cta: "Register",
+        },
+      ],
+    },
+    {
+      key: "direct",
+      label: "Pay the subscription instead",
+      summary:
+        "Would rather not put money into a trading account, or do not want to pay by card? Pay here by FPX or QR and the subscription runs on its own.",
+      steps: [
+        {
+          n: 1,
+          title: "Arrange payment",
+          body: "FPX or DuitNow QR, in ringgit. Message me and I will send the details — checkout on this site is being built and will replace this step.",
+          outbound: null,
+          cta: null,
+        },
+        {
+          n: 2,
+          title: "Register and choose Pro",
+          body: "Once payment is through, register on the Mastery Signal site and choose Pro. I approve it by hand on that side.",
+          outbound: "mastery-membership",
+          cta: "Register",
+        },
+      ],
+    },
+  ];
+}
 
 export type Feature = {
   key: string;
