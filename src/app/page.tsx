@@ -1,29 +1,27 @@
 import Link from "next/link";
 import Image from "next/image";
-import { latestPosts, formatDate } from "@/lib/blog";
-import { products } from "@/lib/products";
+import { ibProducts, retailProducts, getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
 import { Container, Section } from "@/components/ui";
+import { SectionHeading } from "@/components/section-heading";
 import { MarkedChart } from "@/components/marked-chart";
-import { ProductBand } from "@/components/product-band";
+import { AccountGateway } from "@/components/account-gateway";
 
 export default function HomePage() {
-  const posts = latestPosts(3);
+  const cent = retailProducts.filter((p) => p.account === "cent");
+  const standard = retailProducts.filter((p) => p.account === "standard");
+  const coaching = getProduct("coaching")!;
 
   return (
     <>
       {/* ---------------------------------------------------------------
-          Hero.
-          The one ruby element in this viewport is the level inside the
-          diagram, so the button beside it is deliberately quiet. Two marks
-          competing is the same as no mark at all.
+          1. Hero. The owner's own copy, kept as he wrote it.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
           {/* The portrait is a full-length 2:3. Given a wide column it makes
               the hero taller than a screen and buries the fork below the
-              fold, so the column is capped rather than the image cropped —
-              the shoes and the whole seated pose are the shot. */}
+              fold, so the column is capped rather than the image cropped. */}
           <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,440px)] lg:gap-16">
             <div>
               <h1 className="display text-4xl leading-[1.05] text-pine sm:text-5xl lg:text-6xl">
@@ -36,7 +34,6 @@ export default function HomePage() {
                 trading experience simpler, smarter and more flexible,
                 empowering traders to focus on what matters most.
               </p>
-
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Link
@@ -54,19 +51,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* The hero is the person, not the product. He is what the three
-                products have in common, and a trading site that leads with a
-                face rather than a dashboard is already saying something its
-                competitors are not.
-
-                No frame. The earlier version was a studio shot with a cool
-                white backdrop that had to be warmed and boxed so it would not
-                read as a grey patch on warm paper. This one is cut out, so it
-                sits directly on the page — which is the stronger picture and
-                removes the panel entirely rather than disguising it.
-
-                WebP because the cutout needs its alpha channel; at 172KB it
-                is an eighth of the equivalent PNG. */}
             <Image
               src="/asri-hero.webp"
               alt={`${site.founder.name}, founder of ${site.name}`}
@@ -81,146 +65,182 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          The fork. Three answers to one question, sorted by what the
-          visitor can already do.
+          2. Who I am.
       --------------------------------------------------------------- */}
-      <Section id="fork">
+      <Section tone="raised">
         <Container>
-          <h2 className="display max-w-2xl text-3xl text-pine sm:text-4xl">
-            Which one are you?
-          </h2>
-          <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
-            These three solve different problems. Take the one that sounds like
-            you. If none of them does, message me and I will tell you
-            straight whether I can help.
-          </p>
-
-          <div className="mt-12">
-            {products.map((product) => (
-              <ProductBand
-                key={product.key}
-                product={product}
-                marked={product.key === "coaching"}
-              />
-            ))}
-          </div>
-        </Container>
-      </Section>
-
-      {/* --------------------------------------------------------------- */}
-      <Section>
-        <Container>
-          {/* The chart moved here from the hero when the portrait took that
-              slot. It belongs next to this text better than it did up there:
-              the hero says who he is, this section says how he works, and a
-              diagram of how a level gets chosen is exactly that. */}
-          <div className="grid gap-12 md:grid-cols-[1fr_1fr] md:gap-16">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
             <div>
-              <MarkedChart />
-            </div>
-            <div>
-              <h2 className="display text-3xl text-pine sm:text-4xl">
-                I still trade
-              </h2>
+              <SectionHeading eyebrow="Who I am" title="I still trade" />
               <div className="mt-6 space-y-5 text-lg leading-relaxed text-pine-soft">
                 <p>
-                  Most weeks that means a few positions. Some weeks it means
-                  none, because nothing I wanted showed up.
+                  I am {site.founder.name}. Most weeks that means a few
+                  positions. Some weeks it means none, because nothing I wanted
+                  showed up.
+                </p>
+                <p>
+                  Twelve years of it, and more than{" "}
+                  <span className="display tnum text-pine">
+                    {site.founder.tradersGuided.toLocaleString("en-MY")} traders
+                  </span>{" "}
+                  taught across Malaysia and Indonesia over that time. In rooms,
+                  on calls, one to one.
                 </p>
                 <p>
                   It matters for what I teach. When I talk about waiting for a
                   level, it is because I sat on my hands waiting for one last
-                  week, not because it reads well in a lesson.
-                </p>
-                <p>
-                  Mastery Signal started because people kept asking what I was
-                  looking at. A screenshot of an entry never answered that, so
-                  the signals carry the reason the level was picked.
-                </p>
-                <p>
-                  Fukyaa came out of a different conversation. Some people told
-                  me straight that they were never going to learn to read a
-                  chart. Automation suits them better than a course would.
-                </p>
-                <p>
-                  I will not tell you what you are going to earn. I do not know
-                  what I am going to earn either.
+                  week.
                 </p>
               </div>
               <Link
                 href="/about"
                 className="mt-7 inline-block text-base text-pine underline decoration-ruby decoration-2 underline-offset-4"
               >
-                More about the twelve years
+                The longer version
               </Link>
+            </div>
+
+            <div data-reveal>
+              <MarkedChart />
             </div>
           </div>
         </Container>
       </Section>
 
       {/* ---------------------------------------------------------------
-          Next session. Plan 2 fills this from the events table; until
-          then it degrades to an invitation rather than an empty box.
+          3. Why I built these.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <div className="border border-rule bg-paper-raised p-8 sm:p-12">
-            <h2 className="display text-2xl text-pine sm:text-3xl">
-              Sessions, online and in person
-            </h2>
-            <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
-              Webinars on Zoom, and seminars where we sit in the same room.
-              Dates go up here as they are set.
+          <SectionHeading eyebrow="Why I built these" title="Three conversations">
+            <p>
+              None of this started as a product. Each one came out of the same
+              question asked a different way.
             </p>
-            <Link
-              href="/events"
-              className="mt-7 inline-block bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
-            >
-              See what is coming
-            </Link>
+          </SectionHeading>
+
+          <div className="mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
+            {[
+              {
+                k: "signal",
+                q: "What are you looking at right now?",
+                a: "People asked me that for years. An entry price never answered it, so I started writing down the level and why it was there. That became Mastery Signal.",
+              },
+              {
+                k: "auto",
+                q: "I am never going to learn this.",
+                a: "Said to my face, more than once, by people who were right about themselves. Selling them a course would have wasted their money. So they get an expert advisor and a server instead.",
+              },
+              {
+                k: "build",
+                q: "Can you build it for me?",
+                a: "Other people with their own clients wanted the same tools under their own name. I had already built mine, so I build theirs.",
+              },
+            ].map((item) => (
+              <div
+                key={item.k}
+                data-reveal
+                className="border border-rule bg-paper-raised p-7"
+              >
+                <p className="display text-xl leading-snug text-pine">
+                  &ldquo;{item.q}&rdquo;
+                </p>
+                <p className="mt-4 leading-relaxed text-pine-soft">{item.a}</p>
+              </div>
+            ))}
           </div>
+
+          <p className="mt-10 max-w-2xl leading-relaxed text-pine-soft" data-reveal>
+            What I will not do is tell you what you are going to earn. I do not
+            know what I am going to earn either.
+          </p>
         </Container>
       </Section>
 
       {/* ---------------------------------------------------------------
-          Latest writing. Renders nothing at all when the blog is empty,
-          which it legitimately is right now.
+          4. The solutions, forked by account type.
       --------------------------------------------------------------- */}
-      {posts.length > 0 ? (
-        <Section>
-          <Container>
-            <div className="flex items-end justify-between gap-6">
-              <h2 className="display text-3xl text-pine sm:text-4xl">
-                Writing
-              </h2>
-              <Link
-                href="/blog"
-                className="shrink-0 text-base text-pine underline decoration-ruby decoration-2 underline-offset-4"
-              >
-                All posts
-              </Link>
-            </div>
+      <Section id="fork" tone="raised">
+        <Container>
+          <SectionHeading eyebrow="What I build" title="Which one are you?">
+            <p>
+              Everything starts with a broker account, and which type decides
+              what you can do with it. Read the lines below and take the one
+              that sounds like you.
+            </p>
+          </SectionHeading>
 
-            <ul className="mt-10">
-              {posts.map((post) => (
-                <li key={post.slug} className="border-t border-rule">
-                  <Link href={`/blog/${post.slug}`} className="block py-6">
-                    <p className="text-sm text-pine-faint tnum">
-                      {formatDate(post.date)}
-                    </p>
-                    <p className="display mt-1 text-xl text-pine">
-                      {post.title}
-                    </p>
-                    <p className="mt-2 max-w-2xl leading-relaxed text-pine-soft">
-                      {post.excerpt}
-                    </p>
-                  </Link>
-                </li>
+          <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            <AccountGateway
+              account="standard"
+              title="You want to place the trades"
+              note="Signals arrive with the level and the reason for it. You decide whether to take them."
+              products={standard}
+            />
+            <AccountGateway
+              account="cent"
+              title="You want them placed for you"
+              note="Smaller contract sizes, so positions can be sized finely. Follow a person, or follow a system."
+              products={cent}
+            />
+          </div>
+
+          <p
+            className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
+            data-reveal
+          >
+            The two account types are separate. If you want something from both
+            columns, that is two accounts — worth knowing before you open the
+            first one.
+          </p>
+
+          {/* Coaching sits outside the fork: it needs no broker account. */}
+          <div
+            data-reveal
+            className="mt-12 flex flex-col gap-6 border border-rule bg-paper p-7 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+          >
+            <div className="max-w-xl">
+              <p className="display text-xl text-pine">
+                &ldquo;{coaching.forWho}&rdquo;
+              </p>
+              <p className="mt-2 leading-relaxed text-pine-soft">
+                {coaching.summary}
+              </p>
+            </div>
+            <Link
+              href={coaching.href}
+              className="shrink-0 bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
+            >
+              {coaching.cta}
+            </Link>
+          </div>
+
+          {/* The IB lane. A door, not a pitch — these two have no page yet. */}
+          <div className="mt-12 border-t border-rule pt-10" data-reveal>
+            <h3 className="display text-xl text-pine">
+              If you have clients of your own
+            </h3>
+            <div className="mt-6 grid max-w-3xl gap-6 sm:grid-cols-2">
+              {ibProducts.map((product) => (
+                <div key={product.key}>
+                  <p className="font-semibold text-pine">{product.name}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-pine-soft">
+                    {product.summary}
+                  </p>
+                  <a
+                    href={product.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block text-sm text-pine underline decoration-ruby decoration-2 underline-offset-4"
+                  >
+                    {product.cta}
+                  </a>
+                </div>
               ))}
-            </ul>
-          </Container>
-        </Section>
-      ) : null}
+            </div>
+          </div>
+        </Container>
+      </Section>
     </>
   );
 }
