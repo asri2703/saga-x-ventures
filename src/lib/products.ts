@@ -49,7 +49,23 @@ export const outbound: Record<OutboundKey, string> = {
   whatsapp: `https://wa.me/${site.phoneRaw}`,
 };
 
-export type ProductKey = "mastery-signal" | "fukyaa" | "coaching";
+export type ProductKey =
+  | "mastery-signal"
+  | "copytrade"
+  | "fukyaa"
+  | "coaching"
+  | "broker-partnership"
+  | "fintech-innovation";
+
+/**
+ * Who buys it.
+ *
+ * `retail` is a trader buying for themselves. `ib` is someone with a network
+ * of their own. Only the retail lane reaches navigation, because the two IB
+ * products have no page yet and a nav entry that goes nowhere is worse than
+ * no entry.
+ */
+export type ProductLane = "retail" | "ib";
 
 export type Step = {
   label: string;
@@ -74,6 +90,7 @@ export type Product = {
    * null where no broker account is involved.
    */
   account: "cent" | "standard" | null;
+  lane: ProductLane;
   /** The first action. `/go/<OutboundKey>` when external. */
   href: string;
   /**
@@ -99,6 +116,7 @@ export const products: Product[] = [
     ],
     requirement: "Deposit sized to the tier you choose",
     account: "standard",
+    lane: "retail",
     // Mastery Signal has a page here now. Sending someone straight to a
     // broker signup they cannot complete — it needs a funded account before
     // membership means anything — produced dead registrations. The page
@@ -120,9 +138,30 @@ export const products: Product[] = [
     ],
     requirement: "Minimum 500 USD deposit",
     account: "cent",
-    href: "/go/broker-cent",
-    cta: "Open an account",
-    external: true,
+    lane: "retail",
+    // Same reasoning as Mastery Signal: a cent account alone does nothing
+    // until it is funded and the EA registered. The page explains the order.
+    href: "/fukyaa",
+    cta: "See how to start",
+    external: false,
+  },
+  {
+    key: "copytrade",
+    name: "Copytrade",
+    forWho: "I'd rather follow a person than a system.",
+    summary:
+      "You follow the master account from your own account. The money stays with you; the broker runs the copying and settles the share weekly.",
+    steps: [
+      { label: "Open a cent account", outbound: "broker-cent" },
+      { label: "Fund it with the minimum", outbound: null },
+      { label: "Join the copy", outbound: "copytrade-join" },
+    ],
+    requirement: "Minimum 500 USD deposit",
+    account: "cent",
+    lane: "retail",
+    href: "/copytrade",
+    cta: "See how it works",
+    external: false,
   },
   {
     key: "coaching",
@@ -133,11 +172,46 @@ export const products: Product[] = [
     steps: [],
     requirement: null,
     account: null,
+    lane: "retail",
     href: "/coaching",
     cta: "See the classes",
     external: false,
   },
+  {
+    key: "broker-partnership",
+    name: "Broker Partnership",
+    forWho: "I have a network of my own.",
+    summary:
+      "Offer these products to the people you already talk to. No cost to start.",
+    steps: [],
+    requirement: null,
+    account: null,
+    lane: "ib",
+    href: "/go/whatsapp?m=partnership",
+    cta: "Talk it through",
+    external: true,
+  },
+  {
+    key: "fintech-innovation",
+    name: "Fintech Innovation",
+    forWho: "I want the platform under my own name.",
+    summary:
+      "A signal platform built and branded as yours, rather than you sending clients to someone else's.",
+    steps: [],
+    requirement: null,
+    account: null,
+    lane: "ib",
+    href: "/go/whatsapp?m=partnership",
+    cta: "Talk it through",
+    external: true,
+  },
 ];
+
+/** A trader buying for themselves. The only lane in navigation. */
+export const retailProducts = products.filter((p) => p.lane === "retail");
+
+/** Someone with a network of their own. No page yet; see §3 of the spec. */
+export const ibProducts = products.filter((p) => p.lane === "ib");
 
 export function getProduct(key: string): Product | undefined {
   return products.find((p) => p.key === key);
@@ -156,6 +230,7 @@ export function getProduct(key: string): Product | undefined {
  */
 export const whatsappPrefills = {
   general: "Hi Saga X Ventures, I have a question.",
+  partnership: "Hi Asri, I have a network of my own and want to talk about partnership. ",
   coaching: "Hi Asri, I'd like to ask about coaching. I'm interested in: ",
   contact: "Hi Asri, I have a question about ",
   events: "Hi, when is the next session?",

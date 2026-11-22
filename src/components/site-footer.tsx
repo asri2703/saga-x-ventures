@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { products } from "@/lib/products";
+import { retailProducts } from "@/lib/products";
 import { fullAddress, site } from "@/lib/site";
 import { Container } from "@/components/ui";
 import { Logo } from "@/components/logo";
@@ -38,7 +38,7 @@ export function SiteFooter() {
           <div>
             <h2 className="text-sm font-semibold text-pine">Products</h2>
             <ul className="mt-4 space-y-3">
-              {products.map((product) => (
+              {retailProducts.map((product) => (
                 <li key={product.key}>
                   <Link
                     href={product.href}

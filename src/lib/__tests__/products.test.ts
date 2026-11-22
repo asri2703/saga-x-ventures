@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { products, getProduct, outbound } from "@/lib/products";
+import {
+  products,
+  retailProducts,
+  ibProducts,
+  getProduct,
+  outbound,
+} from "@/lib/products";
 
 test("the invite codes are per account type, not per product", () => {
   expect(outbound["broker-cent"]).toContain("invitid=004VL9-TRMRV13456");
@@ -32,18 +38,46 @@ test("getProduct returns undefined for an unknown key", () => {
   expect(getProduct("nope")).toBeUndefined();
 });
 
-test("there are exactly three products and coaching is the internal one", () => {
-  expect(products).toHaveLength(3);
+test("there are six products across two lanes", () => {
+  expect(products).toHaveLength(6);
+  expect(retailProducts).toHaveLength(4);
+  expect(ibProducts).toHaveLength(2);
+});
+
+test("no product without a page reaches navigation", () => {
+  // The header dropdown and the homepage fork render retailProducts only.
+  for (const p of retailProducts) {
+    expect(p.href, p.key).toMatch(
+      /^\/(mastery-signal|copytrade|fukyaa|coaching)$/,
+    );
+  }
+});
+
+test("every product declares its lane, cta and account", () => {
+  for (const p of products) {
+    expect(["retail", "ib"], p.key).toContain(p.lane);
+    expect(p.cta, p.key).toBeTruthy();
+    expect(["cent", "standard", null], p.key).toContain(p.account);
+  }
+});
+
+test("copytrade and fukyaa share the cent account and its minimum", () => {
+  expect(getProduct("copytrade")!.account).toBe("cent");
+  expect(getProduct("copytrade")!.requirement).toMatch(/500\s*USD/);
+  expect(getProduct("fukyaa")!.requirement).toMatch(/500\s*USD/);
+});
+
+test("coaching is still the internal one", () => {
   expect(getProduct("coaching")!.external).toBe(false);
   expect(getProduct("coaching")!.href).toBe("/coaching");
 });
 
 test("each external product's first action points at a real outbound key", () => {
   for (const p of products.filter((p) => p.external)) {
-    const key = p.href.replace("/go/", "");
+    // A prefilled WhatsApp link carries ?m=<key>; the key is the path part.
+    const key = p.href.replace("/go/", "").split("?")[0];
     expect(Object.keys(outbound), `${p.key} href`).toContain(key);
   }
-  expect(getProduct("fukyaa")!.href).toBe("/go/broker-cent");
 });
 
 test("a product with a page on this site links to the page, not past it", () => {

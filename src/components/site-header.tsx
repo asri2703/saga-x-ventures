@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { products } from "@/lib/products";
+import { retailProducts } from "@/lib/products";
 import { site } from "@/lib/site";
 import { Logo } from "@/components/logo";
 
@@ -120,7 +120,7 @@ export function SiteHeader() {
                   className="absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2"
                 >
                   <ul className="overflow-hidden border border-rule bg-paper-raised p-1.5 shadow-lg shadow-pine/10">
-                    {products.map((product) => (
+                    {retailProducts.map((product) => (
                       <li key={product.key}>
                         <Link
                           href={product.href}
@@ -202,7 +202,7 @@ export function SiteHeader() {
             Products
           </p>
           <ul className="mt-3 space-y-1">
-            {products.map((product) => (
+            {retailProducts.map((product) => (
               <li key={product.key}>
                 <Link
                   href={product.href}
