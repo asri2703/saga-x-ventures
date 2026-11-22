@@ -51,7 +51,7 @@ export default function MasterySignalPage() {
               <p>
                 So every call carries the level it is built on and why that
                 level is there. Members who read that part start calling the
-                same levels themselves. That is the point of writing it.
+                same levels themselves.
               </p>
               <p>
                 You place the trades yourself. Nothing here trades your account

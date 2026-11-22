@@ -86,8 +86,7 @@ export default function CopytradePage() {
                 itself.
               </p>
               <p>
-                I only get paid when the week ends up. That is the arrangement,
-                and it is the one I would want if I were on your side of it.
+                I only get paid when the week ends up.
               </p>
             </div>
           </>

@@ -274,12 +274,6 @@ export default function HomePage() {
                   The name on the screen is {site.founder.award.alias}. That is
                   what I traded under then.
                 </p>
-                <p>
-                  I put this here because it is one of the few things I can
-                  show you that is a fact rather than a promise. It says
-                  somebody watched the work. It does not say what your account
-                  will do.
-                </p>
               </div>
             </div>
           </div>
