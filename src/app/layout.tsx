@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
+import { orgSchema, personSchema } from "@/lib/schema";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppFloat } from "@/components/whatsapp-float";
@@ -32,17 +33,23 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
-  // Local terms first, deliberately. "Marketing agency Seremban" is winnable
-  // within months; "marketing agency Malaysia" is a years-long fight against
-  // established agencies. Rank locally, then widen.
+  /**
+   * Retargeted from the agency's Seremban-first set.
+   *
+   * Local terms were right for a marketing agency, where the map pack decides
+   * who gets called. They are wrong here: nobody looks for a signal provider
+   * or a trading coach by town, and the audience spans two countries. The
+   * real address stays in the structured data for legitimacy, but the search
+   * intent being chased is trading, not locality.
+   */
   keywords: [
-    "marketing agency Seremban",
-    "digital marketing Negeri Sembilan",
-    "web design Seremban",
-    "Google Ads agency Seremban",
-    "SEO Seremban",
-    "web development Malaysia",
-    "digital marketing for SME Malaysia",
+    "forex signal Malaysia",
+    "forex trading coach Malaysia",
+    "one to one forex coaching",
+    "learn forex trading Malaysia",
+    "news trading course",
+    "automated forex trading Malaysia",
+    "forex mentor Indonesia",
   ],
   openGraph: {
     type: "website",
@@ -60,51 +67,23 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-/**
- * LocalBusiness structured data. This is what lets Google show your business
- * details in search — worth having from day one, and it demonstrates the SEO
- * work you sell.
- */
-const orgSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: site.name,
-  description: site.description,
-  url: site.url,
-  email: site.email,
-  telephone: `+${site.phoneRaw}`,
-  areaServed: { "@type": "Country", name: "Malaysia" },
-  /**
-   * No `sameAs`. The agency-era Facebook and Instagram handles were removed
-   * rather than left declaring the old business as this one, and the trading
-   * accounts do not exist yet. Declaring nothing is correct; declaring the
-   * wrong profiles would tell Google this domain is the marketing agency.
-   */
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: site.address.street,
-    postalCode: site.address.postcode,
-    addressLocality: site.address.city,
-    addressRegion: site.address.state,
-    addressCountry: "MY",
-  },
-};
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-MY"
       className={`${archivo.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-ink text-body">
+      <body className="flex min-h-full flex-col bg-paper text-pine">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([orgSchema, personSchema]),
+          }}
         />
         {/* Keyboard users should be able to jump past the nav. */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-pine focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-paper"
         >
           Skip to content
         </a>
