@@ -247,16 +247,19 @@ test("the retired grid class is gone", () => {
 });
 
 test("revealed content is only ever hidden behind a class JavaScript adds", () => {
-  // The hidden starting state must sit under .motion-ready. If it is ever
-  // written as a bare [data-reveal] rule, every revealed section disappears
-  // for anyone whose JavaScript failed or was blocked.
-  const css = fs.readFileSync("src/app/globals.css", "utf8");
-  const hidingRules = css.match(/^[^
-]*\[data-reveal\][^
-]*\{/gm) ?? [];
-  expect(hidingRules.length).toBeGreaterThan(0);
-  for (const rule of hidingRules) {
-    expect(rule, "a [data-reveal] rule outside .motion-ready").toContain(".motion-ready");
+  // The hidden starting state must sit under .motion-ready. Written as a
+  // bare [data-reveal] rule, every revealed section disappears for anyone
+  // whose JavaScript failed or was blocked.
+  const selectors = fs
+    .readFileSync("src/app/globals.css", "utf8")
+    .split("\n")
+    .filter((line) => line.includes("[data-reveal]") && line.includes("{"));
+
+  expect(selectors.length).toBeGreaterThan(0);
+  for (const selector of selectors) {
+    expect(selector, "a [data-reveal] rule outside .motion-ready").toContain(
+      ".motion-ready",
+    );
   }
 });
 ```
