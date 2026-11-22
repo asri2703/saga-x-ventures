@@ -100,17 +100,33 @@ asserting it without reason.
 | Product | For | Entry |
 |---|---|---|
 | Mastery Signal | can trade, wants setups | standard account |
-| Copytrade | wants to follow a person | cent account · 30% master / 70% investor |
+| Copytrade | wants to follow a person | cent account · min 500 USD · 30% of weekly profit to master |
 | Fukyaa | wants to follow a system | cent account · min 500 USD |
 | Classes & Coaching | wants to learn | enquiry |
 | Broker Partnership | has a network of their own | free; earns the normal broker rebate |
 | Fintech Innovation | wants their own platform | RM10,000 + RM500/month |
 
 **Copytrade runs through the broker's own copy facility.** The client opens a
-cent account on the owner's link, funds it, and joins through a link the owner
-supplies. Client funds stay in the client's own account; the broker handles
-the split. The owner is a strategy provider on the broker's platform, not a
-party holding anyone's money. The page should not imply otherwise.
+cent account on the owner's link, funds it with at least 500 USD, and joins
+through a link the owner supplies. Client funds stay in the client's own
+account; the broker handles the split. The owner is a strategy provider on the
+broker's platform, not a party holding anyone's money. The page should not
+imply otherwise.
+
+**The split is settled weekly, on profit.** 30% of the week's gain to the
+master, 70% to the investor. Confirmed by the owner.
+
+**What the page must NOT state**, because it has not been confirmed: whether
+the 30% is gross or net of the broker's own spread and commission, and
+whether a high-water mark applies — that is, whether a losing week must be
+recovered before the master is paid again. Both were asked and neither was
+answered. The page states the weekly profit split and points to the broker's
+own terms for the mechanics. Writing either answer without knowing it would
+be a false statement about someone's money.
+
+**Both cent-account products share one entry requirement**: a cent account
+funded with 500 USD. That is a single gateway with a single minimum, and two
+things the client can then do with it.
 
 ### 5.3 Voice
 
@@ -224,9 +240,11 @@ audience is small enough that a conversation is the right first step anyway.
 
 ### 7.3 Section 5: the award
 
-TradingLive Trading Influencers Awards, "Best In-House Trader". The on-screen
-name is **Zack King**, the owner's former alias, and the caption says so
-plainly. Unexplained, a different name on an award reads as borrowed; a single
+TradingLive Trading Influencers Awards **2026**, "Best In-House Trader". The
+year only — the owner does not recall the date and the badge in the photo is
+not legible enough to read one off. A year is enough for both the caption and
+the schema; an invented date is not. The on-screen name is **Zack King**, the
+owner's former alias, and the caption says so plainly. Unexplained, a different name on an award reads as borrowed; a single
 line turns it into a fact about him. The photo is cropped to the screen and
 the figure.
 
@@ -239,10 +257,11 @@ it one of the few forms of proof §5.4 leaves available.
 introduction, numbered steps with the outbound link on the step that leaves,
 and a disclaimer.
 
-`/copytrade` states the 30/70 split, that funds stay in the client's own
-account, and that the broker operates the facility. **Its join link does not
-exist yet** — step 3 renders a labelled placeholder, as the Mastery Signal
-feature cards do for their screenshots.
+`/copytrade` states the weekly 30/70 profit split, the 500 USD minimum, that
+funds stay in the client's own account, and that the broker operates the
+facility. It does not state anything from the "must NOT state" list in §5.2.
+**Its join link does not exist yet** — step 3 renders a labelled placeholder,
+as the Mastery Signal feature cards do for their screenshots.
 
 ### 7.5 Pattern and motion
 
@@ -292,45 +311,27 @@ brought in. Motion shows what changed; it does not ask for attention.
   shared one earns itself.
 - Which elements take `data-reveal` and in what order.
 
-## 9. Open questions for the owner
+## 9. Questions raised and answered
 
-Raised by the builder review of 23 November 2026. Four of its seven points
-were settled above and marked as the author's call or answered by the project.
-These three are the owner's, and the first two block `/copytrade` only.
+The builder review of 23 November 2026 raised seven points. Four were settled
+by the author or answered by the project and are marked where they appear.
+The remaining three went to the owner:
 
-1. **What is the 30% calculated on?** "30% master / 70% investor" does not say
-   of what. Profit only, or something else? Over what period — weekly,
-   monthly, per closed trade? Gross, or net of the broker's own spread and
-   commission? And does the investor owe anything in a period that ends flat
-   or down?
+1. **What the 30% is calculated on** → 30% of **weekly profit** (§5.2). Two
+   sub-questions were asked and not answered — gross or net, and whether a
+   high-water mark applies — so the page states neither.
+2. **Copytrade entry requirement** → **500 USD minimum**, the same as Fukyaa,
+   which makes the cent account a single gateway with a single minimum
+   (§5.2).
+3. **Award year** → **2026**, year only.
 
-   This is a financial term on a public page, not a wording choice. A guess
-   here is a false statement about money. If it cannot be confirmed,
-   `/copytrade` describes the split only in the broker's own words, or waits.
-
-   The high-water mark question asked earlier is part of this one: without a
-   high-water mark, a losing period followed by a winning one pays the master
-   while the investor is still down overall. Whichever way it works, the page
-   says so.
-
-2. **What does a Copytrade client need to get in, and which facility is it?**
-   Fukyaa states its 500 USD minimum up front because it is the biggest
-   qualifier. Copytrade has no stated equivalent — is there a minimum balance,
-   and what is the broker's copy facility called? The whole purpose of these
-   pages is to stop registrations that stall; omitting a minimum reproduces
-   exactly the failure they exist to prevent.
-
-3. **The award year, and the exact wording.** The photo is now in the repo at
-   `public/award-tradinglive.webp`, cropped to the screen and the figure. The
-   screen reads "Best In-House Trader", "TradingLive Trading Influencers
-   Awards", and the recipient as "Zack King, Co-Founder Market Value Price".
-   The year on the badge is not legible enough to state. An undated award is
-   weak proof, and the `Person` schema wants a date.
-
-### Already outstanding, not blocking
+### Still outstanding, not blocking
 
 - **The Copytrade join link** — not set up yet (§7.4). Step 3 is a labelled
   placeholder until it exists.
+- **Gross or net, and the high-water mark** (§5.2). Worth settling before
+  `/copytrade` goes public, since both affect what an investor is actually
+  agreeing to.
 - **Is RM10,000 shown publicly?** Showing it filters hard and saves the
   owner's time; hiding it opens more conversations, most with the wrong
   people.
