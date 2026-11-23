@@ -40,6 +40,7 @@ export function Section({
   children,
   id,
   tone = "paper",
+  pad,
   className = "",
 }: {
   children: ReactNode;
@@ -51,6 +52,19 @@ export function Section({
    * and body at different strengths.
    */
   tone?: "paper" | "raised" | "pine";
+  /**
+   * Padding utilities that REPLACE the default, rather than sit beside it.
+   *
+   * They used to be passed through `className`, and every one of them that
+   * asked for less than the default silently lost. Two utilities setting the
+   * same property have equal specificity, so the winner is decided by their
+   * order in the compiled stylesheet, and Tailwind emits the scale in
+   * ascending order — `.py-10` before `.py-16`. So `py-16` won and sixteen
+   * sections across the site rendered at the default spacing while reading as
+   * though they had been tightened. Passing the padding here means exactly
+   * one set of utilities is emitted and there is nothing to lose against.
+   */
+  pad?: string;
   className?: string;
 }) {
   const bg =
@@ -65,7 +79,7 @@ export function Section({
       /* Read by the footer, which hides its scalloped strip when the page
          already ends dark. See the rule in globals.css. */
       data-tone={tone}
-      className={`${bg} scroll-mt-20 py-16 sm:py-24 ${className}`}
+      className={`${bg} scroll-mt-20 ${pad ?? "py-16 sm:py-24"} ${className}`}
     >
       {children}
     </section>

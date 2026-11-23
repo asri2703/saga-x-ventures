@@ -14,7 +14,7 @@ import { Container, Section } from "@/components/ui";
  */
 export default function NotFound() {
   return (
-    <Section tone="pine" className="py-28 sm:py-36">
+    <Section tone="pine" pad="py-28 sm:py-36">
       <Container>
         <div className="mx-auto max-w-2xl">
           <p className="tnum text-sm text-sand">404</p>

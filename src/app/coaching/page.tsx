@@ -42,7 +42,7 @@ export default function CoachingPage() {
 
   return (
     <>
-      <Section className="pb-12">
+      <Section pad="pt-16 pb-12 sm:pt-24">
         <Container>
           <div className="max-w-2xl">
             <h1 className="display text-4xl text-pine sm:text-5xl">
@@ -62,7 +62,7 @@ export default function CoachingPage() {
           and saves a refund, and one-to-one days are too scarce to spend
           on someone who wanted something else.
       --------------------------------------------------------------- */}
-      <Section className="py-12">
+      <Section pad="py-12">
         <Container>
           <div className="grid gap-6 md:grid-cols-2">
             <Panel>
@@ -176,7 +176,7 @@ export default function CoachingPage() {
           agreed on creates a refund, not a sale.
       --------------------------------------------------------------- */}
       <Scallop />
-      <Section tone="pine" className="pt-10">
+      <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="display text-2xl text-paper sm:text-3xl">

@@ -116,7 +116,7 @@ export default function FukyaaPage() {
           band. Set in pine-soft, not pine-faint: pine-faint clears 4.5:1 on
           the page paper but only reaches 3.98:1 on this sunk panel, and
           boxing the text is what would have broken it. */}
-      <Section className="py-14">
+      <Section pad="py-14">
         <Container>
           <p className="max-w-2xl rounded-[var(--radius-panel)] bg-paper-sunk px-7 py-6 text-sm leading-relaxed text-pine-soft">
             An expert advisor places trades automatically and can lose money

@@ -38,7 +38,10 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------
           1. Hero. The owner's own copy, kept as he wrote it.
       --------------------------------------------------------------- */}
-      <Section className="relative overflow-hidden pt-14 sm:pt-20">
+      <Section
+        pad="pt-14 pb-10 sm:pt-20 sm:pb-12"
+        className="relative overflow-hidden"
+      >
         {/* Graph paper behind the hero. Decorative, so it is hidden from
             assistive technology, and it sits under its own stacking layer
             rather than on the section itself — the section's background
@@ -122,7 +125,7 @@ export default function HomePage() {
           The logo strip. Sits directly under the hero, where a visitor who
           has read the headline is deciding whether any of this is real.
       --------------------------------------------------------------- */}
-      <Section className="py-10 sm:py-14">
+      <Section pad="py-9 sm:py-11">
         <Container>
           <p className="text-center text-sm text-pine-faint" data-reveal>
             The products I build, and the brokers they run on.
@@ -135,7 +138,7 @@ export default function HomePage() {
 
       {/* The trust line the reference runs under its hero. One sentence,
           already true, and the only number on the page that is about me. */}
-      <Section className="pb-10 pt-0 sm:pb-12 sm:pt-0">
+      <Section pad="pt-0 pb-10 sm:pb-14">
         <Container>
           <p className="text-center text-lg text-pine-soft" data-reveal>
             More than{" "}
@@ -153,7 +156,7 @@ export default function HomePage() {
           one thing is on screen.
       --------------------------------------------------------------- */}
       <Scallop />
-      <Section tone="pine" className="pt-10">
+      <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-20">
             <div>
@@ -398,7 +401,7 @@ export default function HomePage() {
           6. Coaching and classes — the close.
       --------------------------------------------------------------- */}
       <Scallop />
-      <Section tone="pine" className="pt-10">
+      <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-3xl text-center" data-reveal>
             <Eyebrow tone="onDark">Coaching and classes</Eyebrow>

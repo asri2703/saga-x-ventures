@@ -182,7 +182,7 @@ export function ProductGuide({
       ))}
 
       <Scallop />
-      <Section tone="pine" className="pt-10">
+      <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="display text-2xl text-paper sm:text-3xl">

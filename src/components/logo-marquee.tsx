@@ -4,15 +4,17 @@ import Image from "next/image";
  * The logo strip under the hero.
  *
  * Two copies of the same row translate sideways by exactly half the track, so
- * the loop lands on an identical frame and has no seam. The movement sits
- * behind `prefers-reduced-motion: no-preference`; asked for less, a visitor
- * gets the row standing still rather than a faster version of it.
+ * the loop lands on an identical frame with no visible join. The movement
+ * sits behind `prefers-reduced-motion: no-preference`; asked for less, a
+ * visitor gets the row standing still rather than a faster version of it.
  *
- * Every logo is rendered into a box of one size with `object-contain`. The
- * source marks range from 7.5:1 (a long wordmark) to 3.4:1 (a square-ish
- * mark), so a fixed height alone would have made the wordmarks enormous and a
- * fixed width would have made the tall ones tower. A uniform slot is what
- * keeps them looking the same weight.
+ * Each mark is set to one height and left to take whatever width that needs.
+ * The first pass put them in equal fixed-width slots instead, and that was
+ * backwards: the source marks run from 7.5:1 to 3.4:1, so width was the
+ * binding constraint on the long wordmarks and they rendered at two thirds
+ * the height of the compact ones — the most recognisable marks came out the
+ * smallest. Matching on height is what makes the lettering read as one row;
+ * the wordmarks are simply wider, which is correct.
  */
 
 const logos = [
@@ -29,7 +31,10 @@ function Row({ copy }: { copy: 1 | 2 }) {
   return (
     <ul className="flex shrink-0 items-center">
       {logos.map((logo) => (
-        <li key={logo.slug} className="flex w-40 justify-center px-5 sm:w-52">
+        <li
+          key={logo.slug}
+          className="flex shrink-0 items-center px-7 sm:px-10"
+        >
           <Image
             src={`/logos/${logo.slug}.png`}
             /* The second copy exists only so the loop has no visible join.
@@ -44,7 +49,7 @@ function Row({ copy }: { copy: 1 | 2 }) {
                to use it as supplied; opacity leaves the file untouched and is
                reversible. It is enough to stop seven black marks reading as a
                second, colder black beside the pine. */
-            className="h-7 w-auto max-w-full object-contain opacity-80 sm:h-8"
+            className="h-8 w-auto object-contain opacity-80 sm:h-10"
           />
         </li>
       ))}
