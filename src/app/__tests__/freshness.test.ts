@@ -1,0 +1,159 @@
+import fs from "node:fs";
+import path from "node:path";
+import { expect, test } from "vitest";
+
+/**
+ * Pages that read the clock must declare how often they are re-rendered.
+ *
+ * A page that calls `new Date()` and is prerendered at build time freezes the
+ * answer into HTML. The Fukyaa promotional deposit is written that way: the
+ * figure and its expiry date both come from the clock, so a static prerender
+ * would still be quoting the promotional figure, and an expiry date already
+ * in the past, long after the promotion ended. Nobody would notice until a
+ * customer had been quoted the wrong price.
+ *
+ * The clock read is often indirect — `fukyaaRoutes()` defaults its `now`
+ * argument — so this walks each page's import graph rather than only its own
+ * text. Any page that can reach a clock read has to export `revalidate`, and
+ * at a window short enough that a figure cannot be wrong for a whole day.
+ */
+
+const SRC = path.join(process.cwd(), "src");
+const APP = path.join(SRC, "app");
+
+/** The longest a page may serve a figure that has already changed. */
+const MAX_WINDOW_SECONDS = 86_400;
+
+function read(file: string): string {
+  return fs.readFileSync(file, "utf8");
+}
+
+/** Strip comments so prose about `new Date()` is not mistaken for a call. */
+function code(text: string): string {
+  return text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+}
+
+const READS_CLOCK = /new Date\(\s*\)|Date\.now\(\s*\)/;
+
+/** Resolve an import specifier to a file under src, or null if external. */
+function resolve(from: string, spec: string): string | null {
+  let base: string;
+  if (spec.startsWith("@/")) base = path.join(SRC, spec.slice(2));
+  else if (spec.startsWith(".")) base = path.resolve(path.dirname(from), spec);
+  else return null;
+
+  for (const candidate of [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    path.join(base, "index.ts"),
+    path.join(base, "index.tsx"),
+  ]) {
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function importsOf(file: string, text: string): string[] {
+  const out: string[] = [];
+  const pattern = /(?:from|import)\s*["']([^"']+)["']/g;
+  let m: RegExpExecArray | null;
+  while ((m = pattern.exec(text)) !== null) {
+    const target = resolve(file, m[1]);
+    if (target) out.push(target);
+  }
+  return out;
+}
+
+/** Walk the import graph from a page and report the first clock read found. */
+function clockReachableFrom(entry: string): string | null {
+  const seen = new Set<string>();
+  const queue = [entry];
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    if (seen.has(file)) continue;
+    seen.add(file);
+
+    const text = code(read(file));
+    if (READS_CLOCK.test(text)) return file;
+    queue.push(...importsOf(file, text));
+  }
+  return null;
+}
+
+function pageFiles(): string[] {
+  const out: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name !== "__tests__") walk(full);
+      } else if (e.name === "page.tsx") {
+        out.push(full);
+      }
+    }
+  };
+  walk(APP);
+  return out;
+}
+
+/** The exported revalidate window, or null when the page declares none. */
+function revalidateWindow(text: string): number | null {
+  const m = /export const revalidate\s*=\s*(\d+)\s*;/.exec(code(text));
+  return m ? Number(m[1]) : null;
+}
+
+/* ------------------------------------------------------------------ *
+ * The detectors, before the thing they are asked to detect.
+ * ------------------------------------------------------------------ */
+
+test("the clock detector reads calls and ignores prose about them", () => {
+  expect(code("const now = new Date();")).toMatch(READS_CLOCK);
+  expect(code("const t = Date.now();")).toMatch(READS_CLOCK);
+  expect(code("// the clock, new Date(), is frozen here")).not.toMatch(
+    READS_CLOCK,
+  );
+  expect(code("/* new Date() would freeze */")).not.toMatch(READS_CLOCK);
+  // A fixed date is not a clock read; it renders the same at any moment.
+  expect(code('new Date("2026-12-31")')).not.toMatch(READS_CLOCK);
+});
+
+test("the revalidate detector reads a literal and rejects an expression", () => {
+  expect(revalidateWindow("export const revalidate = 3600;")).toBe(3600);
+  // Next requires a statically analysable literal, so an expression is not a
+  // declaration this guard will accept either.
+  expect(revalidateWindow("export const revalidate = 60 * 60;")).toBeNull();
+  expect(revalidateWindow("export const metadata = {};")).toBeNull();
+});
+
+test("there are pages to check", () => {
+  expect(pageFiles().length).toBeGreaterThan(3);
+});
+
+/* ------------------------------------------------------------------ *
+ * The guard.
+ * ------------------------------------------------------------------ */
+
+test("every page that can read the clock declares a revalidate window", () => {
+  for (const file of pageFiles()) {
+    const source = clockReachableFrom(file);
+    if (!source) continue;
+
+    const window = revalidateWindow(read(file));
+    expect(
+      window,
+      `${file} reaches a clock read in ${source} but exports no revalidate, so it would be prerendered once and never again`,
+    ).not.toBeNull();
+    expect(window, file).toBeGreaterThan(0);
+    expect(window, file).toBeLessThanOrEqual(MAX_WINDOW_SECONDS);
+  }
+});
+
+test("the Fukyaa page is one of them", () => {
+  // Guards that pass because they found nothing are the usual way a guard
+  // rots. This names the page the guard was written for.
+  const file = path.join(APP, "fukyaa", "page.tsx");
+  expect(clockReachableFrom(file)).not.toBeNull();
+});

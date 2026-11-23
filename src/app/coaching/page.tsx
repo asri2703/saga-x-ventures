@@ -10,6 +10,9 @@ import { getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
 import { Container, Section } from "@/components/ui";
 
+/** This page quotes Fukyaa's dated deposit figure. See `freshness.test.ts`. */
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   alternates: { canonical: "/coaching" },
   title: "Coaching",
@@ -32,6 +35,9 @@ const modes: { key: CoachingMode; label: string; note: string }[] = [
 
 export default function CoachingPage() {
   const fukyaa = getProduct("fukyaa");
+  // Fukyaa's deposit minimum is promotional and falls back on a known day,
+  // so this page reads the clock too — hence the revalidate window above.
+  const requirement = fukyaa?.requirement(new Date()) ?? null;
 
   return (
     <>
@@ -85,7 +91,7 @@ export default function CoachingPage() {
                   </Link>
                 ) : null}
                 , and it asks for a funded account rather than a class fee.
-                {fukyaa?.requirement ? ` ${fukyaa.requirement}.` : ""}
+                {requirement ? ` ${requirement}.` : ""}
               </p>
             </div>
           </div>

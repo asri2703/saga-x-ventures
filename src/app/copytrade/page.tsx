@@ -63,11 +63,90 @@ export default function CopytradePage() {
   const product = getProduct("copytrade")!;
   const split = exampleSplit();
 
+  /* How the fee is worked out.
+     
+     The figures come from config so the page cannot drift from the terms,
+     and every line is a condition rather than an assertion: this is the
+     arithmetic of a fee, not an illustration of what anyone earns.
+
+     It renders before the steps, not after the closing ask. A visitor has to
+     know what the share is before being walked through joining. */
+  const terms = (
+    <Section tone="raised">
+      <Container>
+        <div className="max-w-2xl" data-reveal>
+          <h2 className="display text-3xl text-pine sm:text-4xl">
+            How the share is worked out
+          </h2>
+          <p className="mt-4 leading-relaxed text-pine-soft">
+            Settled weekly, on whatever the account gained that week. A week
+            that does not gain has nothing to settle.
+          </p>
+        </div>
+
+        <div className="mt-10 max-w-3xl border border-rule bg-paper p-8">
+          <p className="text-sm text-pine-faint">
+            Worked through with round numbers, to show the arithmetic
+          </p>
+          <dl className="mt-5 divide-y divide-rule">
+            <div className="flex items-baseline justify-between gap-4 py-3">
+              <dt className="text-pine-soft">If an account were funded with</dt>
+              <dd className="tnum display text-pine">
+                {copytrade.example.funded} USD
+              </dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-4 py-3">
+              <dt className="text-pine-soft">and the week ended at</dt>
+              <dd className="tnum display text-pine">
+                {copytrade.example.grown} USD
+              </dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-4 py-3">
+              <dt className="text-pine-soft">then the week gained</dt>
+              <dd className="tnum display text-pine">{split.gain} USD</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-4 py-3">
+              <dt className="text-pine-soft">
+                of which my share is {copytrade.masterShare}%
+              </dt>
+              <dd className="tnum display text-pine">{split.master} USD</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-4 py-3">
+              <dt className="text-pine-soft">
+                and {copytrade.investorShare}% stays in the account
+              </dt>
+              <dd className="tnum display text-pine">{split.investor} USD</dd>
+            </div>
+          </dl>
+          <p className="mt-6 text-sm leading-relaxed text-pine-faint">
+            Round numbers, chosen because the arithmetic is easy to follow. They
+            are not a forecast and no week is promised to look like this one.
+            The broker calculates and settles the share; its own terms govern
+            how.
+          </p>
+        </div>
+
+        {/* Whether a losing week is carried forward is the broker's rule and
+            I have not had it confirmed in writing. Saying nothing would let
+            a reader assume the answer they prefer. */}
+        <p
+          className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
+          data-reveal
+        >
+          How a losing week is treated against the next one is set by the
+          broker, not by me. Ask before you join and I will show you their rule
+          on it rather than paraphrase it.
+        </p>
+      </Container>
+    </Section>
+  );
+
   return (
     <>
       <ProductGuide
         product={product}
         routes={routes()}
+        afterIntro={terms}
         intro={
           <>
             <h1 className="display text-4xl leading-[1.1] text-pine sm:text-5xl">
@@ -85,69 +164,11 @@ export default function CopytradePage() {
                 your side — the broker runs the copying and settles the share
                 itself.
               </p>
-              <p>
-                I only get paid when the week ends up.
-              </p>
+              <p>I only get paid when the week ends up.</p>
             </div>
           </>
         }
       />
-
-      {/* The split, explained with arithmetic. The figures come from config
-          so the page cannot drift from the terms, and the framing is the
-          mechanics of the fee — never a suggestion of what anyone earns. */}
-      <Section tone="raised">
-        <Container>
-          <div className="max-w-2xl" data-reveal>
-            <h2 className="display text-3xl text-pine sm:text-4xl">
-              How the share is worked out
-            </h2>
-            <p className="mt-4 leading-relaxed text-pine-soft">
-              Settled weekly, on whatever the account gained that week. If the
-              week does not gain, there is nothing to share.
-            </p>
-          </div>
-
-          <div className="mt-10 max-w-3xl border border-rule bg-paper p-8">
-            <p className="text-sm text-pine-faint">An example</p>
-            <dl className="mt-5 divide-y divide-rule">
-              <div className="flex items-baseline justify-between py-3">
-                <dt className="text-pine-soft">Account funded with</dt>
-                <dd className="tnum display text-pine">
-                  {copytrade.example.funded} USD
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between py-3">
-                <dt className="text-pine-soft">Account reaches</dt>
-                <dd className="tnum display text-pine">
-                  {copytrade.example.grown} USD
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between py-3">
-                <dt className="text-pine-soft">The week gained</dt>
-                <dd className="tnum display text-pine">{split.gain} USD</dd>
-              </div>
-              <div className="flex items-baseline justify-between py-3">
-                <dt className="text-pine-soft">
-                  My share, {copytrade.masterShare}%
-                </dt>
-                <dd className="tnum display text-pine">{split.master} USD</dd>
-              </div>
-              <div className="flex items-baseline justify-between py-3">
-                <dt className="font-semibold text-pine">
-                  Stays with you, {copytrade.investorShare}%
-                </dt>
-                <dd className="tnum display text-pine">{split.investor} USD</dd>
-              </div>
-            </dl>
-            <p className="mt-6 text-sm leading-relaxed text-pine-faint">
-              Numbers chosen to show the arithmetic. They are not a forecast,
-              and no week is promised to look like this one. The broker
-              calculates and settles the share; its own terms govern how.
-            </p>
-          </div>
-        </Container>
-      </Section>
 
       <Section>
         <Container>

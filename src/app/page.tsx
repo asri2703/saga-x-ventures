@@ -8,10 +8,19 @@ import { SectionHeading } from "@/components/section-heading";
 import { MarkedChart } from "@/components/marked-chart";
 import { AccountGateway } from "@/components/account-gateway";
 
+/**
+ * The fork states each product's deposit minimum, and one of those figures is
+ * promotional and falls back on a known day. Prerendered once this page would
+ * keep quoting the old figure. `freshness.test.ts` holds every page that
+ * reads the clock to a window.
+ */
+export const revalidate = 3600;
+
 export default function HomePage() {
   const cent = retailProducts.filter((p) => p.account === "cent");
   const standard = retailProducts.filter((p) => p.account === "standard");
   const coaching = getProduct("coaching")!;
+  const now = new Date();
 
   return (
     <>
@@ -111,7 +120,10 @@ export default function HomePage() {
       --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <SectionHeading eyebrow="Why I built these" title="Three conversations">
+          <SectionHeading
+            eyebrow="Why I built these"
+            title="Three conversations"
+          >
             <p>
               None of this started as a product. Each one came out of the same
               question asked a different way.
@@ -150,7 +162,10 @@ export default function HomePage() {
             ))}
           </div>
 
-          <p className="mt-10 max-w-2xl leading-relaxed text-pine-soft" data-reveal>
+          <p
+            className="mt-10 max-w-2xl leading-relaxed text-pine-soft"
+            data-reveal
+          >
             What I will not do is tell you what you are going to earn. I do not
             know what I am going to earn either.
           </p>
@@ -170,21 +185,9 @@ export default function HomePage() {
             </p>
           </SectionHeading>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-2">
-            <AccountGateway
-              account="standard"
-              title="You want to place the trades"
-              note="Signals arrive with the level and the reason for it. You decide whether to take them."
-              products={standard}
-            />
-            <AccountGateway
-              account="cent"
-              title="You want them placed for you"
-              note="Smaller contract sizes, so positions can be sized finely. Follow a person, or follow a system."
-              products={cent}
-            />
-          </div>
-
+          {/* Above the columns, not below them. This decides whether to open
+              one account or two, which is no use to someone who has already
+              read a column and clicked. */}
           <p
             className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
             data-reveal
@@ -193,6 +196,23 @@ export default function HomePage() {
             columns, that is two accounts — worth knowing before you open the
             first one.
           </p>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <AccountGateway
+              account="standard"
+              title="You want to place the trades"
+              note="Signals arrive with the level and the reason for it. You decide whether to take them."
+              products={standard}
+              now={now}
+            />
+            <AccountGateway
+              account="cent"
+              title="You want them placed for you"
+              note="Smaller contract sizes, so positions can be sized finely. Follow a person, or follow a system."
+              products={cent}
+              now={now}
+            />
+          </div>
 
           {/* Coaching sits outside the fork: it needs no broker account. */}
           <div
@@ -283,18 +303,15 @@ export default function HomePage() {
       --------------------------------------------------------------- */}
       <Section tone="raised">
         <Container>
-          <div
-            data-reveal
-            className="border border-rule bg-paper p-8 sm:p-12"
-          >
+          <div data-reveal className="border border-rule bg-paper p-8 sm:p-12">
             <SectionHeading
               eyebrow="Coaching and classes"
               title="Learn to do this yourself"
             >
               <p>
-                Three classes, one to one, about a day each. Basic trading,
-                then advance, then trading the news. Take them in order or take
-                one on its own.
+                Three classes, one to one, about a day each. Basic trading, then
+                advance, then trading the news. Take them in order or take one
+                on its own.
               </p>
             </SectionHeading>
 

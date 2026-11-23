@@ -62,12 +62,29 @@ export const fukyaa = {
  * nobody would notice until a customer was angry about it.
  */
 export function fukyaaDeposit(on: Date): { usd: number; isPromo: boolean } {
-  const lastMoment = new Date(`${fukyaa.promoEndsOn}T23:59:59.999Z`);
+  // Malaysian time, not UTC. Pinned to UTC the promotional figure would sit
+  // on the page until eight in the morning on the first working day after it
+  // ended — the one morning somebody would be looking.
+  const lastMoment = new Date(`${fukyaa.promoEndsOn}T23:59:59.999+08:00`);
   const isPromo = on.getTime() <= lastMoment.getTime();
   return {
     usd: isPromo ? fukyaa.depositPromoUsd : fukyaa.depositStandardUsd,
     isPromo,
   };
+}
+
+/**
+ * The deadline as a person would say it.
+ *
+ * `promoEndsOn` is stored sortable and compared as a date; printed raw on a
+ * page it reads as a database value. Formatted here rather than in the page,
+ * so every place that mentions the deadline says it the same way.
+ */
+export function formatPromoEnd(): string {
+  return new Date(`${fukyaa.promoEndsOn}T00:00:00Z`).toLocaleDateString(
+    "en-GB",
+    { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" },
+  );
 }
 
 /* ------------------------------------------------------------------ *

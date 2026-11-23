@@ -21,9 +21,31 @@ export const metadata: Metadata = {
 export default function MasterySignalPage() {
   const product = getProduct("mastery-signal")!;
 
+  /* The features. They belong between the introduction and the fork,
+     and now render there rather than after the closing ask. */
+  const showcase = (
+    <Section tone="raised">
+      <Container>
+        <div className="max-w-2xl" data-reveal>
+          <h2 className="display text-3xl text-pine sm:text-4xl">
+            What you actually get
+          </h2>
+          <p className="mt-4 leading-relaxed text-pine-soft">
+            Drag the row, or use the arrows.
+          </p>
+        </div>
+      </Container>
+
+      <div className="mt-12">
+        <FeatureSlider features={features} />
+      </div>
+    </Section>
+  );
+
   return (
     <>
       <ProductGuide
+        afterIntro={showcase}
         product={product}
         routes={masterySignalRoutes()}
         intro={
@@ -62,32 +84,12 @@ export default function MasterySignalPage() {
         }
       />
 
-      {/* Features sit between the introduction and the routes in reading
-          order, but after them in the file because ProductGuide owns the
-          routes. They are their own section either way. */}
-      <Section tone="raised">
-        <Container>
-          <div className="max-w-2xl" data-reveal>
-            <h2 className="display text-3xl text-pine sm:text-4xl">
-              What you actually get
-            </h2>
-            <p className="mt-4 leading-relaxed text-pine-soft">
-              Drag the row, or use the arrows.
-            </p>
-          </div>
-        </Container>
-
-        <div className="mt-12">
-          <FeatureSlider features={features} />
-        </div>
-      </Section>
-
       <Section>
         <Container>
           <p className="max-w-2xl text-sm leading-relaxed text-pine-faint">
             Signals are education, not financial advice, and they are not a
-            recommendation to buy or sell anything. Trading carries real risk
-            of losing real money, and no result is promised or implied.
+            recommendation to buy or sell anything. Trading carries real risk of
+            losing real money, and no result is promised or implied.
           </p>
         </Container>
       </Section>

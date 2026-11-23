@@ -79,10 +79,19 @@ export function ProductGuide({
   product,
   routes,
   intro,
+  afterIntro,
 }: {
   product: Product;
   routes: PaymentRoute[];
   intro: ReactNode;
+  /**
+   * The page's own sections, rendered between the introduction and the fork.
+   *
+   * Without this slot the guide owned the end of the page, so anything a page
+   * added landed after the closing ask — including Copytrade's fee terms,
+   * which a visitor has to read before being walked through joining.
+   */
+  afterIntro?: ReactNode;
 }) {
   return (
     <>
@@ -92,6 +101,8 @@ export function ProductGuide({
         </Container>
       </Section>
 
+      {afterIntro}
+
       <Section tone="raised">
         <Container>
           <div className="max-w-2xl" data-reveal>
@@ -99,23 +110,29 @@ export function ProductGuide({
               Two ways in
             </h2>
             <p className="mt-4 leading-relaxed text-pine-soft">
-              Pick the one that sounds like you. The steps below change with
-              it.
+              Both are written out below. Pick the one that sounds like you and
+              read that set of steps.
             </p>
           </div>
 
+          {/* Links, not cards. A visitor told to pick one was clicking a div
+              and nothing happened, with both sets of steps already further
+              down the page. */}
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {routes.map((route) => (
-              <div
+              <Link
                 key={route.key}
+                href={`#${route.key}`}
                 data-reveal
-                className="border border-rule bg-paper p-7"
+                className="group border border-rule bg-paper p-7 transition-colors hover:border-pine"
               >
-                <h3 className="display text-xl text-pine">{route.label}</h3>
+                <h3 className="display text-xl text-pine underline decoration-ruby decoration-2 underline-offset-4">
+                  {route.label}
+                </h3>
                 <p className="mt-3 leading-relaxed text-pine-soft">
                   {route.summary}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </Container>

@@ -6,6 +6,7 @@ import {
   getProduct,
   outbound,
 } from "@/lib/products";
+import { copytrade, fukyaa as fukyaaTerms } from "@/lib/commercial";
 
 test("the invite codes are per account type, not per product", () => {
   expect(outbound["broker-cent"]).toContain("invitid=004VL9-TRMRV13456");
@@ -30,8 +31,17 @@ test("every non-empty destination is an absolute https URL", () => {
   }
 });
 
-test("fukyaa states its deposit minimum", () => {
-  expect(getProduct("fukyaa")!.requirement).toMatch(/500\s*USD/);
+test("fukyaa's deposit minimum follows the promotion rather than a typed-in figure", () => {
+  // The figure changes on a known date. Written down here it would contradict
+  // commercial.ts the moment the promotion lapsed, and this string renders on
+  // /coaching where nobody would think to look for it.
+  const fukyaa = getProduct("fukyaa")!;
+  expect(fukyaa.requirement(new Date("2026-06-01T00:00:00+08:00"))).toMatch(
+    /500\s*USD/,
+  );
+  expect(fukyaa.requirement(new Date("2027-06-01T00:00:00+08:00"))).toMatch(
+    /1,?000\s*USD/,
+  );
 });
 
 test("getProduct returns undefined for an unknown key", () => {
@@ -53,6 +63,20 @@ test("no product without a page reaches navigation", () => {
   }
 });
 
+test("no product states a deposit figure that is not in commercial.ts", () => {
+  const allowed = [
+    copytrade.minimumUsd,
+    fukyaaTerms.depositPromoUsd,
+    fukyaaTerms.depositStandardUsd,
+  ].map(String);
+  for (const p of products) {
+    const text = p.requirement(new Date()) ?? "";
+    for (const figure of text.match(/[\d,]+/g) ?? []) {
+      expect(allowed, `${p.key}: ${text}`).toContain(figure.replace(/,/g, ""));
+    }
+  }
+});
+
 test("every product declares its lane, cta and account", () => {
   for (const p of products) {
     expect(["retail", "ib"], p.key).toContain(p.lane);
@@ -61,10 +85,15 @@ test("every product declares its lane, cta and account", () => {
   }
 });
 
-test("copytrade and fukyaa share the cent account and its minimum", () => {
+test("copytrade and fukyaa share the cent account", () => {
   expect(getProduct("copytrade")!.account).toBe("cent");
-  expect(getProduct("copytrade")!.requirement).toMatch(/500\s*USD/);
-  expect(getProduct("fukyaa")!.requirement).toMatch(/500\s*USD/);
+  expect(getProduct("fukyaa")!.account).toBe("cent");
+});
+
+test("copytrade's minimum comes from the terms, not from prose", () => {
+  expect(getProduct("copytrade")!.requirement(new Date())).toContain(
+    String(copytrade.minimumUsd),
+  );
 });
 
 test("coaching is still the internal one", () => {

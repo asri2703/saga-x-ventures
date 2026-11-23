@@ -13,6 +13,7 @@
  */
 
 import { site } from "@/lib/site";
+import { copytrade, fukyaaDeposit } from "@/lib/commercial";
 
 export type OutboundKey =
   | "broker-cent"
@@ -80,8 +81,15 @@ export type Product = {
   forWho: string;
   summary: string;
   steps: Step[];
-  /** The qualifier that decides whether someone should bother. */
-  requirement: string | null;
+  /**
+   * The qualifier that decides whether someone should bother.
+   *
+   * A function of the date, not a string, because Fukyaa's deposit minimum is
+   * promotional and falls back on a known day. Written down it would
+   * contradict `commercial.ts` from that day on, and it renders on /coaching
+   * where nobody would think to check it.
+   */
+  requirement: (now: Date) => string | null;
   /**
    * Which broker account type this product needs.
    *
@@ -114,7 +122,7 @@ export const products: Product[] = [
       { label: "Fund it to match the package you want", outbound: null },
       { label: "Take out membership", outbound: "mastery-membership" },
     ],
-    requirement: "Deposit sized to the tier you choose",
+    requirement: () => "Deposit sized to the tier you choose",
     account: "standard",
     lane: "retail",
     // Mastery Signal has a page here now. Sending someone straight to a
@@ -133,10 +141,11 @@ export const products: Product[] = [
       "An expert advisor places the trades. You fund the account and leave it running.",
     steps: [
       { label: "Open a cent account", outbound: "broker-cent" },
-      { label: "Fund it with at least 500 USD", outbound: null },
+      { label: "Fund it to the minimum", outbound: null },
       { label: "Register for auto trade", outbound: "fukyaa-register" },
     ],
-    requirement: "Minimum 500 USD deposit",
+    requirement: (now) =>
+      `Minimum ${fukyaaDeposit(now).usd.toLocaleString("en-MY")} USD deposit`,
     account: "cent",
     lane: "retail",
     // Same reasoning as Mastery Signal: a cent account alone does nothing
@@ -156,7 +165,8 @@ export const products: Product[] = [
       { label: "Fund it with the minimum", outbound: null },
       { label: "Join the copy", outbound: "copytrade-join" },
     ],
-    requirement: "Minimum 500 USD deposit",
+    requirement: () =>
+      `Minimum ${copytrade.minimumUsd.toLocaleString("en-MY")} USD deposit`,
     account: "cent",
     lane: "retail",
     href: "/copytrade",
@@ -170,7 +180,7 @@ export const products: Product[] = [
     summary:
       "One to one, a day per class, from reading a chart to trading the news.",
     steps: [],
-    requirement: null,
+    requirement: () => null,
     account: null,
     lane: "retail",
     href: "/coaching",
@@ -184,7 +194,7 @@ export const products: Product[] = [
     summary:
       "Offer these products to the people you already talk to. No cost to start.",
     steps: [],
-    requirement: null,
+    requirement: () => null,
     account: null,
     lane: "ib",
     href: "/go/whatsapp?m=partnership",
@@ -198,7 +208,7 @@ export const products: Product[] = [
     summary:
       "A signal platform built and branded as yours, rather than you sending clients to someone else's.",
     steps: [],
-    requirement: null,
+    requirement: () => null,
     account: null,
     lane: "ib",
     href: "/go/whatsapp?m=partnership",

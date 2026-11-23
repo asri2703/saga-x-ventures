@@ -107,7 +107,6 @@ export function OverlappingSlider<T = unknown>({
     track.style.transition = transition;
     track.style.setProperty("--ox", `${x}px`);
     const activeExact = -x / step;
-    const active = Math.max(0, Math.min(Math.round(activeExact), total - 1));
     for (let i = 0; i < track.children.length; i++) {
       const card = track.children[i] as HTMLElement;
       const diff = i - activeExact;
@@ -142,7 +141,9 @@ export function OverlappingSlider<T = unknown>({
     drag.startX = e.clientX;
     drag.origin = offsetRef.current;
     drag.lastX = e.clientX;
-    drag.lastT = performance.now();
+    // The event carries its own timestamp, off the same clock. Reading
+    // performance.now() here would be an impure call in a component body.
+    drag.lastT = e.timeStamp;
     drag.velocity = 0;
     drag.moved = 0;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -151,7 +152,7 @@ export function OverlappingSlider<T = unknown>({
   const onPointerMove = (e: React.PointerEvent) => {
     const drag = dragRef.current;
     if (!drag.down) return;
-    const now = performance.now();
+    const now = e.timeStamp;
     const dt = Math.max(1, now - drag.lastT);
     drag.velocity = ((e.clientX - drag.lastX) / dt) * 1000;
     drag.lastX = e.clientX;

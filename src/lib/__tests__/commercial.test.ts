@@ -4,6 +4,7 @@ import {
   exampleSplit,
   fukyaa,
   fukyaaDeposit,
+  formatPromoEnd,
   masteryTiers,
   masterySubscriptionMyr,
 } from "@/lib/commercial";
@@ -30,11 +31,11 @@ test("the example derives from the shares rather than repeating them", () => {
 test("the Fukyaa promo expires on its own", () => {
   // A promotional figure typed into a page becomes a false price on a date
   // everybody already knows, and nobody notices until a customer is angry.
-  expect(fukyaaDeposit(new Date("2026-12-31T23:59:00Z"))).toEqual({
+  expect(fukyaaDeposit(new Date("2026-12-31T23:59:00+08:00"))).toEqual({
     usd: 500,
     isPromo: true,
   });
-  expect(fukyaaDeposit(new Date("2027-01-01T00:00:00Z"))).toEqual({
+  expect(fukyaaDeposit(new Date("2027-01-01T00:00:00+08:00"))).toEqual({
     usd: 1000,
     isPromo: false,
   });
@@ -50,4 +51,20 @@ test("the Mastery tiers carry the deposits the live site states", () => {
 
 test("an unset subscription price reads as an enquiry, not a broken number", () => {
   expect(formatPrice(masterySubscriptionMyr)).toBe("Price on enquiry");
+});
+
+test("the promo ends at midnight in Malaysia, not at eight in the morning", () => {
+  // The owner and his clients are in UTC+8. An expiry pinned to UTC would
+  // leave the promotional figure on the page through the first working
+  // morning of the new year.
+  expect(fukyaaDeposit(new Date("2026-12-31T23:59:00+08:00")).isPromo).toBe(
+    true,
+  );
+  expect(fukyaaDeposit(new Date("2027-01-01T00:00:01+08:00")).isPromo).toBe(
+    false,
+  );
+});
+
+test("the promo deadline reads as a date, not as a database value", () => {
+  expect(formatPromoEnd()).toBe("31 December 2026");
 });

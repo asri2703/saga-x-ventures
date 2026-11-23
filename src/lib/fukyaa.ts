@@ -1,5 +1,5 @@
 import type { PaymentRoute } from "@/components/product-guide";
-import { fukyaa, fukyaaDeposit } from "@/lib/commercial";
+import { fukyaaDeposit, formatPromoEnd } from "@/lib/commercial";
 
 /**
  * Fukyaa's two ways in.
@@ -18,7 +18,7 @@ export function fukyaaRoutes(now: Date = new Date()): PaymentRoute[] {
       key: "deposit",
       label: "Fund a Harmovest account",
       summary: deposit.isPromo
-        ? `Deposit ${deposit.usd} USD into a cent account and the VPS is included — no monthly fee. That figure is a promotion and runs until ${fukyaa.promoEndsOn}.`
+        ? `Deposit ${deposit.usd} USD into a cent account and the VPS is included — no monthly fee. That figure is a promotion and runs until ${formatPromoEnd()}.`
         : `Deposit ${deposit.usd} USD into a cent account and the VPS is included — no monthly fee.`,
       steps: [
         {
