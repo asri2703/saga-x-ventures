@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import { ibProducts, retailProducts, getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
-import { copytrade, fukyaaDeposit } from "@/lib/commercial";
+import { heroCards } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
 import { AccountGateway } from "@/components/account-gateway";
@@ -31,7 +31,6 @@ export default function HomePage() {
   const standard = retailProducts.filter((p) => p.account === "standard");
   const coaching = getProduct("coaching")!;
   const now = new Date();
-  const deposit = fukyaaDeposit(now);
 
   return (
     <>
@@ -84,19 +83,34 @@ export default function HomePage() {
                 />
               </OffsetFrame>
 
+              {/* Both cards sit low, below the feet. They were at the top
+                  left and the mid right, where the upper one landed across
+                  his face — the one part of a portrait that cannot be
+                  covered.
+
+                  They hang outside the frame only from `lg`, where the
+                  column is a fixed 460px inside a 1152px container and there
+                  is gutter to hang into. Below that the image is the full
+                  container width, so a negative offset would push past the
+                  page gutter and give a phone a horizontal scrollbar.
+
+                  They also sit side by side only from `lg`. On a phone the
+                  frame is about 350px wide and each card is around half of
+                  that, so the low row had them nearly touching; below `lg`
+                  the first one lifts and they stack instead. */}
               <FloatCard
-                className="absolute -left-10 top-16 hidden sm:flex"
-                label="Copytrade"
-                value={`${copytrade.investorShare}% stays with you`}
-                note="Settled weekly"
-                tint="sage"
+                className="absolute bottom-16 left-2 lg:bottom-4 lg:-left-8"
+                label={heroCards.mastery.label}
+                value={heroCards.mastery.value}
+                note={heroCards.mastery.note}
+                mark={heroCards.mastery.mark}
               />
               <FloatCard
-                className="absolute -right-8 bottom-24 hidden sm:flex"
-                label="Auto trade"
-                value={`${deposit.usd.toLocaleString("en-MY")} USD to start`}
-                note="Server included"
-                tint="blush"
+                className="absolute -bottom-5 right-2 lg:-right-6"
+                label={heroCards.fukyaa.label}
+                value={heroCards.fukyaa.value}
+                note={heroCards.fukyaa.note}
+                mark={heroCards.fukyaa.mark}
               />
             </div>
           </div>

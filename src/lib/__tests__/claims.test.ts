@@ -64,11 +64,26 @@ test("the guard is actually reading files", () => {
   expect(readAllCopy().length).toBeGreaterThan(10);
 });
 
+/**
+ * An accuracy percentage is a win rate under another name.
+ *
+ * It was added to this pattern when the owner asked for one on the hero. The
+ * figure is allowed in exactly one place, `heroCards` in `commercial.ts`,
+ * marked per line. Leaving the rule blind to the word would have left a guard
+ * that claims to stop performance claims and quietly does not.
+ */
+const PERFORMANCE_CLAIM =
+  /win[-\s]?rate|guarantee[ds]?\b|guaranteeing|profit\s+(of|up to)|\d\s?%\s*(accura|win|success)|accuracy\s+(rate|of)/i;
+
+test("the performance detector works", () => {
+  expect("97% accuracy").toMatch(PERFORMANCE_CLAIM);
+  expect("A 92% win rate").toMatch(PERFORMANCE_CLAIM);
+  expect("70% stays with you").not.toMatch(PERFORMANCE_CLAIM);
+});
+
 test("no win-rate, profit or guarantee claims appear in source or content", () => {
   for (const { file, text } of readAllCopy()) {
-    expect(text, file).not.toMatch(
-      /win[-\s]?rate|guarantee[ds]?\b|guaranteeing|profit\s+(of|up to)/i,
-    );
+    expect(text, file).not.toMatch(PERFORMANCE_CLAIM);
   }
 });
 

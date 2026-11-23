@@ -127,3 +127,34 @@ export const masteryTiers: MasteryTier[] = [
  * than a broken number — the same handling as the coaching ladder.
  */
 export const masterySubscriptionMyr: number | null = null;
+
+/* ------------------------------------------------------------------ *
+ * The hero cards
+ * ------------------------------------------------------------------ */
+
+/**
+ * The two fragments that sit over the hero portrait.
+ *
+ * `mastery.value` is a performance claim, which is the one kind of statement
+ * this file and `claims.test.ts` exist to keep off the site — the owner's own
+ * Mastery rules forbid its content agents from stating how often a signal
+ * lands, for the same reason. He asked for it on the hero and that is his decision to make.
+ * It is written here rather than in the page so there is one place to change
+ * it and one place that records that the exception was deliberate.
+ */
+export const heroCards = {
+  mastery: {
+    label: "Mastery",
+    value: "97% accuracy", // claims-guard: allow
+    note: "AI Signals",
+    mark: "/mastery-mark.png",
+  },
+  fukyaa: {
+    label: "Fukyaa",
+    /* A statement about what the client does not hand over, not about what
+       the business takes. Copytrade splits the gain; this does not. */
+    value: "No profit sharing",
+    note: "AI Auto Trade",
+    mark: "/fukyaa-mark.png",
+  },
+} as const;

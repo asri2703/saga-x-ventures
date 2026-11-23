@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 /**
@@ -208,6 +209,7 @@ export function FloatCard({
   value,
   note,
   tint = "sage",
+  mark,
   className = "",
   style,
 }: {
@@ -215,6 +217,14 @@ export function FloatCard({
   value: string;
   note?: string;
   tint?: "sage" | "blush" | "sand";
+  /**
+   * A product logo for the disc, as a path under /public.
+   *
+   * Without one the disc is a flat tint, which is decoration encoding
+   * nothing. With one it tells you which product the card is about, which is
+   * the only reason for a disc to be there at all.
+   */
+  mark?: string;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -223,9 +233,30 @@ export function FloatCard({
   return (
     <div
       style={style}
-      className={`float-card flex items-center gap-3 px-4 py-3 ${className}`}
+      className={`float-card flex items-center gap-3 px-3.5 py-2.5 sm:px-4 sm:py-3 ${className}`}
     >
-      <span aria-hidden className={`h-9 w-9 shrink-0 rounded-full ${chip}`} />
+      {mark ? (
+        /* The label beside it already names the product, so the mark is
+           decoration here and carries no alt text — announced, it would read
+           the product name twice in a row. */
+        <span
+          className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-paper-raised sm:h-11 sm:w-11"
+        >
+          <Image
+            src={mark}
+            alt=""
+            aria-hidden
+            width={256}
+            height={256}
+            className="h-7 w-7 object-contain sm:h-8 sm:w-8"
+          />
+        </span>
+      ) : (
+        <span
+          aria-hidden
+          className={`h-9 w-9 shrink-0 rounded-full sm:h-10 sm:w-10 ${chip}`}
+        />
+      )}
       <span>
         <span className="block text-xs text-pine-faint">{label}</span>
         <span className="tnum block text-sm font-semibold text-pine">
