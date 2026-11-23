@@ -20,8 +20,8 @@ export function FeatureSlider({ features }: { features: Feature[] }) {
       showDots
       renderItem={(feature, _index, isActive) => (
         <article
-          className={`flex h-full w-full flex-col overflow-hidden border bg-paper-raised transition-colors ${
-            isActive ? "border-pine" : "border-rule"
+          className={`panel flex h-full w-full flex-col overflow-hidden transition-colors ${
+            isActive ? "panel-active" : ""
           }`}
         >
           <div className="relative h-56 w-full shrink-0 border-b border-rule bg-paper-sunk">

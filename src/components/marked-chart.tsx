@@ -19,7 +19,7 @@
 export function MarkedChart({ className = "" }: { className?: string }) {
   return (
     <figure className={className}>
-      <div className="graph-grid border border-rule bg-paper-raised p-4 sm:p-6">
+      <div className="graph-grid panel p-4 sm:p-6">
         <svg
           viewBox="0 0 520 320"
           className="h-auto w-full"

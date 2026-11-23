@@ -146,7 +146,7 @@ export function ProductGuide({
                 key={route.key}
                 href={`#${route.key}`}
                 data-reveal
-                className="panel p-7 transition-colors hover:bg-sage sm:p-8"
+                className="panel panel-link p-7 sm:p-8"
               >
                 <h3 className="display text-xl text-pine underline decoration-ruby decoration-2 underline-offset-4">
                   {route.label}

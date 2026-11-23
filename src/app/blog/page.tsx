@@ -42,7 +42,7 @@ export default function BlogIndex() {
                 <Link
                   href={`/blog/${post.slug}`}
                   data-reveal
-                  className="panel block p-7 transition-colors hover:bg-sage sm:p-8"
+                  className="panel panel-link block p-7 sm:p-8"
                 >
                   <p className="tnum text-sm text-pine-faint">
                     {formatDate(post.date)} · {post.readingMinutes} min read

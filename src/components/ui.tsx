@@ -67,11 +67,17 @@ export function Section({
   pad?: string;
   className?: string;
 }) {
+  /* `raised` is a step DOWN from the paper, not up, despite the name.
+     It used to be `paper-raised`, which is also the colour of a card, so on a
+     banded section every panel was exactly the colour of the band behind it
+     and sank into it — which is what the owner saw. The band is now darker
+     than the page and the panes sit above both. The name is kept because
+     every call site and the footer's `data-tone` rule use it. */
   const bg =
     tone === "pine"
       ? "bg-pine-deep text-paper"
       : tone === "raised"
-        ? "bg-paper-raised"
+        ? "bg-paper-band"
         : "bg-paper";
   return (
     <section

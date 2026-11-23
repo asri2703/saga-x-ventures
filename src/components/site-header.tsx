@@ -60,7 +60,11 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-paper/85 backdrop-blur-md">
+      {/* The header is glass too, and it is the one pane with real content
+          travelling underneath it. The hairline is what separates it from the
+          section below once the page has scrolled; without it the blur alone
+          leaves the two reading as one surface. */}
+      <header className="site-header sticky top-0 z-50 border-b border-[var(--glass-line)]">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <Link
             href="/"
@@ -119,7 +123,7 @@ export function SiteHeader() {
                   id="products-panel"
                   className="absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2"
                 >
-                  <ul className="overflow-hidden rounded-[var(--radius-panel)] bg-paper-raised p-2 shadow-[0_18px_40px_-12px_rgba(22,58,48,0.28)]">
+                  <ul className="panel panel-raised overflow-hidden p-2">
                     {retailProducts.map((product) => (
                       <li key={product.key}>
                         <Link

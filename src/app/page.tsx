@@ -186,10 +186,12 @@ export default function HomePage() {
                 in a row makes the page read as a template with its content
                 poured in. A list also suits three roles better than cards do,
                 because nothing here is being chosen between. */}
-            <div
-              data-reveal
-              className="rounded-[var(--radius-panel)] bg-paper p-6 sm:p-8"
-            >
+            {/* Frosted on the dark band rather than a cream card on it. This
+                is the one pane on the site with a genuinely dark surface
+                behind it, which is where the treatment reads strongest, and
+                the text inverts with it: paper on the glass measures about
+                13:1, where pine on it would have been about 5:1. */}
+            <div data-reveal className="panel-dark p-6 sm:p-8">
               <ul className="space-y-6">
                 {[
                   {
@@ -216,20 +218,20 @@ export default function HomePage() {
                 ].map((row) => (
                   <li
                     key={row.k}
-                    className="border-b border-rule pb-6 last:border-0 last:pb-0"
+                    className="border-b border-paper/15 pb-6 last:border-0 last:pb-0"
                   >
                     {/* The numeral sits at label size beside the role, not as
                         a large marker: three roles held at once are not a
                         sequence, and a big numeral would promise an order. */}
-                    <p className="text-sm text-pine-faint">
+                    <p className="text-sm text-paper/55">
                       <span className="tnum">{row.n}</span>
-                      <span className="mx-2 text-rule-strong">&mdash;</span>
-                      <span className="font-semibold text-pine-soft">
+                      <span className="mx-2 text-paper/35">&mdash;</span>
+                      <span className="font-semibold text-paper/80">
                         {row.role}
                       </span>
                     </p>
-                    <p className="mt-2 font-semibold text-pine">{row.t}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-pine-soft">
+                    <p className="mt-2 font-semibold text-paper">{row.t}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-paper/75">
                       {row.b}
                     </p>
                   </li>

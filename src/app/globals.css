@@ -34,6 +34,12 @@
   --color-paper: #f2e9d8; /* Vanilla Line */
   --color-paper-raised: #faf4e8; /* cards sit lighter than the page */
   --color-paper-sunk: #e6dac2;
+  /* The banded section.
+     It used to be `paper-raised`, which is also the colour of a card, so
+     every panel on a banded section was exactly the colour of the band behind
+     it and disappeared into it. The band now sits a step DOWN from the paper
+     and the cards sit above both. */
+  --color-paper-band: #ebe0c9;
 
   --color-pine: #163a30; /* Pine Lacquer */
   --color-pine-deep: #102a23; /* the dark band */
@@ -60,6 +66,23 @@
   --radius-panel: 1.5rem;
   --radius-float: 0.75rem;
 
+  /* Glass.
+     Frosted glass needs two things to read: something behind it to blur, and
+     a lit edge. The blur is given something to work on by the wash on `body`
+     below; the edge is the inset highlight on every glass surface. The fill
+     stays high — 0.72, not the 0.1 of a glass kit built for a photograph —
+     because this sits on pale paper, and a pane that pale over paper that
+     pale is a pane nobody can see. */
+  --glass-fill: rgba(255, 253, 248, 0.72);
+  --glass-fill-strong: rgba(255, 253, 248, 0.86);
+  /* The lit top edge. This is the single cue that reads as glass on any
+     background, light or dark. */
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  /* The pane's own outline. Pine at low strength, never grey. */
+  --glass-line: rgba(22, 58, 48, 0.1);
+  --glass-line-dark: rgba(255, 255, 255, 0.18);
+  --glass-blur: 20px;
+
   /* One family. General Sans is the nearest freely licensed relative of the
      reference's GT Walsheim: geometric, soft-terminalled, and friendlier
      than the Archivo it replaces. Display type is the same family heavier
@@ -77,13 +100,116 @@
   line-height: 1.08;
 }
 
-/* Elevation. The reference's cards are shadows, not outlines — a border as
-   well as a shadow reads as two decisions arguing. */
+/* ---------------------------------------------------------------------------
+   Glass
+   ---------------------------------------------------------------------------
+   The panels used to be flat fills with a soft shadow and no border, on the
+   reasoning that a border and a shadow together read as two arguing
+   decisions. That held while the fill was opaque. A pane of glass has an
+   edge — it is the thing that makes it read as a pane at all — so the rule
+   does not survive the change, and saying so here is cheaper than leaving the
+   old note to contradict the code.
+
+   Three layers do the work, in this order:
+
+   1. A translucent fill, so the surface is lighter than whatever is under it.
+   2. `backdrop-filter`, so what is under it is blurred and slightly
+      saturated. On flat colour this does almost nothing, which is why `body`
+      carries a wash.
+   3. An inset highlight along the top edge and a hairline outline. These
+      read on any background and do not depend on the browser supporting
+      `backdrop-filter` at all.
+--------------------------------------------------------------------------- */
 .panel {
   border-radius: var(--radius-panel);
-  background: var(--color-paper-raised);
-  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.04),
-    0 12px 28px -16px rgba(22, 58, 48, 0.16);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 1px 2px rgba(22, 58, 48, 0.05),
+    0 18px 40px -18px rgba(22, 58, 48, 0.3);
+}
+
+/* A pane that is selected. The border colour has to be set here for the same
+   reason the hover does: `.panel`'s own border is unlayered and beats any
+   utility written beside it. */
+.panel-active {
+  border-color: var(--color-pine);
+}
+
+/* A pane that floats over the page rather than sitting in it — the header's
+   product menu. Same glass, more lift, because there is live content
+   directly behind it. */
+.panel-raised {
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 24px 48px -16px rgba(22, 58, 48, 0.38);
+}
+
+/* A pane that is also a link.
+   Three of these carried `hover:bg-sage` in their className and none of them
+   ever changed colour: `.panel` sets its background from outside Tailwind's
+   layers, so it wins against the utility whatever order the classes are
+   written in. The same equal-specificity trap as the padding bug, and it was
+   already there before the glass. The hover belongs here, beside the rule it
+   has to beat. */
+.panel-link {
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.panel-link:hover {
+  background: rgba(207, 224, 212, 0.72);
+  border-color: rgba(22, 58, 48, 0.18);
+}
+
+/* A pane over the dark band, where the fill inverts and the hairline has to
+   be light to be seen at all. Text on it stays paper-coloured. */
+.panel-dark {
+  border-radius: var(--radius-panel);
+  background: rgba(255, 253, 248, 0.08);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  border: 1px solid var(--glass-line-dark);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 18px 40px -20px rgba(0, 0, 0, 0.45);
+}
+
+/* Where the browser has no `backdrop-filter`, the fill alone would leave the
+   paper showing through at 72% and the pane would read as washed out rather
+   than frosted. The fill goes solid; the edge and the shadow carry it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .panel {
+    background: var(--color-paper-raised);
+  }
+  .panel-dark {
+    background: rgba(255, 253, 248, 0.14);
+  }
+}
+
+/* Transparency is a readability problem for some people, and the browser is
+   told about it. Everything goes solid; the edge stays, so the panes still
+   look like panes. */
+@media (prefers-reduced-transparency: reduce) {
+  .panel,
+  .float-card,
+  .panel-pick,
+  .site-header {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .panel {
+    background: var(--color-paper-raised);
+  }
+  .panel-dark {
+    background: rgba(255, 253, 248, 0.16);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -205,17 +331,51 @@
    outside Tailwind's layers and would win against the utility. */
 .panel-pick {
   border-radius: var(--radius-panel);
-  background: var(--color-sage);
-  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.04),
-    0 12px 28px -16px rgba(22, 58, 48, 0.16);
+  /* Sage, but as glass: tinted and translucent rather than a flat fill, so
+     it belongs to the same row of panes as the two beside it. */
+  background: rgba(207, 224, 212, 0.78);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid rgba(22, 58, 48, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(22, 58, 48, 0.05),
+    0 18px 40px -18px rgba(22, 58, 48, 0.34);
 }
 
-/* A card that overlaps a photograph. Brighter than a panel so it reads as in
-   front of the image rather than behind it, and lifted further. */
+/* A card that overlaps a photograph — the one place on the site where the
+   blur has a real image behind it rather than a wash. Brighter and lifted
+   further than a panel, so it reads as in front of the photograph. */
 .float-card {
   border-radius: var(--radius-float);
-  background: #fffdf8;
-  box-shadow: 0 10px 30px -8px rgba(22, 58, 48, 0.26);
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 10px 30px -8px rgba(22, 58, 48, 0.3);
+}
+
+/* The sticky header, as glass. A heavier blur than a panel because what
+   passes under it is live content rather than a wash, and the text on it has
+   to stay readable against whatever that content happens to be. */
+.site-header {
+  background: rgba(242, 233, 216, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--color-paper);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-header {
+    background: var(--color-paper);
+  }
 }
 
 /* The scalloped edge between the paper and the dark band. Drawn with a
@@ -251,6 +411,32 @@ body {
   color: var(--color-pine);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* What the glass has to blur.
+   `backdrop-filter` over one flat colour produces that same flat colour, so
+   without this the panes would have an edge and nothing behind it. Two very
+   soft washes of the two brand hues, fixed to the viewport so they do not
+   travel with the content, at an alpha low enough that on their own they are
+   not a visible gradient — they are only visible through glass, which is the
+   whole point of them. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 40rem at 12% 8%,
+      rgba(22, 58, 48, 0.07),
+      transparent 70%
+    ),
+    radial-gradient(
+      52rem 38rem at 88% 72%,
+      rgba(240, 40, 60, 0.05),
+      transparent 70%
+    );
 }
 
 /* Prices and any figure in a table line up only with tabular figures. */

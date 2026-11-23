@@ -101,7 +101,7 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
                   <li key={p.slug}>
                     <Link
                       href={`/blog/${p.slug}`}
-                      className="panel block p-6 transition-colors hover:bg-sage"
+                      className="panel panel-link block p-6"
                     >
                       <p className="tnum text-sm text-pine-faint">
                         {formatDate(p.date)}
