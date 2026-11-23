@@ -55,8 +55,8 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-8 max-w-xl text-lg leading-relaxed text-pine-soft">
-                I believe trading shouldn&rsquo;t be complicated. Ten years in
-                the market went into the tools I build: simpler to set up,
+                I believe trading shouldn&rsquo;t be complicated. Twelve years
+                in the market went into the tools I build: simpler to set up,
                 smarter about risk, and flexible enough to fit how you already
                 trade.
               </p>
@@ -160,60 +160,77 @@ export default function HomePage() {
         <Container>
           <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-20">
             <div>
-              <SectionHeading eyebrow="Who I am" title="I still trade" onDark>
+              <SectionHeading
+                eyebrow="My expertise"
+                title="Trading goes beyond the charts."
+                onDark
+              >
                 <p>
-                  I am {site.founder.name}. Twelve years trading, and I still
-                  trade now.
+                  I&rsquo;m {site.founder.name}. With 12 years in the market,
+                  my work goes beyond taking trades. I study the economics
+                  behind price movements, teach traders to think beyond
+                  entries, and manage trading accounts for clients.
                 </p>
               </SectionHeading>
 
-              <div className="mt-6 max-w-2xl space-y-5 text-lg leading-relaxed text-paper/80">
-                <p>
-                  A normal week is a few positions. Some weeks there is nothing
-                  worth taking and I take nothing.
-                </p>
-              </div>
-
               <div className="mt-9">
                 <ActionLink href="/about" tone="onDark">
-                  The longer version
+                  More about me
                 </ActionLink>
               </div>
             </div>
 
+            {/* The three roles, stacked rather than laid out as a third card
+                grid. The showcase below is already a row of three cards; two
+                in a row makes the page read as a template with its content
+                poured in. A list also suits three roles better than cards do,
+                because nothing here is being chosen between. */}
             <div
               data-reveal
               className="rounded-[var(--radius-panel)] bg-paper p-6 sm:p-8"
             >
-              <Eyebrow tone="quiet">A week, as it actually goes</Eyebrow>
-              <ul className="mt-6 space-y-5">
+              <ul className="space-y-6">
                 {[
                   {
-                    k: "watch",
-                    t: "Most of it is waiting",
-                    b: "The level has to come to me. It often does not.",
+                    k: "economics",
+                    n: "01",
+                    role: "Economic trader",
+                    t: "The chart only tells half the story.",
+                    b: "Price shows you what is happening. Economic data helps you understand why. I use both to make sense of the market.",
                   },
                   {
-                    k: "few",
-                    t: "A few positions",
-                    b: "Sized to what the week is actually offering.",
+                    k: "teaching",
+                    n: "02",
+                    role: "Trading educator",
+                    t: "Trading is more than buying and selling.",
+                    b: "It is about understanding the market, managing risk, controlling emotions, and knowing when not to trade.",
                   },
                   {
-                    k: "none",
-                    t: "Sometimes none at all",
-                    b: "A flat week is a decision, not a failure to find one.",
+                    k: "funds",
+                    n: "03",
+                    role: "Fund manager",
+                    t: "Trading takes time. I will handle the work.",
+                    b: "Not everyone has hours to spend watching the market. I manage trading accounts so my clients do not have to do it themselves.",
                   },
                 ].map((row) => (
                   <li
                     key={row.k}
-                    className="border-b border-rule pb-5 last:border-0 last:pb-0"
+                    className="border-b border-rule pb-6 last:border-0 last:pb-0"
                   >
-                    <span className="block font-semibold text-pine">
-                      {row.t}
-                    </span>
-                    <span className="mt-1 block text-sm leading-relaxed text-pine-soft">
+                    {/* The numeral sits at label size beside the role, not as
+                        a large marker: three roles held at once are not a
+                        sequence, and a big numeral would promise an order. */}
+                    <p className="text-sm text-pine-faint">
+                      <span className="tnum">{row.n}</span>
+                      <span className="mx-2 text-rule-strong">&mdash;</span>
+                      <span className="font-semibold text-pine-soft">
+                        {row.role}
+                      </span>
+                    </p>
+                    <p className="mt-2 font-semibold text-pine">{row.t}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-pine-soft">
                       {row.b}
-                    </span>
+                    </p>
                   </li>
                 ))}
               </ul>
