@@ -1,10 +1,11 @@
 import Image from "next/image";
-import { ibProducts, retailProducts, getProduct } from "@/lib/products";
+import { ibProducts, getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
 import { heroCards } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
-import { AccountGateway } from "@/components/account-gateway";
+import { PlanGroup } from "@/components/plan-cards";
+import { fukyaaPlanCards, masteryPlanCards } from "@/lib/plans";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { BuildShowcase } from "@/components/build-showcase";
 import {
@@ -28,10 +29,9 @@ import {
 export const revalidate = 3600;
 
 export default function HomePage() {
-  const cent = retailProducts.filter((p) => p.account === "cent");
-  const standard = retailProducts.filter((p) => p.account === "standard");
+  const mastery = getProduct("mastery-signal")!;
+  const fukyaa = getProduct("fukyaa")!;
   const coaching = getProduct("coaching")!;
-  const now = new Date();
 
   return (
     <>
@@ -272,48 +272,49 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          4. The solutions, forked by account type.
+          4. Getting started: what each product costs, and how to start it.
       --------------------------------------------------------------- */}
       <Section id="fork" tone="raised">
         <Container>
-          <SectionHeading eyebrow="Getting started" title="Which one are you?">
+          <SectionHeading eyebrow="Getting started" title="Pick how you start">
             <p>
-              Everything starts with a broker account, and which type decides
-              what you can do with it. Read the lines below and take the one
-              that sounds like you.
+              Two products, and more than one way into each. The figures are
+              below so nobody has to ask what it costs before they can decide.
             </p>
           </SectionHeading>
 
-          {/* Above the columns, not below them. This decides whether to open
-              one account or two, which is no use to someone who has already
-              read a column and clicked. */}
+          {/* Before the packages, not after. It decides whether to open one
+              broker account or two, which is no use to somebody who has
+              already picked a package and clicked. */}
           <p
             className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
             data-reveal
           >
-            The two account types are separate. If you want something from both
-            columns, that is two accounts — worth knowing before you open the
-            first one.
+            Mastery Signal runs on a standard account and Fukyaa on a cent
+            account. The two are separate, so taking one from each is two
+            accounts &mdash; worth knowing before you open the first one.
           </p>
 
-          {/* items-start: the columns hold one product and two. Stretched to
-              match, the shorter one ended in a panel of empty cream. */}
-          <div className="mt-12 grid items-start gap-6 lg:grid-cols-2">
-            <AccountGateway
-              account="standard"
-              title="You want to place the trades"
-              note="Signals arrive with the level and the reason for it. You decide whether to take them."
-              products={standard}
-              now={now}
-            />
-            <AccountGateway
-              account="cent"
-              title="You want them placed for you"
-              note="Smaller contract sizes, so positions can be sized finely. Follow a person, or follow a system."
-              products={cent}
-              now={now}
-            />
-          </div>
+          <PlanGroup
+            eyebrow="Mastery Signal"
+            title="Pay for it, or deposit for it"
+            forWho={mastery.forWho}
+            note="Pay, and a registration link comes by email. I approve the account by hand, so it is not instant."
+            plans={masteryPlanCards()}
+            alternative={{
+              title: "Or take it free, through the broker",
+              body: "Open an account with the broker I use and fund it to the tier you want, and the membership comes with it. The page walks through which tier unlocks what.",
+              action: { label: "See the deposit route", href: mastery.href },
+            }}
+          />
+
+          <PlanGroup
+            eyebrow="Fukyaa"
+            title="Three ways to let it trade"
+            forWho={fukyaa.forWho}
+            note="None of these three is a payment to me. The deposit is yours, in your own account at the broker; what differs is the running cost."
+            plans={fukyaaPlanCards()}
+          />
 
           {/* Coaching sits outside the fork: it needs no broker account. */}
           <Panel className="mt-10 flex flex-col gap-7 sm:flex-row sm:items-center sm:justify-between">
@@ -325,7 +326,11 @@ export default function HomePage() {
                 {coaching.summary}
               </p>
             </div>
-            <ActionLink href={coaching.href} tone="accent" className="shrink-0">
+            {/* Pine, not ruby. The recommended Fukyaa package above is now
+                the ruby action in this section, and the rule that comes with
+                that colour is one per screen — an accent that appears twice
+                marks neither. */}
+            <ActionLink href={coaching.href} className="shrink-0">
               {coaching.cta}
             </ActionLink>
           </Panel>

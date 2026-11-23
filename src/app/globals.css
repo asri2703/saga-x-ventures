@@ -86,6 +86,19 @@
     0 12px 28px -16px rgba(22, 58, 48, 0.16);
 }
 
+/* The one package the owner points people at.
+   Marked with colour rather than a ruby outline, for the reason above: the
+   cards beside it are shadows with no border, and giving this one both would
+   be the two arguing decisions that rule exists to prevent. It is a class
+   rather than `panel bg-sage` because `.panel` sets its own background from
+   outside Tailwind's layers and would win against the utility. */
+.panel-pick {
+  border-radius: var(--radius-panel);
+  background: var(--color-sage);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.04),
+    0 12px 28px -16px rgba(22, 58, 48, 0.16);
+}
+
 /* A card that overlaps a photograph. Brighter than a panel so it reads as in
    front of the image rather than behind it, and lifted further. */
 .float-card {
