@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui";
 import { site } from "@/lib/site";
+import { ActionOut, Panel, TextLink } from "@/components/shell";
 
 /**
  * Placeholder.
@@ -30,30 +31,26 @@ export default function EventsPage() {
             Webinars run on Zoom and the link is emailed the moment you
             register. In-person seminars have a fixed number of seats.
           </p>
-          <p className="mt-4 leading-relaxed text-pine-soft">
-            Registration is not open on this page yet. Until it is, message us
-            and we will tell you when the next session is set.
-          </p>
+          <Panel className="mt-10">
+            <p className="leading-relaxed text-pine-soft">
+              Registration is not open on this page yet. Until it is, message us
+              and we will tell you when the next session is set.
+            </p>
 
-          <a
-            href="/go/whatsapp?m=events"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-block bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
-          >
-            Ask about the next session
-          </a>
+            <div className="mt-8">
+              <ActionOut href="/go/whatsapp?m=events">
+                Ask about the next session
+              </ActionOut>
+            </div>
 
-          <p className="mt-6 text-sm text-pine-faint">
-            Or email{" "}
-            <a
-              href={`mailto:${site.email}`}
-              className="text-pine underline decoration-ruby decoration-2 underline-offset-2"
-            >
-              {site.email}
-            </a>
-            .
-          </p>
+            <p className="mt-6 text-sm text-pine-faint">
+              Or email{" "}
+              <TextLink href={`mailto:${site.email}`} external>
+                {site.email}
+              </TextLink>
+              .
+            </p>
+          </Panel>
         </div>
       </Container>
     </Section>

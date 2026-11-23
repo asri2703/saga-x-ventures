@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatDate, getPosts } from "@/lib/blog";
 import { site } from "@/lib/site";
 import { Container, Section } from "@/components/ui";
+import { ActionOut, Panel, TextLink } from "@/components/shell";
 
 /**
  * Personal writing, not a content-marketing channel.
@@ -35,10 +36,13 @@ export default function BlogIndex() {
         </div>
 
         {posts.length > 0 ? (
-          <ul className="mt-14 max-w-3xl">
+          <ul className="mt-14 max-w-3xl space-y-5">
             {posts.map((post) => (
-              <li key={post.slug} className="border-t border-rule last:border-b">
-                <Link href={`/blog/${post.slug}`} className="block py-8">
+              <li key={post.slug}>
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="panel block p-7 transition-colors hover:bg-sage sm:p-8"
+                >
                   <p className="tnum text-sm text-pine-faint">
                     {formatDate(post.date)} · {post.readingMinutes} min read
                   </p>
@@ -58,33 +62,25 @@ export default function BlogIndex() {
           /* An empty section is an invitation, not an error. The agency-era
              posts were deleted with the pivot and the trading ones are
              written as they are written. */
-          <div className="mt-14 max-w-2xl border-y border-rule py-12">
-            <p className="display text-xl text-pine">
-              Nothing published yet.
-            </p>
+          <Panel className="mt-14 max-w-2xl">
+            <p className="display text-xl text-pine">Nothing published yet.</p>
             <p className="mt-3 leading-relaxed text-pine-soft">
               I am writing the first ones. If there is something you want
               explained, tell me and I will start there.
             </p>
-            <a
-              href="/go/whatsapp?m=topic"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-7 inline-block border border-pine px-5 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
-            >
-              Suggest a topic
-            </a>
+            <div className="mt-8">
+              <ActionOut href="/go/whatsapp?m=topic" tone="ink">
+                Suggest a topic
+              </ActionOut>
+            </div>
             <p className="mt-6 text-sm text-pine-faint">
               Or email{" "}
-              <a
-                href={`mailto:${site.email}`}
-                className="text-pine underline decoration-ruby decoration-2 underline-offset-2"
-              >
+              <TextLink href={`mailto:${site.email}`} external>
                 {site.email}
-              </a>
+              </TextLink>
               .
             </p>
-          </div>
+          </Panel>
         )}
       </Container>
     </Section>

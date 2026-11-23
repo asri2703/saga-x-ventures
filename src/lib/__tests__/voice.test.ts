@@ -46,13 +46,30 @@ test("no hype words appear in copy", () => {
   }
 });
 
-test("no uppercase tracked labels", () => {
-  // Shouting a label in tracked capitals is interface decoration, not
-  // information. Sentence case says the same thing without the volume.
+/**
+ * The one component allowed to set tracked capitals.
+ *
+ * The ban was written when nothing on the site used the device, and it was
+ * right then: a label shouted for decoration is not information. The design
+ * reference the owner chose uses it once per section as a category marker,
+ * which is information, so the rule narrowed rather than disappeared — the
+ * device now lives in `Eyebrow` and every other file still fails on it.
+ */
+const EYEBROW = path.join(SRC, "components", "shell.tsx");
+
+test("no uppercase tracked labels outside the eyebrow", () => {
   for (const { file, text } of files()) {
+    if (file === EYEBROW) continue;
     expect(text, file).not.toMatch(/uppercase\s+tracking-/);
     expect(text, file).not.toMatch(/tracking-\w+\s+uppercase/);
   }
+});
+
+test("the exemption names a file that exists and uses it", () => {
+  // An exemption pointing at a moved or renamed file silently re-bans
+  // nothing and would never be noticed.
+  expect(fs.existsSync(EYEBROW)).toBe(true);
+  expect(fs.readFileSync(EYEBROW, "utf8")).toMatch(/uppercase\s+tracking-/);
 });
 
 test("no exclamation marks in visible copy", () => {

@@ -60,7 +60,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-rule bg-paper/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 bg-paper/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <Link
             href="/"
@@ -119,14 +119,14 @@ export function SiteHeader() {
                   id="products-panel"
                   className="absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2"
                 >
-                  <ul className="overflow-hidden border border-rule bg-paper-raised p-1.5 shadow-lg shadow-pine/10">
+                  <ul className="overflow-hidden rounded-[var(--radius-panel)] bg-paper-raised p-2 shadow-[0_18px_40px_-12px_rgba(22,58,48,0.28)]">
                     {retailProducts.map((product) => (
                       <li key={product.key}>
                         <Link
                           href={product.href}
                           prefetch={false}
                           onClick={() => setProductsOpen(false)}
-                          className="block px-3 py-2.5 transition-colors hover:bg-paper-sunk"
+                          className="block rounded-[var(--radius-float)] px-3 py-2.5 transition-colors hover:bg-paper-sunk"
                         >
                           <span className="block text-sm font-semibold text-pine">
                             {product.name}
@@ -158,7 +158,7 @@ export function SiteHeader() {
                 would compete with it on every single view. */}
             <Link
               href="/coaching"
-              className="ml-3 border border-pine px-4 py-2 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
+              className="ml-3 rounded-full bg-pine px-5 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
             >
               Start here
             </Link>
@@ -238,7 +238,7 @@ export function SiteHeader() {
           <Link
             href="/coaching"
             onClick={close}
-            className="mt-8 block border border-pine px-5 py-3.5 text-center text-base font-semibold text-pine"
+            className="mt-8 block rounded-full bg-pine px-5 py-3.5 text-center text-base font-semibold text-paper"
           >
             Start here
           </Link>

@@ -88,18 +88,21 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
                 rather than buried in a footer nobody reads. */}
             <p className="mt-14 border-t border-rule pt-6 text-sm leading-relaxed text-pine-faint">
               Written as education, not financial advice. Trading carries real
-              risk of losing real money, and nothing here is a recommendation
-              to buy or sell anything.
+              risk of losing real money, and nothing here is a recommendation to
+              buy or sell anything.
             </p>
           </article>
 
           {related.length > 0 ? (
             <div className="mt-16 max-w-2xl">
               <h2 className="display text-xl text-pine">Also here</h2>
-              <ul className="mt-6">
+              <ul className="mt-6 space-y-4">
                 {related.map((p) => (
-                  <li key={p.slug} className="border-t border-rule last:border-b">
-                    <Link href={`/blog/${p.slug}`} className="block py-5">
+                  <li key={p.slug}>
+                    <Link
+                      href={`/blog/${p.slug}`}
+                      className="panel block p-6 transition-colors hover:bg-sage"
+                    >
                       <p className="tnum text-sm text-pine-faint">
                         {formatDate(p.date)}
                       </p>

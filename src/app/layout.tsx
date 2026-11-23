@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { orgSchema, personSchema } from "@/lib/schema";
@@ -11,18 +11,24 @@ import { MotionRoot } from "@/components/motion-root";
 /**
  * One family for the whole site.
  *
- * The `wdth` axis is requested explicitly — by default Next only ships the
- * weight axis to keep the file small. Width is the typographic device here:
- * display type is this same font at a wider cut, not a second typeface. That
- * is a deliberate avoidance of the cream-background-plus-high-contrast-serif
- * combination that every generated page currently uses.
+ * General Sans, self-hosted. The design reference the owner chose is set in
+ * GT Walsheim, which is licensed commercially; General Sans is its nearest
+ * freely licensed relative — geometric, soft terminals, the same friendly
+ * register — and is served from this origin rather than Fontshare's CDN so
+ * the page does not depend on a third party to render its own text.
  *
- * Archivo also carries tabular figures, which matter wherever prices line up.
+ * Four weights, no italics. The display cut is this family at 600 with
+ * tighter tracking, not a second typeface.
  */
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  axes: ["wdth"],
+const generalSans = localFont({
+  variable: "--font-general-sans",
+  display: "swap",
+  src: [
+    { path: "../fonts/GeneralSans-400.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/GeneralSans-500.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/GeneralSans-600.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/GeneralSans-700.woff2", weight: "700", style: "normal" },
+  ],
 });
 
 export const metadata: Metadata = {
@@ -72,7 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-MY"
-      className={`${archivo.variable} h-full antialiased`}
+      className={`${generalSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-paper text-pine">
         <script

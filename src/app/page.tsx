@@ -1,12 +1,22 @@
 import type { CSSProperties } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { ibProducts, retailProducts, getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
+import { copytrade, fukyaaDeposit } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
-import { MarkedChart } from "@/components/marked-chart";
 import { AccountGateway } from "@/components/account-gateway";
+import {
+  ActionLink,
+  ActionOut,
+  Eyebrow,
+  FloatCard,
+  Marked,
+  OffsetFrame,
+  Panel,
+  Scallop,
+  TextLink,
+} from "@/components/shell";
 
 /**
  * The fork states each product's deposit minimum, and one of those figures is
@@ -21,95 +31,154 @@ export default function HomePage() {
   const standard = retailProducts.filter((p) => p.account === "standard");
   const coaching = getProduct("coaching")!;
   const now = new Date();
+  const deposit = fukyaaDeposit(now);
 
   return (
     <>
       {/* ---------------------------------------------------------------
           1. Hero. The owner's own copy, kept as he wrote it.
       --------------------------------------------------------------- */}
-      <Section>
+      <Section className="pt-14 sm:pt-20">
         <Container>
-          {/* The portrait is a full-length 2:3. Given a wide column it makes
-              the hero taller than a screen and buries the fork below the
-              fold, so the column is capped rather than the image cropped. */}
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,440px)] lg:gap-16">
+          <div className="grid items-center gap-16 lg:grid-cols-[1fr_minmax(0,460px)]">
             <div>
-              <h1 className="display text-4xl leading-[1.05] text-pine sm:text-5xl lg:text-6xl">
-                Trade Shouldn&rsquo;t Be Complicated.
+              <h1 className="display text-4xl text-pine sm:text-5xl lg:text-6xl">
+                Trade Shouldn&rsquo;t Be <Marked>Complicated</Marked>.
               </h1>
 
-              <p className="mt-7 max-w-xl text-lg leading-relaxed text-pine-soft">
+              <p className="mt-8 max-w-xl text-lg leading-relaxed text-pine-soft">
                 We believe trading shouldn&rsquo;t be complicated. That&rsquo;s
                 why we build innovative trading solutions designed to make the
                 trading experience simpler, smarter and more flexible,
                 empowering traders to focus on what matters most.
               </p>
 
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <Link
-                  href="#fork"
-                  className="border border-pine px-5 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
-                >
-                  Find where you fit
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-base text-pine underline decoration-ruby decoration-2 underline-offset-4"
-                >
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <ActionLink href="#fork">Find where you fit</ActionLink>
+                <ActionLink href="/about" tone="ghost">
                   How I got here
-                </Link>
+                </ActionLink>
               </div>
             </div>
 
-            <Image
-              src="/asri-hero.webp"
-              alt={`${site.founder.name}, founder of ${site.name}`}
-              width={1003}
-              height={1516}
-              className="h-auto w-full"
-              sizes="(min-width: 1024px) 440px, 100vw"
-              priority
-            />
+            {/* The portrait, in the reference's shape: a rounded image with a
+                block of colour offset behind it, and fragments of the real
+                terms floating over the edges. In the reference those cards
+                are product screenshots; built from config instead, they say
+                something true and needed no asset that does not exist. */}
+            <div className="relative" data-reveal>
+              <OffsetFrame tint="sage">
+                <Image
+                  src="/asri-hero.webp"
+                  alt={`${site.founder.name}, founder of ${site.name}`}
+                  width={1003}
+                  height={1516}
+                  className="h-auto w-full"
+                  sizes="(min-width: 1024px) 460px, 100vw"
+                  priority
+                />
+              </OffsetFrame>
+
+              <FloatCard
+                className="absolute -left-10 top-16 hidden sm:flex"
+                label="Copytrade"
+                value={`${copytrade.investorShare}% stays with you`}
+                note="Settled weekly"
+                tint="sage"
+              />
+              <FloatCard
+                className="absolute -right-8 bottom-24 hidden sm:flex"
+                label="Auto trade"
+                value={`${deposit.usd.toLocaleString("en-MY")} USD to start`}
+                note="Server included"
+                tint="blush"
+              />
+            </div>
           </div>
         </Container>
       </Section>
 
-      {/* ---------------------------------------------------------------
-          2. Who I am.
-      --------------------------------------------------------------- */}
-      <Section tone="raised">
+      {/* The trust line the reference runs under its hero. One sentence,
+          already true, and the only number on the page that is about me. */}
+      <Section className="py-10 sm:py-12">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
+          <p className="text-center text-lg text-pine-soft" data-reveal>
+            More than{" "}
+            <span className="display tnum text-pine">
+              {site.founder.tradersGuided.toLocaleString("en-MY")} traders
+            </span>{" "}
+            across Malaysia and Indonesia have been through a class or a call
+            with me.
+          </p>
+        </Container>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          2. Who I am. The reference's dark band: the page inverts, and
+          one thing is on screen.
+      --------------------------------------------------------------- */}
+      <Scallop />
+      <Section tone="pine" className="pt-10">
+        <Container>
+          <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-20">
             <div>
-              <SectionHeading eyebrow="Who I am" title="I still trade" />
-              <div className="mt-6 space-y-5 text-lg leading-relaxed text-pine-soft">
+              <SectionHeading eyebrow="Who I am" title="I still trade" onDark>
                 <p>
                   I am {site.founder.name}. Twelve years trading, and I still
                   trade now.
                 </p>
+              </SectionHeading>
+
+              <div className="mt-6 max-w-2xl space-y-5 text-lg leading-relaxed text-paper/80">
                 <p>
                   A normal week is a few positions. Some weeks there is nothing
                   worth taking and I take nothing.
                 </p>
-                <p>
-                  More than{" "}
-                  <span className="display tnum text-pine">
-                    {site.founder.tradersGuided.toLocaleString("en-MY")} traders
-                  </span>{" "}
-                  have been through a class or a call with me, across Malaysia
-                  and Indonesia.
-                </p>
               </div>
-              <Link
-                href="/about"
-                className="mt-7 inline-block text-base text-pine underline decoration-ruby decoration-2 underline-offset-4"
-              >
-                The longer version
-              </Link>
+
+              <div className="mt-9">
+                <ActionLink href="/about" tone="onDark">
+                  The longer version
+                </ActionLink>
+              </div>
             </div>
 
-            <div data-reveal>
-              <MarkedChart />
+            <div
+              data-reveal
+              className="rounded-[var(--radius-panel)] bg-paper p-6 sm:p-8"
+            >
+              <Eyebrow tone="quiet">A week, as it actually goes</Eyebrow>
+              <ul className="mt-6 space-y-5">
+                {[
+                  {
+                    k: "watch",
+                    t: "Most of it is waiting",
+                    b: "The level has to come to me. It often does not.",
+                  },
+                  {
+                    k: "few",
+                    t: "A few positions",
+                    b: "Sized to what the week is actually offering.",
+                  },
+                  {
+                    k: "none",
+                    t: "Sometimes none at all",
+                    b: "A flat week is a decision, not a failure to find one.",
+                  },
+                ].map((row) => (
+                  <li
+                    key={row.k}
+                    className="border-b border-rule pb-5 last:border-0 last:pb-0"
+                  >
+                    <span className="block font-semibold text-pine">
+                      {row.t}
+                    </span>
+                    <span className="mt-1 block text-sm leading-relaxed text-pine-soft">
+                      {row.b}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </Container>
@@ -130,7 +199,7 @@ export default function HomePage() {
             </p>
           </SectionHeading>
 
-          <div className="mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
+          <div className="mt-14 grid max-w-5xl gap-6 md:grid-cols-3">
             {[
               {
                 k: "signal",
@@ -148,22 +217,20 @@ export default function HomePage() {
                 a: "Other people with their own clients wanted the same tools under their own name. I had already built mine, so I build theirs.",
               },
             ].map((item, i) => (
-              <div
+              <Panel
                 key={item.k}
-                data-reveal
                 style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
-                className="border border-rule bg-paper-raised p-7"
               >
-                <p className="display text-xl leading-snug text-pine">
+                <p className="display text-xl text-pine">
                   &ldquo;{item.q}&rdquo;
                 </p>
                 <p className="mt-4 leading-relaxed text-pine-soft">{item.a}</p>
-              </div>
+              </Panel>
             ))}
           </div>
 
           <p
-            className="mt-10 max-w-2xl leading-relaxed text-pine-soft"
+            className="mt-12 max-w-2xl text-lg leading-relaxed text-pine"
             data-reveal
           >
             What I will not do is tell you what you are going to earn. I do not
@@ -197,7 +264,9 @@ export default function HomePage() {
             first one.
           </p>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          {/* items-start: the columns hold one product and two. Stretched to
+              match, the shorter one ended in a panel of empty cream. */}
+          <div className="mt-12 grid items-start gap-6 lg:grid-cols-2">
             <AccountGateway
               account="standard"
               title="You want to place the trades"
@@ -215,10 +284,7 @@ export default function HomePage() {
           </div>
 
           {/* Coaching sits outside the fork: it needs no broker account. */}
-          <div
-            data-reveal
-            className="mt-12 flex flex-col gap-6 border border-rule bg-paper p-7 sm:flex-row sm:items-center sm:justify-between sm:p-8"
-          >
+          <Panel className="mt-10 flex flex-col gap-7 sm:flex-row sm:items-center sm:justify-between">
             <div className="max-w-xl">
               <p className="display text-xl text-pine">
                 &ldquo;{coaching.forWho}&rdquo;
@@ -227,55 +293,50 @@ export default function HomePage() {
                 {coaching.summary}
               </p>
             </div>
-            <Link
-              href={coaching.href}
-              className="shrink-0 bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
-            >
+            <ActionLink href={coaching.href} tone="accent" className="shrink-0">
               {coaching.cta}
-            </Link>
-          </div>
+            </ActionLink>
+          </Panel>
 
           {/* The IB lane. A door, not a pitch — these two have no page yet. */}
-          <div className="mt-12 border-t border-rule pt-10" data-reveal>
-            <h3 className="display text-xl text-pine">
-              If you have clients of your own
-            </h3>
-            <div className="mt-6 grid max-w-3xl gap-6 sm:grid-cols-2">
+          <div className="mt-14" data-reveal>
+            <Eyebrow>If you have clients of your own</Eyebrow>
+            <div className="mt-6 grid max-w-3xl gap-8 sm:grid-cols-2">
               {ibProducts.map((product) => (
                 <div key={product.key}>
                   <p className="font-semibold text-pine">{product.name}</p>
                   <p className="mt-2 text-sm leading-relaxed text-pine-soft">
                     {product.summary}
                   </p>
-                  <a
-                    href={product.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-block text-sm text-pine underline decoration-ruby decoration-2 underline-offset-4"
-                  >
-                    {product.cta}
-                  </a>
+                  <div className="mt-3">
+                    <TextLink href={product.href} external className="text-sm">
+                      {product.cta}
+                    </TextLink>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </Container>
       </Section>
+
       {/* ---------------------------------------------------------------
           5. Award and recognition.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
-            <div data-reveal className="border border-rule bg-paper-raised p-3">
-              <Image
-                src={site.founder.award.image}
-                alt={`${site.founder.name} receiving the ${site.founder.award.title} award`}
-                width={1076}
-                height={919}
-                className="h-auto w-full"
-                sizes="(min-width: 1024px) 600px, 100vw"
-              />
+          <div className="grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-20">
+            <div data-reveal>
+              <OffsetFrame tint="sand">
+                <Image
+                  src={site.founder.award.image}
+                  alt={`${site.founder.name} receiving the ${site.founder.award.title} award`}
+                  width={1076}
+                  height={919}
+                  className="h-auto w-full"
+                  sizes="(min-width: 1024px) 600px, 100vw"
+                />
+              </OffsetFrame>
             </div>
 
             <div>
@@ -301,40 +362,31 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------
           6. Coaching and classes — the close.
       --------------------------------------------------------------- */}
-      <Section tone="raised">
+      <Scallop />
+      <Section tone="pine" className="pt-10">
         <Container>
-          <div data-reveal className="border border-rule bg-paper p-8 sm:p-12">
-            <SectionHeading
-              eyebrow="Coaching and classes"
-              title="Learn to do this yourself"
-            >
-              <p>
-                Three classes, one to one, about a day each. Basic trading, then
-                advance, then trading the news. Take them in order or take one
-                on its own.
-              </p>
-            </SectionHeading>
-
-            <p className="mt-6 max-w-2xl leading-relaxed text-pine-soft">
+          <div className="mx-auto max-w-3xl text-center" data-reveal>
+            <Eyebrow tone="onDark">Coaching and classes</Eyebrow>
+            <h2 className="display mt-3 text-3xl text-paper sm:text-5xl">
+              Learn to do this yourself
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-paper/80">
+              Three classes, one to one, about a day each. Basic trading, then
+              advance, then trading the news. Take them in order or take one on
+              its own.
+            </p>
+            <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-paper/70">
               Tell me what you have traded so far and which one you think you
               need. We fix the dates first, and payment comes after that.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-5">
-              <a
-                href="/go/whatsapp?m=coaching"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
-              >
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <ActionOut href="/go/whatsapp?m=coaching">
                 Ask about coaching
-              </a>
-              <Link
-                href="/coaching"
-                className="text-base text-pine underline decoration-ruby decoration-2 underline-offset-4"
-              >
+              </ActionOut>
+              <ActionLink href="/coaching" tone="onDark">
                 See the three classes
-              </Link>
+              </ActionLink>
             </div>
           </div>
         </Container>

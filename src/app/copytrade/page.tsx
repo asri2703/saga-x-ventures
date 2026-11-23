@@ -3,6 +3,7 @@ import { copytrade, exampleSplit } from "@/lib/commercial";
 import { getProduct } from "@/lib/products";
 import { Container, Section } from "@/components/ui";
 import { ProductGuide, type PaymentRoute } from "@/components/product-guide";
+import { Panel } from "@/components/shell";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/copytrade" },
@@ -84,8 +85,8 @@ export default function CopytradePage() {
           </p>
         </div>
 
-        <div className="mt-10 max-w-3xl border border-rule bg-paper p-8">
-          <p className="text-sm text-pine-faint">
+        <Panel className="mt-10 max-w-3xl">
+          <p className="text-sm text-pine-soft">
             Worked through with round numbers, to show the arithmetic
           </p>
           <dl className="mt-5 divide-y divide-rule">
@@ -118,19 +119,19 @@ export default function CopytradePage() {
               <dd className="tnum display text-pine">{split.investor} USD</dd>
             </div>
           </dl>
-          <p className="mt-6 text-sm leading-relaxed text-pine-faint">
+          <p className="mt-6 text-sm leading-relaxed text-pine-soft">
             Round numbers, chosen because the arithmetic is easy to follow. They
             are not a forecast and no week is promised to look like this one.
             The broker calculates and settles the share; its own terms govern
             how.
           </p>
-        </div>
+        </Panel>
 
         {/* Whether a losing week is carried forward is the broker's rule and
             I have not had it confirmed in writing. Saying nothing would let
             a reader assume the answer they prefer. */}
         <p
-          className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
+          className="mt-8 max-w-2xl rounded-[var(--radius-panel)] bg-sand px-7 py-6 leading-relaxed text-pine"
           data-reveal
         >
           How a losing week is treated against the next one is set by the
@@ -170,9 +171,13 @@ export default function CopytradePage() {
         }
       />
 
-      <Section>
+      {/* The fine print, boxed off rather than left floating under a dark
+          band. Set in pine-soft, not pine-faint: pine-faint clears 4.5:1 on
+          the page paper but only reaches 3.98:1 on this sunk panel, and
+          boxing the text is what would have broken it. */}
+      <Section className="py-14">
         <Container>
-          <p className="max-w-2xl text-sm leading-relaxed text-pine-faint">
+          <p className="max-w-2xl rounded-[var(--radius-panel)] bg-paper-sunk px-7 py-6 text-sm leading-relaxed text-pine-soft">
             Copying a trader carries the same risk as placing the trade
             yourself, including losing money. Nothing here is financial advice
             or a recommendation to buy or sell anything.

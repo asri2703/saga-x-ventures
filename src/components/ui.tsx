@@ -44,14 +44,28 @@ export function Section({
 }: {
   children: ReactNode;
   id?: string;
-  tone?: "paper" | "raised";
+  /**
+   * `pine` is the reference's dark band: the page inverts for one section so
+   * the thing inside it is the only thing on screen. Text colours inside it
+   * are the section's job, not this wrapper's, because a band holds headings
+   * and body at different strengths.
+   */
+  tone?: "paper" | "raised" | "pine";
   className?: string;
 }) {
-  const bg = tone === "raised" ? "bg-paper-raised" : "bg-paper";
+  const bg =
+    tone === "pine"
+      ? "bg-pine-deep text-paper"
+      : tone === "raised"
+        ? "bg-paper-raised"
+        : "bg-paper";
   return (
     <section
       id={id}
-      className={`${bg} scroll-mt-20 py-20 sm:py-28 ${className}`}
+      /* Read by the footer, which hides its scalloped strip when the page
+         already ends dark. See the rule in globals.css. */
+      data-tone={tone}
+      className={`${bg} scroll-mt-20 py-16 sm:py-24 ${className}`}
     >
       {children}
     </section>

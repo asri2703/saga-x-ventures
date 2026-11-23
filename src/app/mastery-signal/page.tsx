@@ -84,9 +84,13 @@ export default function MasterySignalPage() {
         }
       />
 
-      <Section>
+      {/* The fine print, boxed off rather than left floating under a dark
+          band. Set in pine-soft, not pine-faint: pine-faint clears 4.5:1 on
+          the page paper but only reaches 3.98:1 on this sunk panel, and
+          boxing the text is what would have broken it. */}
+      <Section className="py-14">
         <Container>
-          <p className="max-w-2xl text-sm leading-relaxed text-pine-faint">
+          <p className="max-w-2xl rounded-[var(--radius-panel)] bg-paper-sunk px-7 py-6 text-sm leading-relaxed text-pine-soft">
             Signals are education, not financial advice, and they are not a
             recommendation to buy or sell anything. Trading carries real risk of
             losing real money, and no result is promised or implied.

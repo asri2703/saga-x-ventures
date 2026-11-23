@@ -2,6 +2,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { outbound, type OutboundKey, type Product } from "@/lib/products";
 import { Container, Section } from "@/components/ui";
+import {
+  ActionOut,
+  Eyebrow,
+  Panel,
+  Scallop,
+} from "@/components/shell";
 
 /**
  * The shape every product page shares.
@@ -41,16 +47,32 @@ export function stepIsReady(step: GuideStep): boolean {
   return outbound[step.outbound] !== "";
 }
 
+/**
+ * The steps, numbered.
+ *
+ * A numbered marker is only information when the content is actually a
+ * sequence. This one is: the account has to exist before it can be funded,
+ * and funded before anything is joined. Doing them out of order fails.
+ */
 function Steps({ steps }: { steps: GuideStep[] }) {
   return (
-    <ol className="mt-8">
+    <ol className="mt-10 space-y-5">
       {steps.map((step) => (
-        <li key={step.n} className="border-b border-rule py-7 first:border-t">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div className="max-w-xl">
-              <p className="tnum text-sm text-pine-faint">Step {step.n}</p>
-              <h3 className="display mt-1 text-xl text-pine">{step.title}</h3>
-              <p className="mt-3 leading-relaxed text-pine-soft">{step.body}</p>
+        <li key={step.n}>
+          <Panel className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex max-w-xl gap-5">
+              <span
+                aria-hidden
+                className="display tnum flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage text-lg text-pine"
+              >
+                {step.n}
+              </span>
+              <div>
+                <h3 className="display text-xl text-pine">{step.title}</h3>
+                <p className="mt-3 leading-relaxed text-pine-soft">
+                  {step.body}
+                </p>
+              </div>
             </div>
 
             {stepIsReady(step) ? (
@@ -59,16 +81,16 @@ function Steps({ steps }: { steps: GuideStep[] }) {
                 prefetch={false}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 self-start border border-pine px-5 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
+                className="inline-flex shrink-0 items-center justify-center self-start rounded-full border border-pine px-6 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
               >
                 {step.cta}
               </Link>
             ) : step.cta ? (
-              <p className="shrink-0 self-start border border-dashed border-rule-strong px-5 py-3 text-sm text-pine-faint">
+              <p className="shrink-0 self-start rounded-full border border-dashed border-rule-strong px-6 py-3 text-sm text-pine-faint">
                 {step.cta} — link coming
               </p>
             ) : null}
-          </div>
+          </Panel>
         </li>
       ))}
     </ol>
@@ -124,7 +146,7 @@ export function ProductGuide({
                 key={route.key}
                 href={`#${route.key}`}
                 data-reveal
-                className="group border border-rule bg-paper p-7 transition-colors hover:border-pine"
+                className="panel p-7 transition-colors hover:bg-sage sm:p-8"
               >
                 <h3 className="display text-xl text-pine underline decoration-ruby decoration-2 underline-offset-4">
                   {route.label}
@@ -142,7 +164,10 @@ export function ProductGuide({
         <Section key={route.key} id={route.key}>
           <Container>
             <div className="max-w-2xl" data-reveal>
-              <h2 className="display text-2xl text-pine sm:text-3xl">
+              <Eyebrow>
+                {route.key === "deposit" ? "Route one" : "Route two"}
+              </Eyebrow>
+              <h2 className="display mt-3 text-2xl text-pine sm:text-3xl">
                 {route.label}
               </h2>
               <p className="mt-3 leading-relaxed text-pine-soft">
@@ -156,21 +181,21 @@ export function ProductGuide({
         </Section>
       ))}
 
-      <Section tone="raised">
+      <Scallop />
+      <Section tone="pine" className="pt-10">
         <Container>
-          <div className="max-w-2xl">
-            <p className="leading-relaxed text-pine-soft">
-              Not sure which route fits what you have to work with? Ask me
-              before you pay or deposit anything.
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="display text-2xl text-paper sm:text-3xl">
+              Not sure which route fits what you have to work with?
+            </h2>
+            <p className="mt-5 leading-relaxed text-paper/80">
+              Ask me before you pay or deposit anything.
             </p>
-            <a
-              href="/go/whatsapp?m=contact"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-7 inline-block bg-ruby px-5 py-3 text-base font-bold text-white transition-colors hover:bg-ruby-deep"
-            >
-              Ask about {product.name}
-            </a>
+            <div className="mt-9">
+              <ActionOut href="/go/whatsapp?m=contact">
+                Ask about {product.name}
+              </ActionOut>
+            </div>
           </div>
         </Container>
       </Section>

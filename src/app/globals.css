@@ -1,22 +1,26 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens — the marked-up chart
+   Design tokens
    ---------------------------------------------------------------------------
-   A trader's working document is a chart with annotations: zones boxed,
-   levels ruled, entries marked. That is this site's visual language.
+   The structure comes from Officevibe, which the owner chose as the
+   reference: warm paper, a soft rounded shell, pill actions, product cards
+   that float over photography, and hand-drawn marks. The colours do not. The
+   reference is navy and coral; this site keeps the palette it already has.
 
-     Vanilla (60%)  the paper
-     Pine    (30%)  the ink — every chart line and every word
+     Vanilla (60%)  the paper, warmed a shade towards the reference
+     Pine    (30%)  the ink, and the dark band
      Ruby    (10%)  the mark the teacher makes
 
-   Ruby has one job and one rule: it marks the single thing to do next, once
-   per screen. It is never used for running text, because it measures ~3.5:1
-   against the paper and fails AA for body copy. Pine on Vanilla is ~9.9:1 and
-   is the default pairing everywhere.
+   Ruby still has one job and one rule: it marks the single thing to do next,
+   once per screen. It is never used for running text, because it measures
+   ~3.4:1 against the paper and fails AA for body copy. Pine on Vanilla is
+   ~9.6:1 and is the default pairing everywhere.
 
-   Why so quiet: the competition is dark dashboards, neon green and profit
-   screenshots. Looking calm is the differentiator.
+   What changed from the previous build is the shell, not the voice. Hairline
+   rules and square corners became soft cards with a radius and a shadow,
+   because the reference carries its structure in elevation rather than in
+   lines. Rules remain, but as a secondary device.
 
    There are no compatibility aliases. An earlier pass kept the old dark-theme
    token names pointing at the new palette so un-migrated components would
@@ -25,35 +29,93 @@
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* The palette */
-  --color-paper: #efe6d3; /* Vanilla Line */
-  --color-paper-raised: #f6f0e2;
-  --color-paper-sunk: #e4d9c1;
+  /* The paper. Warmer than the previous #efe6d3, which read cold beside the
+     reference, but the same Vanilla Line hue rather than the reference peach. */
+  --color-paper: #f2e9d8; /* Vanilla Line */
+  --color-paper-raised: #faf4e8; /* cards sit lighter than the page */
+  --color-paper-sunk: #e6dac2;
+
   --color-pine: #163a30; /* Pine Lacquer */
+  --color-pine-deep: #102a23; /* the dark band */
   --color-pine-soft: #3e5d53;
   --color-pine-faint: #566e65;
+
   --color-ruby: #f0283c; /* Ruby Flare */
   --color-ruby-deep: #c81f30;
 
-  /* Rules and borders — pine at low strength, never pure grey */
-  --color-rule: #d9cfb8;
-  --color-rule-strong: #c4b89c;
+  /* Block tints. These sit behind photographs and inside small product cards
+     and never carry body text of their own. Each is one of the two brand
+     hues lightened, so the page gains variety without gaining a colour. */
+  --color-sage: #cfe0d4; /* pine, lightened */
+  --color-blush: #fbdcdf; /* ruby, lightened */
+  --color-sand: #f0dcae; /* paper, deepened */
 
-  /* One family, two widths. The contrast is width, not serif against sans —
-     a high-contrast serif on a cream background is the commonest tell of a
-     generated page, and this palette is already cream. */
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  /* Rules and borders — pine at low strength, never pure grey */
+  --color-rule: #dcd0b8;
+  --color-rule-strong: #c7b99c;
+
+  /* The shell. The reference is built from one large radius and one small
+     one: panels and photographs take the large, the cards that float over
+     them take the small. */
+  --radius-panel: 1.5rem;
+  --radius-float: 0.75rem;
+
+  /* One family. General Sans is the nearest freely licensed relative of the
+     reference's GT Walsheim: geometric, soft-terminalled, and friendlier
+     than the Archivo it replaces. Display type is the same family heavier
+     and tighter — there is no second typeface. */
+  --font-sans: var(--font-general-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-general-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Display type is the same family at a wider cut — Archivo is loaded with its
-   `wdth` axis, so this costs no extra download. Width is the typographic
-   device on this site; there is no second typeface. */
+/* Display type. Archivo carried a `wdth` axis and the device was width;
+   General Sans has no width axis, so the device is weight and tracking. */
 .display {
   font-family: var(--font-display);
-  font-stretch: 115%;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+/* Elevation. The reference's cards are shadows, not outlines — a border as
+   well as a shadow reads as two decisions arguing. */
+.panel {
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.04),
+    0 12px 28px -16px rgba(22, 58, 48, 0.16);
+}
+
+/* A card that overlaps a photograph. Brighter than a panel so it reads as in
+   front of the image rather than behind it, and lifted further. */
+.float-card {
+  border-radius: var(--radius-float);
+  background: #fffdf8;
+  box-shadow: 0 10px 30px -8px rgba(22, 58, 48, 0.26);
+}
+
+/* The scalloped edge between the paper and the dark band. Drawn with a
+   repeating radial gradient rather than an SVG so it scales with the
+   viewport and costs no request. */
+.scallop-top {
+  --scallop: 56px;
+  height: calc(var(--scallop) / 2);
+  background:
+    radial-gradient(
+      circle at 50% 100%,
+      var(--color-pine-deep) 0 49.5%,
+      #0000 50%
+    );
+  background-size: var(--scallop) 100%;
+  background-repeat: repeat-x;
+}
+
+/* A page that already closes on the dark band does not want the footer's
+   cream scallop strip between it and the dark footer. `:has()` lets the
+   footer respond to how the page above it ended, which no prop drilling
+   through the layout could do as cleanly. */
+main:has(> section:last-child[data-tone="pine"]) + footer .footer-scallop {
+  display: none;
 }
 
 html {
