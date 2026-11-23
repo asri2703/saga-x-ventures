@@ -232,16 +232,17 @@ export default function HomePage() {
       <Section id="build">
         <Container>
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
-            <h2
-              className="display max-w-xl text-3xl text-pine sm:text-4xl"
-              data-reveal
-            >
-              Every product here is a screen I use myself.
-            </h2>
+            <div className="max-w-xl" data-reveal>
+              <Eyebrow>Built from experience</Eyebrow>
+              <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
+                Built from experience. Made for real traders.
+              </h2>
+            </div>
             <div className="max-w-sm lg:pt-2" data-reveal>
               <p className="leading-relaxed text-pine-soft">
-                Mastery Signal and Fukyaa are both mine. What you see below is
-                exported from the live products, not drawn for this page.
+                I&rsquo;ve turned years of trading knowledge, hands-on
+                experience, and ideas into products that have helped clients
+                trade smarter, save time, and stay in control.
               </p>
               <div className="mt-6">
                 <ActionLink href="#fork">See which one fits</ActionLink>

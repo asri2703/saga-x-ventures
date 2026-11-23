@@ -34,23 +34,29 @@ type Shot = {
 
 type BuildCard = {
   key: string;
+  /**
+   * The owner's own numeral.
+   *
+   * It is not a sequence — these three are not steps and can be read in any
+   * order — so the number is set at label size beside the product name
+   * rather than as the large marker a stepped process would earn.
+   */
+  n: string;
   /** The product the screen belongs to. */
   label: string;
   title: string;
-  /** What the screen does. Two lines, because a third is never read. */
-  does: [string, string];
+  /** The owner's line for it. His copy, kept as he sent it. */
+  body: string;
   shots: Shot[];
 };
 
 const cards: BuildCard[] = [
   {
     key: "signal",
+    n: "01",
     label: "Mastery Signal",
-    title: "Every signal arrives with its levels",
-    does: [
-      "Entry, stop loss and three targets, each one copyable.",
-      "The card keeps updating after the signal is sent, so you can see where price went.",
-    ],
+    title: "Everything I’ve learned, in one signal.",
+    body: "Years of trading knowledge and real market experience, turned into clear and actionable signals.",
     shots: [
       {
         src: "/shots/mastery-signal-card.png",
@@ -62,12 +68,10 @@ const cards: BuildCard[] = [
   },
   {
     key: "zones",
+    n: "02",
     label: "Mastery Signal",
-    title: "Check the call before you take it",
-    does: [
-      "Buy and sell zones drawn on the chart you already read.",
-      "Trend, momentum, structure and zones scored per timeframe.",
-    ],
+    title: "It’s all about creativity and flexibility.",
+    body: "Trading tools built to give you more freedom, better insights, and a different way to read the market.",
     shots: [
       {
         src: "/shots/mastery-zone-chart.png",
@@ -85,12 +89,14 @@ const cards: BuildCard[] = [
   },
   {
     key: "fukyaa",
+    n: "03",
     label: "Fukyaa",
-    title: "Watch the robot from one screen",
-    does: [
-      "Daily profit and loss, deepest drawdown and lots traded, side by side.",
-      "Your licence keys and MT5 accounts, added and renewed yourself.",
-    ],
+    /* The owner wrote "We've got you". The page speaks as one person
+       everywhere else, and he moved the hero off "we" himself two commits
+       ago, so the pronoun follows that decision rather than reintroducing
+       the one he removed. */
+    title: "No time to trade? I’ve got you.",
+    body: "Automated trading made easier. Let the system handle the execution while you stay in control.",
     shots: [
       {
         src: "/shots/fukyaa-dashboard.png",
@@ -102,24 +108,6 @@ const cards: BuildCard[] = [
     ],
   },
 ];
-
-/** The tick beside a line. Decorative — the line itself carries the meaning. */
-function Tick() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="mt-[0.3rem] h-3.5 w-3.5 shrink-0 text-ruby"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
 
 export function BuildShowcase() {
   return (
@@ -135,8 +123,17 @@ export function BuildShowcase() {
           style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
           className="panel flex flex-col overflow-hidden p-7 sm:p-8"
         >
-          <p className="text-sm font-semibold text-pine-faint">{card.label}</p>
-          <h3 className="display mt-2 text-xl text-pine">{card.title}</h3>
+          <p className="text-sm text-pine-faint">
+            <span className="tnum">{card.n}</span>
+            <span className="mx-2 text-rule-strong">&mdash;</span>
+            <span className="font-semibold text-pine-soft">{card.label}</span>
+          </p>
+          {/* A floor under the title only where the three sit side by side:
+              two of them wrap to a second line and one does not, and without
+              it the three screens below started at three different heights. */}
+          <h3 className="display mt-3 text-xl leading-snug text-pine lg:min-h-[3.5rem]">
+            {card.title}
+          </h3>
 
           {/* The screens. Cut off at the bottom on purpose: a product screen
               shrunk until all of it fits is a screen nobody can read. The cut
@@ -187,17 +184,12 @@ export function BuildShowcase() {
             )}
           </div>
 
-          <ul className="mt-auto flex flex-col gap-3 pt-7">
-            {card.does.map((line) => (
-              <li
-                key={line}
-                className="flex gap-3 text-sm leading-relaxed text-pine-soft"
-              >
-                <Tick />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
+          {/* `mt-auto` holds the three lines on one baseline across the row
+              even where a title runs to two lines and its neighbour runs to
+              one. */}
+          <p className="mt-auto pt-7 leading-relaxed text-pine-soft">
+            {card.body}
+          </p>
         </article>
       ))}
     </div>
