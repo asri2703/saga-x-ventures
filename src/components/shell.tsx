@@ -350,7 +350,13 @@ export function OffsetFrame({
     <div className={`relative ${className}`}>
       <div
         aria-hidden
-        className={`absolute -bottom-4 -right-4 h-full w-full rounded-[var(--radius-panel)] ${block}`}
+        /* Offset downward on a phone, down AND right from `sm`.
+           The sideways offset is 16px and a phone's page gutter is 20px, so
+           on a phone the block came within 4px of the screen edge while the
+           frame's left side still had its full 20px. The composition read as
+           though it had been nudged off centre. From `sm` the gutter is 32px
+           and there is room for the offset the reference actually uses. */
+        className={`absolute -bottom-3 right-0 h-full w-full rounded-[var(--radius-panel)] sm:-bottom-4 sm:-right-4 ${block}`}
       />
       <div className="relative overflow-hidden rounded-[var(--radius-panel)]">
         {children}
