@@ -86,6 +86,117 @@
     0 12px 28px -16px rgba(22, 58, 48, 0.16);
 }
 
+/* ---------------------------------------------------------------------------
+   The product switch
+   ---------------------------------------------------------------------------
+   From Uiverse.io by Shoh2008 - https://uiverse.io/Shoh2008/cowardly-catfish-27
+   MIT License, Copyright (c) Shoh2008 (c0der)
+
+   The mechanic is kept exactly: a track twice the width of its box, slid
+   under a thumb half the width of the control, so the colour behind changes
+   as the thumb travels. The transition is the original's 0.25s.
+
+   What changed is the chrome. The original stacks five shadows — two inset,
+   a hairline, a dark rim and a white rim — which is the lit-glass toggle of
+   about 2010, and on cream paper beside flat pine buttons it reads as a
+   control borrowed from another site. One inset and one soft drop stay. Its
+   red and blue become pine and ruby, the two colours this site has.
+--------------------------------------------------------------------------- */
+.plan-switch {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: linear-gradient(
+      hsla(0, 0%, 0%, 0.08),
+      hsla(0, 0%, 100%, 0.12)
+    ),
+    linear-gradient(
+      to right,
+      var(--color-pine) 50%,
+      var(--color-ruby-deep) 50%
+    );
+  background-size:
+    100% 100%,
+    200% 100%;
+  background-position:
+    0 0,
+    0 0;
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 3px hsla(160, 46%, 10%, 0.35),
+    0 1px 2px hsla(160, 46%, 10%, 0.18);
+  cursor: pointer;
+  height: 28px;
+  width: 76px;
+  padding-right: 38px;
+  position: relative;
+  transition: 0.25s;
+}
+
+/* The hit area, not the control. The track is 28px tall because that is what
+   the design wants; a finger needs 44, so the difference is taken in a
+   transparent box rather than by drawing a bigger switch. */
+.plan-switch::before {
+  content: "";
+  position: absolute;
+  inset: -8px 0;
+}
+
+/* The thumb. Half the control, so the track behind it is half covered and
+   the uncovered half is the colour of the side that is active. */
+.plan-switch::after {
+  background-color: var(--color-paper-raised);
+  background-image: linear-gradient(
+    hsla(0, 0%, 100%, 0.6),
+    hsla(160, 46%, 10%, 0.08)
+  );
+  border-radius: 999px;
+  box-shadow: 0 1px 3px hsla(160, 46%, 10%, 0.4);
+  content: "";
+  display: block;
+  height: 28px;
+  width: 38px;
+}
+
+.plan-switch:checked {
+  background-position:
+    0 0,
+    38px 0;
+  padding-left: 38px;
+  padding-right: 0;
+}
+
+.plan-switch:focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: 3px;
+}
+
+/* A visitor who asked for less movement still needs to see which side is on,
+   so the thumb moves — it just arrives rather than travels. */
+@media (prefers-reduced-motion: reduce) {
+  .plan-switch {
+    transition: none;
+  }
+}
+
+/* The panel the switch changes. Motion that answers a tap and shows what
+   changed, which is the one kind this site does on demand. */
+@media (prefers-reduced-motion: no-preference) {
+  .plan-panel {
+    animation: plan-swap 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes plan-swap {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* The one package the owner points people at.
    Marked with colour rather than a ruby outline, for the reason above: the
    cards beside it are shadows with no border, and giving this one both would

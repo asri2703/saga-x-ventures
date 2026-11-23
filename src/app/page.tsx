@@ -5,6 +5,7 @@ import { heroCards } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
 import { PlanGroup } from "@/components/plan-cards";
+import { PlanSwitch } from "@/components/plan-switch";
 import { fukyaaPlanCards, masteryPlanCards } from "@/lib/plans";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { BuildShowcase } from "@/components/build-showcase";
@@ -295,25 +296,32 @@ export default function HomePage() {
             accounts &mdash; worth knowing before you open the first one.
           </p>
 
-          <PlanGroup
-            eyebrow="Mastery Signal"
-            title="Pay for it, or deposit for it"
-            forWho={mastery.forWho}
-            note="Pay, and a registration link comes by email. I approve the account by hand, so it is not instant."
-            plans={masteryPlanCards()}
-            alternative={{
-              title: "Or take it free, through the broker",
-              body: "Open an account with the broker I use and fund it to the tier you want, and the membership comes with it. The page walks through which tier unlocks what.",
-              action: { label: "See the deposit route", href: mastery.href },
-            }}
-          />
-
-          <PlanGroup
-            eyebrow="Fukyaa"
-            title="Three ways to let it trade"
-            forWho={fukyaa.forWho}
-            note="None of these three is a payment to me. The deposit is yours, in your own account at the broker; what differs is the running cost."
-            plans={fukyaaPlanCards()}
+          <PlanSwitch
+            firstLabel="Mastery Signal"
+            secondLabel="Fukyaa"
+            first={
+              <PlanGroup
+                eyebrow="Mastery Signal"
+                title="Pay for it, or deposit for it"
+                forWho={mastery.forWho}
+                note="Pay, and a registration link comes by email. I approve the account by hand, so it is not instant."
+                plans={masteryPlanCards()}
+                alternative={{
+                  title: "Or take it free, through the broker",
+                  body: "Open an account with the broker I use and fund it to the tier you want, and the membership comes with it. The page walks through which tier unlocks what.",
+                  action: { label: "See the deposit route", href: mastery.href },
+                }}
+              />
+            }
+            second={
+              <PlanGroup
+                eyebrow="Fukyaa"
+                title="Three ways to let it trade"
+                forWho={fukyaa.forWho}
+                note="None of these three is a payment to me. The deposit is yours, in your own account at the broker; what differs is the running cost."
+                plans={fukyaaPlanCards()}
+              />
+            }
           />
 
           {/* Coaching sits outside the fork: it needs no broker account. */}

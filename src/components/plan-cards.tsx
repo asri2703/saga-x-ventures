@@ -61,7 +61,6 @@ function Tick() {
 function PlanCard({ plan }: { plan: Plan }) {
   return (
     <li
-      data-reveal
       /* The recommendation is marked with colour and a word, not with a card
          lifted out of the row. Scaling one card up — which the reference does
          to two of its three — pushes the figures out of line with each other,
@@ -157,8 +156,8 @@ export function PlanGroup({
   };
 }) {
   return (
-    <div className="mt-14">
-      <div data-reveal>
+    <div>
+      <div>
         <Eyebrow>{eyebrow}</Eyebrow>
         <h3 className="display mt-3 text-2xl text-pine sm:text-3xl">{title}</h3>
         <p className="mt-3 max-w-xl leading-relaxed text-pine-soft">
@@ -179,7 +178,6 @@ export function PlanGroup({
 
       {alternative ? (
         <div
-          data-reveal
           className="mt-6 flex flex-col gap-5 rounded-[var(--radius-panel)] border border-dashed border-rule-strong p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7"
         >
           <div className="max-w-xl">
