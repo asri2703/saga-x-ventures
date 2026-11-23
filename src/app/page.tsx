@@ -7,6 +7,7 @@ import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
 import { AccountGateway } from "@/components/account-gateway";
 import { LogoMarquee } from "@/components/logo-marquee";
+import { BuildShowcase } from "@/components/build-showcase";
 import {
   ActionLink,
   ActionOut,
@@ -278,11 +279,42 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          4. The solutions, forked by account type.
+          4. What the products look like.
+
+          The header is two columns rather than one: the sentence that sets
+          the section up and the action that leaves it sit side by side, so
+          the cards start higher up the screen than a stacked header allows.
+      --------------------------------------------------------------- */}
+      <Section id="build">
+        <Container>
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+            <h2
+              className="display max-w-xl text-3xl text-pine sm:text-4xl"
+              data-reveal
+            >
+              Every product here is a screen I use myself.
+            </h2>
+            <div className="max-w-sm lg:pt-2" data-reveal>
+              <p className="leading-relaxed text-pine-soft">
+                Mastery Signal and Fukyaa are both mine. What you see below is
+                exported from the live products, not drawn for this page.
+              </p>
+              <div className="mt-6">
+                <ActionLink href="#fork">See which one fits</ActionLink>
+              </div>
+            </div>
+          </div>
+
+          <BuildShowcase />
+        </Container>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          5. The solutions, forked by account type.
       --------------------------------------------------------------- */}
       <Section id="fork" tone="raised">
         <Container>
-          <SectionHeading eyebrow="What I build" title="Which one are you?">
+          <SectionHeading eyebrow="Getting started" title="Which one are you?">
             <p>
               Everything starts with a broker account, and which type decides
               what you can do with it. Read the lines below and take the one
@@ -359,7 +391,7 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          5. Award and recognition.
+          6. Award and recognition.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
@@ -398,7 +430,7 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          6. Coaching and classes — the close.
+          7. Coaching and classes — the close.
       --------------------------------------------------------------- */}
       <Scallop />
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
