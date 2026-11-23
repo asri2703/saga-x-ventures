@@ -41,6 +41,7 @@ export default function BlogIndex() {
               <li key={post.slug}>
                 <Link
                   href={`/blog/${post.slug}`}
+                  data-reveal
                   className="panel block p-7 transition-colors hover:bg-sage sm:p-8"
                 >
                   <p className="tnum text-sm text-pine-faint">

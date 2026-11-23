@@ -236,12 +236,19 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Scroll reveal
+   Scroll reveal: the starting state only
    ---------------------------------------------------------------------------
+   GSAP animates out of this state and owns everything after it, so the
+   transition that used to live here is gone — it would have raced the tween
+   for the same two properties. What is left is the state an element waits in,
+   and it is here rather than in JavaScript so that no element is ever painted
+   in place and then hidden a frame later.
+
    Two safeguards worth keeping from the previous build:
 
    1. The hidden starting state lives behind `.motion-ready`, a class only
-      JavaScript adds. If a script fails or is blocked, the selector never
+      JavaScript adds, and `motion-root.tsx` adds it only once GSAP itself has
+      loaded. If the import fails or scripts are blocked, the selector never
       matches and everything renders plainly visible. Content is never hostage
       to an animation.
 
@@ -254,15 +261,48 @@ body {
     opacity: 0;
     transform: translateY(14px);
   }
+}
 
-  .motion-ready [data-reveal].is-visible {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    transition-delay: var(--reveal-delay, 0ms);
-  }
+/* ---------------------------------------------------------------------------
+   Lenis
+   ---------------------------------------------------------------------------
+   The handful of rules smooth scroll needs, copied from `lenis/dist/lenis.css`
+   rather than imported, so the one stylesheet this site ships stays readable
+   and nothing in it comes from a path in node_modules. Lenis sets these
+   classes on <html> itself when it starts.
+--------------------------------------------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+/* The smooth scroll above is the browser's, and it fights Lenis for the same
+   gesture: an anchor link ends up easing twice and overshooting. */
+html.lenis {
+  scroll-behavior: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+/* An iframe swallows the wheel event, which strands the page mid-scroll. */
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
 }
 
 /* ---------------------------------------------------------------------------

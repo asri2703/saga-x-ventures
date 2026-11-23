@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Image from "next/image";
 
 /**
@@ -112,15 +111,15 @@ const cards: BuildCard[] = [
 export function BuildShowcase() {
   return (
     <div className="mt-14 grid gap-6 lg:grid-cols-3">
-      {cards.map((card, i) => (
+      {cards.map((card) => (
         <article
           key={card.key}
+          /* The stagger across the three is no longer set here. GSAP batches
+             everything that crosses the fold together and staggers the batch,
+             so three cards in a row stagger because they are a row, and the
+             per-card delay this used to carry would now be added on top of
+             it. */
           data-reveal
-          /* The stagger is the one piece of the reference's motion kept. It
-             runs on the existing reveal system rather than a second set of
-             keyframes, so a visitor who asked for less movement is already
-             covered by the rule that system sits behind. */
-          style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
           className="panel flex flex-col overflow-hidden p-7 sm:p-8"
         >
           <p className="text-sm text-pine-faint">
