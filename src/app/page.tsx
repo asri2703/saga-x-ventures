@@ -55,10 +55,10 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-8 max-w-xl text-lg leading-relaxed text-pine-soft">
-                I believe trading shouldn&rsquo;t be complicated. That&rsquo;s
-                why we build innovative trading solutions designed to make the
-                trading experience simpler, smarter and more flexible,
-                empowering traders to focus on what matters most.
+                I believe trading shouldn&rsquo;t be complicated. Ten years in
+                the market went into the tools I build: simpler to set up,
+                smarter about risk, and flexible enough to fit how you already
+                trade.
               </p>
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
