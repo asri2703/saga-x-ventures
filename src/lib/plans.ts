@@ -28,24 +28,30 @@ import {
 export function masteryPlanCards(): Plan[] {
   return masteryPlans.map((plan) => {
     const saving = masteryPlanSavingMyr(plan);
+    const total = masteryPlanTotalMyr(plan);
     const includes = ["Full access to Mastery Signal"];
     if (saving > 0) {
-      includes.push(`${formatMyr(saving)} less than paying month by month`);
+      includes.push(`Save ${formatMyr(saving)} compared to monthly billing`);
     }
-    includes.push("A registration link by email once the payment clears");
+    includes.push("Registration details sent to your email after payment");
+
+    /* The term is what is charged, so the term's total is the figure, and
+       the month is the comparison under it. The one-month package has no
+       second figure because its total and its month are the same number, and
+       printing it twice invites the reader to look for a difference. */
+    const isMonthly = plan.months === 1;
 
     return {
       key: plan.key,
       name: plan.name,
-      price: formatMyr(plan.monthlyMyr),
-      per: "a month",
-      secondary:
-        plan.months > 1
-          ? `${formatMyr(masteryPlanTotalMyr(plan))} for the ${plan.name.toLowerCase()}`
-          : undefined,
+      price: isMonthly ? formatMyr(plan.monthlyMyr) : formatMyr(total),
+      per: isMonthly ? "a month" : "total",
+      secondary: isMonthly
+        ? undefined
+        : `${formatMyr(plan.monthlyMyr)}/month equivalent`,
       includes,
       action: {
-        label: "Take this package",
+        label: isMonthly ? "Get started" : `Get ${plan.name}`,
         // The checkout the owner is building is not live yet. This is where
         // both routes already end: the client registers, picks their term and
         // is approved by hand. When Billplz is wired up, this is the one line

@@ -81,7 +81,9 @@ function PlanCard({ plan }: { plan: Plan }) {
       <p className="display tnum mt-5 text-3xl text-pine">{plan.price}</p>
       <p className="mt-1 text-sm text-pine-faint">{plan.per}</p>
       {plan.secondary ? (
-        <p className="tnum mt-3 text-sm text-pine-soft">{plan.secondary}</p>
+        <p className="tnum mt-3 text-sm italic text-pine-faint">
+          {plan.secondary}
+        </p>
       ) : null}
 
       <ul className="mt-6 flex-1 space-y-3">
@@ -132,15 +134,15 @@ function PlanCard({ plan }: { plan: Plan }) {
 export function PlanGroup({
   eyebrow,
   title,
-  forWho,
+  intro,
   note,
   plans,
   alternative,
 }: {
   eyebrow: string;
   title: string;
-  /** The visitor's own words, from `products.ts`. */
-  forWho: string;
+  /** What the product is and who it is for. One or two short paragraphs. */
+  intro: ReactNode;
   /** One line about how buying actually goes, where that is not obvious. */
   note?: ReactNode;
   plans: Plan[];
@@ -160,9 +162,9 @@ export function PlanGroup({
       <div>
         <Eyebrow>{eyebrow}</Eyebrow>
         <h3 className="display mt-3 text-2xl text-pine sm:text-3xl">{title}</h3>
-        <p className="mt-3 max-w-xl leading-relaxed text-pine-soft">
-          &ldquo;{forWho}&rdquo;
-        </p>
+        <div className="mt-4 max-w-xl space-y-3 leading-relaxed text-pine-soft">
+          {intro}
+        </div>
         {note ? (
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-pine-faint">
             {note}

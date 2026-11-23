@@ -23,7 +23,7 @@ test("the warning about two accounts comes before the packages, not after", () =
   // formatter breaks it wherever the line runs long, and a guard about the
   // order of two things should not fail because one of them reflowed.
   const flat = HOME.replace(/\s+/g, " ");
-  const warning = flat.indexOf("is two accounts");
+  const warning = flat.indexOf("separate accounts");
   const packages = flat.indexOf("<PlanGroup");
   expect(warning).toBeGreaterThan(-1);
   expect(packages).toBeGreaterThan(-1);

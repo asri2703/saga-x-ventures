@@ -277,10 +277,10 @@ export default function HomePage() {
       --------------------------------------------------------------- */}
       <Section id="fork" tone="raised">
         <Container>
-          <SectionHeading eyebrow="Getting started" title="Pick how you start">
+          <SectionHeading eyebrow="Get started" title="Find what works for you.">
             <p>
-              Two products, and more than one way into each. The figures are
-              below so nobody has to ask what it costs before they can decide.
+              Whether you prefer trading on your own or letting automation do
+              the work, there&rsquo;s an option for both.
             </p>
           </SectionHeading>
 
@@ -291,9 +291,9 @@ export default function HomePage() {
             className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
             data-reveal
           >
-            Mastery Signal runs on a standard account and Fukyaa on a cent
-            account. The two are separate, so taking one from each is two
-            accounts &mdash; worth knowing before you open the first one.
+            Mastery Signal uses a standard trading account, while Fukyaa runs
+            on a cent account. You&rsquo;ll need separate accounts if you plan
+            to use both.
           </p>
 
           <PlanSwitch
@@ -302,14 +302,27 @@ export default function HomePage() {
             first={
               <PlanGroup
                 eyebrow="Mastery Signal"
-                title="Pay for it, or deposit for it"
-                forWho={mastery.forWho}
-                note="Pay, and a registration link comes by email. I approve the account by hand, so it is not instant."
+                title="Choose your access."
+                intro={
+                  <>
+                    <p>
+                      Already trading but need a second perspective? Get access
+                      to my signals, market analysis and trading tools.
+                    </p>
+                    <p>
+                      Pay for a subscription or get access through our broker
+                      partner.
+                    </p>
+                  </>
+                }
                 plans={masteryPlanCards()}
                 alternative={{
-                  title: "Or take it free, through the broker",
-                  body: "Open an account with the broker I use and fund it to the tier you want, and the membership comes with it. The page walks through which tier unlocks what.",
-                  action: { label: "See the deposit route", href: mastery.href },
+                  title: "Prefer to start without a subscription?",
+                  body: "Open and fund an account with our broker partner to qualify for Mastery Signal access.",
+                  action: {
+                    label: "Explore broker access",
+                    href: mastery.href,
+                  },
                 }}
               />
             }
@@ -317,7 +330,7 @@ export default function HomePage() {
               <PlanGroup
                 eyebrow="Fukyaa"
                 title="Three ways to let it trade"
-                forWho={fukyaa.forWho}
+                intro={<p>&ldquo;{fukyaa.forWho}&rdquo;</p>}
                 note="None of these three is a payment to me. The deposit is yours, in your own account at the broker; what differs is the running cost."
                 plans={fukyaaPlanCards()}
               />
