@@ -61,12 +61,17 @@ function Tick() {
 function PlanCard({ plan }: { plan: Plan }) {
   return (
     <li
-      /* The recommendation is marked with colour and a word, not with a card
-         lifted out of the row. Scaling one card up — which the reference does
-         to two of its three — pushes the figures out of line with each other,
-         and lining the figures up is the only job this row has. */
+      /* The recommendation is lifted out of the row, at the owner's
+         instruction. It is a translate and not a scale: a scale would set the
+         figure on this card at a different size from the two beside it, and
+         three prices a buyer is comparing should be the same size. Lifting
+         moves it without resizing it.
+
+         Only from `lg`, where the three are actually side by side. Stacked on
+         a phone there is no row to rise out of, and the lift would read as a
+         gap somebody forgot to close. */
       className={`flex flex-col p-6 sm:p-7 ${
-        plan.recommended ? "panel-pick" : "panel"
+        plan.recommended ? "panel-pick lg:-translate-y-6" : "panel"
       }`}
     >
       <div className="flex items-baseline justify-between gap-3">
@@ -128,6 +133,26 @@ function PlanCard({ plan }: { plan: Plan }) {
 }
 
 /**
+ * The recommended plan sits in the middle of the row.
+ *
+ * Declaration order in `commercial.ts` is shortest term to longest, which is
+ * what the arithmetic and its tests read. Where the recommendation sits is a
+ * different question, and it is answered here: the middle, because that is
+ * where a lifted card has a card on each side to rise above, and where the
+ * eye lands first on a row of three.
+ *
+ * Anything other than three plans is returned untouched. There is no middle
+ * of two, and this is not a general sorting function.
+ */
+export function centreRecommended(plans: Plan[]): Plan[] {
+  if (plans.length !== 3) return plans;
+  const at = plans.findIndex((plan) => plan.recommended);
+  if (at === -1 || at === 1) return plans;
+  const rest = plans.filter((plan) => !plan.recommended);
+  return [rest[0], plans[at], rest[1]];
+}
+
+/**
  * One product's block: who it is for, its plans, and any route in that is not
  * one of them.
  */
@@ -172,8 +197,13 @@ export function PlanGroup({
         ) : null}
       </div>
 
+      {/* Stretched, so all three panes are the same height whatever their
+          lines come to — the 1-month card has one line fewer than the other
+          two. The lift is a transform, which does not touch the layout box,
+          so the middle card is still the same height as its neighbours and
+          simply sits higher than them. */}
       <ul className="mt-9 grid gap-5 lg:grid-cols-3">
-        {plans.map((plan) => (
+        {centreRecommended(plans).map((plan) => (
           <PlanCard key={plan.key} plan={plan} />
         ))}
       </ul>

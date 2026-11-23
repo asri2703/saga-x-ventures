@@ -147,17 +147,20 @@ export type MasteryPlan = {
   /**
    * The one the owner points people at.
    *
-   * None of the three is marked. He marked a recommendation on Fukyaa and
-   * did not mark one here, and picking the dearest or the longest on his
-   * behalf is a sales decision, not a formatting one.
+   * Twelve months, by his own instruction. It was deliberately unmarked
+   * before: picking the longest term on his behalf is a sales decision, not a
+   * formatting one, so it waited for him to make it.
    */
   recommended: boolean;
 };
 
 export const masteryPlans: MasteryPlan[] = [
+  /* Declared shortest to longest, which is the order the arithmetic reads in
+     and the order the tests check. Where the recommended one SITS in the row
+     is a layout question, answered once in `plan-cards.tsx`. */
   { key: "monthly", name: "1 month", months: 1, monthlyMyr: 99, recommended: false },
   { key: "half-year", name: "6 months", months: 6, monthlyMyr: 82, recommended: false },
-  { key: "year", name: "12 months", months: 12, monthlyMyr: 73, recommended: false },
+  { key: "year", name: "12 months", months: 12, monthlyMyr: 73, recommended: true },
 ];
 
 /** What the whole term costs. */

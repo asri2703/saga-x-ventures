@@ -86,6 +86,12 @@ test("the Mastery total and saving are consistent with the rate", () => {
   }
 });
 
+test("exactly one Mastery term is recommended, and it is the longest", () => {
+  const picked = masteryPlans.filter((p) => p.recommended);
+  expect(picked).toHaveLength(1);
+  expect(picked[0].months).toBe(Math.max(...masteryPlans.map((p) => p.months)));
+});
+
 test("exactly one Fukyaa package is recommended", () => {
   // Two recommendations is no recommendation, and none loses the one piece of
   // steering the owner actually gave.
