@@ -6,6 +6,7 @@ import { heroCards } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
 import { AccountGateway } from "@/components/account-gateway";
+import { LogoMarquee } from "@/components/logo-marquee";
 import {
   ActionLink,
   ActionOut,
@@ -117,9 +118,24 @@ export default function HomePage() {
         </Container>
       </Section>
 
+      {/* ---------------------------------------------------------------
+          The logo strip. Sits directly under the hero, where a visitor who
+          has read the headline is deciding whether any of this is real.
+      --------------------------------------------------------------- */}
+      <Section className="py-10 sm:py-14">
+        <Container>
+          <p className="text-center text-sm text-pine-faint" data-reveal>
+            The products I build, and the brokers they run on.
+          </p>
+        </Container>
+        <div className="mt-8">
+          <LogoMarquee />
+        </div>
+      </Section>
+
       {/* The trust line the reference runs under its hero. One sentence,
           already true, and the only number on the page that is about me. */}
-      <Section className="py-10 sm:py-12">
+      <Section className="pb-10 pt-0 sm:pb-12 sm:pt-0">
         <Container>
           <p className="text-center text-lg text-pine-soft" data-reveal>
             More than{" "}
