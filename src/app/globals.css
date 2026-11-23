@@ -401,3 +401,76 @@ body {
   color: var(--color-pine);
   font-weight: 600;
 }
+
+/* ---------------------------------------------------------------------------
+   The product ticker under the hero.
+
+   A column of pine pills carrying the product names, scrolling upward. The
+   owner's reference for this was an animated GIF; it is CSS here so it costs
+   nothing to load, is drawn in the site's own colours rather than black, and
+   can be stopped.
+
+   The pills overlap and alternate their tilt, which is what gives the column
+   its hand-stacked look rather than a tidy list.
+--------------------------------------------------------------------------- */
+.ticker {
+  overflow: hidden;
+  height: 14rem;
+  /* Barely a fade. The reference clips its pills hard, mid-word, and that is
+     what tells you the column is longer than the window — a soft fade read as
+     a rendering fault instead. Six per cent only takes the edge off. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+}
+
+.ticker-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ticker-pill {
+  display: inline-block;
+  flex: none;
+  /* The pills sit on top of one another, as in the reference. */
+  /* The pills overlap, but only into each other's empty ends — the vertical
+     padding is deliberately generous so the next pill never lands on the
+     previous one's letters. A tighter pad and the same overlap cropped
+     "Mastery Signal" in half. */
+  margin-block: -0.8rem;
+  padding: 1.3rem clamp(1.1rem, 5vw, 2.5rem);
+  border-radius: 999px;
+  background: var(--color-pine);
+  color: var(--color-paper);
+  font-weight: 600;
+  /* Scaled off the viewport, not a fixed step: the longest name is
+     "Fukyaa AI Auto Trade" and it must not be wider than a phone, because
+     nowrap plus a centred pill would crop letters off both ends. */
+  font-size: clamp(1rem, 4.2vw, 3.25rem);
+  line-height: 1.15;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(var(--tilt, 0deg));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ticker-track {
+    /* Four copies are rendered, so moving by a quarter of the track lands on
+       an identical frame and the loop has no seam. */
+    animation: ticker-up 24s linear infinite;
+  }
+}
+
+@keyframes ticker-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-25%);
+  }
+}

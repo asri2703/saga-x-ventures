@@ -6,6 +6,7 @@ import { copytrade, fukyaaDeposit } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
 import { AccountGateway } from "@/components/account-gateway";
+import { ProductTicker } from "@/components/product-ticker";
 import {
   ActionLink,
   ActionOut,
@@ -96,6 +97,12 @@ export default function HomePage() {
             </div>
           </div>
         </Container>
+
+        {/* The strip runs edge to edge, so it sits outside the Container
+            rather than inside its gutter. */}
+        <div className="mt-16 sm:mt-20">
+          <ProductTicker />
+        </div>
       </Section>
 
       {/* The trust line the reference runs under its hero. One sentence,

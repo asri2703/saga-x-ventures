@@ -72,6 +72,24 @@ test("the exemption names a file that exists and uses it", () => {
   expect(fs.readFileSync(EYEBROW, "utf8")).toMatch(/uppercase\s+tracking-/);
 });
 
+/**
+ * The ban reaches into the stylesheet too.
+ *
+ * The ticker under the hero sets its capitals in CSS rather than with the
+ * Tailwind pair, which would have walked straight past the test above. The
+ * owner asked for that strip and it is the one place on the site that shouts,
+ * so it is named here rather than left as a hole in the rule.
+ */
+test("no shouted labels in CSS outside the ticker", () => {
+  const css = fs.readFileSync(path.join(SRC, "app", "globals.css"), "utf8");
+  const shouting = css
+    .split("}")
+    .filter((block) => /text-transform:\s*uppercase/.test(block));
+
+  expect(shouting.length, "the CSS detector found nothing to check").toBe(1);
+  expect(shouting[0]).toMatch(/\.ticker-pill/);
+});
+
 test("no exclamation marks in visible copy", () => {
   for (const { file, text } of files()) {
     // A bang directly after a word character is prose. `p.slug !==` has a
