@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import { ibProducts, retailProducts, getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
@@ -224,62 +223,7 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          3. Why I built these.
-      --------------------------------------------------------------- */}
-      <Section>
-        <Container>
-          <SectionHeading
-            eyebrow="Why I built these"
-            title="Three conversations"
-          >
-            <p>
-              None of this started as a product. Each one came out of the same
-              question asked a different way.
-            </p>
-          </SectionHeading>
-
-          <div className="mt-14 grid max-w-5xl gap-6 md:grid-cols-3">
-            {[
-              {
-                k: "signal",
-                q: "What are you looking at right now?",
-                a: "People asked me that for years. An entry price never answered it, so I started writing down the level and why it was there. That became Mastery Signal.",
-              },
-              {
-                k: "auto",
-                q: "I am never going to learn this.",
-                a: "Said to my face, more than once, by people who were right about themselves. Selling them a course would have wasted their money. So they get an expert advisor and a server instead.",
-              },
-              {
-                k: "build",
-                q: "Can you build it for me?",
-                a: "Other people with their own clients wanted the same tools under their own name. I had already built mine, so I build theirs.",
-              },
-            ].map((item, i) => (
-              <Panel
-                key={item.k}
-                style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
-              >
-                <p className="display text-xl text-pine">
-                  &ldquo;{item.q}&rdquo;
-                </p>
-                <p className="mt-4 leading-relaxed text-pine-soft">{item.a}</p>
-              </Panel>
-            ))}
-          </div>
-
-          <p
-            className="mt-12 max-w-2xl text-lg leading-relaxed text-pine"
-            data-reveal
-          >
-            What I will not do is tell you what you are going to earn. I do not
-            know what I am going to earn either.
-          </p>
-        </Container>
-      </Section>
-
-      {/* ---------------------------------------------------------------
-          4. What the products look like.
+          3. What the products look like.
 
           The header is two columns rather than one: the sentence that sets
           the section up and the action that leaves it sit side by side, so
@@ -310,7 +254,7 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          5. The solutions, forked by account type.
+          4. The solutions, forked by account type.
       --------------------------------------------------------------- */}
       <Section id="fork" tone="raised">
         <Container>
@@ -391,7 +335,7 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          6. Award and recognition.
+          5. Award and recognition.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
@@ -430,7 +374,7 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          7. Coaching and classes — the close.
+          6. Coaching and classes — the close.
       --------------------------------------------------------------- */}
       <Scallop />
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
