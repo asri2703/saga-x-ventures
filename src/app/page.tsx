@@ -38,8 +38,13 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------
           1. Hero. The owner's own copy, kept as he wrote it.
       --------------------------------------------------------------- */}
-      <Section className="pt-14 sm:pt-20">
-        <Container>
+      <Section className="relative overflow-hidden pt-14 sm:pt-20">
+        {/* Graph paper behind the hero. Decorative, so it is hidden from
+            assistive technology, and it sits under its own stacking layer
+            rather than on the section itself — the section's background
+            colour is what keeps the paper tone consistent between bands. */}
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
           <div className="grid items-center gap-16 lg:grid-cols-[1fr_minmax(0,460px)]">
             <div>
               <h1 className="display text-4xl text-pine sm:text-5xl lg:text-6xl">

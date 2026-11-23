@@ -401,3 +401,69 @@ body {
   color: var(--color-pine);
   font-weight: 600;
 }
+
+/* ---------------------------------------------------------------------------
+   The hero's graph paper.
+
+   From Uiverse.io by adamgiebl - https://uiverse.io/adamgiebl/curvy-earwig-79
+   MIT License, Copyright (c) adamgiebl (Adam Giebl)
+
+   The geometry is the original's: two linear gradients crossed at 55px, each
+   drawing a line at a quarter and three-quarters of the tile so the sheet has
+   a heavier rule every half square. The colours are not — the original lays
+   grey on #191a1a, and a near-black hero would put pine text on pine-black.
+   It is pine on Vanilla Line here instead, at an alpha low enough to sit
+   behind a photograph without competing with it.
+
+   Named `hero-grid`, not `chart-grid`: the old class of that name was retired
+   when the drafting language was cut back to the hero diagram, and
+   `voice.test.ts` still holds it gone.
+--------------------------------------------------------------------------- */
+.hero-grid {
+  /* 0.09 was invisible on cream. The original's 0.3 grey reads at that
+     strength because it sits on near-black; on Vanilla Line the same ratio
+     needs more. */
+  --grid-line: rgba(22, 58, 48, 0.2);
+  background-image:
+    linear-gradient(
+      0deg,
+      transparent 24%,
+      var(--grid-line) 25%,
+      var(--grid-line) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--grid-line) 75%,
+      var(--grid-line) 76%,
+      transparent 77%,
+      transparent
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      var(--grid-line) 25%,
+      var(--grid-line) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--grid-line) 75%,
+      var(--grid-line) 76%,
+      transparent 77%,
+      transparent
+    );
+  background-size: 55px 55px;
+  /* The sheet fades out before the section ends, so the grid reads as paper
+     the hero is drawn on rather than a block with four visible edges. */
+  /* Two masks intersected. The radial one fades the sheet out towards the
+     bottom and sides; the linear one eases in the top edge, which otherwise
+     began at full strength exactly where the header ends and drew a crisp
+     horizontal seam across the page. */
+  mask-image:
+    radial-gradient(
+      125% 110% at 50% 0%,
+      #000 45%,
+      rgba(0, 0, 0, 0.5) 72%,
+      transparent 100%
+    ),
+    linear-gradient(to bottom, transparent, #000 9%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
