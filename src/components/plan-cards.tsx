@@ -179,7 +179,14 @@ export function PlanGroup({
   alternative?: {
     title: string;
     body: ReactNode;
-    action: { label: string; href: string };
+    /**
+     * `external` sends it out through `/go/<key>` in a new tab.
+     *
+     * It is not inferred from the href. Every link that leaves this site goes
+     * through that redirect, so an outbound one is always same-origin by the
+     * time it reaches here and there is nothing in the string to infer from.
+     */
+    action: { label: string; href: string; external?: boolean };
   };
 }) {
   return (
@@ -220,6 +227,13 @@ export function PlanGroup({
           </div>
           <Link
             href={alternative.action.href}
+            {...(alternative.action.external
+              ? {
+                  prefetch: false as const,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                }
+              : {})}
             className="shrink-0 self-start rounded-full border border-pine px-6 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper sm:self-auto"
           >
             {alternative.action.label}

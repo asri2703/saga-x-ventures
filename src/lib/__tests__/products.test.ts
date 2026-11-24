@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test } from "vitest";
 import {
   products,
@@ -22,6 +24,37 @@ test("each existing product names its account type", () => {
 
 test("a destination that is not set yet is empty, not a broken URL", () => {
   expect(outbound["copytrade-join"]).toBe("");
+});
+
+test("the two Mastery routes are counted apart", () => {
+  // The whole reason /go exists is that a click has to be attributable. The
+  // subscription and the broker route are two different offers on the same
+  // site, so sharing one key would make them one number.
+  expect(outbound["mastery-membership"]).not.toBe(
+    outbound["mastery-broker-access"],
+  );
+  expect(outbound["mastery-broker-access"]).toContain("masterysignal.com");
+});
+
+test("every outbound link on a page goes through /go", () => {
+  // A raw https href in a page is a click that leaves without being counted.
+  // `/go/<key>` is the only way out, and the keys above are the only map.
+  const pages = fs
+    .readdirSync(path.join(process.cwd(), "src", "app"), {
+      recursive: true,
+      withFileTypes: true,
+    })
+    .filter((e) => e.isFile() && /\.tsx$/.test(e.name))
+    .map((e) => path.join(e.parentPath ?? e.path, e.name));
+
+  expect(pages.length).toBeGreaterThan(5);
+  for (const file of pages) {
+    const text = fs.readFileSync(file, "utf8");
+    for (const href of text.match(/href=\{?"https:\/\/[^"]+"/g) ?? []) {
+      // The site's own canonical URL and schema links are not clicks.
+      expect(href, file).toMatch(/schema\.org|sagaxventures\.com/);
+    }
+  }
 });
 
 test("every non-empty destination is an absolute https URL", () => {

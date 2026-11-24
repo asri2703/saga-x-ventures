@@ -19,6 +19,7 @@ export type OutboundKey =
   | "broker-cent"
   | "broker-standard"
   | "mastery-membership"
+  | "mastery-broker-access"
   | "fukyaa-register"
   | "copytrade-join"
   | "whatsapp";
@@ -40,6 +41,11 @@ export const outbound: Record<OutboundKey, string> = {
   // their tier, and is approved by hand. This site never links to /join,
   // which is the card checkout and has its own customer list.
   "mastery-membership": "https://www.masterysignal.com/membership",
+  // The other way in: no subscription, access earned by funding a broker
+  // account instead. A separate page on the product's own site, and a
+  // separate key so the two routes stay countable apart — which is the whole
+  // reason this redirect exists.
+  "mastery-broker-access": "https://www.masterysignal.com/ads/signal",
   "fukyaa-register": "https://fukyaa.com/register",
   // Not set up yet. Empty rather than absent so the type stays closed and a
   // step renders a placeholder instead of linking to the current page.

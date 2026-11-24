@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ibProducts, getProduct } from "@/lib/products";
+import { ibProducts } from "@/lib/products";
 import { site } from "@/lib/site";
 import { heroCards } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
@@ -21,7 +21,6 @@ import {
 } from "@/components/shell";
 
 export default function HomePage() {
-  const mastery = getProduct("mastery-signal")!;
 
   return (
     <>
@@ -312,7 +311,8 @@ export default function HomePage() {
                   body: "Open and fund an account with our broker partner to qualify for Mastery Signal access.",
                   action: {
                     label: "Explore broker access",
-                    href: mastery.href,
+                    href: "/go/mastery-broker-access",
+                    external: true,
                   },
                 }}
               />
