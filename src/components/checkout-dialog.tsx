@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   formatMyr,
   masteryPlanTotalMyr,
@@ -35,6 +36,25 @@ type Props = {
 };
 
 export function CheckoutDialog({ planKey, onClose }: Props) {
+  /* The portal cannot be drawn until there is a document to draw into.
+     This is a client component, but Next still renders it once on the
+     server for the first paint, where `document` does not exist. */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  /* The page behind holds still. The dialog covers the window, so a scroll
+     gesture that misses the card would otherwise move the packages under
+     it — and on a phone the backdrop is most of what a thumb lands on.
+     Restored on close rather than cleared, in case anything else has a
+     claim on it. */
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
   const [chosen, setChosen] = useState<MasteryPlan["key"] | null>(planKey);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,7 +136,16 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
     }
   }
 
-  return (
+  if (!mounted) return null;
+
+  /* Portalled to <body>, and that is load-bearing rather than tidy.
+     `position: fixed` is positioned against the nearest ancestor carrying a
+     transform, not against the window, and GSAP puts one on every panel
+     this dialog's opener sits inside. Left in the page tree it became a box
+     clipped to its own section, with the pricing cards painting over it —
+     and no z-index can climb out of a stacking context it is trapped in.
+     The portal leaves all of those ancestors behind. */
+  return createPortal(
     <div
       className="checkout-backdrop"
       onMouseDown={(event) => {
@@ -267,6 +296,7 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

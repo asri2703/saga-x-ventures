@@ -111,3 +111,27 @@ test("choosing a term moves focus into the form behind it", () => {
   // focus call has to run again when the choice changes, not only on mount.
   expect(DIALOG).toMatch(/useEffect\([\s\S]{0,400}?focus\(\)[\s\S]{0,200}?\},\s*\[chosen\]\)/);
 });
+
+test("the dialog is portalled to the body, not left in the page tree", () => {
+  // `position: fixed` is relative to the nearest ancestor with a transform,
+  // not to the window. GSAP puts a transform on the panels this opener sits
+  // inside, so an in-tree dialog becomes a box clipped to its section and
+  // the pricing cards below it paint on top — z-index cannot reach across
+  // a stacking context it is trapped in. A portal to <body> leaves every
+  // one of those ancestors behind.
+  expect(DIALOG).toMatch(/createPortal/);
+  expect(DIALOG).toMatch(/document\.body/);
+});
+
+test("it does not portal before the document exists", () => {
+  // The dialog is a client component, but Next still renders it on the
+  // server for the first paint, where `document` is not defined.
+  expect(DIALOG).toMatch(/mounted|typeof document|useEffect/);
+});
+
+test("the page behind does not scroll while the dialog is open", () => {
+  // Now that it covers the window rather than sitting in a section, a
+  // scroll gesture that misses the card scrolls the page underneath it —
+  // on a phone the backdrop is most of what a thumb lands on.
+  expect(DIALOG).toMatch(/document\.body\.style\.overflow/);
+});
