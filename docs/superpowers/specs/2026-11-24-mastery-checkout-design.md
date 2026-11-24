@@ -65,7 +65,9 @@ Ways this fails even if every test passes:
   `https://www.masterysignal.com/membership`. It is not per-buyer: every
   package registers for the same thing, and the owner raises the tier by hand
   afterwards.
-- Notifications go to `ADMIN_EMAIL` **and** to Telegram.
+- Notifications go to the owner's own inbox (`ADMIN_EMAIL`) **and** to
+  Telegram. The address itself stays in the environment, not in this
+  document: it is a private working inbox, not a published contact.
 - The buyer's details form is a pop-up over the packages, not its own page.
 - A screen after payment telling them to check their email.
 - **The pop-up opens from `/mastery-signal` as well as the homepage.** That
