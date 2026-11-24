@@ -130,3 +130,28 @@ test("the host follows the flag", () => {
   expect(billplzHost(false)).not.toContain("sandbox");
   expect(billplzHost(false)).toBe("https://www.billplz.com");
 });
+
+test("the sort is bytewise, not locale-aware", () => {
+  // `createBill` sends reference_1 (a uuid) and reference_1_label, and ICU
+  // collation orders that pair the other way round from bytes whenever the
+  // uuid starts with a digit — which is 10 of 16 first characters. If
+  // Billplz echoes the reference fields in a callback, every one of those
+  // orders would fail verification, be answered 401, be retried for ever,
+  // and never leave `pending`: the buyer paid and got nothing.
+  //
+  // Neither documented fixture contains a key that is a prefix of another,
+  // so no fixture can catch this.
+  const source = signatureSource({
+    reference_1: "3f2a0000-0000-0000-0000-000000000000",
+    reference_1_label: "Order",
+  });
+  expect(source).toBe(
+    "reference_13f2a0000-0000-0000-0000-000000000000|reference_1_labelOrder",
+  );
+});
+
+test("case is not folded away when sorting", () => {
+  // `sensitivity: "base"` treated A and a as equal, which makes the order of
+  // two elements differing only in case undefined. Bytes do not.
+  expect(signatureSource({ a: "Z", B: "y" })).toBe("By|aZ");
+});

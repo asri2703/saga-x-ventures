@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { verifySignature } from "@/lib/billplz";
+import { checkoutConfig } from "@/lib/checkout/config";
 import { findOrderByBillId } from "@/lib/checkout/orders";
 import { formatMyr, masteryPlans } from "@/lib/commercial";
 import { outbound } from "@/lib/products";
@@ -34,10 +36,40 @@ export default async function CheckoutDonePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const raw = params["billplz[id]"];
-  const billId = Array.isArray(raw) ? raw[0] : raw;
+  const one = (key: string): string | undefined => {
+    const value = params[key];
+    return Array.isArray(value) ? value[0] : value;
+  };
 
-  const order = billId ? await findOrderByBillId(billId) : null;
+  const billId = one("billplz[id]");
+  const config = checkoutConfig();
+
+  /* The redirect is signed, and this verifies it.
+     Without that, a bill id in a URL is enough to read a buyer's email
+     address off this page — and bill ids travel in browser history, in
+     referrers, and across shared screens. `verifySignature` takes the
+     signature separately for exactly this case, because here it arrives as
+     `billplz[x_signature]` rather than inside the payload.
+
+     `checkoutConfig()` is also how this page survives the checkout being
+     switched off: `serviceClient()` throws by design when Supabase is
+     absent, and a page that called it unguarded would answer 500 where it
+     should answer "no payment to show". */
+  const signed =
+    config !== undefined &&
+    config !== null &&
+    billId !== undefined &&
+    verifySignature(
+      {
+        billplzid: billId,
+        billplzpaid: one("billplz[paid]") ?? "",
+        billplzpaid_at: one("billplz[paid_at]") ?? "",
+      },
+      config.xSignature,
+      one("billplz[x_signature]"),
+    );
+
+  const order = signed && billId ? await findOrderByBillId(billId) : null;
   const plan = masteryPlans.find((candidate) => candidate.key === order?.planKey);
 
   return (
@@ -71,7 +103,7 @@ export default async function CheckoutDonePage({
                 Approval is by hand, so it is not instant.
               </p>
             </>
-          ) : order ? (
+          ) : order?.status === "pending" ? (
             <>
               <h1 className="display text-3xl text-pine">
                 Waiting on the bank
@@ -89,12 +121,12 @@ export default async function CheckoutDonePage({
           ) : (
             <>
               <h1 className="display text-3xl text-pine">
-                No payment to show
+                That payment did not go through
               </h1>
               <p className="mt-4 leading-relaxed text-pine-soft">
-                This page could not find a payment to match. Either it did not
-                go through, or the link was opened without one. Nothing has
-                been charged that this site can see.
+                Either it was not completed, or this page was opened without a
+                payment to look up. Nothing has been charged that this site
+                can see &mdash; you are welcome to try again.
               </p>
               <div className="mt-7">
                 <Link

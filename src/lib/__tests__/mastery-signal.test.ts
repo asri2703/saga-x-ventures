@@ -77,3 +77,16 @@ test("the checkout is only offered where the server says it may run", () => {
   );
   expect(page).toMatch(/checkoutEnabled/);
 });
+
+test("with the checkout off, the step still offers a way to pay", () => {
+  // Spec 7.12: a half-configured deployment must not show a buyer a dead
+  // end. The homepage falls back to its outbound link; this step used to
+  // render no action at all, because every branch required either an
+  // outbound key or the checkout being on.
+  const guide = fs.readFileSync(
+    path.join(process.cwd(), "src", "components", "product-guide.tsx"),
+    "utf8",
+  );
+  expect(guide).toMatch(/opensCheckout && !checkout|!checkout && step\.opensCheckout/);
+  expect(guide).toMatch(/whatsapp/i);
+});

@@ -159,3 +159,13 @@ test("the response never carries a Billplz error back to the browser", async () 
   const res = await POST(req(GOOD));
   expect(JSON.stringify(await res.json())).not.toMatch(/abc123|api key/i);
 });
+
+test("a database outage answers json, not a generic 500", async () => {
+  // The dialog reads { error } and shows the WhatsApp fallback. An
+  // unhandled throw gives the browser Next's own 500 page and the buyer
+  // nothing to do next.
+  createPendingOrder.mockRejectedValue(new Error("connection refused"));
+  const res = await POST(req(GOOD));
+  expect([502, 503]).toContain(res.status);
+  expect(await res.json()).toHaveProperty("error");
+});

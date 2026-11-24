@@ -77,3 +77,25 @@ test("it is excluded from search", () => {
   // not be the first thing anyone finds.
   expect(SOURCE).toMatch(/robots/);
 });
+
+test("a failed payment is not described as one still arriving", () => {
+  // A declined or abandoned FPX payment produces a verified callback with
+  // paid=false, so the order is `failed`. Telling that buyer "your link is
+  // emailed the instant it arrives — nothing more is needed from you" is
+  // the page claiming a payment it can see did not happen.
+  expect(SOURCE).toMatch(/status === "pending"/);
+  expect(SOURCE).toMatch(/did not (go through|complete)|was not completed/i);
+});
+
+test("it verifies the signature Billplz sends with the redirect", () => {
+  // Otherwise a bill id in a URL is enough to read a buyer's email address
+  // off this page, and bill ids travel in browser history and referrers.
+  expect(SOURCE).toMatch(/verifySignature/);
+  expect(SOURCE).toMatch(/billplz\[x_signature\]|x_signature/);
+});
+
+test("it survives the checkout being switched off", () => {
+  // serviceClient() throws by design when Supabase is absent. A page that
+  // calls it unguarded answers 500 where it should answer "no payment".
+  expect(SOURCE).toMatch(/checkoutConfig|checkoutEnabled/);
+});

@@ -28,6 +28,36 @@ function resend(): Resend {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
+/** Markup in a name is the recipient's own, but it still does not belong in
+ *  their email. */
+function escape(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Send, and raise if it did not.
+ *
+ * The Resend SDK does not throw on an API error — it resolves with
+ * `{ data: null, error }`. Reading that result is the difference between
+ * "the buyer was emailed" and "we called a function". What to do about a
+ * failure is the caller's business; the one thing that must not happen is it
+ * going unnoticed, because the money has already moved.
+ */
+async function send(
+  message: Parameters<Resend["emails"]["send"]>[0],
+): Promise<void> {
+  if (!message.from) throw new Error("notify: RESEND_FROM is not set");
+  if (!message.to || (Array.isArray(message.to) && message.to.length === 0)) {
+    throw new Error("notify: no recipient");
+  }
+  const { error } = await resend().emails.send(message);
+  if (error) throw new Error(`notify: resend refused it — ${error.message}`);
+}
+
 function sen(amount: number): string {
   return formatMyr(amount / 100);
 }
@@ -41,13 +71,13 @@ function sen(amount: number): string {
  * same one is not a pleasantry.
  */
 export async function notifyBuyer(order: Order): Promise<void> {
-  await resend().emails.send({
+  await send({
     from: process.env.RESEND_FROM ?? "",
     to: order.buyerEmail,
     replyTo: process.env.RESEND_REPLY_TO ?? "",
     subject: `Your Mastery Signal access — ${planName(order)}`,
     html: `
-      <p>Hi ${order.buyerName},</p>
+      <p>Hi ${escape(order.buyerName)},</p>
       <p>Your payment for <strong>Mastery Signal &mdash; ${planName(order)}</strong>
          (${sen(order.paidAmountSen ?? order.amountSen)}) has gone through. Thank you.</p>
       <p>Register here to set up your account:</p>
@@ -99,14 +129,25 @@ export async function notifyOwner(
     ? `AMOUNT MISMATCH — ${order.buyerName}, ${planName(order)}`
     : `Paid: ${order.buyerName} — Mastery Signal ${planName(order)}`;
 
-  await resend().emails.send({
+  const admin = process.env.ADMIN_EMAIL;
+  if (!admin) throw new Error("notify: ADMIN_EMAIL is not set");
+
+  /* Telegram first, and independently.
+     Two channels exist so that one failing is not silence. Awaiting the
+     email first made the second conditional on the first: a Resend outage
+     meant the owner heard nothing at all about money that had already been
+     taken. Telegram swallows its own failures, so this ordering costs
+     nothing and the email's failure is still raised to the caller. */
+  await sendTelegram(`${subject}
+
+${text}`);
+
+  await send({
     from: process.env.RESEND_FROM ?? "",
-    to: process.env.ADMIN_EMAIL ?? "",
+    to: admin,
     subject,
     text,
   });
-
-  await sendTelegram(`${subject}\n\n${text}`);
 }
 
 async function sendTelegram(text: string): Promise<void> {

@@ -33,13 +33,34 @@ export type CheckoutConfig = {
   siteUrl: string;
 };
 
-/** Same machine, however the URL was typed. */
-function sameHost(a: string, b: string): boolean {
+/**
+ * Whether this URL is the production site.
+ *
+ * Compares the registrable domain rather than the exact host, because
+ * `www.` and any other subdomain of it are the same site to a buyer — and a
+ * deployment at `www.` with the `.env.example` default of sandbox would
+ * otherwise sail through this check.
+ */
+function isProductionSite(url: string): boolean {
   try {
-    return new URL(a).host === new URL(b).host;
+    const host = new URL(url).host.toLowerCase();
+    const live = new URL(site.url).host.toLowerCase().replace(/^www\./, "");
+    return host === live || host.endsWith(`.${live}`);
   } catch {
     return false;
   }
+}
+
+/**
+ * Whether the platform says this is production.
+ *
+ * `NEXT_PUBLIC_SITE_URL` is set by whoever deploys and cannot tell you which
+ * machine is serving; a second domain, an alias, or a typo would all get
+ * past a URL comparison alone. Vercel sets `VERCEL_ENV` itself.
+ */
+function isProductionDeployment(env: Env): boolean {
+  if (env.VERCEL_ENV) return env.VERCEL_ENV === "production";
+  return false;
 }
 
 /** Narrower than `NodeJS.ProcessEnv`, which Next augments with a required
@@ -69,7 +90,13 @@ export function checkoutConfig(env: Env = process.env): CheckoutConfig | null {
   // flag should mean "not ready", never "charge real cards".
   const sandbox = env.BILLPLZ_SANDBOX !== "false";
 
-  if (sandbox && sameHost(siteUrl, site.url)) return null;
+  // Sandbox credentials must never be what a real buyer is handed. Two
+  // independent ways of knowing this is production, because either one
+  // alone has a hole: the URL is self-declared, and VERCEL_ENV is absent
+  // anywhere that is not Vercel.
+  if (sandbox && (isProductionSite(siteUrl) || isProductionDeployment(env))) {
+    return null;
+  }
 
   return { apiKey, collectionId, xSignature, sandbox, siteUrl };
 }

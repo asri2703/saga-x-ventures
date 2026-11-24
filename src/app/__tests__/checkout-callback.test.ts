@@ -186,14 +186,17 @@ test("the same callback twice sends one email and one telegram", async () => {
   expect(notifyOwner).toHaveBeenCalledTimes(1);
 });
 
-test("a second send is refused by the row, not only by the transition", async () => {
-  // Belt and braces: even if markPaid somehow reported a first transition
-  // twice, the timestamp guards hold.
-  markLinkSent.mockResolvedValue(false);
-  markNotified.mockResolvedValue(false);
+test("markPaid is the fence, so nothing reaches the sends twice", async () => {
+  // This used to assert the opposite: that the timestamps were claimed
+  // before sending and refused a second caller. That arrangement was the
+  // bug — a failed send set "we told them" and nothing could tell it had
+  // not. `markPaid` is a conditional update, so exactly one callback per
+  // bill ever gets a row back, and there is no second sender to fence out.
+  markPaid.mockResolvedValue(null);
   await POST(formReq(signed(PAID)));
   expect(notifyBuyer).not.toHaveBeenCalled();
   expect(notifyOwner).not.toHaveBeenCalled();
+  expect(markLinkSent).not.toHaveBeenCalled();
 });
 
 test("a notification that throws still answers 200", async () => {
@@ -226,4 +229,36 @@ test("an unpaid callback tells nobody", async () => {
   await POST(formReq(signed({ ...PAID, paid: "false", state: "due", paid_amount: "0" })));
   expect(notifyBuyer).not.toHaveBeenCalled();
   expect(notifyOwner).not.toHaveBeenCalled();
+});
+
+test("a failed send leaves the flag null, so it can be re-sent", async () => {
+  // Spec 7.10: link_sent_at staying null is exactly the flag a later admin
+  // needs. Claiming it before the send meant every failure was invisible
+  // for ever and nothing retried.
+  notifyBuyer.mockRejectedValue(new Error("resend refused it"));
+  await POST(formReq(signed(PAID)));
+  expect(markLinkSent).not.toHaveBeenCalled();
+});
+
+test("a successful send records that it was sent", async () => {
+  await POST(formReq(signed(PAID)));
+  expect(markLinkSent).toHaveBeenCalledWith("order-1");
+  expect(markNotified).toHaveBeenCalledWith("order-1");
+});
+
+test("a failed owner notification leaves its flag null too", async () => {
+  notifyOwner.mockRejectedValue(new Error("telegram and resend both down"));
+  await POST(formReq(signed(PAID)));
+  expect(markNotified).not.toHaveBeenCalled();
+});
+
+test("a body that is not a form is refused rather than throwing", async () => {
+  const res = await POST(
+    new Request("http://localhost:3000/api/checkout/callback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    }),
+  );
+  expect([400, 401]).toContain(res.status);
 });

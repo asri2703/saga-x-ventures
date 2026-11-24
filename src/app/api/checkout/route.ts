@@ -60,13 +60,24 @@ export async function POST(request: Request): Promise<Response> {
      A row with no bill is a person who opened the dialog and got no further,
      which is worth knowing. A bill with no row is money moving with nothing
      here to match the callback against. */
-  const order = await createPendingOrder({
-    planKey: plan.key,
-    amountSen,
-    buyerName,
-    buyerEmail,
-    buyerPhone,
-  });
+  let order;
+  try {
+    order = await createPendingOrder({
+      planKey: plan.key,
+      amountSen,
+      buyerName,
+      buyerEmail,
+      buyerPhone,
+    });
+  } catch (error) {
+    // The dialog reads `error` and offers WhatsApp. An unhandled throw here
+    // gives the browser Next's own 500 and the buyer nothing to do next.
+    console.error("checkout: could not record the order", error);
+    return Response.json(
+      { error: "Could not start the payment" },
+      { status: 503 },
+    );
+  }
 
   try {
     const bill = await createBill({

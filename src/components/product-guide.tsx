@@ -105,6 +105,20 @@ function Steps({
               >
                 {step.cta}
               </Link>
+            ) : step.opensCheckout && !checkout && step.cta ? (
+              /* The checkout is off, so there is no dialog to open — but
+                 this step is the only way to pay on this route, and a step
+                 with no action at all is the dead end §7.12 forbids. The
+                 arrangement it replaces was "message me", which still
+                 works. */
+              <a
+                href="/go/whatsapp?m=mastery"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center justify-center self-start rounded-full border border-pine px-6 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
+              >
+                Message me to arrange it
+              </a>
             ) : step.cta && !step.opensCheckout ? (
               <p className="shrink-0 self-start rounded-full border border-dashed border-rule-strong px-6 py-3 text-sm text-pine-faint">
                 {step.cta} — link coming

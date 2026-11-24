@@ -119,3 +119,53 @@ test("a telegram failure does not stop the owner's email", async () => {
   await expect(notifyOwner(ORDER)).resolves.toBeUndefined();
   expect(sendEmail).toHaveBeenCalled();
 });
+
+/* ------------------------------------------------------------------ *
+ * What Resend does on failure, and what this has to do about it.
+ * ------------------------------------------------------------------ */
+
+test("a Resend error is raised, not swallowed", async () => {
+  // The SDK does not throw on an API error — it resolves with
+  // { data: null, error }. Ignoring that is a buyer who paid, received
+  // nothing, and left no trace of why.
+  sendEmail.mockResolvedValue({
+    data: null,
+    error: { name: "validation_error", message: "domain is not verified" },
+  });
+  await expect(notifyBuyer(ORDER)).rejects.toThrow(/not verified/);
+});
+
+test("the owner's email failing still sends the telegram", async () => {
+  // Two channels exist so that one failing is not silence. Awaiting the
+  // email first made the second conditional on the first.
+  sendEmail.mockRejectedValue(new Error("resend unreachable"));
+  await expect(notifyOwner(ORDER)).rejects.toThrow();
+  expect(fetchCalls[0]?.url).toContain("api.telegram.org");
+});
+
+test("the owner's telegram failing still sends the email", async () => {
+  vi.stubGlobal("fetch", async () => {
+    throw new Error("telegram down");
+  });
+  await notifyOwner(ORDER);
+  expect(sendEmail).toHaveBeenCalled();
+});
+
+test("a missing sender address is raised rather than sent as empty", async () => {
+  // RESEND_FROM is not in the checkout gate, and an empty from fails exactly
+  // like an outage.
+  process.env.RESEND_FROM = "";
+  await expect(notifyBuyer(ORDER)).rejects.toThrow(/RESEND_FROM/);
+});
+
+test("a missing ADMIN_EMAIL is raised rather than sent to nobody", async () => {
+  process.env.ADMIN_EMAIL = "";
+  await expect(notifyOwner(ORDER)).rejects.toThrow(/ADMIN_EMAIL/);
+});
+
+test("the buyer's name cannot inject markup into their own email", async () => {
+  await notifyBuyer({ ...ORDER, buyerName: '<img src=x onerror="alert(1)">' });
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+  expect(message.html).not.toContain("<img");
+  expect(message.html).toContain("&lt;img");
+});

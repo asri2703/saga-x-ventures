@@ -99,3 +99,43 @@ test("the config carries what creating a bill needs", () => {
 test("a closed gate returns null rather than a half-built config", () => {
   expect(checkoutConfig({ ...FULL, BILLPLZ_API_KEY: "" })).toBeNull();
 });
+
+test("a www or alias host does not get past the sandbox rule", () => {
+  // The apex is one spelling of the production site. A deployment at
+  // www.sagaxventures.com with the .env.example default of sandbox=true
+  // would otherwise open the gate and sell a real buyer a sandbox page.
+  const host = new URL(site.url).host;
+  expect(checkoutEnabled({ ...FULL, NEXT_PUBLIC_SITE_URL: `https://www.${host}` })).toBe(
+    false,
+  );
+});
+
+test("sandbox is refused in a production deployment whatever the url says", () => {
+  // NEXT_PUBLIC_SITE_URL is set by whoever deploys. It cannot tell you which
+  // machine is serving; the platform can.
+  expect(
+    checkoutEnabled({
+      ...FULL,
+      NEXT_PUBLIC_SITE_URL: "https://anything.example.com",
+      VERCEL_ENV: "production",
+    }),
+  ).toBe(false);
+  expect(
+    checkoutEnabled({
+      ...FULL,
+      NEXT_PUBLIC_SITE_URL: "https://anything.example.com",
+      VERCEL_ENV: "production",
+      BILLPLZ_SANDBOX: "false",
+    }),
+  ).toBe(true);
+});
+
+test("a preview deployment may still run sandbox", () => {
+  expect(
+    checkoutEnabled({
+      ...FULL,
+      NEXT_PUBLIC_SITE_URL: "https://preview-abc.vercel.app",
+      VERCEL_ENV: "preview",
+    }),
+  ).toBe(true);
+});

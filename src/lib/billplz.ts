@@ -38,6 +38,10 @@ export function billplzHost(sandbox: boolean): string {
  *    empty keys would break every bill created without one.
  * 3. **`x_signature` is excluded.** Including it cannot verify, because the
  *    value being signed would have to contain its own signature.
+ * 4. **The sort is bytewise.** Locale-aware comparison reorders exactly the
+ *    pair `createBill` sends — `reference_1` and `reference_1_label` — and
+ *    neither documented example contains a key that is a prefix of another,
+ *    so the fixtures cannot tell you.
  *
  * The rules above were confirmed by reproducing all three of Billplz's
  * documented worked examples, which is what `billplz.test.ts` pins.
@@ -46,7 +50,13 @@ export function signatureSource(payload: Record<string, string>): string {
   return Object.entries(payload)
     .filter(([key]) => key !== "x_signature")
     .map(([key, value]) => `${key}${value ?? ""}`)
-    .sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }))
+    // Bytewise. `localeCompare` reweights punctuation and, with
+    // `sensitivity: "base"`, folds case away — and this very function is
+    // handed `reference_1` beside `reference_1_label`, a pair ICU orders the
+    // opposite way round from bytes whenever the reference starts with a
+    // digit. Both documented examples reproduce either way, so no fixture
+    // can catch it; only the pair this code itself creates can.
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
     .join("|");
 }
 

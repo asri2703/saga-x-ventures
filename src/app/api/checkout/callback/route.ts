@@ -32,10 +32,17 @@ export async function POST(request: Request): Promise<Response> {
   const config = checkoutConfig();
   if (!config) return new Response(null, { status: 503 });
 
-  const form = await request.formData();
   const payload: Record<string, string> = {};
-  for (const [key, value] of form.entries()) {
-    if (typeof value === "string") payload[key] = value;
+  try {
+    const form = await request.formData();
+    for (const [key, value] of form.entries()) {
+      if (typeof value === "string") payload[key] = value;
+    }
+  } catch {
+    // Not reachable from Billplz, trivially reachable by anyone poking the
+    // URL. An unhandled throw here is a 500 for a request that was simply
+    // malformed.
+    return new Response(null, { status: 400 });
   }
 
   if (!verifySignature(payload, config.xSignature)) {
@@ -96,10 +103,12 @@ export async function POST(request: Request): Promise<Response> {
  * down is not a reason to answer anything other than 200 — Billplz would
  * retry for ever, and the payment it is retrying already succeeded.
  *
- * The timestamp guards are the second line: `markPaid` returning a row
- * already means this is the first transition, but two retries arriving in
- * the same instant can both see it, and only one of them can claim the
- * timestamp.
+ * Each timestamp is set **after** its send, not before. `markPaid` is a
+ * conditional update, so only one callback can ever reach this function for
+ * a given bill — there is no second sender to fence out, and claiming the
+ * flag first only ever meant a failed send looked like a successful one.
+ * Spec 7.10: the flag staying null is exactly what tells an admin to
+ * re-send.
  */
 async function tell(order: Awaited<ReturnType<typeof markPaid>>): Promise<void> {
   if (!order) return;
@@ -110,7 +119,12 @@ async function tell(order: Awaited<ReturnType<typeof markPaid>>): Promise<void> 
 
   if (!mismatch) {
     try {
-      if (await markLinkSent(order.id)) await notifyBuyer(order);
+      await notifyBuyer(order);
+      // Recorded after the send, not before it. Claiming the flag first
+      // meant a failure set "we told them" and nothing could ever tell that
+      // it had not — no admin list would show it and nothing would retry.
+      // Spec 7.10 is explicit that this flag staying null is the signal.
+      await markLinkSent(order.id);
     } catch (error) {
       console.error("checkout callback: buyer email failed", error);
     }
@@ -125,9 +139,8 @@ async function tell(order: Awaited<ReturnType<typeof markPaid>>): Promise<void> 
   }
 
   try {
-    if (await markNotified(order.id)) {
-      await notifyOwner(order, mismatch ? { amountMismatch: true } : undefined);
-    }
+    await notifyOwner(order, mismatch ? { amountMismatch: true } : undefined);
+    await markNotified(order.id);
   } catch (error) {
     console.error("checkout callback: owner notification failed", error);
   }
