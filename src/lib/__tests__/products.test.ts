@@ -45,7 +45,7 @@ test("every outbound link on a page goes through /go", () => {
       withFileTypes: true,
     })
     .filter((e) => e.isFile() && /\.tsx$/.test(e.name))
-    .map((e) => path.join(e.parentPath ?? e.path, e.name));
+    .map((e) => path.join(e.parentPath, e.name));
 
   expect(pages.length).toBeGreaterThan(5);
   for (const file of pages) {
