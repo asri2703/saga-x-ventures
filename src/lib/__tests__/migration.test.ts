@@ -97,19 +97,25 @@ test("the WhatsApp destination is built from the one phone number", () => {
 test("every retired service URL is permanently redirected", async () => {
   const redirects = await nextConfig.redirects!();
   const sources = redirects.map((r) => r.source);
-  for (const p of [
+  const services = [
     "/services",
     "/services/website-development",
     "/services/google-ads",
     "/services/social-media-ads",
     "/services/seo",
     "/services/system-development",
-  ]) {
+  ];
+  for (const p of services) {
     expect(sources, `${p} is not redirected`).toContain(p);
   }
   for (const r of redirects) {
+    // Permanent is the part that holds for all of them: a redirect a search
+    // engine treats as temporary never moves the URL's standing across.
     expect(r.permanent, `${r.source} is not permanent`).toBe(true);
-    expect(r.destination).toBe("/");
+    // Where they land does not. The service pages fold into the homepage;
+    // /mastery-signal goes to the product's own site, which is the whole
+    // reason that page no longer exists here.
+    if (services.includes(r.source)) expect(r.destination).toBe("/");
   }
 });
 
@@ -123,7 +129,6 @@ test("every page declares a canonical URL", async () => {
 
   const pages: [string, Promise<unknown>][] = [
     ["/about", import("@/app/about/page")],
-    ["/mastery-signal", import("@/app/mastery-signal/page")],
     ["/copytrade", import("@/app/copytrade/page")],
     ["/fukyaa", import("@/app/fukyaa/page")],
     ["/coaching", import("@/app/coaching/page")],

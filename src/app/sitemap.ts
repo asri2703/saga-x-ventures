@@ -14,7 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPages = [
     { path: "", priority: 1 },
-    { path: "/mastery-signal", priority: 0.9 },
     { path: "/copytrade", priority: 0.9 },
     { path: "/fukyaa", priority: 0.9 },
     { path: "/coaching", priority: 0.9 },

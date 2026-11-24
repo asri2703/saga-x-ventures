@@ -17,11 +17,27 @@ const retiredServicePaths = [
 
 const nextConfig: NextConfig = {
   async redirects() {
-    return retiredServicePaths.map((source) => ({
-      source,
-      destination: "/",
-      permanent: true,
-    }));
+    return [
+      ...retiredServicePaths.map((source) => ({
+        source,
+        destination: "/",
+        permanent: true,
+      })),
+      /* The Mastery Signal page is gone; the product has a site of its own
+         and the menu, the footer and the packages all point there now.
+         Redirecting rather than deleting outright is what keeps an old
+         link — a bookmark, a message, a crawler that saw it once — from
+         landing on nothing. Permanent, so any standing the URL had moves
+         across rather than being dropped.
+
+         Not through /go: that route exists to count clicks this site sent,
+         and a visitor arriving on a dead URL is not a click this site sent. */
+      {
+        source: "/mastery-signal",
+        destination: "https://www.masterysignal.com/",
+        permanent: true,
+      },
+    ];
   },
 };
 
