@@ -1,8 +1,10 @@
 import type { Plan } from "@/components/plan-cards";
 import {
+  copytrade,
   formatMyr,
   formatUsd,
   fukyaaPlans,
+  type FukyaaPlan,
   masteryPlanSavingMyr,
   masteryPlanTotalMyr,
   masteryPlans,
@@ -79,44 +81,42 @@ export function masteryPlanCards(options?: { checkout?: boolean }): Plan[] {
  * it to the page they land on.
  */
 export function fukyaaPlanCards(): Plan[] {
+  /* The owner's own wording, one list per package.
+     These used to be derived from the flags on each plan, which kept copy
+     and data in step but produced a sentence nobody wrote. The deposits,
+     the server fee and the recommendation still come from `commercial.ts`
+     — only the lines a reader actually reads are written by hand. */
+  const bullets: Record<FukyaaPlan["key"], string[]> = {
+    "rented-vps": [
+      "AI auto-trade runs on your own account",
+      "Use your preferred broker",
+      "Server is rented monthly",
+    ],
+    "included-vps": [
+      "AI auto-trade runs on your own account",
+      "Server included with this option",
+      "No monthly server rental",
+    ],
+    copytrade: [
+      "Follow the master account through copytrade",
+      `Minimum deposit starts from ${formatUsd(copytrade.minimumUsd)}`,
+      "Results are settled weekly according to the copytrade arrangement",
+    ],
+  };
+
   return fukyaaPlans.map((plan) => {
-    const includes: string[] = [];
-
-    includes.push(
-      plan.automated
-        ? "The robot places the trades on your own account"
-        : "You follow my account rather than a system",
-    );
-
-    if (plan.vpsMonthlyMyr !== null) {
-      // The figure itself is in `secondary`, directly under the deposit,
-      // where a buyer comparing the three is already looking. Repeating it
-      // here read as two different charges.
-      includes.push("Runs on a server you rent monthly");
-    } else if (plan.weeklyShare === null) {
-      includes.push("The server is included — nothing monthly");
-    } else {
-      includes.push("No server to rent and nothing monthly");
-    }
-
-    includes.push(
-      plan.weeklyShare === null
-        ? "No share of what the account makes"
-        : `${plan.weeklyShare}% of the gain, settled weekly by the broker`,
-    );
-
     return {
       key: plan.key,
       name: plan.name,
       price: formatUsd(plan.depositUsd),
-      per: "deposit, held in your own account",
+      per: "deposit, held in your own trading account",
       secondary:
         plan.vpsMonthlyMyr !== null
-          ? `Plus ${formatMyr(plan.vpsMonthlyMyr)} a month for the server`
+          ? `+ ${formatMyr(plan.vpsMonthlyMyr)} monthly server fee`
           : undefined,
-      includes,
+      includes: bullets[plan.key],
       action: {
-        label: plan.automated ? "See how to start" : "See how the copy works",
+        label: plan.automated ? "See how to start" : "See how copytrade works",
         // Both pages explain the order — account, then funding, then
         // registration — before handing over the same links. Sending someone
         // straight to a broker signup they cannot finish produced dead
