@@ -189,7 +189,7 @@ export type FukyaaPlan = {
 export const fukyaaPlans: FukyaaPlan[] = [
   {
     key: "rented-vps",
-    name: "Smaller deposit",
+    name: "Basic",
     depositUsd: 500,
     vpsMonthlyMyr: fukyaa.vpsMonthlyMyr,
     weeklyShare: null,
