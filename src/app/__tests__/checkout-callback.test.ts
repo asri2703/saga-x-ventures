@@ -20,11 +20,21 @@ const KEY = "test-x-signature-key";
 const findOrderByBillId = vi.fn();
 const markPaid = vi.fn();
 const markFailed = vi.fn();
+const markLinkSent = vi.fn();
+const markNotified = vi.fn();
+const notifyBuyer = vi.fn();
+const notifyOwner = vi.fn();
 
 vi.mock("@/lib/checkout/orders", () => ({
   findOrderByBillId: (...a: unknown[]) => findOrderByBillId(...a),
   markPaid: (...a: unknown[]) => markPaid(...a),
   markFailed: (...a: unknown[]) => markFailed(...a),
+  markLinkSent: (...a: unknown[]) => markLinkSent(...a),
+  markNotified: (...a: unknown[]) => markNotified(...a),
+}));
+vi.mock("@/lib/notify", () => ({
+  notifyBuyer: (...a: unknown[]) => notifyBuyer(...a),
+  notifyOwner: (...a: unknown[]) => notifyOwner(...a),
 }));
 vi.mock("@/lib/checkout/config", () => ({
   checkoutConfig: () => ({
@@ -88,6 +98,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   findOrderByBillId.mockResolvedValue(ORDER);
   markPaid.mockResolvedValue({ ...ORDER, status: "paid", paidAmountSen: 87600 });
+  markLinkSent.mockResolvedValue(true);
+  markNotified.mockResolvedValue(true);
+  notifyBuyer.mockResolvedValue(undefined);
+  notifyOwner.mockResolvedValue(undefined);
 });
 
 test("an unsigned or wrongly signed callback writes nothing", async () => {
@@ -150,4 +164,66 @@ test("a database failure answers 500 so Billplz retries", async () => {
   markPaid.mockRejectedValue(new Error("connection refused"));
   const res = await POST(formReq(signed(PAID)));
   expect(res.status).toBe(500);
+});
+
+/* ------------------------------------------------------------------ *
+ * Telling people, exactly once.
+ * ------------------------------------------------------------------ */
+
+test("a paid callback tells the buyer and the owner", async () => {
+  await POST(formReq(signed(PAID)));
+  expect(notifyBuyer).toHaveBeenCalledTimes(1);
+  expect(notifyOwner).toHaveBeenCalledTimes(1);
+});
+
+test("the same callback twice sends one email and one telegram", async () => {
+  // Review Focus 3. Billplz retries until it gets a 200, so this happens as
+  // a matter of course, not as an edge case.
+  await POST(formReq(signed(PAID)));
+  markPaid.mockResolvedValue(null);
+  await POST(formReq(signed(PAID)));
+  expect(notifyBuyer).toHaveBeenCalledTimes(1);
+  expect(notifyOwner).toHaveBeenCalledTimes(1);
+});
+
+test("a second send is refused by the row, not only by the transition", async () => {
+  // Belt and braces: even if markPaid somehow reported a first transition
+  // twice, the timestamp guards hold.
+  markLinkSent.mockResolvedValue(false);
+  markNotified.mockResolvedValue(false);
+  await POST(formReq(signed(PAID)));
+  expect(notifyBuyer).not.toHaveBeenCalled();
+  expect(notifyOwner).not.toHaveBeenCalled();
+});
+
+test("a notification that throws still answers 200", async () => {
+  // Review Focus 4. The money has moved; a retry cannot un-take it, and
+  // Billplz would retry for ever.
+  notifyBuyer.mockRejectedValue(new Error("resend down"));
+  const res = await POST(formReq(signed(PAID)));
+  expect(res.status).toBe(200);
+});
+
+test("the owner is still told when the buyer's email fails", async () => {
+  notifyBuyer.mockRejectedValue(new Error("resend down"));
+  await POST(formReq(signed(PAID)));
+  expect(notifyOwner).toHaveBeenCalled();
+});
+
+test("a wrong amount notifies the owner and does not email the buyer", async () => {
+  // Sending a registration link for an amount nobody agreed to is worse
+  // than making him look.
+  markPaid.mockResolvedValue({ ...ORDER, status: "paid", amountSen: 87600, paidAmountSen: 9900 });
+  await POST(formReq(signed({ ...PAID, paid_amount: "9900" })));
+  expect(notifyBuyer).not.toHaveBeenCalled();
+  expect(notifyOwner).toHaveBeenCalledWith(
+    expect.objectContaining({ paidAmountSen: 9900 }),
+    { amountMismatch: true },
+  );
+});
+
+test("an unpaid callback tells nobody", async () => {
+  await POST(formReq(signed({ ...PAID, paid: "false", state: "due", paid_amount: "0" })));
+  expect(notifyBuyer).not.toHaveBeenCalled();
+  expect(notifyOwner).not.toHaveBeenCalled();
 });

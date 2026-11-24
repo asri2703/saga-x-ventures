@@ -3,8 +3,11 @@ import { checkoutConfig } from "@/lib/checkout/config";
 import {
   findOrderByBillId,
   markFailed,
+  markLinkSent,
+  markNotified,
   markPaid,
 } from "@/lib/checkout/orders";
+import { notifyBuyer, notifyOwner } from "@/lib/notify";
 
 /**
  * The only thing that marks an order paid.
@@ -68,15 +71,64 @@ export async function POST(request: Request): Promise<Response> {
     const paidAmountSen = Number.parseInt(payload.paid_amount ?? "0", 10);
     const paidAt = payload.paid_at ? new Date(payload.paid_at) : new Date();
 
-    await markPaid(
+    const paid = await markPaid(
       billId,
       Number.isFinite(paidAmountSen) ? paidAmountSen : 0,
       Number.isNaN(paidAt.getTime()) ? new Date() : paidAt,
     );
 
+    // Null means this callback was a retry and the first one already did
+    // the work. Everything below sends something, so it happens once.
+    if (paid) await tell(paid);
+
     return new Response(null, { status: 200 });
   } catch (error) {
     console.error("checkout callback: failed to record", error);
     return new Response(null, { status: 500 });
+  }
+}
+
+/**
+ * The two notifications, each at most once, neither able to fail the
+ * callback.
+ *
+ * The money has already moved by the time this runs. A mail provider being
+ * down is not a reason to answer anything other than 200 — Billplz would
+ * retry for ever, and the payment it is retrying already succeeded.
+ *
+ * The timestamp guards are the second line: `markPaid` returning a row
+ * already means this is the first transition, but two retries arriving in
+ * the same instant can both see it, and only one of them can claim the
+ * timestamp.
+ */
+async function tell(order: Awaited<ReturnType<typeof markPaid>>): Promise<void> {
+  if (!order) return;
+
+  const quoted = order.amountSen;
+  const arrived = order.paidAmountSen ?? 0;
+  const mismatch = arrived !== quoted;
+
+  if (!mismatch) {
+    try {
+      if (await markLinkSent(order.id)) await notifyBuyer(order);
+    } catch (error) {
+      console.error("checkout callback: buyer email failed", error);
+    }
+  } else {
+    // Deliberately not sent. A registration link for an amount nobody
+    // agreed to is worse than making the owner look at it.
+    console.warn("checkout callback: amount mismatch", {
+      order: order.id,
+      quoted,
+      arrived,
+    });
+  }
+
+  try {
+    if (await markNotified(order.id)) {
+      await notifyOwner(order, mismatch ? { amountMismatch: true } : undefined);
+    }
+  } catch (error) {
+    console.error("checkout callback: owner notification failed", error);
   }
 }
