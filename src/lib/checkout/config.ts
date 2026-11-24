@@ -51,31 +51,27 @@ export function checkoutConfig(env: Env = process.env): CheckoutConfig | null {
   const collectionId = env.BILLPLZ_COLLECTION_ID;
   const xSignature = env.BILLPLZ_X_SIGNATURE;
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  const resendKey = env.RESEND_API_KEY;
 
-  const required = [
-    apiKey,
-    collectionId,
-    xSignature,
-    siteUrl,
-    env.NEXT_PUBLIC_SUPABASE_URL,
-    env.SUPABASE_SERVICE_ROLE_KEY,
-    env.RESEND_API_KEY,
-  ];
-  if (required.some((value) => !value)) return null;
+  // Checked one at a time rather than through a list, so TypeScript narrows
+  // each to a string and the config below needs no assertions.
+  if (!apiKey) return null;
+  if (!collectionId) return null;
+  if (!xSignature) return null;
+  if (!siteUrl) return null;
+  if (!supabaseUrl) return null;
+  if (!serviceKey) return null;
+  if (!resendKey) return null;
 
   // Absent means sandbox. The dangerous default is the other one: an unset
   // flag should mean "not ready", never "charge real cards".
   const sandbox = env.BILLPLZ_SANDBOX !== "false";
 
-  if (sandbox && sameHost(siteUrl!, site.url)) return null;
+  if (sandbox && sameHost(siteUrl, site.url)) return null;
 
-  return {
-    apiKey: apiKey!,
-    collectionId: collectionId!,
-    xSignature: xSignature!,
-    sandbox,
-    siteUrl: siteUrl!,
-  };
+  return { apiKey, collectionId, xSignature, sandbox, siteUrl };
 }
 
 export function checkoutEnabled(env: Env = process.env): boolean {
