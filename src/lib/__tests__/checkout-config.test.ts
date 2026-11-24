@@ -13,6 +13,8 @@ const FULL = {
   RESEND_API_KEY: "re",
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
   BILLPLZ_SANDBOX: "true",
+  RESEND_FROM: "Saga X Ventures <no-reply@example.com>",
+  ADMIN_EMAIL: "owner@example.com",
 };
 
 test("all six present enables it", () => {
@@ -156,6 +158,8 @@ const BASE = {
   NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co",
   SUPABASE_SERVICE_ROLE_KEY: "r",
   RESEND_API_KEY: "re",
+  RESEND_FROM: "Saga X Ventures <no-reply@example.com>",
+  ADMIN_EMAIL: "owner@example.com",
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
 };
 
@@ -243,4 +247,21 @@ test("half a set is not a set", () => {
       BILLPLZ_SANDBOX_COLLECTION_ID: "sand-col",
     }),
   ).toBe(false);
+});
+
+test("a sender address and an admin address are in the gate too", () => {
+  // Learned the hard way on the first live sandbox payment: the money was
+  // taken, the order was marked paid, and both emails were refused because
+  // RESEND_FROM was malformed. An address that cannot send fails exactly
+  // like an outage, and the gate is where that belongs — refusing the sale
+  // beats taking it and going quiet.
+  expect(checkoutEnabled({ ...FULL, RESEND_FROM: "" })).toBe(false);
+  expect(checkoutEnabled({ ...FULL, ADMIN_EMAIL: "" })).toBe(false);
+});
+
+test("a sender that is not an address at all is refused", () => {
+  // Quotes left around the value in a .env file produce exactly this.
+  expect(checkoutEnabled({ ...FULL, RESEND_FROM: '"Name <a@b.com>"' })).toBe(false);
+  expect(checkoutEnabled({ ...FULL, RESEND_FROM: "Name <a@b.com>" })).toBe(true);
+  expect(checkoutEnabled({ ...FULL, RESEND_FROM: "a@b.com" })).toBe(true);
 });

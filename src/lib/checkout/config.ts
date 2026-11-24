@@ -12,6 +12,10 @@ import { site } from "@/lib/site";
  * **One account's credentials at a time.** `BILLPLZ_SANDBOX` chooses which
  * of the two sets is read, so neither has to be pasted over the other.
  *
+ * **Everything the whole flow needs, or nothing** — including an address
+ * that can actually send. A malformed `RESEND_FROM` takes the money and
+ * then refuses the email, which is the worst of both.
+ *
  * **Everything the whole flow needs, or nothing.** Not just the Billplz
  * three. The order row is written before the bill, so without Supabase the
  * pop-up fails at submit; without Resend the money is taken and nothing
@@ -100,6 +104,8 @@ export function checkoutConfig(env: Env = process.env): CheckoutConfig | null {
   const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
   const resendKey = env.RESEND_API_KEY;
+  const resendFrom = env.RESEND_FROM;
+  const adminEmail = env.ADMIN_EMAIL;
 
   // Checked one at a time rather than through a list, so TypeScript narrows
   // each to a string and the config below needs no assertions.
@@ -110,6 +116,16 @@ export function checkoutConfig(env: Env = process.env): CheckoutConfig | null {
   if (!supabaseUrl) return null;
   if (!serviceKey) return null;
   if (!resendKey) return null;
+  if (!adminEmail) return null;
+
+  /* A sender address that cannot send fails exactly like an outage, and it
+     is not hypothetical: the first live sandbox payment was taken, marked
+     paid, and both emails were refused because this value still had the
+     quotes from its .env line wrapped around it. Refusing the sale beats
+     taking it and going quiet, so the shape is checked here. */
+  if (!resendFrom) return null;
+  const sender = /<([^>]+)>\s*$/.exec(resendFrom)?.[1] ?? resendFrom;
+  if (!/^[^\s@"']+@[^\s@"']+\.[^\s@"']+$/.test(sender.trim())) return null;
 
   // Sandbox credentials must never be what a real buyer is handed. Two
   // independent ways of knowing this is production, because either one
