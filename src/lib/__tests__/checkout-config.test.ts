@@ -2,10 +2,12 @@ import { expect, test } from "vitest";
 import { checkoutConfig, checkoutEnabled } from "@/lib/checkout/config";
 import { site } from "@/lib/site";
 
+/** A valid sandbox configuration. Sandbox mode reads the sandbox set; the
+ *  unprefixed names are live-only and deliberately do not apply here. */
 const FULL = {
-  BILLPLZ_API_KEY: "k",
-  BILLPLZ_COLLECTION_ID: "c",
-  BILLPLZ_X_SIGNATURE: "s",
+  BILLPLZ_SANDBOX_API_KEY: "k",
+  BILLPLZ_SANDBOX_COLLECTION_ID: "c",
+  BILLPLZ_SANDBOX_X_SIGNATURE: "s",
   NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co",
   SUPABASE_SERVICE_ROLE_KEY: "r",
   RESEND_API_KEY: "re",
@@ -20,9 +22,9 @@ test("all six present enables it", () => {
 test("each of the six turns it off by itself", () => {
   // A half-configured deployment must not open a pop-up that cannot finish.
   for (const key of [
-    "BILLPLZ_API_KEY",
-    "BILLPLZ_COLLECTION_ID",
-    "BILLPLZ_X_SIGNATURE",
+    "BILLPLZ_SANDBOX_API_KEY",
+    "BILLPLZ_SANDBOX_COLLECTION_ID",
+    "BILLPLZ_SANDBOX_X_SIGNATURE",
     "NEXT_PUBLIC_SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
     "RESEND_API_KEY",
@@ -58,6 +60,9 @@ test("sandbox credentials cannot be served from the live domain", () => {
       ...FULL,
       NEXT_PUBLIC_SITE_URL: site.url,
       BILLPLZ_SANDBOX: "false",
+      BILLPLZ_LIVE_API_KEY: "k",
+      BILLPLZ_LIVE_COLLECTION_ID: "c",
+      BILLPLZ_LIVE_X_SIGNATURE: "s",
     }),
   ).toBe(true);
 });
@@ -97,7 +102,7 @@ test("the config carries what creating a bill needs", () => {
 });
 
 test("a closed gate returns null rather than a half-built config", () => {
-  expect(checkoutConfig({ ...FULL, BILLPLZ_API_KEY: "" })).toBeNull();
+  expect(checkoutConfig({ ...FULL, BILLPLZ_SANDBOX_API_KEY: "" })).toBeNull();
 });
 
 test("a www or alias host does not get past the sandbox rule", () => {
@@ -126,6 +131,9 @@ test("sandbox is refused in a production deployment whatever the url says", () =
       NEXT_PUBLIC_SITE_URL: "https://anything.example.com",
       VERCEL_ENV: "production",
       BILLPLZ_SANDBOX: "false",
+      BILLPLZ_LIVE_API_KEY: "k",
+      BILLPLZ_LIVE_COLLECTION_ID: "c",
+      BILLPLZ_LIVE_X_SIGNATURE: "s",
     }),
   ).toBe(true);
 });
@@ -138,4 +146,101 @@ test("a preview deployment may still run sandbox", () => {
       VERCEL_ENV: "preview",
     }),
   ).toBe(true);
+});
+
+/* ------------------------------------------------------------------ *
+ * Two sets of credentials, so neither has to be pasted over the other.
+ * ------------------------------------------------------------------ */
+
+const BASE = {
+  NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co",
+  SUPABASE_SERVICE_ROLE_KEY: "r",
+  RESEND_API_KEY: "re",
+  NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
+};
+
+test("sandbox mode reads the sandbox credentials", () => {
+  const config = checkoutConfig({
+    ...BASE,
+    BILLPLZ_SANDBOX: "true",
+    BILLPLZ_SANDBOX_API_KEY: "sand-key",
+    BILLPLZ_SANDBOX_COLLECTION_ID: "sand-col",
+    BILLPLZ_SANDBOX_X_SIGNATURE: "sand-sig",
+    BILLPLZ_LIVE_API_KEY: "live-key",
+    BILLPLZ_LIVE_COLLECTION_ID: "live-col",
+    BILLPLZ_LIVE_X_SIGNATURE: "live-sig",
+  });
+  expect(config?.apiKey).toBe("sand-key");
+  expect(config?.collectionId).toBe("sand-col");
+  expect(config?.xSignature).toBe("sand-sig");
+});
+
+test("live mode reads the live credentials", () => {
+  const config = checkoutConfig({
+    ...BASE,
+    NEXT_PUBLIC_SITE_URL: "https://staging.example.com",
+    BILLPLZ_SANDBOX: "false",
+    BILLPLZ_SANDBOX_API_KEY: "sand-key",
+    BILLPLZ_SANDBOX_COLLECTION_ID: "sand-col",
+    BILLPLZ_SANDBOX_X_SIGNATURE: "sand-sig",
+    BILLPLZ_LIVE_API_KEY: "live-key",
+    BILLPLZ_LIVE_COLLECTION_ID: "live-col",
+    BILLPLZ_LIVE_X_SIGNATURE: "live-sig",
+  });
+  expect(config?.apiKey).toBe("live-key");
+});
+
+test("sandbox mode never falls back to the unprefixed keys", () => {
+  // Those are where live keys already live. Falling back to them would hand
+  // a live key to the sandbox host — the exact 401 that looks like a broken
+  // key and is really the wrong account — or worse, the other way round.
+  expect(
+    checkoutEnabled({
+      ...BASE,
+      BILLPLZ_SANDBOX: "true",
+      BILLPLZ_API_KEY: "k",
+      BILLPLZ_COLLECTION_ID: "c",
+      BILLPLZ_X_SIGNATURE: "s",
+    }),
+  ).toBe(false);
+});
+
+test("live mode still accepts the unprefixed keys that are already set", () => {
+  // Nobody has to move anything they have already pasted.
+  const config = checkoutConfig({
+    ...BASE,
+    NEXT_PUBLIC_SITE_URL: "https://staging.example.com",
+    BILLPLZ_SANDBOX: "false",
+    BILLPLZ_API_KEY: "old-key",
+    BILLPLZ_COLLECTION_ID: "old-col",
+    BILLPLZ_X_SIGNATURE: "old-sig",
+  });
+  expect(config?.apiKey).toBe("old-key");
+});
+
+test("a live-prefixed key wins over an unprefixed one", () => {
+  const config = checkoutConfig({
+    ...BASE,
+    NEXT_PUBLIC_SITE_URL: "https://staging.example.com",
+    BILLPLZ_SANDBOX: "false",
+    BILLPLZ_API_KEY: "old-key",
+    BILLPLZ_COLLECTION_ID: "old-col",
+    BILLPLZ_X_SIGNATURE: "old-sig",
+    BILLPLZ_LIVE_API_KEY: "live-key",
+    BILLPLZ_LIVE_COLLECTION_ID: "live-col",
+    BILLPLZ_LIVE_X_SIGNATURE: "live-sig",
+  });
+  expect(config?.apiKey).toBe("live-key");
+});
+
+test("half a set is not a set", () => {
+  // Two of three is the state that produces a 401 nobody can explain.
+  expect(
+    checkoutEnabled({
+      ...BASE,
+      BILLPLZ_SANDBOX: "true",
+      BILLPLZ_SANDBOX_API_KEY: "sand-key",
+      BILLPLZ_SANDBOX_COLLECTION_ID: "sand-col",
+    }),
+  ).toBe(false);
 });

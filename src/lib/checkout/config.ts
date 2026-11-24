@@ -9,6 +9,9 @@ import { site } from "@/lib/site";
  *
  * Two rules, and the second is the one that matters most:
  *
+ * **One account's credentials at a time.** `BILLPLZ_SANDBOX` chooses which
+ * of the two sets is read, so neither has to be pasted over the other.
+ *
  * **Everything the whole flow needs, or nothing.** Not just the Billplz
  * three. The order row is written before the bill, so without Supabase the
  * pop-up fails at submit; without Resend the money is taken and nothing
@@ -68,9 +71,31 @@ function isProductionDeployment(env: Env): boolean {
 type Env = Record<string, string | undefined>;
 
 export function checkoutConfig(env: Env = process.env): CheckoutConfig | null {
-  const apiKey = env.BILLPLZ_API_KEY;
-  const collectionId = env.BILLPLZ_COLLECTION_ID;
-  const xSignature = env.BILLPLZ_X_SIGNATURE;
+  // Absent means sandbox. The dangerous default is the other one: an unset
+  // flag should mean "not ready", never "charge real cards".
+  const sandbox = env.BILLPLZ_SANDBOX !== "false";
+
+  /* Two sets, kept apart.
+     Sandbox and live are separate Billplz accounts, and holding one set of
+     variables meant pasting one account's keys over the other's every time
+     the flag moved — with a 401 as the only sign you had missed one of the
+     three.
+
+     The fallback to the unprefixed names is deliberately one-directional:
+     live only. Those are where live keys were already pasted before this
+     split existed, so nobody has to move anything; and falling back to them
+     in sandbox mode would hand a live key to the sandbox host, which is the
+     failure this split exists to end. */
+  const apiKey = sandbox
+    ? env.BILLPLZ_SANDBOX_API_KEY
+    : (env.BILLPLZ_LIVE_API_KEY ?? env.BILLPLZ_API_KEY);
+  const collectionId = sandbox
+    ? env.BILLPLZ_SANDBOX_COLLECTION_ID
+    : (env.BILLPLZ_LIVE_COLLECTION_ID ?? env.BILLPLZ_COLLECTION_ID);
+  const xSignature = sandbox
+    ? env.BILLPLZ_SANDBOX_X_SIGNATURE
+    : (env.BILLPLZ_LIVE_X_SIGNATURE ?? env.BILLPLZ_X_SIGNATURE);
+
   const siteUrl = env.NEXT_PUBLIC_SITE_URL;
   const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -85,10 +110,6 @@ export function checkoutConfig(env: Env = process.env): CheckoutConfig | null {
   if (!supabaseUrl) return null;
   if (!serviceKey) return null;
   if (!resendKey) return null;
-
-  // Absent means sandbox. The dangerous default is the other one: an unset
-  // flag should mean "not ready", never "charge real cards".
-  const sandbox = env.BILLPLZ_SANDBOX !== "false";
 
   // Sandbox credentials must never be what a real buyer is handed. Two
   // independent ways of knowing this is production, because either one
