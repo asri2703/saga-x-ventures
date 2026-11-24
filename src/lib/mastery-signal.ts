@@ -58,19 +58,20 @@ export function masterySignalRoutes(): PaymentRoute[] {
       key: "direct",
       label: "Pay the subscription instead",
       summary:
-        "Would rather not put money into a trading account, or do not want to pay by card? Pay here by FPX or QR and the subscription runs on its own.",
+        "Would rather not put money into a trading account? Pay for a package here by FPX and the subscription runs on its own.",
       steps: [
         {
           n: 1,
-          title: "Arrange payment",
-          body: "FPX or DuitNow QR, in ringgit. Message me and I will send the details — checkout on this site is being built and will replace this step.",
+          title: "Choose a package and pay",
+          body: "One month, six or twelve. Pick the term, pay by FPX, and your registration details come by email.",
           outbound: null,
-          cta: null,
+          cta: "Choose a package",
+          opensCheckout: true,
         },
         {
           n: 2,
           title: "Register and choose Pro",
-          body: "Once payment is through, register on the Mastery Signal site and choose Pro. I approve it by hand on that side.",
+          body: "Once payment is through, register on the Mastery Signal site with the same email you paid with, and choose Pro. I approve it by hand on that side.",
           outbound: "mastery-membership",
           cta: "Register",
         },

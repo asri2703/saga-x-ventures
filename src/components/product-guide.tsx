@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { outbound, type OutboundKey, type Product } from "@/lib/products";
 import { Container, Section } from "@/components/ui";
+import { CheckoutOpener } from "@/components/checkout-opener";
 import {
   ActionOut,
   Eyebrow,
@@ -25,6 +26,14 @@ export type GuideStep = {
   /** The outbound key this step hands over to, if it leaves the site. */
   outbound: OutboundKey | null;
   cta: string | null;
+  /**
+   * This step opens the checkout rather than linking anywhere.
+   *
+   * It is not an outbound key because nothing leaves the site: the dialog
+   * opens over the page. `stepIsReady` stays false for it, so the step is
+   * neither a link nor the dashed placeholder that says a link is coming.
+   */
+  opensCheckout?: true;
 };
 
 export type PaymentRoute = {
@@ -54,7 +63,13 @@ export function stepIsReady(step: GuideStep): boolean {
  * sequence. This one is: the account has to exist before it can be funded,
  * and funded before anything is joined. Doing them out of order fails.
  */
-function Steps({ steps }: { steps: GuideStep[] }) {
+function Steps({
+  steps,
+  checkout,
+}: {
+  steps: GuideStep[];
+  checkout: boolean;
+}) {
   return (
     <ol className="mt-10 space-y-5">
       {steps.map((step) => (
@@ -75,7 +90,12 @@ function Steps({ steps }: { steps: GuideStep[] }) {
               </div>
             </div>
 
-            {stepIsReady(step) ? (
+            {step.opensCheckout && checkout && step.cta ? (
+              <CheckoutOpener
+                label={step.cta}
+                className="shrink-0 self-start"
+              />
+            ) : stepIsReady(step) ? (
               <Link
                 href={`/go/${step.outbound}`}
                 prefetch={false}
@@ -85,7 +105,7 @@ function Steps({ steps }: { steps: GuideStep[] }) {
               >
                 {step.cta}
               </Link>
-            ) : step.cta ? (
+            ) : step.cta && !step.opensCheckout ? (
               <p className="shrink-0 self-start rounded-full border border-dashed border-rule-strong px-6 py-3 text-sm text-pine-faint">
                 {step.cta} — link coming
               </p>
@@ -102,6 +122,7 @@ export function ProductGuide({
   routes,
   intro,
   afterIntro,
+  checkout = false,
 }: {
   product: Product;
   routes: PaymentRoute[];
@@ -114,6 +135,14 @@ export function ProductGuide({
    * which a visitor has to read before being walked through joining.
    */
   afterIntro?: ReactNode;
+  /**
+   * Whether a step marked `opensCheckout` may actually open it.
+   *
+   * Decided on the server by the page that renders this guide, because the
+   * gate reads credentials. False, such a step renders its title and body
+   * and no action at all — which is better than a button that cannot work.
+   */
+  checkout?: boolean;
 }) {
   return (
     <>
@@ -175,7 +204,7 @@ export function ProductGuide({
               </p>
             </div>
             <div className="max-w-3xl">
-              <Steps steps={route.steps} />
+              <Steps steps={route.steps} checkout={checkout} />
             </div>
           </Container>
         </Section>

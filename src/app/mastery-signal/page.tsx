@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { features, masterySignalRoutes } from "@/lib/mastery-signal";
 import { getProduct } from "@/lib/products";
+import { checkoutEnabled } from "@/lib/checkout/config";
 import { Container, Section } from "@/components/ui";
 import { FeatureSlider } from "@/components/feature-slider";
 import { ProductGuide } from "@/components/product-guide";
@@ -45,6 +46,7 @@ export default function MasterySignalPage() {
   return (
     <>
       <ProductGuide
+        checkout={checkoutEnabled()}
         afterIntro={showcase}
         product={product}
         routes={masterySignalRoutes()}
