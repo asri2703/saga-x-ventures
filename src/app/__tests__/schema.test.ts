@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test } from "vitest";
 import { orgSchema, personSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
@@ -40,8 +42,22 @@ test("the award is declared on the person, with its year", () => {
   expect(JSON.stringify(personSchema)).toContain("2026");
 });
 
-test("the former alias is named rather than left unexplained", () => {
-  // An award screen showing a different name reads as borrowed unless the
-  // page says whose name it was.
+test("the former alias is still recorded, and nothing renders it unexplained", () => {
+  // The homepage used to carry a line naming it, because the old award photo
+  // was a screen showing "Zack King" and a different name on an award reads
+  // as borrowed. The new photo is him holding the award and shows no name, so
+  // the line went with the picture it explained.
+  //
+  // The fact is kept because it is true and he may want it back. What this
+  // guards is the pairing: if the alias is printed anywhere again, something
+  // has to explain whose name it was.
   expect(site.founder.award.alias).toBe("Zack King");
+
+  const page = fs.readFileSync(
+    path.join(process.cwd(), "src", "app", "page.tsx"),
+    "utf8",
+  );
+  if (page.includes("award.alias")) {
+    expect(page).toMatch(/traded under|what I traded|his name|my name/i);
+  }
 });

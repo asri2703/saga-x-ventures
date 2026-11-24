@@ -57,13 +57,18 @@ export const fukyaa = {
 /**
  * The deposit that applies on a given date.
  *
- * UNRESOLVED, and the owner has to settle it. This models one deposit that
- * falls from 1,000 to 500 until the end of the year. `fukyaaPlans` below
- * models 500 and 1,000 as two packages that differ by whether the server is
- * included, with no end date. Both are on the site: this one drives the
- * product's qualifier on /fukyaa and /coaching, the packages drive the
- * homepage. They cannot both be true, and the newer one came from him last,
- * so the promotion is the part most likely to be stale.
+ * SETTLED, 24 November 2026: the packages win. `fukyaaPlans` below is the
+ * truth — 500 and 1,000 USD are two packages that differ by whether the
+ * server is included, and neither expires. This function models the older
+ * idea, one deposit falling from 1,000 to 500 until the end of the year, and
+ * that idea is now wrong.
+ *
+ * It is still wired up, which is the part that matters to whoever reads this
+ * next: `Product.requirement` calls it, so /fukyaa and /coaching still render
+ * "Minimum 500 USD deposit" as a promotional figure with an expiry, while the
+ * homepage sells it as the smaller of two packages. Replacing it is a
+ * contained job — this function, `fukyaa.promoEndsOn`, `formatPromoEnd`,
+ * `fukyaaRoutes`, and the `revalidate` those pages only need because of it.
  *
  * The promotional figure expires by itself. Written into a page it would
  * become a false price on 1 January, on a date everybody already knows, and

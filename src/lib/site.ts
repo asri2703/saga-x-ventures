@@ -67,7 +67,13 @@ export const site = {
       body: "TradingLive Trading Influencers Awards",
       year: 2026,
       alias: "Zack King",
-      image: "/award-tradinglive.webp",
+      /* A cut-out, so it needs a surface to stand on rather than filling a
+         frame edge to edge. Its dimensions live here with it: the page used
+         to carry them as literals, and swapping the image for one of a
+         different shape would have left them stale and the layout wrong. */
+      image: "/award-2026.webp",
+      imageWidth: 553,
+      imageHeight: 936,
     },
   },
 } as const;

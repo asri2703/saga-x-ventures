@@ -31,7 +31,6 @@ export const revalidate = 3600;
 
 export default function HomePage() {
   const mastery = getProduct("mastery-signal")!;
-  const fukyaa = getProduct("fukyaa")!;
   const coaching = getProduct("coaching")!;
 
   return (
@@ -331,9 +330,24 @@ export default function HomePage() {
             second={
               <PlanGroup
                 eyebrow="Fukyaa"
-                title="Three ways to let it trade"
-                intro={<p>&ldquo;{fukyaa.forWho}&rdquo;</p>}
-                note="None of these three is a payment to me. The deposit is yours, in your own account at the broker; what differs is the running cost."
+                title="Choose how it runs."
+                /* Written to match the Mastery block beside it: a question a
+                   visitor would recognise themselves in, then what they get,
+                   then the choice the cards below are asking them to make. */
+                intro={
+                  <>
+                    <p>
+                      No time to watch the market, or no interest in placing
+                      the trades yourself? Let the automation take the
+                      execution while the account stays in your name.
+                    </p>
+                    <p>
+                      Fund a cent account and pick how it runs &mdash; a
+                      robot on your own server, or the copy.
+                    </p>
+                  </>
+                }
+                note="The deposit is not a payment. It stays in your own account at the broker; what differs between the three is the running cost."
                 plans={fukyaaPlanCards()}
               />
             }
@@ -387,15 +401,25 @@ export default function HomePage() {
         <Container>
           <div className="grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-20">
             <div data-reveal>
-              <OffsetFrame tint="sand">
-                <Image
-                  src={site.founder.award.image}
-                  alt={`${site.founder.name} receiving the ${site.founder.award.title} award`}
-                  width={1076}
-                  height={919}
-                  className="h-auto w-full"
-                  sizes="(min-width: 1024px) 600px, 100vw"
-                />
+              {/* A cut-out standing on a tinted surface rather than a
+                  photograph filling the frame. The figure is bottom-aligned
+                  so he stands on the base of the card instead of floating in
+                  the middle of it, and the frame is given a height rather
+                  than taking the image's own: at 553x936 the picture is far
+                  taller than it is wide, and sized to the column it would
+                  have run a third longer than the text beside it. */}
+              <OffsetFrame tint="sage">
+                <div className="flex h-[24rem] items-end justify-center bg-sand sm:h-[30rem]">
+                  <Image
+                    src={site.founder.award.image}
+                    alt={`${site.founder.name} receiving the ${site.founder.award.title} award`}
+                    width={site.founder.award.imageWidth}
+                    height={site.founder.award.imageHeight}
+                    className="h-full w-auto object-contain"
+                    sizes="(min-width: 640px) 480px, 100vw"
+                    priority={false}
+                  />
+                </div>
               </OffsetFrame>
             </div>
 
@@ -410,8 +434,14 @@ export default function HomePage() {
                   <span className="tnum">{site.founder.award.year}</span>.
                 </p>
                 <p>
-                  The name on the screen is {site.founder.award.alias}. That is
-                  what I traded under then.
+                  This award marks one of the earlier chapters of my trading
+                  journey. Before building the products and systems I work on
+                  today, I was already spending my time studying the market,
+                  taking trades and learning from the process.
+                </p>
+                <p>
+                  It is a recognition I still value because it came from the
+                  work itself.
                 </p>
               </div>
             </div>
