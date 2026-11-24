@@ -114,7 +114,7 @@ export async function attachBillId(
   orderId: string,
   billId: string,
 ): Promise<void> {
-  unwrap(
+  const row = unwrap(
     await serviceClient()
       .from(TABLE)
       .update({ billplz_bill_id: billId })
@@ -122,6 +122,13 @@ export async function attachBillId(
       .select()
       .maybeSingle(),
   );
+
+  /* No row matched, and nothing above said so. This is the one write in the
+     flow whose silent failure costs a buyer money: the bill already exists
+     at Billplz and can be paid, and the callback finds an order by its bill
+     id — which, without this write, is still null. The route answers on
+     this throwing, and the buyer never gets the payment url. */
+  if (!row) throw new Error(`orders: no row ${orderId} to attach a bill to`);
 }
 
 export async function findOrderByBillId(billId: string): Promise<Order | null> {

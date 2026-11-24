@@ -103,3 +103,11 @@ test("neither reads a server-only secret", () => {
 test("a failed submit leaves a way to reach a person", () => {
   expect(DIALOG).toMatch(/whatsapp/i);
 });
+
+test("choosing a term moves focus into the form behind it", () => {
+  // The term buttons unmount the moment one is picked, and the button that
+  // held focus goes with them — focus falls to <body>, outside the dialog,
+  // and a keyboard user's next Tab starts from the top of the page. The
+  // focus call has to run again when the choice changes, not only on mount.
+  expect(DIALOG).toMatch(/useEffect\([\s\S]{0,400}?focus\(\)[\s\S]{0,200}?\},\s*\[chosen\]\)/);
+});

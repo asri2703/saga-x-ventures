@@ -36,10 +36,19 @@ const { POST } = await import("@/app/api/checkout/route");
 
 const ORDER = { id: "order-1", planKey: "year" };
 
+/* A fresh address per call.
+   The handler rate-limits per address, and these tests are about its
+   decisions rather than about the limit — sharing one address would make
+   the ninth test in the file fail for a reason it is not testing. The two
+   tests that *are* about the limit use `reqFrom` and pin their own. */
+let caller = 0;
 const req = (body: unknown) =>
   new Request("http://localhost:3000/api/checkout", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-forwarded-for": `192.0.2.${(caller += 1) % 250}`,
+    },
     body: JSON.stringify(body),
   });
 
@@ -60,6 +69,7 @@ beforeEach(() => {
     siteUrl: "http://localhost:3000",
   };
   createPendingOrder.mockResolvedValue(ORDER);
+  attachBillId.mockResolvedValue(undefined);
   createBill.mockResolvedValue({ id: "bill-1", url: "https://pay.example/bill-1" });
 });
 
@@ -147,6 +157,7 @@ test("a body that is not json is refused rather than throwing", async () => {
   const res = await POST(
     new Request("http://localhost:3000/api/checkout", {
       method: "POST",
+      headers: { "x-forwarded-for": "192.0.2.251" },
       body: "not json",
     }),
   );
@@ -168,4 +179,41 @@ test("a database outage answers json, not a generic 500", async () => {
   const res = await POST(req(GOOD));
   expect([502, 503]).toContain(res.status);
   expect(await res.json()).toHaveProperty("error");
+});
+
+/** Requests carry an address, the way they do behind Vercel's proxy. */
+const reqFrom = (ip: string, body: unknown) =>
+  new Request("http://localhost:3000/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-forwarded-for": ip },
+    body: JSON.stringify(body),
+  });
+
+test("storing the bill id failing does not hand over a payment url", async () => {
+  // The worst shape this can take: a bill exists at Billplz, the buyer pays
+  // it, and the callback has no order to find. Better to refuse the sale
+  // than to take money nothing here can match.
+  attachBillId.mockRejectedValue(new Error("orders: no row"));
+  const res = await POST(req(GOOD));
+  expect(res.status).toBe(503);
+  expect(JSON.stringify(await res.json())).not.toMatch(/pay\.example/);
+});
+
+test("a burst from one address is refused before it reaches Billplz", async () => {
+  // Each call creates a row and a real bill at Billplz. Without a limit one
+  // script fills the table and the owner's Billplz account with junk.
+  const ip = "203.0.113.7";
+  const codes: number[] = [];
+  for (let i = 0; i < 12; i += 1) {
+    codes.push((await POST(reqFrom(ip, GOOD))).status);
+  }
+  expect(codes).toContain(429);
+  expect(createBill.mock.calls.length).toBeLessThan(12);
+});
+
+test("the limit is per address, so one burst does not shut out everyone", async () => {
+  const ip = "203.0.113.9";
+  for (let i = 0; i < 12; i += 1) await POST(reqFrom(ip, GOOD));
+  const other = await POST(reqFrom("198.51.100.4", GOOD));
+  expect(other.status).toBe(200);
 });

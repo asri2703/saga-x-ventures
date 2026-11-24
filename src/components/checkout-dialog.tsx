@@ -47,9 +47,17 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
 
   const plan = masteryPlans.find((candidate) => candidate.key === chosen) ?? null;
 
-  /* Escape closes, and focus starts inside rather than behind. */
+  /* Focus starts inside rather than behind, and lands again when the choice
+     changes. Picking a term unmounts the term buttons — the one that held
+     focus goes with them, focus falls to <body>, and the next Tab starts
+     from the top of the page behind the dialog. Keyed on `chosen` so the
+     name field takes it the moment the form appears. */
   useEffect(() => {
     first.current?.focus();
+  }, [chosen]);
+
+  /* Escape closes, and Tab stays in. */
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
       if (event.key !== "Tab" || !card.current) return;

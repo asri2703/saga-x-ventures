@@ -262,3 +262,22 @@ test("a body that is not a form is refused rather than throwing", async () => {
   );
   expect([400, 401]).toContain(res.status);
 });
+
+test("a signed callback for another collection writes nothing", async () => {
+  // The signature is per account, not per collection, so a bill created by
+  // another collection on the same Billplz account verifies here. Only the
+  // collection this site bills through may move an order.
+  const res = await POST(formReq(signed({ ...PAID, collection_id: "other" })));
+  expect(res.status).toBe(200);
+  expect(markPaid).not.toHaveBeenCalled();
+  expect(markFailed).not.toHaveBeenCalled();
+  expect(notifyBuyer).not.toHaveBeenCalled();
+});
+
+test("the collection check does not reject our own collection", async () => {
+  // Anti-vacuity: PAID carries collection_id "c", which is what the mocked
+  // config says. If this ever fails the check above is rejecting everything.
+  const res = await POST(formReq(signed(PAID)));
+  expect(res.status).toBe(200);
+  expect(markPaid).toHaveBeenCalled();
+});

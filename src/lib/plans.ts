@@ -57,10 +57,11 @@ export function masteryPlanCards(options?: { checkout?: boolean }): Plan[] {
       checkoutPlanKey: options?.checkout ? plan.key : null,
       action: {
         label: isMonthly ? "Get started" : `Get ${plan.name}`,
-        // The checkout the owner is building is not live yet. This is where
-        // both routes already end: the client registers, picks their term and
-        // is approved by hand. When Billplz is wired up, this is the one line
-        // that changes.
+        // The fallback, not the main road. With the checkout on,
+        // `checkoutPlanKey` above is set and the card opens the dialog; this
+        // link is what the card does when the server has said the checkout
+        // may not run, and it still reaches a person: the client registers,
+        // picks their term and is approved by hand.
         href: "/go/mastery-membership",
         external: true,
       },

@@ -55,6 +55,19 @@ export async function POST(request: Request): Promise<Response> {
   const billId = payload.id;
   if (!billId) return new Response(null, { status: 400 });
 
+  /* The signature is per Billplz **account**, not per collection. A bill
+     created by any other collection on the same account verifies here
+     perfectly. Only the collection this site bills through may move an
+     order, so a foreign one is acknowledged and dropped — 200, because a
+     4xx makes Billplz retry something that can never succeed. */
+  if (payload.collection_id && payload.collection_id !== config.collectionId) {
+    console.warn("checkout callback: foreign collection", {
+      bill: billId,
+      collection: payload.collection_id,
+    });
+    return new Response(null, { status: 200 });
+  }
+
   try {
     const order = await findOrderByBillId(billId);
     if (!order) {

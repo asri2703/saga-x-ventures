@@ -143,3 +143,19 @@ test("a database error is raised rather than returned as no row", async () => {
   response = { data: null, error: { message: "connection refused" } };
   await expect(findOrderByBillId("bill_1")).rejects.toThrow(/connection refused/);
 });
+
+test("attachBillId raises when the update matched no row", async () => {
+  // Silence here is the worst outcome in the whole flow: the bill exists at
+  // Billplz, the buyer can pay it, and the callback has no order to find
+  // because the id was never stored. The route answers on this throwing.
+  const { attachBillId } = await import("@/lib/checkout/orders");
+  response = { data: null, error: null };
+  await expect(attachBillId(ROW.id, "bill-1")).rejects.toThrow(/orders/);
+});
+
+test("attachBillId is satisfied by a row coming back", async () => {
+  // Anti-vacuity for the test above: it must raise on no row, not always.
+  const { attachBillId } = await import("@/lib/checkout/orders");
+  response = { data: { ...ROW, billplz_bill_id: "bill-1" }, error: null };
+  await expect(attachBillId(ROW.id, "bill-1")).resolves.toBeUndefined();
+});
