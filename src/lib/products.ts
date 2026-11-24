@@ -19,6 +19,7 @@ export type OutboundKey =
   | "broker-cent"
   | "broker-standard"
   | "mastery-membership"
+  | "mastery-site"
   | "mastery-broker-access"
   | "fukyaa-register"
   | "copytrade-join"
@@ -41,6 +42,11 @@ export const outbound: Record<OutboundKey, string> = {
   // their tier, and is approved by hand. This site never links to /join,
   // which is the card checkout and has its own customer list.
   "mastery-membership": "https://www.masterysignal.com/membership",
+  // The product's own front door. The menu and the footer send people
+  // straight here rather than to a page on this site, because that is where
+  // Mastery Signal actually lives — through /go, like every other outbound
+  // link, so the click is counted and the address is written once.
+  "mastery-site": "https://www.masterysignal.com/",
   // The other way in: no subscription, access earned by funding a broker
   // account instead. A separate page on the product's own site, and a
   // separate key so the two routes stay countable apart — which is the whole
@@ -136,13 +142,16 @@ export const products: Product[] = [
     requirement: () => "Deposit sized to the tier you choose",
     account: "standard",
     lane: "retail",
-    // Mastery Signal has a page here now. Sending someone straight to a
-    // broker signup they cannot complete — it needs a funded account before
-    // membership means anything — produced dead registrations. The page
-    // explains the order first, then hands over the same links.
-    href: "/mastery-signal",
+    /* Straight to its own site.
+       This used to open /mastery-signal, a page here that explained the
+       order — account, funding, then membership — because dropping someone
+       on a broker signup they cannot finish produced dead registrations.
+       masterysignal.com does that job itself and is where the product
+       actually lives, so the menu and the footer send people there. The
+       homepage still carries the packages and the checkout. */
+    href: "/go/mastery-site",
     cta: "See how to join",
-    external: false,
+    external: true,
   },
   {
     key: "fukyaa",

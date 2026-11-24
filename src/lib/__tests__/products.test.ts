@@ -82,12 +82,17 @@ test("there are six products across two lanes", () => {
   expect(ibProducts).toHaveLength(2);
 });
 
-test("no product without a page reaches navigation", () => {
+test("every product in navigation goes somewhere real", () => {
   // The header dropdown and the homepage fork render retailProducts only.
+  // Mastery Signal is the one that leaves this site: it has a product site
+  // of its own, and the owner sends people straight to it.
   for (const p of retailProducts) {
-    expect(p.href, p.key).toMatch(
-      /^\/(mastery-signal|copytrade|fukyaa|coaching)$/,
-    );
+    if (p.external) {
+      // Through /go, so the click is counted — the test below checks the key.
+      expect(p.href, p.key).toMatch(/^\/go\//);
+    } else {
+      expect(p.href, p.key).toMatch(/^\/(copytrade|fukyaa|coaching)$/);
+    }
   }
 });
 
@@ -136,15 +141,17 @@ test("each external product's first action points at a real outbound key", () =>
   }
 });
 
-test("a product with a page on this site links to the page, not past it", () => {
-  // Both external products need a funded broker account before the product
-  // itself does anything. Dropping someone on a signup form without saying
-  // so produces registrations that go nowhere.
+test("Mastery Signal goes to its own site, not to a page here", () => {
+  // It has a product site of its own that does this job better than a page
+  // here can, so the menu and the footer send people there. Through /go
+  // like every other outbound link, so the click is still counted and the
+  // address is written down once.
   const mastery = getProduct("mastery-signal")!;
-  expect(mastery.external).toBe(false);
-  expect(mastery.href).toBe("/mastery-signal");
-  expect(mastery.steps.length).toBeGreaterThan(1);
+  expect(mastery.external).toBe(true);
+  expect(mastery.href).toBe("/go/mastery-site");
+  expect(outbound["mastery-site"]).toBe("https://www.masterysignal.com/");
 });
+
 
 test("every step that links out names a real outbound key", () => {
   for (const p of products) {
