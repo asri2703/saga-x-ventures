@@ -113,7 +113,8 @@ test("the payload's own x_signature is used when none is passed", () => {
 });
 
 test("x_signature is not part of what is signed", () => {
-  const { x_signature: _omitted, ...rest } = CALLBACK_PAYLOAD;
+  const rest = { ...CALLBACK_PAYLOAD };
+  delete rest.x_signature;
   expect(signatureSource(CALLBACK_PAYLOAD)).toBe(signatureSource(rest));
 });
 
