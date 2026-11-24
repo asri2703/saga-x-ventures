@@ -151,9 +151,26 @@ test("every page that can read the clock declares a revalidate window", () => {
   }
 });
 
-test("the Fukyaa page is one of them", () => {
-  // Guards that pass because they found nothing are the usual way a guard
-  // rots. This names the page the guard was written for.
-  const file = path.join(APP, "fukyaa", "page.tsx");
+test("the walk still finds a clock read in a real file", () => {
+  // This used to name /fukyaa, which quoted a deposit that expired on a date.
+  // That figure is gone and, as of 24 November 2026, NO page on this site
+  // reads the clock — so the guard above currently passes over an empty set.
+  //
+  // A guard that passes because it found nothing is the usual way a guard
+  // rots, and the detectors' own self-tests above only prove the regexes
+  // work on strings. This proves the whole machinery — reading a file off
+  // disk, stripping its comments, finding the call — still works on a real
+  // one. `sitemap.ts` reads the clock and is not a page, so it is not
+  // subject to the rule and will not quietly stop being an example of it.
+  const file = path.join(APP, "sitemap.ts");
+  expect(fs.existsSync(file)).toBe(true);
   expect(clockReachableFrom(file)).not.toBeNull();
+});
+
+test("no page reaches a clock read, so none needs a revalidate window", () => {
+  // The other half of the same fact, stated so that it fails loudly when it
+  // changes. A page that starts reading the clock will fail here first, and
+  // the guard above will then tell whoever added it what to declare.
+  const reading = pageFiles().filter((file) => clockReachableFrom(file));
+  expect(reading).toEqual([]);
 });

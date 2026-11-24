@@ -1,25 +1,25 @@
 import type { PaymentRoute } from "@/components/product-guide";
-import { fukyaaDeposit, formatPromoEnd } from "@/lib/commercial";
+import { fukyaaPlans } from "@/lib/commercial";
 
 /**
  * Fukyaa's two ways in.
  *
- * Deposit to a Harmovest account and the VPS is included. Or bring whatever
- * broker you already use and rent the VPS monthly instead.
+ * Deposit enough and the server comes with it. Deposit less, or bring the
+ * broker you already use, and rent the server monthly instead.
  *
- * The deposit figure is read through `fukyaaDeposit` rather than written
- * down, so the promotional number stops being shown by itself on 1 January.
+ * The figure is read from `fukyaaPlans` rather than written down. It used to
+ * be read through a dated `fukyaaDeposit()` for the same reason — one place
+ * to state it — and that the date is gone does not change the reason.
  */
-export function fukyaaRoutes(now: Date = new Date()): PaymentRoute[] {
-  const deposit = fukyaaDeposit(now);
+export function fukyaaRoutes(): PaymentRoute[] {
+  const included = fukyaaPlans.find((p) => p.key === "included-vps")!;
+  const rented = fukyaaPlans.find((p) => p.key === "rented-vps")!;
 
   return [
     {
       key: "deposit",
       label: "Fund a Harmovest account",
-      summary: deposit.isPromo
-        ? `Deposit ${deposit.usd} USD into a cent account and the VPS is included — no monthly fee. That figure is a promotion and runs until ${formatPromoEnd()}.`
-        : `Deposit ${deposit.usd} USD into a cent account and the VPS is included — no monthly fee.`,
+      summary: `Deposit ${included.depositUsd.toLocaleString("en-MY")} USD into a cent account and the server is included — nothing monthly.`,
       steps: [
         {
           n: 1,
@@ -46,12 +46,12 @@ export function fukyaaRoutes(now: Date = new Date()): PaymentRoute[] {
     },
     {
       key: "direct",
-      label: "Use your own broker, rent the VPS",
-      summary: `Already trading somewhere you are happy with? Keep that broker and rent the server monthly instead. Harmovest is what I recommend, not a requirement.`,
+      label: "Deposit less, rent the server",
+      summary: `Start at ${rented.depositUsd.toLocaleString("en-MY")} USD and rent the server monthly instead, or keep the broker you already use. Harmovest is what I recommend, not a requirement.`,
       steps: [
         {
           n: 1,
-          title: "Use the broker you already have",
+          title: "Fund a cent account, or use the broker you have",
           body: "Any broker that allows an expert advisor will do. The EA does not care whose platform it runs on.",
           outbound: null,
           cta: null,

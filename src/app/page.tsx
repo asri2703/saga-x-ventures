@@ -16,22 +16,12 @@ import {
   FloatCard,
   Marked,
   OffsetFrame,
-  Panel,
   Scallop,
   TextLink,
 } from "@/components/shell";
 
-/**
- * The fork states each product's deposit minimum, and one of those figures is
- * promotional and falls back on a known day. Prerendered once this page would
- * keep quoting the old figure. `freshness.test.ts` holds every page that
- * reads the clock to a window.
- */
-export const revalidate = 3600;
-
 export default function HomePage() {
   const mastery = getProduct("mastery-signal")!;
-  const coaching = getProduct("coaching")!;
 
   return (
     <>
@@ -352,25 +342,6 @@ export default function HomePage() {
               />
             }
           />
-
-          {/* Coaching sits outside the fork: it needs no broker account. */}
-          <Panel className="mt-10 flex flex-col gap-7 sm:flex-row sm:items-center sm:justify-between">
-            <div className="max-w-xl">
-              <p className="display text-xl text-pine">
-                &ldquo;{coaching.forWho}&rdquo;
-              </p>
-              <p className="mt-2 leading-relaxed text-pine-soft">
-                {coaching.summary}
-              </p>
-            </div>
-            {/* Pine, not ruby. The recommended Fukyaa package above is now
-                the ruby action in this section, and the rule that comes with
-                that colour is one per screen — an accent that appears twice
-                marks neither. */}
-            <ActionLink href={coaching.href} className="shrink-0">
-              {coaching.cta}
-            </ActionLink>
-          </Panel>
 
           {/* The IB lane. A door, not a pitch — these two have no page yet. */}
           <div className="mt-14" data-reveal>

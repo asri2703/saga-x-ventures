@@ -1,10 +1,10 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test } from "vitest";
 import {
   copytrade,
   exampleSplit,
   fukyaa,
-  fukyaaDeposit,
-  formatPromoEnd,
   masteryTiers,
   masteryPlans,
   masteryPlanTotalMyr,
@@ -32,21 +32,35 @@ test("the example derives from the shares rather than repeating them", () => {
   expect(s.investor).toBe((s.gain * copytrade.investorShare) / 100);
 });
 
-test("the Fukyaa promo expires on its own", () => {
-  // A promotional figure typed into a page becomes a false price on a date
-  // everybody already knows, and nobody notices until a customer is angry.
-  expect(fukyaaDeposit(new Date("2026-12-31T23:59:00+08:00"))).toEqual({
-    usd: 500,
-    isPromo: true,
-  });
-  expect(fukyaaDeposit(new Date("2027-01-01T00:00:00+08:00"))).toEqual({
-    usd: 1000,
-    isPromo: false,
-  });
+test("the dated deposit model is gone, not merely unused", () => {
+  // It described the same money a second way, which is how /fukyaa came to
+  // quote a promotion while the homepage sold a package. An unused export is
+  // still the one somebody imports next, so this fails if it comes back.
+  const source = fs.readFileSync(
+    path.join(process.cwd(), "src", "lib", "commercial.ts"),
+    "utf8",
+  );
+  const live = source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  expect(live).not.toMatch(/fukyaaDeposit|formatPromoEnd|promoEndsOn/);
+  expect(live).not.toMatch(/depositPromoUsd|depositStandardUsd/);
 });
 
-test("the promo is the cheaper of the two, not the dearer", () => {
-  expect(fukyaa.depositPromoUsd).toBeLessThan(fukyaa.depositStandardUsd);
+test("the server rental is the only recurring Fukyaa figure", () => {
+  expect(fukyaa.vpsMonthlyMyr).toBeGreaterThan(0);
+  expect(Object.keys(fukyaa)).toEqual(["vpsMonthlyMyr"]);
+});
+
+test("the two automated packages are the cheaper deposit and the dearer", () => {
+  // The whole shape of the offer: pay less up front and rent the server, or
+  // pay more up front and it is included. Priced the other way round the page
+  // would be asking for more money for less.
+  const rented = fukyaaPlans.find((p) => p.key === "rented-vps")!;
+  const included = fukyaaPlans.find((p) => p.key === "included-vps")!;
+  expect(rented.depositUsd).toBeLessThan(included.depositUsd);
+  expect(rented.vpsMonthlyMyr).not.toBeNull();
+  expect(included.vpsMonthlyMyr).toBeNull();
 });
 
 test("the Mastery tiers carry the deposits the live site states", () => {
@@ -113,18 +127,4 @@ test("a Fukyaa package charges monthly or shares the gain, never both", () => {
   }
 });
 
-test("the promo ends at midnight in Malaysia, not at eight in the morning", () => {
-  // The owner and his clients are in UTC+8. An expiry pinned to UTC would
-  // leave the promotional figure on the page through the first working
-  // morning of the new year.
-  expect(fukyaaDeposit(new Date("2026-12-31T23:59:00+08:00")).isPromo).toBe(
-    true,
-  );
-  expect(fukyaaDeposit(new Date("2027-01-01T00:00:01+08:00")).isPromo).toBe(
-    false,
-  );
-});
 
-test("the promo deadline reads as a date, not as a database value", () => {
-  expect(formatPromoEnd()).toBe("31 December 2026");
-});

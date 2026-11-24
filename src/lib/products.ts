@@ -13,7 +13,7 @@
  */
 
 import { site } from "@/lib/site";
-import { copytrade, fukyaaDeposit } from "@/lib/commercial";
+import { copytrade, fukyaaPlans } from "@/lib/commercial";
 
 export type OutboundKey =
   | "broker-cent"
@@ -84,12 +84,17 @@ export type Product = {
   /**
    * The qualifier that decides whether someone should bother.
    *
-   * A function of the date, not a string, because Fukyaa's deposit minimum is
-   * promotional and falls back on a known day. Written down it would
-   * contradict `commercial.ts` from that day on, and it renders on /coaching
-   * where nobody would think to check it.
+   * Still a function rather than a string, and still derived from
+   * `commercial.ts` rather than written down — that is what keeps it from
+   * contradicting the figures on the homepage.
+   *
+   * It took a `Date` until 24 November 2026, because Fukyaa's minimum was
+   * promotional and fell back on a known day. The packages replaced that, no
+   * product's qualifier depends on the clock any more, and the argument went
+   * with the last one that used it — along with the `revalidate` windows the
+   * three pages carried only to keep a dated figure fresh.
    */
-  requirement: (now: Date) => string | null;
+  requirement: () => string | null;
   /**
    * Which broker account type this product needs.
    *
@@ -144,8 +149,12 @@ export const products: Product[] = [
       { label: "Fund it to the minimum", outbound: null },
       { label: "Register for auto trade", outbound: "fukyaa-register" },
     ],
-    requirement: (now) =>
-      `Minimum ${fukyaaDeposit(now).usd.toLocaleString("en-MY")} USD deposit`,
+    /* The smallest of the packages, read from them rather than written
+       down. The figure used to be dated and is not any more; what has not
+       changed is that two places stating it separately is how they come to
+       disagree. */
+    requirement: () =>
+      `Minimum ${Math.min(...fukyaaPlans.map((p) => p.depositUsd)).toLocaleString("en-MY")} USD deposit`,
     account: "cent",
     lane: "retail",
     // Same reasoning as Mastery Signal: a cent account alone does nothing

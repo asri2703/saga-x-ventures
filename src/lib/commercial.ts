@@ -46,59 +46,29 @@ export function exampleSplit(): {
  * ------------------------------------------------------------------ */
 
 export const fukyaa = {
-  depositStandardUsd: 1000,
-  depositPromoUsd: 500,
-  /** Inclusive. The last day the promotional figure applies. */
-  promoEndsOn: "2026-12-31",
-  /** Monthly VPS rental, for clients who bring their own broker instead. */
+  /** Monthly VPS rental on the package that does not include the server. */
   vpsMonthlyMyr: 100,
 } as const;
 
-/**
- * The deposit that applies on a given date.
+/*
+ * What used to be here, and why it is gone.
  *
- * SETTLED, 24 November 2026: the packages win. `fukyaaPlans` below is the
- * truth — 500 and 1,000 USD are two packages that differ by whether the
- * server is included, and neither expires. This function models the older
- * idea, one deposit falling from 1,000 to 500 until the end of the year, and
- * that idea is now wrong.
+ * Until 24 November 2026 this file modelled one Fukyaa deposit that fell from
+ * 1,000 USD to 500 until the end of the year — `depositStandardUsd`,
+ * `depositPromoUsd`, `promoEndsOn`, `fukyaaDeposit()` and `formatPromoEnd()`.
+ * The owner replaced that with the packages below: 500 and 1,000 are two
+ * standing offers that differ by whether the server is included, and neither
+ * expires.
  *
- * It is still wired up, which is the part that matters to whoever reads this
- * next: `Product.requirement` calls it, so /fukyaa and /coaching still render
- * "Minimum 500 USD deposit" as a promotional figure with an expiry, while the
- * homepage sells it as the smaller of two packages. Replacing it is a
- * contained job — this function, `fukyaa.promoEndsOn`, `formatPromoEnd`,
- * `fukyaaRoutes`, and the `revalidate` those pages only need because of it.
+ * The dated model is deleted rather than left unused. Two descriptions of the
+ * same money is how /fukyaa came to be quoting a promotion while the homepage
+ * sold a package, and an unused one is still the one somebody imports next.
  *
- * The promotional figure expires by itself. Written into a page it would
- * become a false price on 1 January, on a date everybody already knows, and
- * nobody would notice until a customer was angry about it.
+ * It took `revalidate` with it. Those windows existed only so a dated figure
+ * could not freeze into static HTML; nothing on this site reads the clock for
+ * a price any more. `freshness.test.ts` stays, because the next dated figure
+ * will need it.
  */
-export function fukyaaDeposit(on: Date): { usd: number; isPromo: boolean } {
-  // Malaysian time, not UTC. Pinned to UTC the promotional figure would sit
-  // on the page until eight in the morning on the first working day after it
-  // ended — the one morning somebody would be looking.
-  const lastMoment = new Date(`${fukyaa.promoEndsOn}T23:59:59.999+08:00`);
-  const isPromo = on.getTime() <= lastMoment.getTime();
-  return {
-    usd: isPromo ? fukyaa.depositPromoUsd : fukyaa.depositStandardUsd,
-    isPromo,
-  };
-}
-
-/**
- * The deadline as a person would say it.
- *
- * `promoEndsOn` is stored sortable and compared as a date; printed raw on a
- * page it reads as a database value. Formatted here rather than in the page,
- * so every place that mentions the deadline says it the same way.
- */
-export function formatPromoEnd(): string {
-  return new Date(`${fukyaa.promoEndsOn}T00:00:00Z`).toLocaleDateString(
-    "en-GB",
-    { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" },
-  );
-}
 
 /* ------------------------------------------------------------------ *
  * Mastery Signal
@@ -199,9 +169,9 @@ export function masteryPlanSavingMyr(plan: MasteryPlan): number {
  * one includes it, and the copy route pays nothing up front and settles a
  * share of the gain weekly instead.
  *
- * Note that `depositUsd` here and `fukyaaDeposit()` above now describe the
- * same money two different ways — the dated promotion predates these
- * packages. See the note on `fukyaaDeposit`.
+ * These deposits are the only ones on the site. Nothing else declares a
+ * Fukyaa figure, and `products.test.ts` fails on any that is not one of
+ * them.
  */
 export type FukyaaPlan = {
   key: "rented-vps" | "included-vps" | "copytrade";
