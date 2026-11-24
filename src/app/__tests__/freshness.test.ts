@@ -83,6 +83,22 @@ function clockReachableFrom(entry: string): string | null {
   return null;
 }
 
+/**
+ * Whether a page is rendered per request rather than prerendered.
+ *
+ * The rule this file enforces exists because a page prerendered once at
+ * build time freezes whatever the clock said into HTML. A page that reads
+ * `searchParams` cannot be prerendered at all — Next renders it per request,
+ * because the parameters are not known until one arrives — so the failure
+ * the rule prevents cannot happen to it.
+ *
+ * This is an exemption from `revalidate`, not from the rule. A dynamic page
+ * reading the clock is fine precisely because it reads it again every time.
+ */
+function isDynamic(text: string): boolean {
+  return /searchParams/.test(code(text));
+}
+
 function pageFiles(): string[] {
   const out: string[] = [];
   const walk = (dir: string) => {
@@ -140,6 +156,8 @@ test("every page that can read the clock declares a revalidate window", () => {
   for (const file of pageFiles()) {
     const source = clockReachableFrom(file);
     if (!source) continue;
+    // Rendered per request, so there is nothing frozen to go stale.
+    if (isDynamic(read(file))) continue;
 
     const window = revalidateWindow(read(file));
     expect(
@@ -167,10 +185,23 @@ test("the walk still finds a clock read in a real file", () => {
   expect(clockReachableFrom(file)).not.toBeNull();
 });
 
-test("no page reaches a clock read, so none needs a revalidate window", () => {
+test("no prerendered page reaches a clock read, so none needs a window", () => {
   // The other half of the same fact, stated so that it fails loudly when it
-  // changes. A page that starts reading the clock will fail here first, and
-  // the guard above will then tell whoever added it what to declare.
-  const reading = pageFiles().filter((file) => clockReachableFrom(file));
+  // changes. A static page that starts reading the clock will fail here
+  // first, and the guard above will then tell whoever added it what to
+  // declare.
+  const reading = pageFiles().filter(
+    (file) => clockReachableFrom(file) && !isDynamic(read(file)),
+  );
   expect(reading).toEqual([]);
+});
+
+test("the dynamic exemption is used, and is not a blanket one", () => {
+  // An exemption nothing uses is one nobody notices has stopped working,
+  // and an exemption everything uses is the rule switched off. /checkout/done
+  // reads searchParams and reaches the clock through the orders repository;
+  // the rest of the site does neither.
+  const dynamic = pageFiles().filter((file) => isDynamic(read(file)));
+  expect(dynamic.map((f) => path.basename(path.dirname(f)))).toEqual(["done"]);
+  expect(clockReachableFrom(dynamic[0])).not.toBeNull();
 });
