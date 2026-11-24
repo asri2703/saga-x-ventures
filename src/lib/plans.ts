@@ -25,7 +25,7 @@ import {
  * three times. What differs is the month, the total and the saving, and that
  * is what each card carries.
  */
-export function masteryPlanCards(): Plan[] {
+export function masteryPlanCards(options?: { checkout?: boolean }): Plan[] {
   return masteryPlans.map((plan) => {
     const saving = masteryPlanSavingMyr(plan);
     const total = masteryPlanTotalMyr(plan);
@@ -50,6 +50,11 @@ export function masteryPlanCards(): Plan[] {
         ? undefined
         : `${formatMyr(plan.monthlyMyr)}/month equivalent`,
       includes,
+      /* Set only when the server has said the checkout may run. Absent, the
+         action below stays the outbound link it has always been — a
+         half-configured deployment must not open a dialog that cannot
+         finish. */
+      checkoutPlanKey: options?.checkout ? plan.key : null,
       action: {
         label: isMonthly ? "Get started" : `Get ${plan.name}`,
         // The checkout the owner is building is not live yet. This is where

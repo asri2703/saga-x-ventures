@@ -213,6 +213,188 @@
 }
 
 /* ---------------------------------------------------------------------------
+   The checkout dialog
+   ---------------------------------------------------------------------------
+   From Uiverse.io by SSpisso - https://uiverse.io/SSpisso/kind-cobra-45
+   MIT License, Copyright (c) mi-series, mi-series (Md Mainul Islam Satabddo), SSpisso
+
+   The structure is kept: a title bar, sections divided by rules, a grid of
+   figures, and a dark footer bar carrying the large figure beside the action.
+
+   The colours are not. The original is a teal-and-cream kit; this site has
+   Vanilla Line, Pine Lacquer and Ruby Flare. Its class names are not kept
+   either — `.card`, `.title`, `.steps` and `.form` as it writes them would
+   collide with half this stylesheet.
+
+   What was dropped, so nobody restores it by accident: the shipping block
+   (nothing ships), the payment-method block (chosen on Billplz's own screen)
+   and the subtotal/shipping/tax grid (one figure, no tax on it).
+--------------------------------------------------------------------------- */
+.checkout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(16, 42, 35, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.checkout-card {
+  width: 100%;
+  max-width: 26rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  border-radius: var(--radius-panel);
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 30px 60px -20px rgba(16, 42, 35, 0.55);
+}
+
+.checkout-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 2.75rem;
+  border-bottom: 1px solid var(--glass-line);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-pine-faint);
+}
+
+.checkout-body {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.checkout-rule {
+  height: 1px;
+  border: none;
+  background: var(--glass-line);
+}
+
+.checkout-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-pine-faint);
+}
+
+/* The field. The original moves on focus and so does this one — it is the
+   one piece of its motion worth keeping, because it answers a person's
+   action and shows them where they are. */
+.checkout-field {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(22, 58, 48, 0.18);
+  background: var(--color-paper);
+  color: var(--color-pine);
+  font-size: 0.875rem;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.checkout-field:focus {
+  outline: none;
+  border-color: var(--color-pine);
+  background: var(--color-paper-raised);
+  box-shadow: 0 0 0 3px rgba(22, 58, 48, 0.12);
+}
+
+.checkout-figures {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--color-pine);
+}
+
+.checkout-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.6rem 0.6rem 1rem;
+  background: var(--color-pine);
+}
+
+.checkout-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-paper);
+}
+
+.checkout-pay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-ruby);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.checkout-pay:hover:not(:disabled) {
+  background: var(--color-ruby-deep);
+}
+
+.checkout-pay:disabled {
+  background: var(--color-pine-soft);
+  cursor: not-allowed;
+}
+
+/* A term, before one has been chosen. */
+.checkout-term {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(22, 58, 48, 0.14);
+  background: var(--color-paper);
+  color: var(--color-pine);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.checkout-term:hover {
+  background: var(--color-sage);
+  border-color: rgba(22, 58, 48, 0.3);
+}
+
+.checkout-term-pick {
+  border-color: var(--color-ruby);
+}
+
+/* ---------------------------------------------------------------------------
    The product switch
    ---------------------------------------------------------------------------
    From Uiverse.io by Shoh2008 - https://uiverse.io/Shoh2008/cowardly-catfish-27

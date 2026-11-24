@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { PlanGroup } from "@/components/plan-cards";
 import { PlanSwitch } from "@/components/plan-switch";
 import { fukyaaPlanCards, masteryPlanCards } from "@/lib/plans";
+import { checkoutEnabled } from "@/lib/checkout/config";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { BuildShowcase } from "@/components/build-showcase";
 import {
@@ -21,6 +22,10 @@ import {
 } from "@/components/shell";
 
 export default function HomePage() {
+  /* Read here, on the server. `checkoutEnabled` reads the service-role key
+     and the Billplz credentials; a client component asking the question
+     would either fail or bundle the answer's inputs. */
+  const checkout = checkoutEnabled();
 
   return (
     <>
@@ -305,7 +310,7 @@ export default function HomePage() {
                     </p>
                   </>
                 }
-                plans={masteryPlanCards()}
+                plans={masteryPlanCards({ checkout })}
                 alternative={{
                   title: "Prefer to start without a subscription?",
                   body: "Open and fund an account with our broker partner to qualify for Mastery Signal access.",

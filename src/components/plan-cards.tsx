@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ActionLink, ActionOut, Eyebrow } from "@/components/shell";
+import { CheckoutOpener } from "@/components/checkout-opener";
+import type { MasteryPlan } from "@/lib/commercial";
 
 /**
  * The three ways into a product, priced.
@@ -35,6 +37,14 @@ export type Plan = {
   /** What it includes. Two or three lines; a fourth is not read. */
   includes: string[];
   action: { label: string; href: string; external: boolean };
+  /**
+   * The term this card buys, when the checkout is open for business.
+   *
+   * Set by the page, not by `plans.ts`, because whether the checkout may run
+   * is a server-side decision about credentials and `plans.ts` is shared with
+   * the test suite. Absent, the action stays the link it has always been.
+   */
+  checkoutPlanKey?: MasteryPlan["key"] | null;
   /** One line under the action, for the thing a buyer asks next. */
   footnote?: string;
   recommended: boolean;
@@ -104,7 +114,14 @@ function PlanCard({ plan }: { plan: Plan }) {
       </ul>
 
       <div className="mt-7">
-        {plan.action.external ? (
+        {plan.checkoutPlanKey ? (
+          <CheckoutOpener
+            planKey={plan.checkoutPlanKey}
+            label={plan.action.label}
+            tone={plan.recommended ? "accent" : "ghost"}
+            className="w-full"
+          />
+        ) : plan.action.external ? (
           <ActionOut
             href={plan.action.href}
             tone={plan.recommended ? "accent" : "ghost"}
