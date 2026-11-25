@@ -13,7 +13,7 @@ import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
 import { ReasonShowcase } from "@/components/reason-showcase";
 import { SectionHeading } from "@/components/section-heading";
-import { StepWizard } from "@/components/step-wizard";
+import { StepTrack } from "@/components/step-track";
 import { VideoEmbed } from "@/components/video-embed";
 import {
   ActionLink,
@@ -55,6 +55,10 @@ type Step = {
   n: number;
   title: string;
   body: ReactNode;
+  /* The two or three things a reader wants settled before doing this one.
+     Every line here is a fact stated somewhere else on the page — the
+     questions below, mostly. None of them is new. */
+  points: string[];
   /* `tone` because two of the four steps link out and only one of them is
      the finish. Both in accent red made the page shout twice and point at
      neither; the loud one is the join. */
@@ -66,23 +70,41 @@ function steps(): Step[] {
     {
       n: 1,
       title: "Open a cent account",
-      body: "Smaller units, so the copying can size your positions finely. This link opens it on a tighter spread.",
+      body: "Smaller units, so the copying can size your positions finely.",
+      points: [
+        "In your own name, at the broker",
+        "This link opens it on a tighter spread",
+        "No money moves yet",
+      ],
       action: { label: "Open the account", href: "/go/broker-cent", tone: "ink" },
     },
     {
       n: 2,
       title: "Verify it",
       body: "The broker checks your ID before the account can take money.",
+      points: [
+        "Their check, not mine",
+        "Needed before any deposit",
+      ],
     },
     {
       n: 3,
       title: "Fund it",
       body: `Deposit ${formatUsd(copytrade.minimumUsd)} or more. It shows as ${formatCents(copytradeMinimumCents())}.`,
+      points: [
+        `Minimum ${formatUsd(copytrade.minimumUsd)}`,
+        "A cent account reads a hundred times larger",
+        "Withdraw any time, straight to you",
+      ],
     },
     {
       n: 4,
       title: "Join the copy",
       body: "Last, not first. The copy page needs money in the account before it can link it.",
+      points: [
+        "The provider is named Fuky AA",
+        "Unsubscribe at the broker to stop",
+      ],
       action: { label: "Join the copy", href: "/go/copytrade-join", tone: "accent" },
     },
   ];
@@ -300,13 +322,10 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           6. How to start.
 
-          The walkthrough opens this section rather than standing as one of
-          its own. It is a recording of these four steps being done, so a
-          reader meets it where they are deciding whether they can do them,
-          not a screen earlier where it was one more thing to scroll past.
-
-          Before the list, not after: somebody who would rather watch than
-          read should not have to finish the reading to find that out.
+          The track, then the walkthrough under it. The order is the owner's
+          and it is the right way round: the steps are what a reader came for
+          and the video is the same four steps done once, so it sits where
+          somebody who has read them and still wants to see them will look.
       --------------------------------------------------------------- */}
       <Section id="steps" tone="raised">
         <Container>
@@ -314,19 +333,25 @@ export default function CopytradePage() {
             eyebrow="Getting started"
             title="Four steps, in order."
           >
-            <p>Or watch me do all four, once, before you start.</p>
+            <p>
+              About twenty minutes, most of it waiting on the broker. Do them
+              in this order: the last one cannot be done first.
+            </p>
           </SectionHeading>
 
-          <div className="mt-8 max-w-3xl" data-reveal>
+          <StepTrack steps={steps()} />
+
+          {/* Centred, which it can be because it is the one thing in this
+              section that is not read left to right. */}
+          <div className="mx-auto mt-16 max-w-3xl" data-reveal>
+            <p className="mb-5 text-center text-sm text-pine-faint">
+              Or watch me do all four, once.
+            </p>
             <VideoEmbed
               id="q4ARWVtJMdo"
               title="Copytrade Follower Tutorial"
               still="copytrade-walkthrough.webp"
             />
-          </div>
-
-          <div className="mt-10" data-reveal>
-            <StepWizard steps={steps()} />
           </div>
         </Container>
       </Section>

@@ -1554,141 +1554,113 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
-   The register wizard on /copytrade.
+   The register track on /copytrade.
 
-   One step on screen at a time, which is what the owner asked for and what
-   buys back the height four stacked panels were spending.
+   Numbered nodes joined by a rule, a card under each. Shape from the layout
+   the owner chose; the colours and the breakpoint behaviour are this site's.
 
-   Everything here hangs off `[data-ready]` on the wrapper, set once the
-   component has mounted. Without it the four steps are an ordinary stack, so
-   a reader with no JavaScript gets the whole instruction sheet rather than
-   step one and a dead end.
+   The joining rule is drawn by each cell rather than by a bar behind them,
+   so it cannot drift out of line with the nodes when a card changes height:
+   it starts at this cell's node and ends at the next one, and the last cell
+   does not draw one.
 --------------------------------------------------------------------------- */
-.wizard {
-  max-width: 44rem;
-  border-radius: var(--radius-panel);
-  background: var(--color-paper-raised);
-  padding: 1.75rem;
-  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06);
+.track {
+  display: grid;
+  gap: 2rem 1.5rem;
+  margin-block-start: 3rem;
 }
 
-.wizard-rail {
+.track-cell {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
+  flex-direction: column;
 }
 
-.wizard-dots {
-  display: flex;
-  flex: 1;
-  gap: 0.5rem;
-}
-
-/* A bar, not a bead: it is a length of the way through, and four lengths
-   side by side say "of four" without a caption doing it. */
-.wizard-dot {
-  flex: 1;
-  height: 0.3125rem;
-  min-width: 2rem;
-  cursor: pointer;
-  border-radius: 9999px;
-  background: var(--color-rule);
-}
-
-.wizard-dot[data-done] {
-  background: var(--color-pine-faint);
-}
-
-.wizard-dot[data-on] {
-  background: var(--color-ruby);
-}
-
-.wizard-count {
+.track-node {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
   flex: none;
-  font-size: 0.8125rem;
-  color: var(--color-pine-faint);
-}
-
-.wizard-step {
-  padding-block-start: 1.75rem;
-}
-
-.wizard-nav {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-block-start: 1.75rem;
-  border-block-start: 1px solid var(--color-rule);
-  padding-block-start: 1.25rem;
-}
-
-.wizard-move {
-  cursor: pointer;
   border-radius: 9999px;
-  padding: 0.5rem 1.125rem;
-  font-size: 0.9375rem;
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-paper-raised);
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
+  font-size: 0.875rem;
   color: var(--color-pine);
 }
 
-.wizard-move:disabled {
-  cursor: default;
-  color: var(--color-pine-faint);
-  opacity: 0.45;
+.track-card {
+  flex: 1;
+  /* A column, so the action can be pushed to the foot: the four cards hold
+     different amounts of copy and two of them end in a button, which read as
+     misaligned when each sat wherever its own text left it. */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-block-start: 1.25rem;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
+  padding: 1.5rem;
 }
 
-.wizard-next:not(:disabled) {
-  background: var(--color-pine);
-  color: var(--color-paper);
+.track-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-float);
+  background: var(--color-sage);
+  color: var(--color-pine);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .wizard-dot,
-  .wizard-move {
-    transition:
-      background-color 180ms var(--ease-out-ui),
-      color 180ms var(--ease-out-ui);
+.track-points {
+  margin-block-start: 1.25rem;
+  width: 100%;
+  display: grid;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-pine-soft);
+}
+
+.track-points > li {
+  position: relative;
+  padding-inline-start: 1.375rem;
+}
+
+/* The marker is drawn, not a list-style: a bullet glyph sits on the text
+   baseline and this one has to sit on the first line's optical centre. */
+.track-points > li::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.4375rem;
+  inset-inline-start: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  border: 2px solid var(--color-pine);
+}
+
+@media (min-width: 64rem) {
+  .track {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  /* Entering only. The step leaving is replaced in the same frame, so there
-     is nothing to fade out — a crossfade here would show two steps at once
-     and the reader is reading one of them. */
-  .wizard[data-ready] .wizard-step {
-    animation: wizard-in 220ms var(--ease-out-ui);
-  }
-}
-
-@keyframes wizard-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .wizard-move:not(:disabled):hover {
-    background: var(--color-paper-sunk);
+  .track-node {
+    margin-inline: auto;
   }
 
-  .wizard-next:not(:disabled):hover {
-    background: var(--color-pine-deep);
-    color: var(--color-paper);
+  /* Node centre to node centre: out from this node's edge, across the gap,
+     and up to the next node's edge. */
+  .track-cell:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 1.125rem;
+    inset-inline-start: calc(50% + 1.5rem);
+    width: calc(100% - 3rem + 1.5rem);
+    border-block-start: 1px solid var(--color-rule-strong);
   }
-}
-
-/* Before the wizard exists: a plain stack, ruled like a list of steps, with
-   no controls pretending to work. */
-.wizard:not([data-ready]) .wizard-rail,
-.wizard:not([data-ready]) .wizard-nav {
-  display: none;
-}
-
-.wizard[data-ready] .wizard-step:not([data-on]) {
-  display: none;
-}
-
-.wizard:not([data-ready]) .wizard-step + .wizard-step {
-  margin-block-start: 1.75rem;
-  border-block-start: 1px solid var(--color-rule);
 }
