@@ -49,6 +49,13 @@
   --color-ruby: #f0283c; /* Ruby Flare */
   --color-ruby-deep: #c81f30;
 
+  /* The lit green. One colour, used in one place: the record chart when it
+     sits on the dark band, where pine on pine is invisible. It is the pine
+     hue taken up to the top of its range rather than a fourth brand colour,
+     and it never appears on paper — on #f2e9d8 it fails contrast at any
+     size. */
+  --color-neon: #4ef2a3;
+
   /* Block tints. These sit behind photographs and inside small product cards
      and never carry body text of their own. Each is one of the two brand
      hues lightened, so the page gains variety without gaining a colour. */
@@ -1818,6 +1825,56 @@ html.lenis {
   .record-dot {
     transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
+}
+
+/* The same card on the dark band.
+   The owner moved this section onto `pine` and asked for a glow behind the
+   chart, because pine ink on a pine band is ink nobody can see.
+
+   Rather than restyle each of the card's fifteen parts, this retargets the
+   colour tokens they already read. The chart's SVG strokes, the scale's
+   cover over the gridlines, and every `text-pine*` utility inside the card
+   are all `var(--color-*)` lookups, so redefining them here moves the whole
+   card at once and leaves the component unaware of where it is standing.
+   Scoped to `.record`, so nothing else on the band moves with it. */
+[data-tone="pine"] .record {
+  /* A step below the band, so the card reads as a recess holding a lit
+     line rather than a panel laid on top. */
+  --record-face: #0b1f19;
+
+  --color-paper-raised: var(--record-face);
+  --color-pine: var(--color-neon);
+  /* The area fill under the line. The gradient multiplies this by its own
+     0.9, so the alpha here is what keeps a lit line from becoming a lit
+     block. */
+  --color-sage: rgba(78, 242, 163, 0.22);
+  --color-pine-soft: rgba(242, 233, 216, 0.74);
+  --color-pine-faint: rgba(242, 233, 216, 0.55);
+  --color-rule: rgba(242, 233, 216, 0.14);
+  --color-rule-strong: rgba(78, 242, 163, 0.5);
+
+  border-color: rgba(78, 242, 163, 0.2);
+  background: var(--record-face);
+  /* The glow, in two parts: a tight bloom that separates the card's edge
+     from the band, and a wide one that reads as light coming off it. Both
+     are drawn outside the card, so nothing inside loses contrast to them. */
+  box-shadow:
+    0 0 32px -10px rgba(78, 242, 163, 0.4),
+    0 0 90px -28px rgba(78, 242, 163, 0.45);
+}
+
+/* The line itself, glowing. The card's bloom lifts the frame off the band;
+   this is what makes the line read as lit rather than merely bright. Kept
+   small: a wide drop-shadow on a 2.5px stroke turns it into a smear. */
+[data-tone="pine"] .record-line {
+  filter: drop-shadow(0 0 6px rgba(78, 242, 163, 0.55));
+}
+
+/* The tooltip rides over the lit line, so it cannot be the pale glass pane
+   it is on paper. */
+[data-tone="pine"] .record-tip {
+  border-color: rgba(78, 242, 163, 0.28);
+  background: rgba(11, 31, 25, 0.92);
 }
 
 /* Nothing to draw: the frame at the height the chart will occupy, so the

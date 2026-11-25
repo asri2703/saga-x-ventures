@@ -244,6 +244,8 @@ export function RecordChart({
           <path d={fill} fill={`url(#${ids}-fill)`} />
           <path
             d={stroke}
+            /* Named so the dark band can light it; see globals.css. */
+            className="record-line"
             stroke="var(--color-pine)"
             strokeWidth="2.5"
             strokeLinecap="round"

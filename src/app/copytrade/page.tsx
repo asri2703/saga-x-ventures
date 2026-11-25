@@ -310,8 +310,14 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           5. The record.
 
-          One centred column: the heading, the description, the chart. The
-          owner's copy, and his own call on the claim it makes.
+          One centred column on the dark band: the heading, the description,
+          the chart. The owner's copy, and his own call on the claim it
+          makes.
+
+          The band is the second `pine` section on the page, and the card on
+          it is lit rather than inverted — see the `[data-tone="pine"]
+          .record` block in globals.css, which retargets the chart's colour
+          tokens instead of restyling each of its parts.
 
           The chart is on the page before the feed is, because he wants to
           see it while the site is unreleased. What it draws today is a
@@ -323,14 +329,14 @@ export default function CopytradePage() {
           false, `recordPoints()` returns the account's own readings, and
           the note below goes with it.
       --------------------------------------------------------------- */}
-      <Section>
+      <Section tone="pine">
         <Container>
           <div className="mx-auto max-w-xl text-center" data-reveal>
-            <Eyebrow tone="quiet">Our record</Eyebrow>
-            <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
+            <Eyebrow tone="onDark">Our record</Eyebrow>
+            <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
               Trading performance
             </h2>
-            <p className="mt-5 leading-relaxed text-pine-soft">
+            <p className="mt-5 leading-relaxed text-paper/80">
               The data below shows our daily trading performance. Watch our
               trading account grow daily.
             </p>
