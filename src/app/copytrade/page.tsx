@@ -184,7 +184,10 @@ export default function CopytradePage() {
           side: no monthly fee, no server, nothing before there is a gain.
       --------------------------------------------------------------- */}
       <Scallop />
-      <Section tone="pine" pad="pt-10 pb-16 sm:pb-20">
+      {/* The band sat 40px under its scallop and 80px above its own edge,
+          which is what left the dark gap below the text. The two columns are
+          short, so the foot had nothing to hold. Even top and bottom now. */}
+      <Section tone="pine" pad="pt-12 pb-12 sm:pt-14 sm:pb-14">
         <Container>
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
             <div data-reveal>
