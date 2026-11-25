@@ -64,6 +64,19 @@ test("joining comes after funding, because the broker requires it", () => {
   expect(join).toBeGreaterThan(fund);
 });
 
+test("the hero's call to action starts the process rather than skipping it", () => {
+  // It reads "Join us now", and the temptation is to point it straight at
+  // the broker's copy page. That page cannot link an account with no money
+  // in it, so the visitor would meet a dead screen — and would skip the
+  // cent-account warning and the "High Risk" label on the way. It sends
+  // them to step one instead.
+  // From the headline, not from the top of the file: the steps table is
+  // declared above the JSX and carries the copy-join link legitimately.
+  const hero = FLAT.slice(FLAT.indexOf("<h1"), FLAT.indexOf("The problem"));
+  expect(hero).toContain('href="#steps"');
+  expect(hero).not.toContain("copytrade-join");
+});
+
 test("the record section says there is no record, rather than implying one", () => {
   // It is the honest answer until the account feed is wired up, and it is
   // also the section most likely to be "improved" into something suggestive.

@@ -142,7 +142,7 @@ export default function CopytradePage() {
               </div>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
-                <ActionLink href="#steps">See how it works</ActionLink>
+                <ActionLink href="#steps">Join us now</ActionLink>
                 <ActionLink href="#what-you-see" tone="ghost">
                   What happens after I join
                 </ActionLink>
