@@ -42,10 +42,27 @@ test("the page warns that a cent balance reads larger than the deposit", () => {
   expect(FLAT).toMatch(/hundred times/i);
 });
 
-test("the page states today's cost and promises nothing about tomorrow's", () => {
-  // There is no fee today and the page may say so. What it may not do is
-  // state a share that is not being taken, which is what it used to do.
-  expect(FLAT).not.toMatch(/\b30\s?%|masterShare|investorShare|exampleSplit/);
+test("the page states what the copy costs", () => {
+  // Between 25 November 2026 and the owner setting his own terms, this guard
+  // ran the other way: the page was forbidden from naming a share, because
+  // the broker's join screen said there were no fees and none was taken.
+  // There is one now, it is monthly, and the page has to say so before a
+  // reader funds an account on the strength of "no fees".
+  expect(FLAT).toMatch(/profit, settled monthly/i);
+  expect(FLAT).toContain("formatPct(copytrade.masterSharePct)");
+});
+
+test("the rate is read from config, never typed into the prose", () => {
+  // A share written into a sentence is a second copy of a number that will
+  // be changed in one place — and it is the number a reader acts on.
+  expect(FLAT).not.toMatch(/\b30\s?%/);
+  expect(FLAT).not.toMatch(/exampleSplit/);
+});
+
+test("the page does not describe how a loss is carried", () => {
+  // High-water marks, gross against net, loss recovery: real terms of a real
+  // profit share, none of them settled. Writing one down before it is agreed
+  // states a rule the owner has not made.
   expect(FLAT).not.toMatch(/high[-\s]?water|gross|net of|recovered/i);
 });
 
@@ -72,7 +89,13 @@ test("the hero's call to action starts the process rather than skipping it", () 
   // them to step one instead.
   // From the headline, not from the top of the file: the steps table is
   // declared above the JSX and carries the copy-join link legitimately.
-  const hero = FLAT.slice(FLAT.indexOf("<h1"), FLAT.indexOf("The problem"));
+  // Anchored on the end of the hero's own section, not on a phrase from the
+  // next one: the band below has been rewritten twice and took its headings
+  // with it, and a missing anchor makes indexOf return -1, which slices a
+  // guard down to nothing without failing.
+  const heroEnds = FLAT.indexOf("What is copytrade");
+  expect(heroEnds).toBeGreaterThan(-1);
+  const hero = FLAT.slice(FLAT.indexOf("<h1"), heroEnds);
   expect(hero).toContain('href="#steps"');
   expect(hero).not.toContain("copytrade-join");
 });

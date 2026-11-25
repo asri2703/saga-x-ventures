@@ -16,7 +16,28 @@
 
 export const copytrade = {
   minimumUsd: 500,
+  /**
+   * The share of the month's gain that settles to the master account.
+   *
+   * Monthly, not weekly. The weekly model this file carried until 25
+   * November 2026 was deleted that day, when the broker's join screen was
+   * found saying "There are no fees"; the owner has since set the terms
+   * himself, and they are a monthly settlement. The old figure happened to
+   * be the same 30, which is exactly why the period is written down beside
+   * it rather than left in prose.
+   */
+  masterSharePct: 30,
 } as const;
+
+/** What stays with the client. Derived: two numbers that must add to 100
+    are one number and a subtraction. */
+export function copytradeInvestorSharePct(): number {
+  return 100 - copytrade.masterSharePct;
+}
+
+export function formatPct(pct: number): string {
+  return `${pct}%`;
+}
 
 /**
  * The same minimum, as the broker's own screen states it.
@@ -40,22 +61,12 @@ export function formatCents(cents: number): string {
 }
 
 /*
- * What used to be here, and why it is gone.
+ * What is deliberately NOT here: the worked example.
  *
- * Until 25 November 2026 this modelled a weekly profit share — `masterShare`
- * 30, `investorShare` 70, a worked `example` of 500 growing to 600, and
- * `exampleSplit()` to divide it. /copytrade rendered the whole arithmetic.
- *
- * The broker's own join screen says "There are no fees", and the owner
- * confirmed nothing is charged today; the share begins later. A page telling
- * a buyer that 30% of their gain is taken, one click before a screen telling
- * them nothing is, is a false statement about their money — and the buyer is
- * the one who finds out.
- *
- * Deleted rather than left unused, the same way the dated Fukyaa deposit was
- * below: an unused export is still the one somebody imports next. It comes
- * back from the git history when the share starts, along with the page
- * section that read it.
+ * The deleted weekly model carried `example` (500 growing to 600) and
+ * `exampleSplit()`, and /copytrade printed the arithmetic. A worked example
+ * of a gain is a picture of a profit, which is the one thing this site does
+ * not put on a screen. The rate is a price and says itself.
  */
 
 /* ------------------------------------------------------------------ *
@@ -196,8 +207,8 @@ export type FukyaaPlan = {
   depositUsd: number;
   /** Monthly server rental, or null when the deposit covers it. */
   vpsMonthlyMyr: number | null;
-  /** Share of the gain settled weekly, or null when there is none. */
-  weeklyShare: number | null;
+  /** Share of the gain settled monthly, or null when there is none. */
+  gainSharePct: number | null;
   /** Whether the client places nothing themselves. */
   automated: boolean;
   recommended: boolean;
@@ -209,7 +220,7 @@ export const fukyaaPlans: FukyaaPlan[] = [
     name: "Basic",
     depositUsd: 500,
     vpsMonthlyMyr: fukyaa.vpsMonthlyMyr,
-    weeklyShare: null,
+    gainSharePct: null,
     automated: true,
     recommended: false,
   },
@@ -218,7 +229,7 @@ export const fukyaaPlans: FukyaaPlan[] = [
     name: "Server Included",
     depositUsd: 1000,
     vpsMonthlyMyr: null,
-    weeklyShare: null,
+    gainSharePct: null,
     automated: true,
     recommended: true,
   },
@@ -227,11 +238,7 @@ export const fukyaaPlans: FukyaaPlan[] = [
     name: "Copytrade",
     depositUsd: copytrade.minimumUsd,
     vpsMonthlyMyr: null,
-    /* Null, not zero: nothing is charged on the copy today. It was 30 until
-       25 November 2026, when the broker's own join screen was found to say
-       "There are no fees" and the owner confirmed it. The field stays — the
-       share starts later and this is where it goes back. */
-    weeklyShare: null,
+    gainSharePct: copytrade.masterSharePct,
     automated: false,
     recommended: false,
   },

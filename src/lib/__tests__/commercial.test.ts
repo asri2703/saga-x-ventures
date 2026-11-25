@@ -128,13 +128,13 @@ test("exactly one Fukyaa package is recommended", () => {
 test("the recommended Fukyaa package is the one with nothing monthly", () => {
   const pick = fukyaaPlans.find((p) => p.recommended)!;
   expect(pick.vpsMonthlyMyr).toBeNull();
-  expect(pick.weeklyShare).toBeNull();
+  expect(pick.gainSharePct).toBeNull();
 });
 
 test("a Fukyaa package charges monthly or shares the gain, never both", () => {
   for (const plan of fukyaaPlans) {
     expect(
-      plan.vpsMonthlyMyr !== null && plan.weeklyShare !== null,
+      plan.vpsMonthlyMyr !== null && plan.gainSharePct !== null,
       `${plan.key} takes a rental and a share`,
     ).toBe(false);
   }

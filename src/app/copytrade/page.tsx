@@ -4,7 +4,10 @@ import {
   copytrade,
   copytradeMinimumCents,
   formatCents,
+  formatMyr,
+  formatPct,
   formatUsd,
+  fukyaa,
 } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/copytrade" },
   title: "Copytrade",
   description:
-    "My account trades gold. Yours copies it, from your own broker account in your own name. No fee today, and the money never leaves your side.",
+    "My account trades gold. Yours copies it, from your own broker account in your own name. No monthly fee, no server — you pay a share of the month's profit or nothing at all.",
 };
 
 /**
@@ -111,7 +114,7 @@ const FAQ: { q: string; a: ReactNode }[] = [
   },
   {
     q: "What does it cost?",
-    a: "Nothing today. A share of gains starts later, and it will be written here before it does.",
+    a: `${formatPct(copytrade.masterSharePct)} of the month's profit, settled monthly. Nothing else: no monthly fee and no server to rent. A month with no profit costs nothing.`,
   },
   {
     q: "Can I stop?",
@@ -165,32 +168,60 @@ export default function CopytradePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          2. The problem, and what answers it.
+          2. What it is, and what it costs.
+
+          The owner's copy, with two corrections he would want made.
+
+          He wrote that the follower "will receive the same amount" as the
+          master. That is not what copying does: the lot is scaled to the
+          follower's balance, so what tracks is the proportion, not the
+          figure. His next sentence says exactly that, so the two together
+          contradicted each other — the wrong one went.
+
+          He also wrote "completely free" beside the share. A reader who
+          believes the first sentence and then meets the second has been
+          told something untrue about their money. What is free is the fixed
+          side: no monthly fee, no server, nothing before there is a gain.
       --------------------------------------------------------------- */}
       <Scallop />
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-20">
         <Container>
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
             <div data-reveal>
-              <Eyebrow tone="onDark">The problem</Eyebrow>
+              <Eyebrow tone="onDark">What is copytrade</Eyebrow>
               <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
-                Gold moves while you are at work.
+                Your account takes the same positions as mine.
               </h2>
-              <p className="mt-5 leading-relaxed text-paper/80">
-                It moves when London opens, and again when New York does.
-                Most people are working through one and asleep for the other.
-              </p>
+              <div className="mt-5 space-y-4 leading-relaxed text-paper/80">
+                <p>
+                  Every trade the master account opens, yours opens too, at
+                  the same time.
+                </p>
+                <p>
+                  The lot size is scaled to your balance, not mine. It
+                  follows your risk, not my capital.
+                </p>
+              </div>
             </div>
 
             <div data-reveal>
-              <Eyebrow tone="onDark">What answers it</Eyebrow>
+              <Eyebrow tone="onDark">Why choose it</Eyebrow>
               <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
-                The reading still happens. You are not the one doing it.
+                You pay out of the gain, or you pay nothing.
               </h2>
-              <p className="mt-5 leading-relaxed text-paper/80">
-                Fukyaa runs on my account and trades gold. Your account
-                copies it.
-              </p>
+              <div className="mt-5 space-y-4 leading-relaxed text-paper/80">
+                <p>
+                  Fukyaa AI Auto Trade rents a server at{" "}
+                  {formatMyr(fukyaa.vpsMonthlyMyr)} a month. Copytrade rents
+                  nothing: no commitment fee, no hidden fee, no server to set
+                  up.
+                </p>
+                <p>
+                  {formatPct(copytrade.masterSharePct)} of the month&rsquo;s
+                  profit, settled monthly. A month with no profit costs you
+                  nothing.
+                </p>
+              </div>
             </div>
           </div>
         </Container>
