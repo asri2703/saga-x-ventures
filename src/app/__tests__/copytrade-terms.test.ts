@@ -103,11 +103,11 @@ test("the hero's call to action starts the process rather than skipping it", () 
   expect(hero).not.toContain("copytrade-join");
 });
 
-test("the record section says there is no record, rather than implying one", () => {
-  // It is the honest answer until the account feed is wired up, and it is
-  // also the section most likely to be "improved" into something suggestive.
-  // The chart now draws a sample shape there, at the owner's instruction, so
-  // what this holds is the sentence that stops the shape being read as one.
-  // `record.test.ts` guards the rest of that arrangement.
-  expect(FLAT).toMatch(/The numbers are not/i);
+test("the record section labels its figures as a sample", () => {
+  // The owner writes this section's copy and, on 25 November 2026, took out
+  // the heading that said the numbers were not real. What has to survive
+  // every later rewrite of the copy is the label on the figures themselves:
+  // without it the section reads as a track record. `record.test.ts` checks
+  // that the label is attached to the chart rather than sitting beside it.
+  expect(FLAT).toMatch(/Sample figures/);
 });

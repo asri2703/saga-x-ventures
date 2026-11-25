@@ -1674,7 +1674,11 @@ html.lenis {
    here that holds content sits on a card.
 --------------------------------------------------------------------------- */
 .record {
+  /* Its own cap, centred on its own: the card is the section's one column,
+     so the width lives here rather than on a wrapper that would have to
+     agree with this number. */
   max-width: 44rem;
+  margin-inline: auto;
   border-radius: var(--radius-panel);
   border: 1px solid var(--color-rule);
   background: var(--color-paper-raised);

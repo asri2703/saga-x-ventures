@@ -310,28 +310,29 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           5. The record.
 
-          The chart is on the page before the feed is, because the owner
-          wants to see it while the site is unreleased. What it draws today
-          is a shape, not a history, and that is said twice: in the heading
-          and inside the card, where a screenshot carries it.
+          One centred column: the heading, the description, the chart. The
+          owner's copy, and his own call on the claim it makes.
+
+          The chart is on the page before the feed is, because he wants to
+          see it while the site is unreleased. What it draws today is a
+          shape, not a history, and the only place that is said is inside
+          the card — which is the place that matters, because a screenshot
+          of the card carries it and a caption under one does not.
 
           `RECORD_IS_SAMPLE` is the switch. When the feed lands, it goes
           false, `recordPoints()` returns the account's own readings, and
-          the two lines below go with it.
+          the note below goes with it.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <div className="max-w-2xl" data-reveal>
+          <div className="mx-auto max-w-xl text-center" data-reveal>
             <Eyebrow tone="quiet">The record</Eyebrow>
             <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
-              {RECORD_IS_SAMPLE
-                ? "The chart is here. The numbers are not."
-                : "What the account has done."}
+              Trading performance
             </h2>
             <p className="mt-5 leading-relaxed text-pine-soft">
-              {RECORD_IS_SAMPLE
-                ? "It will be read from the account itself, not typed in by me. That is not wired up yet, so what is drawn below is a shape, not a result."
-                : "Read from the account itself, not typed in by me."}
+              The data below shows our daily trading performance. Watch our
+              trading account grow daily.
             </p>
           </div>
 

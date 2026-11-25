@@ -45,11 +45,17 @@ test("a sample series is labelled as one, inside the card", () => {
   expect(FLAT).toMatch(/not connected yet/i);
 });
 
-test("the heading does not claim a record while the figures are invented", () => {
+test("the note is attached to the chart, not left in the prose", () => {
   if (!RECORD_IS_SAMPLE) return;
-  expect(FLAT).toContain("The chart is here. The numbers are not.");
-  // And nowhere near it the words that would make the shape a result.
-  expect(FLAT).toMatch(/a shape, not a result/);
+  // The section's own copy is the owner's, and on 25 November 2026 he
+  // replaced the heading that said the numbers were not real. That makes
+  // the card's own note the single thing standing between a sample shape
+  // and a reader who takes it for a history, so it has to be ON the chart:
+  // `note=` is rendered inside the frame, a sibling paragraph is not.
+  const chart = FLAT.slice(FLAT.indexOf("<RecordChart"));
+  const close = chart.indexOf("/>");
+  expect(close).toBeGreaterThan(-1);
+  expect(chart.slice(0, close)).toMatch(/note=\{[\s\S]*Sample figures/);
 });
 
 test("the sample shape is not a straight climb", () => {
