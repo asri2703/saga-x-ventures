@@ -15,6 +15,13 @@ import Image from "next/image";
  * The geometry is in the SVG's own units against a square panel with a
  * 0-100 viewBox, so one unit is one per cent of the panel and the HTML
  * tiles are placed from the same numbers the paths are drawn between.
+ *
+ * It carries no caption and needs none. The panels this replaced listed
+ * instruments and lot sizes, which had to be marked as a drawing rather
+ * than a record; a hub, three circles and a line state nothing that could
+ * be mistaken for an account's history. The account is live, and a note
+ * saying "no trades" under a diagram of a running business reads as though
+ * there were nothing to show.
  */
 
 type Follower = {
@@ -122,12 +129,6 @@ export function CopyFlow() {
           </div>
         ))}
       </div>
-
-      <p className="mt-4 text-center text-xs leading-relaxed text-pine-faint">
-        One order leaves the master account and lands in every account
-        following it. A drawing of the route, with no trades and no results
-        in it.
-      </p>
     </div>
   );
 }
