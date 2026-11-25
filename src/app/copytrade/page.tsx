@@ -13,12 +13,12 @@ import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
 import { ReasonShowcase } from "@/components/reason-showcase";
 import { SectionHeading } from "@/components/section-heading";
+import { StepWizard } from "@/components/step-wizard";
 import { VideoEmbed } from "@/components/video-embed";
 import {
   ActionLink,
   ActionOut,
   Eyebrow,
-  Panel,
   Scallop,
 } from "@/components/shell";
 
@@ -325,35 +325,9 @@ export default function CopytradePage() {
             />
           </div>
 
-          <ol className="mt-10 max-w-3xl space-y-4">
-            {steps().map((step) => (
-              <li key={step.n} data-reveal>
-                <Panel>
-                  <div className="flex gap-5">
-                    <span className="tnum display shrink-0 text-2xl text-pine-faint">
-                      {step.n}
-                    </span>
-                    <div>
-                      <h3 className="font-semibold text-pine">{step.title}</h3>
-                      <p className="mt-2 leading-relaxed text-pine-soft">
-                        {step.body}
-                      </p>
-                      {step.action ? (
-                        <div className="mt-4">
-                          <ActionOut
-                            href={step.action.href}
-                            tone={step.action.tone ?? "ink"}
-                          >
-                            {step.action.label}
-                          </ActionOut>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                </Panel>
-              </li>
-            ))}
-          </ol>
+          <div className="mt-10" data-reveal>
+            <StepWizard steps={steps()} />
+          </div>
         </Container>
       </Section>
 

@@ -1552,3 +1552,143 @@ html.lenis {
     background: var(--color-ruby-deep);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The register wizard on /copytrade.
+
+   One step on screen at a time, which is what the owner asked for and what
+   buys back the height four stacked panels were spending.
+
+   Everything here hangs off `[data-ready]` on the wrapper, set once the
+   component has mounted. Without it the four steps are an ordinary stack, so
+   a reader with no JavaScript gets the whole instruction sheet rather than
+   step one and a dead end.
+--------------------------------------------------------------------------- */
+.wizard {
+  max-width: 44rem;
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  padding: 1.75rem;
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06);
+}
+
+.wizard-rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.wizard-dots {
+  display: flex;
+  flex: 1;
+  gap: 0.5rem;
+}
+
+/* A bar, not a bead: it is a length of the way through, and four lengths
+   side by side say "of four" without a caption doing it. */
+.wizard-dot {
+  flex: 1;
+  height: 0.3125rem;
+  min-width: 2rem;
+  cursor: pointer;
+  border-radius: 9999px;
+  background: var(--color-rule);
+}
+
+.wizard-dot[data-done] {
+  background: var(--color-pine-faint);
+}
+
+.wizard-dot[data-on] {
+  background: var(--color-ruby);
+}
+
+.wizard-count {
+  flex: none;
+  font-size: 0.8125rem;
+  color: var(--color-pine-faint);
+}
+
+.wizard-step {
+  padding-block-start: 1.75rem;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-start: 1.75rem;
+  border-block-start: 1px solid var(--color-rule);
+  padding-block-start: 1.25rem;
+}
+
+.wizard-move {
+  cursor: pointer;
+  border-radius: 9999px;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-pine);
+}
+
+.wizard-move:disabled {
+  cursor: default;
+  color: var(--color-pine-faint);
+  opacity: 0.45;
+}
+
+.wizard-next:not(:disabled) {
+  background: var(--color-pine);
+  color: var(--color-paper);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wizard-dot,
+  .wizard-move {
+    transition:
+      background-color 180ms var(--ease-out-ui),
+      color 180ms var(--ease-out-ui);
+  }
+
+  /* Entering only. The step leaving is replaced in the same frame, so there
+     is nothing to fade out — a crossfade here would show two steps at once
+     and the reader is reading one of them. */
+  .wizard[data-ready] .wizard-step {
+    animation: wizard-in 220ms var(--ease-out-ui);
+  }
+}
+
+@keyframes wizard-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wizard-move:not(:disabled):hover {
+    background: var(--color-paper-sunk);
+  }
+
+  .wizard-next:not(:disabled):hover {
+    background: var(--color-pine-deep);
+    color: var(--color-paper);
+  }
+}
+
+/* Before the wizard exists: a plain stack, ruled like a list of steps, with
+   no controls pretending to work. */
+.wizard:not([data-ready]) .wizard-rail,
+.wizard:not([data-ready]) .wizard-nav {
+  display: none;
+}
+
+.wizard[data-ready] .wizard-step:not([data-on]) {
+  display: none;
+}
+
+.wizard:not([data-ready]) .wizard-step + .wizard-step {
+  margin-block-start: 1.75rem;
+  border-block-start: 1px solid var(--color-rule);
+}
