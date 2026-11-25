@@ -11,6 +11,7 @@ import { fukyaaPlanCards, masteryPlanCards } from "@/lib/plans";
 import { checkoutEnabled } from "@/lib/checkout/config";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { BuildShowcase } from "@/components/build-showcase";
+import { ConnectDiagram } from "@/components/connect-diagram";
 import {
   ActionLink,
   ActionOut,
@@ -273,24 +274,37 @@ export default function HomePage() {
       --------------------------------------------------------------- */}
       <Section id="fork" tone="raised">
         <Container>
-          <SectionHeading eyebrow="Get started" title="Find what works for you.">
-            <p>
-              Whether you prefer trading on your own or letting automation do
-              the work, there&rsquo;s an option for both.
-            </p>
-          </SectionHeading>
+          {/* Two columns from lg. The heading runs to a two-column measure
+              whatever the window does, so on a wide screen the right half of
+              this band was air; the diagram is what goes in it. One column
+              below that, where there is no spare half to fill. */}
+          <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center lg:gap-16">
+            <div>
+              <SectionHeading
+                eyebrow="Get started"
+                title="Find what works for you."
+              >
+                <p>
+                  Whether you prefer trading on your own or letting automation
+                  do the work, there&rsquo;s an option for both.
+                </p>
+              </SectionHeading>
 
-          {/* Before the packages, not after. It decides whether to open one
-              broker account or two, which is no use to somebody who has
-              already picked a package and clicked. */}
-          <p
-            className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
-            data-reveal
-          >
-            Mastery Signal uses a standard trading account, while Fukyaa runs
-            on a cent account. You&rsquo;ll need separate accounts if you plan
-            to use both.
-          </p>
+              {/* Before the packages, not after. It decides whether to open
+                  one broker account or two, which is no use to somebody who
+                  has already picked a package and clicked. */}
+              <p
+                className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
+                data-reveal
+              >
+                Mastery Signal uses a standard trading account, while Fukyaa
+                runs on a cent account. You&rsquo;ll need separate accounts if
+                you plan to use both.
+              </p>
+            </div>
+
+            <ConnectDiagram />
+          </div>
 
           <PlanSwitch
             firstLabel="Mastery Signal"

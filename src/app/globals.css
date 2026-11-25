@@ -1001,6 +1001,96 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   The connection diagram beside the packages.
+
+   Three marks joined to Mastery Signal. The lines are drawn in a square SVG
+   whose viewBox is 0 0 100 100, so a stroke width of 0.5 is half a per cent
+   of the panel and the whole thing scales without a media query.
+
+   `vector-effect: non-scaling-stroke` is deliberately NOT used: the lines
+   should get finer as the panel gets smaller, the way a drawing does, rather
+   than holding one pixel weight and turning into wire at phone size.
+--------------------------------------------------------------------------- */
+.connect-line {
+  stroke: rgba(22, 58, 48, 0.28);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  /* Dashed, so the line reads as a route rather than a pipe. The gap is a
+     little longer than the dash, which is what keeps it quiet. */
+  stroke-dasharray: 1.4 2.2;
+}
+
+/* The travelling pulse: one short dash on an otherwise empty stroke, moved
+   along the path by its offset. The dash array's gap is longer than any of
+   the paths, so exactly one pulse is ever on a line at a time.
+
+   Off by default. Motion here is decoration, and a page that starts moving
+   before anyone has asked for it is the version everyone gets when the
+   query is forgotten. The rule below turns it on. */
+.connect-pulse {
+  opacity: 0;
+  stroke: var(--color-ruby);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-dasharray: 3 200;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .connect-pulse {
+    opacity: 1;
+    /* From the node to the hub. The offset counts backwards along the path,
+       so it starts at the dash length and runs to the far end. */
+    animation: connect-flow 3.2s linear infinite;
+  }
+}
+
+@keyframes connect-flow {
+  from {
+    stroke-dashoffset: 3;
+  }
+  to {
+    stroke-dashoffset: -60;
+  }
+}
+
+/* The three marks. Centred on their coordinate rather than placed by their
+   top-left corner, which is what lets the component position a tile and a
+   path endpoint from the same pair of numbers. */
+/* Sized in per cent of the square panel, not in rem. The geometry above is
+   in per cent too, so a tile given a fixed width is correct at exactly one
+   panel size and wrong at every other: at phone width a 7.5rem hub was a
+   third of the panel instead of a quarter, and the joins shrank to stubs. */
+.connect-node {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 17%;
+  height: 17%;
+  border-radius: 9999px;
+  background: var(--color-paper-raised);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.08), 0 8px 20px rgba(22, 58, 48, 0.07);
+}
+
+.connect-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  /* 26% is what the paths were drawn against: they stop 16 units from the
+     centre, and this tile reaches 13. */
+  width: 26%;
+  height: 26%;
+  border-radius: 24%;
+  background: var(--color-paper-raised);
+  /* Heavier than the nodes. It is the thing the other three arrive at, and
+     a shadow is how a diagram says which element is in front. */
+  box-shadow: 0 2px 4px rgba(22, 58, 48, 0.1), 0 16px 36px rgba(22, 58, 48, 0.12);
+}
+
+/* ---------------------------------------------------------------------------
    The logo strip under the hero.
 
    Two identical rows side by side; the track slides left by half its width,
