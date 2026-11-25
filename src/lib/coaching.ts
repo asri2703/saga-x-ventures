@@ -30,7 +30,10 @@ export const coachingClasses: CoachingClass[] = [
   },
   {
     slug: "advance",
-    name: "Advance",
+    /* "Advanced Trading", not "Advance". The slug stays as it was: it keys
+       the price table and appears in no copy, so renaming it would move data
+       around to change a word on a page. */
+    name: "Advanced Trading",
     summary:
       "Structure, confluence and the patience to wait for your own setup instead of taking the market's.",
     order: 2,
@@ -73,4 +76,16 @@ export function getPrice(
 export function formatPrice(myr: number | null | undefined): string {
   if (myr === null || myr === undefined) return "Price on enquiry";
   return `RM${new Intl.NumberFormat("en-MY").format(myr)}`;
+}
+
+/**
+ * The three names as one sentence, for prose that lists them.
+ *
+ * The homepage used to type them out: "Basic trading, then advance, then
+ * trading the news" — three names, none of them what /coaching called them.
+ * A sentence built from the ladder cannot drift from it.
+ */
+export function classList(): string {
+  const names = coachingClasses.map((c) => c.name);
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }

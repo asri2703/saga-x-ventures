@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ibProducts } from "@/lib/products";
 import { site } from "@/lib/site";
 import { heroCards } from "@/lib/commercial";
+import { classList } from "@/lib/coaching";
 import { Container, Section } from "@/components/ui";
 import { SectionHeading } from "@/components/section-heading";
 import { PlanGroup } from "@/components/plan-cards";
@@ -434,16 +435,16 @@ export default function HomePage() {
           <div className="mx-auto max-w-3xl text-center" data-reveal>
             <Eyebrow tone="onDark">Coaching and classes</Eyebrow>
             <h2 className="display mt-3 text-3xl text-paper sm:text-5xl">
-              Learn to do this yourself
+              Need help with your trading?
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-paper/80">
-              Three classes, one to one, about a day each. Basic trading, then
-              advance, then trading the news. Take them in order or take one on
-              its own.
+              {/* The names come from the ladder in coaching.ts. Typed out
+                  here, they went stale the first time one was renamed. */}
+              I teach three things: {classList()}.
             </p>
             <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-paper/70">
-              Tell me what you have traded so far and which one you think you
-              need. We fix the dates first, and payment comes after that.
+              Tell me what you already know and what you are struggling with.
+              We will decide which class makes sense before setting a date.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -451,7 +452,7 @@ export default function HomePage() {
                 Ask about coaching
               </ActionOut>
               <ActionLink href="/coaching" tone="onDark">
-                See the three classes
+                See the classes
               </ActionLink>
             </div>
           </div>

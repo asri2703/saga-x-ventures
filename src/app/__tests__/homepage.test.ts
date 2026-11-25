@@ -3,6 +3,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { getProduct, outbound, type OutboundKey } from "@/lib/products";
 import { fukyaaPlanCards, masteryPlanCards } from "@/lib/plans";
+import { coachingClasses, classList } from "@/lib/coaching";
 
 /**
  * The packages are the one part of the homepage that costs a visitor money to
@@ -61,4 +62,26 @@ test("the products the packages sell still exist", () => {
   expect(getProduct("mastery-signal")).toBeDefined();
   expect(getProduct("fukyaa")).toBeDefined();
   expect(getProduct("copytrade")).toBeDefined();
+});
+
+/* ------------------------------------------------------------------ *
+ * Coaching, the closing section.
+ * ------------------------------------------------------------------ */
+
+test("the closing section names the classes from the ladder, not by hand", () => {
+  // It used to read "Basic trading, then advance, then trading the news" —
+  // three names typed into prose, none of them matching what /coaching calls
+  // them. Renaming a class there left this sentence describing classes that
+  // no longer existed under those names.
+  const flat = HOME.replace(/\s+/g, " ");
+  expect(flat).toContain("{classList()}");
+  for (const c of coachingClasses) {
+    expect(flat, c.slug).not.toContain(c.name);
+  }
+});
+
+test("the sentence the homepage renders is the three class names", () => {
+  // Anti-vacuity for the test above: that one proves the names are not
+  // typed in, this one proves what arrives instead is the real list.
+  expect(classList()).toBe("Basic Trading, Advanced Trading and News Trading");
 });
