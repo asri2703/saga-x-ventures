@@ -1001,86 +1001,162 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
-   The reason tabs on /copytrade.
+   The orbiting reasons on /copytrade.
 
-   Text on a rule, with a marker that slides. The filled pill this replaced
-   was the shape every tab set had in 2014: the selected one became a
-   button, the others stopped looking clickable at all, and the marker
-   teleported between them.
+   Four marks travel a ring and the lit one's reason reads in the middle.
+   Shape from the orbiting-circles component the owner chose; the colours,
+   the hold-on-hover and the reduced-motion behaviour are this site's.
 
-   Easing and duration are from Emil Kowalski's tables. The marker is moving
-   on screen rather than entering it, so ease-in-out; the panel is entering,
-   so ease-out. Both stay under 300ms, which is the ceiling for UI.
+   The seat is what rotates, not the mark. A seat is a zero-size point at
+   the centre that is turned to its angle, pushed out to the radius, and
+   then turned back by the same amount so the mark it carries stays
+   upright. Rotating the mark itself would spin each icon on its own axis
+   all the way round the ring.
 --------------------------------------------------------------------------- */
-:root {
-  /* The built-in curves are too weak to read at these durations. */
-  --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out-ui: cubic-bezier(0.77, 0, 0.175, 1);
+@keyframes orbit-travel {
+  from {
+    transform: rotate(var(--orbit-angle)) translateY(var(--orbit-radius))
+      rotate(calc(var(--orbit-angle) * -1));
+  }
+  to {
+    transform: rotate(calc(var(--orbit-angle) + 360deg))
+      translateY(var(--orbit-radius))
+      rotate(calc(var(--orbit-angle) * -1 - 360deg));
+  }
 }
 
-.reason-tab {
+.orbit {
   position: relative;
-  padding: 0.5rem 0 0.875rem;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--color-pine-faint);
-  cursor: pointer;
+  display: grid;
+  place-items: center;
+  margin-block-start: 2.5rem;
+  /* Room for the ring plus a mark either side of it. */
+  min-height: calc(var(--orbit-radius) * 2 + 5rem);
+  margin-inline: auto;
+  width: 100%;
 }
 
-.reason-tab:hover {
-  color: var(--color-pine-soft);
-}
-
-.reason-tab-on,
-.reason-tab-on:hover {
-  color: var(--color-pine);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .reason-tab {
-    transition: color 160ms ease;
-  }
-}
-
-/* Laid out 100px wide and scaled to the tab above it, so the width is
-   never animated. `transform-origin: left` is what makes the scale grow
-   rightwards from the translated position rather than from its own
-   middle. */
-.reason-marker {
+.orbit-ring {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100px;
-  height: 2px;
-  border-radius: 2px;
+  width: calc(var(--orbit-radius) * 2);
+  height: calc(var(--orbit-radius) * 2);
+  border-radius: 9999px;
+  border: 1px solid var(--color-rule);
+}
+
+/* The panel sits inside the ring, narrow enough that a mark at the top or
+   the bottom of the circle never meets the text. */
+.orbit-panel {
+  position: relative;
+  z-index: 1;
+  max-width: calc(var(--orbit-radius) * 1.5);
+  text-align: center;
+}
+
+.orbit-seat {
+  position: absolute;
+  /* Pinned to the centre explicitly rather than left to the static
+     position: an absolutely positioned grid child with no insets resolves
+     against its grid area, which is not reliably the middle. */
+  top: 50%;
+  left: 50%;
+  /* The seat has no size of its own: it is the centre of the circle, and
+     the transform is what carries the mark out to the rim. */
+  width: 0;
+  height: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transform: rotate(var(--orbit-angle)) translateY(var(--orbit-radius))
+    rotate(calc(var(--orbit-angle) * -1));
+}
+
+.orbit-mark {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
+  color: var(--color-pine-faint);
+}
+
+.orbit-mark-on {
+  border-color: var(--color-pine);
   background: var(--color-pine);
-  transform-origin: left center;
-  will-change: transform;
+  color: var(--color-paper);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .reason-marker {
-    transition: transform 260ms var(--ease-in-out-ui);
+  .orbit-seat {
+    animation-name: orbit-travel;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  /* Reaching for a moving target is a click you have to time. The ring
+     freezes while the component is hovered or focused, and the panel stops
+     advancing with it. */
+  .orbit[data-held] .orbit-seat {
+    animation-play-state: paused;
+  }
+
+  .orbit-mark {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      scale 180ms var(--ease-out-ui);
+  }
+
+  .orbit-mark-on {
+    scale: 1.12;
+  }
+
+  .orbit-panel {
+    animation: orbit-in 220ms var(--ease-out-ui);
   }
 }
 
-.reason-panel {
-  padding-top: 2rem;
-  /* Held tall enough for the longest of the four, so switching tabs does
-     not move the rest of the page up and down under the reader. */
-  min-height: 8.5rem;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .reason-panel {
-    animation: reason-in 220ms var(--ease-out-ui);
-  }
-}
-
-@keyframes reason-in {
+@keyframes orbit-in {
   from {
     opacity: 0;
     translate: 0 0.3rem;
+  }
+}
+
+/* Under the ring's width the circle would run off the page, so the marks
+   come off the rim and sit in a row above the copy. The animation is a
+   per-seat transform, so dropping it is all that is needed. */
+@media (max-width: 40rem) {
+  .orbit {
+    min-height: 0;
+    gap: 2rem;
+  }
+
+  .orbit-ring {
+    display: none;
+  }
+
+  .orbit-seat {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    transform: none;
+    animation: none;
+  }
+
+  .orbit-panel {
+    max-width: none;
+    order: 2;
+  }
+
+  .orbit [role="tablist"] {
+    display: flex;
+    order: 1;
+    gap: 0.75rem;
   }
 }
 

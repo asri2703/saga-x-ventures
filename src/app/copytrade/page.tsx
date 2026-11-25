@@ -8,7 +8,7 @@ import {
 } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
-import { ReasonTabs } from "@/components/reason-tabs";
+import { ReasonOrbit } from "@/components/reason-orbit";
 import { SectionHeading } from "@/components/section-heading";
 import {
   ActionLink,
@@ -225,7 +225,7 @@ export default function CopytradePage() {
             </p>
           </SectionHeading>
 
-          <ReasonTabs
+          <ReasonOrbit
             reasons={[
               {
                 title: "Busy with life",
