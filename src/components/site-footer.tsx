@@ -1,150 +1,121 @@
 import Link from "next/link";
-import { services } from "@/lib/services";
+import { retailProducts } from "@/lib/products";
 import { fullAddress, site } from "@/lib/site";
 import { Container } from "@/components/ui";
 import { Logo } from "@/components/logo";
+import { Scallop } from "@/components/shell";
 
-const socialLabels: Record<string, string> = {
-  facebook: "Facebook",
-  instagram: "Instagram",
-  linkedin: "LinkedIn",
-};
+const siteLinks = [
+  { href: "/events", label: "Events" },
+  { href: "/blog", label: "Writing" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+  { href: "/privacy", label: "Privacy" },
+];
 
+/**
+ * No social row. The agency-era Facebook and Instagram handles were removed
+ * with the pivot rather than left pointing at the old business, and the
+ * trading accounts do not exist yet. An empty space is better than a link to
+ * someone the company no longer is.
+ */
 export function SiteFooter() {
-  const activeSocial = Object.entries(site.social).filter(([, url]) => url);
   const year = 2026; // Static: avoids a hydration mismatch and needs no client JS.
 
   return (
-    <footer className="border-t border-line bg-surface">
-      <Container className="py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5">
-              <Logo className="h-8 w-8" />
-              <span className="text-[15px] font-semibold tracking-tight text-body">
-                {site.name}
-              </span>
-            </Link>
-            <p className="mt-4 max-w-sm leading-relaxed text-muted">
-              {site.description}
-            </p>
-            {activeSocial.length > 0 ? (
-              <ul className="mt-6 flex gap-4">
-                {activeSocial.map(([key, url]) => (
-                  <li key={key}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-muted transition-colors hover:text-accent"
+    <footer>
+      {/* The scalloped edge is drawn in pine against the paper, so the strip
+          carrying it must stay paper-coloured — inside the dark block the
+          bumps would be pine on pine and nothing would show.
+
+          About half the pages close on a dark band of their own. There the
+          strip would be a cream stripe trapped between two dark areas, so a
+          rule in globals.css hides it when the last section is already pine
+          and lets the two dark regions run together. */}
+      <div className="footer-scallop bg-paper">
+        <Scallop />
+      </div>
+
+      <div className="bg-pine-deep text-paper">
+        <Container className="py-16">
+          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="lg:col-span-2">
+              <Link href="/" className="flex items-center gap-2.5">
+                <Logo className="h-8 w-8 text-paper" />
+                <span className="display text-[15px] text-paper">
+                  {site.name}
+                </span>
+              </Link>
+              <p className="mt-5 max-w-sm leading-relaxed text-paper/70">
+                {site.footerLine}
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-semibold text-sand">Products</h2>
+              <ul className="mt-4 space-y-3">
+                {retailProducts.map((product) => (
+                  <li key={product.key}>
+                    <Link
+                      href={product.href}
+                      prefetch={false}
+                      className="text-sm text-paper/70 transition-colors hover:text-paper"
                     >
-                      {socialLabels[key] ?? key}
-                    </a>
+                      {product.name}
+                    </Link>
                   </li>
                 ))}
               </ul>
-            ) : null}
-          </div>
 
-          <div>
-            <h2 className="text-sm font-semibold text-body">Services</h2>
-            <ul className="mt-4 space-y-3">
-              {services.map((s) => (
-                <li key={s.slug}>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    className="text-sm text-muted transition-colors hover:text-accent"
-                  >
-                    {s.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+              <h2 className="mt-8 text-sm font-semibold text-sand">Site</h2>
+              <ul className="mt-4 space-y-3">
+                {siteLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-paper/70 transition-colors hover:text-paper"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div>
-            <h2 className="text-sm font-semibold text-body">Company</h2>
-            <ul className="mt-4 space-y-3">
-              <li>
-                <Link
-                  href="/about"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  Insights
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#process"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  How we work
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-
-            <h2 className="mt-8 text-sm font-semibold text-body">Get in touch</h2>
-            <ul className="mt-4 space-y-3">
-              <li>
-                <a
-                  href={`mailto:${site.email}`}
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  {site.email}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`tel:+${site.phoneRaw}`}
-                  className="text-sm text-muted transition-colors hover:text-accent"
-                >
-                  {site.phoneDisplay}
-                </a>
-              </li>
-              <li className="text-sm leading-relaxed text-faint">
-                {/* Full address in the footer on every page — a consistent
-                    NAP (name, address, phone) across the site is what local
-                    SEO is built on. */}
-                <address className="not-italic">{fullAddress}</address>
-              </li>
-              {site.googleBusiness ? (
+            <div>
+              <h2 className="text-sm font-semibold text-sand">Contact</h2>
+              <ul className="mt-4 space-y-3">
                 <li>
                   <a
-                    href={site.googleBusiness}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted transition-colors hover:text-accent"
+                    href={`mailto:${site.email}`}
+                    className="text-sm text-paper/70 transition-colors hover:text-paper"
                   >
-                    Find us on Google
+                    {site.email}
                   </a>
                 </li>
-              ) : null}
-            </ul>
+                <li>
+                  <a
+                    href={`tel:+${site.phoneRaw}`}
+                    className="tnum text-sm text-paper/70 transition-colors hover:text-paper"
+                  >
+                    {site.phoneDisplay}
+                  </a>
+                </li>
+                <li className="text-sm leading-relaxed text-paper/50">
+                  <address className="not-italic">{fullAddress}</address>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-14 border-t border-line pt-8">
-          <p className="text-sm text-faint">
-            © {year} {site.name}. All rights reserved.
-          </p>
-        </div>
-      </Container>
+          <div className="mt-14 border-t border-paper/15 pt-6">
+            <p className="text-xs leading-relaxed text-paper/50">
+              © {year} {site.name}. Trading carries risk, and nothing on this
+              site is financial advice or a promise of any result.
+            </p>
+          </div>
+        </Container>
+      </div>
     </footer>
   );
 }

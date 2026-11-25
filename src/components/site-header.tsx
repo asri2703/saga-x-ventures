@@ -2,20 +2,20 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { services } from "@/lib/services";
-import { site, waLink } from "@/lib/site";
-import { ButtonAnchor } from "@/components/ui";
+import { retailProducts } from "@/lib/products";
+import { site } from "@/lib/site";
 import { Logo } from "@/components/logo";
 
 const navLinks = [
-  { href: "/services", label: "Services" },
-  { href: "/blog", label: "Insights" },
+  { href: "/events", label: "Events" },
+  { href: "/blog", label: "Writing" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
 
   // Closing on link click (rather than watching the pathname in an effect)
   // avoids a cascading re-render on every navigation.
@@ -29,14 +29,22 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  // Escape closes whichever thing is open. This listener is deliberately not
+  // gated on the mobile panel's state: when it was, the desktop dropdown had
+  // no Escape path at all, which is the only way out for a keyboard user who
+  // opened it and does not want any of the three products.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      setProductsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-
-    // Escape closes the menu — expected of any overlay, and the only way out
-    // for someone navigating by keyboard.
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
 
     // The panel is md:hidden, so widening past the breakpoint hides it while
     // `open` stays true — leaving the body scroll-locked with no visible way
@@ -46,170 +54,198 @@ export function SiteHeader() {
       if (event.matches) setOpen(false);
     };
 
-    document.addEventListener("keydown", onKeyDown);
     desktop.addEventListener("change", onBreakpoint);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      desktop.removeEventListener("change", onBreakpoint);
-    };
+    return () => desktop.removeEventListener("change", onBreakpoint);
   }, [open]);
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-line/70 bg-ink/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5"
-          aria-label={`${site.name} — home`}
-        >
-          <Logo className="h-8 w-8" />
-          <span className="text-[15px] font-semibold tracking-tight text-body">
-            {site.name}
-          </span>
-        </Link>
+      {/* The header is glass too, and it is the one pane with real content
+          travelling underneath it. The hairline is what separates it from the
+          section below once the page has scrolled; without it the blur alone
+          leaves the two reading as one surface. */}
+      <header className="site-header sticky top-0 z-50 border-b border-[var(--glass-line)]">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5"
+            aria-label={`${site.name} — home`}
+          >
+            <Logo className="h-8 w-8" />
+            <span className="display text-[15px] text-pine">{site.name}</span>
+          </Link>
 
-        {/* Desktop nav */}
-        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
-          {/* Services gets a dropdown so every service page is one click from
-              anywhere — good for users, good for internal linking. */}
-          <div className="group relative">
-            <Link
-              href="/services"
-              className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-body"
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-1 md:flex">
+            {/* Products opens a menu because none of the three is one click —
+                each needs a broker account first, and saying so here stops a
+                visitor bouncing off a signup form they cannot complete. */}
+            {/* A disclosure, not a menu.
+                It previously carried aria-haspopup="true" — which a screen
+                reader announces as "has menu popup" — over a plain list of
+                links, with no aria-expanded and no handler on the button. The
+                one action the announcement implies did nothing. Now the state
+                is real: click or Enter toggles it, aria-expanded says which
+                way it is, and the panel is removed from the tree when shut
+                rather than merely made invisible. */}
+            <div
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                  setProductsOpen(false);
+                }
+              }}
             >
-              Services
-              <svg
-                aria-hidden
-                viewBox="0 0 12 12"
-                className="h-3 w-3 transition-transform group-hover:rotate-180"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <button
+                type="button"
+                onClick={() => setProductsOpen((v) => !v)}
+                aria-expanded={productsOpen}
+                aria-controls="products-panel"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-pine-soft transition-colors hover:text-pine"
               >
-                <path d="m3 4.5 3 3 3-3" />
-              </svg>
-            </Link>
-            <div className="invisible absolute left-1/2 top-full w-64 -translate-x-1/2 pt-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-              <ul className="overflow-hidden rounded-xl border border-line bg-elevated p-1.5 shadow-2xl shadow-black/50">
-                {services.map((s) => (
-                  <li key={s.slug}>
-                    <Link
-                      href={`/services/${s.slug}`}
-                      className="block rounded-lg px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface hover:text-body"
-                    >
-                      {s.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+                Products
+                <svg
+                  aria-hidden
+                  viewBox="0 0 12 12"
+                  className={`h-3 w-3 transition-transform ${productsOpen ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M2.5 4.5 6 8l3.5-3.5" />
+                </svg>
+              </button>
+
+              {productsOpen ? (
+                <div
+                  id="products-panel"
+                  className="absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2"
+                >
+                  <ul className="panel panel-raised overflow-hidden p-2">
+                    {retailProducts.map((product) => (
+                      <li key={product.key}>
+                        <Link
+                          href={product.href}
+                          prefetch={false}
+                          onClick={() => setProductsOpen(false)}
+                          className="block rounded-[var(--radius-float)] px-3 py-2.5 transition-colors hover:bg-paper-sunk"
+                        >
+                          <span className="block text-sm font-semibold text-pine">
+                            {product.name}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-pine-faint">
+                            {product.forWho}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
-          </div>
 
-          {navLinks.slice(1).map((l) => (
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-2 text-sm text-pine-soft transition-colors hover:text-pine"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Quiet on purpose. Ruby marks the one thing to do next, once
+                per screen — and on every page except the homepage that one
+                thing is in the page, not in the chrome. A ruby button here
+                would compete with it on every single view. */}
             <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-body"
+              href="/coaching"
+              className="btn btn--ink ml-3 rounded-full px-5 py-2.5 text-sm font-semibold"
             >
-              {l.label}
+              Start here
             </Link>
-          ))}
+          </nav>
 
-          <ButtonAnchor
-            href={waLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-3"
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="-mr-2 p-2 text-pine md:hidden"
           >
-            Get a free audit
-          </ButtonAnchor>
-        </nav>
-
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
-          className="-mr-2 rounded-lg p-2 text-body md:hidden"
-        >
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          >
-            {open ? (
-              <path d="M6 6l12 12M18 6L6 18" />
-            ) : (
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            )}
-          </svg>
-        </button>
-      </div>
+            <svg
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              aria-hidden
+            >
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </header>
 
-      {/*
-        Mobile menu — deliberately a sibling of <header>, not a child.
-        The header carries backdrop-blur, and any backdrop-filter makes an
-        element the containing block for its fixed-position descendants. Nested
-        inside, this panel resolved top-16/bottom-0 against the 64px header
-        instead of the viewport and collapsed to zero height: the button
-        toggled, the state changed, and nothing appeared.
-      */}
+      {/* Mobile panel. Positioned below the 4rem header and sized with dvh so
+          it fills the screen on phones whose browser chrome changes height —
+          vh alone collapsed this panel on a previous build. */}
       {open ? (
         <div
           id="mobile-menu"
-          className="fixed inset-x-0 top-16 bottom-0 z-50 overflow-y-auto border-t border-line bg-ink px-5 py-6 md:hidden"
+          className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto border-t border-rule bg-paper px-5 py-6 md:hidden"
         >
-          <nav aria-label="Mobile">
-            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-faint">
-              Services
-            </p>
-            <ul className="mb-6">
-              {services.map((s) => (
-                <li key={s.slug}>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    onClick={close}
-                    className="block rounded-lg px-3 py-3 text-base text-muted"
-                  >
-                    {s.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <ul className="border-t border-line pt-4">
-              {navLinks.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    onClick={close}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-body"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <ButtonAnchor
-            href={waLink()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <p className="text-xs text-pine-faint">
+            Products
+          </p>
+          <ul className="mt-3 space-y-1">
+            {retailProducts.map((product) => (
+              <li key={product.key}>
+                <Link
+                  href={product.href}
+                  prefetch={false}
+                  onClick={close}
+                  className="block border-b border-rule py-3"
+                >
+                  <span className="block font-semibold text-pine">
+                    {product.name}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-pine-faint">
+                    {product.forWho}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <ul className="mt-6 space-y-1">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={close}
+                  className="block border-b border-rule py-3 text-pine"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            href="/coaching"
             onClick={close}
-            size="lg"
-            className="mt-6 w-full"
+            className="btn btn--ink mt-8 block rounded-full px-5 py-3.5 text-center text-base font-semibold"
           >
-            Get a free audit
-          </ButtonAnchor>
+            Start here
+          </Link>
         </div>
       ) : null}
     </>

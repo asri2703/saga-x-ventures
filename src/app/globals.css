@@ -3,39 +3,595 @@
 /* ---------------------------------------------------------------------------
    Design tokens
    ---------------------------------------------------------------------------
-   Deliberately dark. Two reasons:
-   1. SMEs have seen a hundred identical bright-blue agency templates. This
-      does not look like those.
-   2. This site is the portfolio. It has to look built, not assembled.
+   The structure comes from Officevibe, which the owner chose as the
+   reference: warm paper, a soft rounded shell, pill actions, product cards
+   that float over photography, and hand-drawn marks. The colours do not. The
+   reference is navy and coral; this site keeps the palette it already has.
 
-   To rebrand, change the accent values below — no component references a raw
-   colour anywhere else in the codebase.
+     Vanilla (60%)  the paper, warmed a shade towards the reference
+     Pine    (30%)  the ink, and the dark band
+     Ruby    (10%)  the mark the teacher makes
+
+   Ruby still has one job and one rule: it marks the single thing to do next,
+   once per screen. It is never used for running text, because it measures
+   ~3.4:1 against the paper and fails AA for body copy. Pine on Vanilla is
+   ~9.6:1 and is the default pairing everywhere.
+
+   What changed from the previous build is the shell, not the voice. Hairline
+   rules and square corners became soft cards with a radius and a shadow,
+   because the reference carries its structure in elevation rather than in
+   lines. Rules remain, but as a secondary device.
+
+   There are no compatibility aliases. An earlier pass kept the old dark-theme
+   token names pointing at the new palette so un-migrated components would
+   still compile — which is exactly what let two pages ship still selling a
+   marketing agency: they looked plausible instead of rendering unstyled.
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* Surfaces, darkest to lightest. Cooled slightly toward blue so the dark
-     UI reads as part of the brand rather than a neutral grey it sits on. */
-  --color-ink: #070910;
-  --color-surface: #0e1320;
-  --color-elevated: #141b2b;
-  --color-line: #1f2839;
-  --color-line-bright: #2e3a51;
+  /* The paper. Warmer than the previous #efe6d3, which read cold beside the
+     reference, but the same Vanilla Line hue rather than the reference peach. */
+  --color-paper: #f2e9d8; /* Vanilla Line */
+  --color-paper-raised: #faf4e8; /* cards sit lighter than the page */
+  --color-paper-sunk: #e6dac2;
+  /* The banded section.
+     It used to be `paper-raised`, which is also the colour of a card, so
+     every panel on a banded section was exactly the colour of the band behind
+     it and disappeared into it. The band now sits a step DOWN from the paper
+     and the cards sit above both. */
+  --color-paper-band: #ebe0c9;
 
-  /* Text */
-  --color-body: #f2f5fa;
-  --color-muted: #98a3b8;
-  --color-faint: #68738a;
+  --color-pine: #163a30; /* Pine Lacquer */
+  --color-pine-deep: #102a23; /* the dark band */
+  --color-pine-soft: #3e5d53;
+  --color-pine-faint: #566e65;
 
-  /* Accent — derived from the Saga X brand blue (#004aad).
-     The brand blue itself is too dark to read on a near-black background, so
-     interactive elements use a brightened tint of it and reserve the true
-     brand colour for solid fills on light surfaces. */
-  --color-accent: #2b7fff; /* 5.3:1 on --color-ink — passes AA */
-  --color-accent-hot: #5f9dff;
-  --color-accent-deep: #004aad; /* the actual brand blue */
+  --color-ruby: #f0283c; /* Ruby Flare */
+  --color-ruby-deep: #c81f30;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* The lit green. One colour, used in one place: the record chart when it
+     sits on the dark band, where pine on pine is invisible. It is the pine
+     hue taken up to the top of its range rather than a fourth brand colour,
+     and it never appears on paper — on #f2e9d8 it fails contrast at any
+     size. */
+  --color-neon: #4ef2a3;
+
+  /* Block tints. These sit behind photographs and inside small product cards
+     and never carry body text of their own. Each is one of the two brand
+     hues lightened, so the page gains variety without gaining a colour. */
+  --color-sage: #cfe0d4; /* pine, lightened */
+  --color-blush: #fbdcdf; /* ruby, lightened */
+  --color-sand: #f0dcae; /* paper, deepened */
+
+  /* Rules and borders — pine at low strength, never pure grey */
+  --color-rule: #dcd0b8;
+  --color-rule-strong: #c7b99c;
+
+  /* The shell. The reference is built from one large radius and one small
+     one: panels and photographs take the large, the cards that float over
+     them take the small. */
+  --radius-panel: 1.5rem;
+  --radius-float: 0.75rem;
+
+  /* Glass.
+     Frosted glass needs two things to read: something behind it to blur, and
+     a lit edge. The blur is given something to work on by the wash on `body`
+     below; the edge is the inset highlight on every glass surface. The fill
+     stays high — 0.72, not the 0.1 of a glass kit built for a photograph —
+     because this sits on pale paper, and a pane that pale over paper that
+     pale is a pane nobody can see. */
+  --glass-fill: rgba(255, 253, 248, 0.72);
+  --glass-fill-strong: rgba(255, 253, 248, 0.86);
+  /* The lit top edge. This is the single cue that reads as glass on any
+     background, light or dark. */
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  /* The pane's own outline. Pine at low strength, never grey. */
+  --glass-line: rgba(22, 58, 48, 0.1);
+  --glass-line-dark: rgba(255, 255, 255, 0.18);
+  --glass-blur: 20px;
+
+  /* The one easing curve for interface motion: fast out of the gate, settling
+     at the end, so a thing that moves because somebody acted looks like it
+     was already on its way.
+
+     It is declared here because nine transitions across this stylesheet were
+     already asking for it and nothing defined it. A transition shorthand with
+     an invalid timing function is an invalid declaration, so those nine were
+     not easing — they were not animating at all. */
+  --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* One family. General Sans is the nearest freely licensed relative of the
+     reference's GT Walsheim: geometric, soft-terminalled, and friendlier
+     than the Archivo it replaces. Display type is the same family heavier
+     and tighter — there is no second typeface. */
+  --font-sans: var(--font-general-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-general-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Display type. Archivo carried a `wdth` axis and the device was width;
+   General Sans has no width axis, so the device is weight and tracking. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+/* ---------------------------------------------------------------------------
+   Glass
+   ---------------------------------------------------------------------------
+   The panels used to be flat fills with a soft shadow and no border, on the
+   reasoning that a border and a shadow together read as two arguing
+   decisions. That held while the fill was opaque. A pane of glass has an
+   edge — it is the thing that makes it read as a pane at all — so the rule
+   does not survive the change, and saying so here is cheaper than leaving the
+   old note to contradict the code.
+
+   Three layers do the work, in this order:
+
+   1. A translucent fill, so the surface is lighter than whatever is under it.
+   2. `backdrop-filter`, so what is under it is blurred and slightly
+      saturated. On flat colour this does almost nothing, which is why `body`
+      carries a wash.
+   3. An inset highlight along the top edge and a hairline outline. These
+      read on any background and do not depend on the browser supporting
+      `backdrop-filter` at all.
+--------------------------------------------------------------------------- */
+.panel {
+  border-radius: var(--radius-panel);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 1px 2px rgba(22, 58, 48, 0.05),
+    0 18px 40px -18px rgba(22, 58, 48, 0.3);
+}
+
+/* A pane that is selected. The border colour has to be set here for the same
+   reason the hover does: `.panel`'s own border is unlayered and beats any
+   utility written beside it. */
+.panel-active {
+  border-color: var(--color-pine);
+}
+
+/* A pane that floats over the page rather than sitting in it — the header's
+   product menu. Same glass, more lift, because there is live content
+   directly behind it. */
+.panel-raised {
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 24px 48px -16px rgba(22, 58, 48, 0.38);
+}
+
+/* A pane that is also a link.
+   Three of these carried `hover:bg-sage` in their className and none of them
+   ever changed colour: `.panel` sets its background from outside Tailwind's
+   layers, so it wins against the utility whatever order the classes are
+   written in. The same equal-specificity trap as the padding bug, and it was
+   already there before the glass. The hover belongs here, beside the rule it
+   has to beat. */
+.panel-link {
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.panel-link:hover {
+  background: rgba(207, 224, 212, 0.72);
+  border-color: rgba(22, 58, 48, 0.18);
+}
+
+/* A pane over the dark band, where the fill inverts and the hairline has to
+   be light to be seen at all. Text on it stays paper-coloured. */
+.panel-dark {
+  border-radius: var(--radius-panel);
+  background: rgba(255, 253, 248, 0.08);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  border: 1px solid var(--glass-line-dark);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 18px 40px -20px rgba(0, 0, 0, 0.45);
+}
+
+/* Where the browser has no `backdrop-filter`, the fill alone would leave the
+   paper showing through at 72% and the pane would read as washed out rather
+   than frosted. The fill goes solid; the edge and the shadow carry it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .panel {
+    background: var(--color-paper-raised);
+  }
+  .panel-dark {
+    background: rgba(255, 253, 248, 0.14);
+  }
+}
+
+/* Transparency is a readability problem for some people, and the browser is
+   told about it. Everything goes solid; the edge stays, so the panes still
+   look like panes. */
+@media (prefers-reduced-transparency: reduce) {
+  .panel,
+  .float-card,
+  .panel-pick,
+  .site-header {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .panel {
+    background: var(--color-paper-raised);
+  }
+  .panel-dark {
+    background: rgba(255, 253, 248, 0.16);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The checkout dialog
+   ---------------------------------------------------------------------------
+   From Uiverse.io by SSpisso - https://uiverse.io/SSpisso/kind-cobra-45
+   MIT License, Copyright (c) mi-series, mi-series (Md Mainul Islam Satabddo), SSpisso
+
+   The structure is kept: a title bar, sections divided by rules, a grid of
+   figures, and a dark footer bar carrying the large figure beside the action.
+
+   The colours are not. The original is a teal-and-cream kit; this site has
+   Vanilla Line, Pine Lacquer and Ruby Flare. Its class names are not kept
+   either — `.card`, `.title`, `.steps` and `.form` as it writes them would
+   collide with half this stylesheet.
+
+   What was dropped, so nobody restores it by accident: the shipping block
+   (nothing ships), the payment-method block (chosen on Billplz's own screen)
+   and the subtotal/shipping/tax grid (one figure, no tax on it).
+--------------------------------------------------------------------------- */
+.checkout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(16, 42, 35, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.checkout-card {
+  width: 100%;
+  max-width: 26rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  border-radius: var(--radius-panel);
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 30px 60px -20px rgba(16, 42, 35, 0.55);
+}
+
+.checkout-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 2.75rem;
+  border-bottom: 1px solid var(--glass-line);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-pine-faint);
+}
+
+.checkout-body {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.checkout-rule {
+  height: 1px;
+  border: none;
+  background: var(--glass-line);
+}
+
+.checkout-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-pine-faint);
+}
+
+/* The field. The original moves on focus and so does this one — it is the
+   one piece of its motion worth keeping, because it answers a person's
+   action and shows them where they are. */
+.checkout-field {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(22, 58, 48, 0.18);
+  background: var(--color-paper);
+  color: var(--color-pine);
+  font-size: 0.875rem;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.checkout-field:focus {
+  outline: none;
+  border-color: var(--color-pine);
+  background: var(--color-paper-raised);
+  box-shadow: 0 0 0 3px rgba(22, 58, 48, 0.12);
+}
+
+.checkout-figures {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--color-pine);
+}
+
+.checkout-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.6rem 0.6rem 1rem;
+  background: var(--color-pine);
+}
+
+.checkout-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-paper);
+}
+
+.checkout-pay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkout-pay:disabled {
+  background: var(--color-pine-soft);
+  cursor: not-allowed;
+}
+
+/* A term, before one has been chosen. */
+.checkout-term {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(22, 58, 48, 0.14);
+  background: var(--color-paper);
+  color: var(--color-pine);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.checkout-term:hover {
+  background: var(--color-sage);
+  border-color: rgba(22, 58, 48, 0.3);
+}
+
+.checkout-term-pick {
+  border-color: var(--color-ruby);
+}
+
+/* ---------------------------------------------------------------------------
+   The product switch
+   ---------------------------------------------------------------------------
+   From Uiverse.io by Shoh2008 - https://uiverse.io/Shoh2008/cowardly-catfish-27
+   MIT License, Copyright (c) Shoh2008 (c0der)
+
+   The mechanic is kept exactly: a track twice the width of its box, slid
+   under a thumb half the width of the control, so the colour behind changes
+   as the thumb travels. The transition is the original's 0.25s.
+
+   What changed is the chrome. The original stacks five shadows — two inset,
+   a hairline, a dark rim and a white rim — which is the lit-glass toggle of
+   about 2010, and on cream paper beside flat pine buttons it reads as a
+   control borrowed from another site. One inset and one soft drop stay. Its
+   red and blue become pine and ruby, the two colours this site has.
+--------------------------------------------------------------------------- */
+.plan-switch {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: linear-gradient(
+      hsla(0, 0%, 0%, 0.08),
+      hsla(0, 0%, 100%, 0.12)
+    ),
+    linear-gradient(
+      to right,
+      var(--color-pine) 50%,
+      var(--color-ruby-deep) 50%
+    );
+  background-size:
+    100% 100%,
+    200% 100%;
+  background-position:
+    0 0,
+    0 0;
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 3px hsla(160, 46%, 10%, 0.35),
+    0 1px 2px hsla(160, 46%, 10%, 0.18);
+  cursor: pointer;
+  height: 28px;
+  width: 76px;
+  padding-right: 38px;
+  position: relative;
+  transition: 0.25s;
+}
+
+/* The hit area, not the control. The track is 28px tall because that is what
+   the design wants; a finger needs 44, so the difference is taken in a
+   transparent box rather than by drawing a bigger switch. */
+.plan-switch::before {
+  content: "";
+  position: absolute;
+  inset: -8px 0;
+}
+
+/* The thumb. Half the control, so the track behind it is half covered and
+   the uncovered half is the colour of the side that is active. */
+.plan-switch::after {
+  background-color: var(--color-paper-raised);
+  background-image: linear-gradient(
+    hsla(0, 0%, 100%, 0.6),
+    hsla(160, 46%, 10%, 0.08)
+  );
+  border-radius: 999px;
+  box-shadow: 0 1px 3px hsla(160, 46%, 10%, 0.4);
+  content: "";
+  display: block;
+  height: 28px;
+  width: 38px;
+}
+
+.plan-switch:checked {
+  background-position:
+    0 0,
+    38px 0;
+  padding-left: 38px;
+  padding-right: 0;
+}
+
+.plan-switch:focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: 3px;
+}
+
+/* A visitor who asked for less movement still needs to see which side is on,
+   so the thumb moves — it just arrives rather than travels. */
+@media (prefers-reduced-motion: reduce) {
+  .plan-switch {
+    transition: none;
+  }
+}
+
+/* The panel the switch changes. Motion that answers a tap and shows what
+   changed, which is the one kind this site does on demand. */
+@media (prefers-reduced-motion: no-preference) {
+  .plan-panel {
+    animation: plan-swap 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes plan-swap {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The one package the owner points people at.
+   Marked with colour rather than a ruby outline, for the reason above: the
+   cards beside it are shadows with no border, and giving this one both would
+   be the two arguing decisions that rule exists to prevent. It is a class
+   rather than `panel bg-sage` because `.panel` sets its own background from
+   outside Tailwind's layers and would win against the utility. */
+.panel-pick {
+  border-radius: var(--radius-panel);
+  /* Sage, but as glass: tinted and translucent rather than a flat fill, so
+     it belongs to the same row of panes as the two beside it. */
+  background: rgba(207, 224, 212, 0.78);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid rgba(22, 58, 48, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(22, 58, 48, 0.05),
+    0 18px 40px -18px rgba(22, 58, 48, 0.34);
+}
+
+/* A card that overlaps a photograph — the one place on the site where the
+   blur has a real image behind it rather than a wash. Brighter and lifted
+   further than a panel, so it reads as in front of the photograph. */
+.float-card {
+  border-radius: var(--radius-float);
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 10px 30px -8px rgba(22, 58, 48, 0.3);
+}
+
+/* The sticky header, as glass. A heavier blur than a panel because what
+   passes under it is live content rather than a wash, and the text on it has
+   to stay readable against whatever that content happens to be. */
+.site-header {
+  background: rgba(242, 233, 216, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--color-paper);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-header {
+    background: var(--color-paper);
+  }
+}
+
+/* The scalloped edge between the paper and the dark band. Drawn with a
+   repeating radial gradient rather than an SVG so it scales with the
+   viewport and costs no request. */
+.scallop-top {
+  --scallop: 56px;
+  height: calc(var(--scallop) / 2);
+  background:
+    radial-gradient(
+      circle at 50% 100%,
+      var(--color-pine-deep) 0 49.5%,
+      #0000 50%
+    );
+  background-size: var(--scallop) 100%;
+  background-repeat: repeat-x;
+}
+
+/* A page that already closes on the dark band does not want the footer's
+   cream scallop strip between it and the dark footer. `:has()` lets the
+   footer respond to how the page above it ended, which no prop drilling
+   through the layout could do as cleanly. */
+main:has(> section:last-child[data-tone="pine"]) + footer .footer-scallop {
+  display: none;
 }
 
 html {
@@ -43,14 +599,43 @@ html {
 }
 
 body {
-  background-color: var(--color-ink);
-  color: var(--color-body);
+  background-color: var(--color-paper);
+  color: var(--color-pine);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Respect users who get motion sickness — also an accessibility point real
-   audits check for. */
+/* What the glass has to blur.
+   `backdrop-filter` over one flat colour produces that same flat colour, so
+   without this the panes would have an edge and nothing behind it. Two very
+   soft washes of the two brand hues, fixed to the viewport so they do not
+   travel with the content, at an alpha low enough that on their own they are
+   not a visible gradient — they are only visible through glass, which is the
+   whole point of them. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 40rem at 12% 8%,
+      rgba(22, 58, 48, 0.07),
+      transparent 70%
+    ),
+    radial-gradient(
+      52rem 38rem at 88% 72%,
+      rgba(240, 40, 60, 0.05),
+      transparent 70%
+    );
+}
+
+/* Prices and any figure in a table line up only with tabular figures. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -63,134 +648,174 @@ body {
   }
 }
 
-/* Visible keyboard focus. Removing this is the most common a11y failure on
-   agency sites; keeping it is free credibility. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-ruby);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-ink);
-}
-
-/* Subtle grid texture used behind hero sections. */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-}
-
-/* Fades the grid out toward the edges so it reads as texture, not a table. */
-.bg-grid-fade {
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 35%, transparent 100%);
-  -webkit-mask-image: radial-gradient(
-    ellipse 90% 70% at 50% 0%,
-    #000 35%,
-    transparent 100%
-  );
+  background: var(--color-ruby);
+  color: var(--color-paper);
 }
 
 /* ---------------------------------------------------------------------------
-   Motion
+   Graph paper
    ---------------------------------------------------------------------------
-   Everything below animates only `transform`, `opacity`, and `filter` — the
-   properties a browser can composite on the GPU without recalculating layout.
-   Nothing here triggers reflow, so none of it costs us the speed we sell.
+   From Uiverse.io by csemszepp - https://uiverse.io/csemszepp/serious-cobra-89
+   MIT License, Copyright (c) csemszepp
+
+   Two changes on adoption. The class was `.container`, which collides with
+   Tailwind's own `container` utility — a global rule setting width, height
+   and a background on that name is a bug waiting for the first component
+   that uses it. And the original teal `#366` is a colour outside this
+   palette, so it is drawn in pine instead.
+
+   A 100px major grid with a 20px minor grid inside it, from two conic
+   gradients rather than four linear ones. The 2px and 1px offsets give the
+   major lines their weight without a second colour.
+
+   Scoped to the hero diagram and section two. Grids and rules spread across
+   every section are the broadsheet default this design avoids.
 --------------------------------------------------------------------------- */
-
-/* Slow, uneven drift for the blurred colour orbs behind hero sections. Two
-   variants at different durations so they never fall into visible lockstep. */
-@keyframes drift-a {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(5%, -6%, 0) scale(1.15);
-  }
+.graph-grid {
+  --s: 100px;
+  --_g: #0000 90deg, rgba(22, 58, 48, 0.1) 0;
+  background:
+    conic-gradient(from 90deg at 2px 2px, var(--_g)),
+    conic-gradient(from 90deg at 1px 1px, var(--_g));
+  background-size: var(--s) var(--s), calc(var(--s) / 5) calc(var(--s) / 5);
 }
 
-@keyframes drift-b {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1.1);
-  }
-  50% {
-    transform: translate3d(-7%, 5%, 0) scale(0.92);
-  }
-}
+/* ---------------------------------------------------------------------------
+   The hero draw
+   ---------------------------------------------------------------------------
+   One orchestrated moment on load: the price path strokes itself, the zones
+   fade in, then a single ruby level lands. It runs once and stops.
 
-.animate-drift-a {
-  animation: drift-a 22s ease-in-out infinite;
-  will-change: transform;
-}
-
-.animate-drift-b {
-  animation: drift-b 28s ease-in-out infinite;
-  will-change: transform;
-}
-
-/* Expanding ring on the "founding clients" status dot — signals live activity
-   rather than a static badge. */
-@keyframes ping-soft {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
+   Everything is behind `prefers-reduced-motion: no-preference`, so a visitor
+   who asked for less movement gets the finished diagram immediately rather
+   than a faster animation of it.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .draw-path {
+    stroke-dasharray: var(--draw-length, 1200);
+    stroke-dashoffset: var(--draw-length, 1200);
+    animation: draw-in 1100ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
-  70%,
-  100% {
-    transform: scale(2.6);
+
+  .draw-zone {
     opacity: 0;
+    animation: zone-in 420ms ease-out forwards;
+    animation-delay: 900ms;
+  }
+
+  .draw-level {
+    opacity: 0;
+    transform: translateX(-8px);
+    animation: level-in 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 1250ms;
   }
 }
 
-.animate-ping-soft {
-  animation: ping-soft 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-/* A light sweep that crosses a surface once on hover. */
-@keyframes sheen {
-  from {
-    transform: translateX(-120%) skewX(-18deg);
-  }
+@keyframes draw-in {
   to {
-    transform: translateX(320%) skewX(-18deg);
+    stroke-dashoffset: 0;
   }
 }
 
-.group:hover .animate-sheen {
-  animation: sheen 0.9s ease-out;
+@keyframes zone-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes level-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------
-   Scroll reveal
+   Scroll reveal: the starting state only
    ---------------------------------------------------------------------------
-   Elements marked `data-reveal` fade and rise as they enter the viewport.
+   GSAP animates out of this state and owns everything after it, so the
+   transition that used to live here is gone — it would have raced the tween
+   for the same two properties. What is left is the state an element waits in,
+   and it is here rather than in JavaScript so that no element is ever painted
+   in place and then hidden a frame later.
 
-   Two deliberate safeguards:
+   Two safeguards worth keeping from the previous build:
 
-   1. The hidden starting state lives behind `.motion-ready`, a class that only
-      JavaScript adds. If a script fails, is blocked, or has not run yet, the
-      selector never matches and every element renders plainly visible. Content
-      is never hostage to an animation.
+   1. The hidden starting state lives behind `.motion-ready`, a class only
+      JavaScript adds, and `motion-root.tsx` adds it only once GSAP itself has
+      loaded. If the import fails or scripts are blocked, the selector never
+      matches and everything renders plainly visible. Content is never hostage
+      to an animation.
 
-   2. The whole block sits inside `prefers-reduced-motion: no-preference`, so a
-      visitor who has asked their system for less movement gets a static page —
-      not a faster version of the same animation.
+   2. The block sits inside `prefers-reduced-motion: no-preference`, so a
+      visitor who asked for less movement gets a static page, not a faster
+      version of the same animation.
 --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Lenis
+   ---------------------------------------------------------------------------
+   The handful of rules smooth scroll needs, copied from `lenis/dist/lenis.css`
+   rather than imported, so the one stylesheet this site ships stays readable
+   and nothing in it comes from a path in node_modules. Lenis sets these
+   classes on <html> itself when it starts.
+--------------------------------------------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+/* The smooth scroll above is the browser's, and it fights Lenis for the same
+   gesture: an anchor link ends up easing twice and overshooting. */
+html.lenis {
+  scroll-behavior: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+/* An iframe swallows the wheel event, which strands the page mid-scroll. */
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+
 /* ---------------------------------------------------------------------------
    Article typography
    ---------------------------------------------------------------------------
-   Written by hand rather than pulled from a plugin. A typography plugin is
-   tuned for light backgrounds and would need overriding at almost every rule
-   to sit on this palette — at which point it is only adding weight.
+   Written by hand rather than pulled from a plugin, now tuned for paper
+   rather than a dark background. Measure is held under 80 characters by the
+   container, not here.
 --------------------------------------------------------------------------- */
 .prose {
-  color: var(--color-muted);
+  color: var(--color-pine-soft);
   font-size: 1.0625rem;
   line-height: 1.75;
 }
@@ -202,9 +827,10 @@ body {
 .prose h2 {
   margin-top: 2.75em;
   margin-bottom: -0.4em;
-  color: var(--color-body);
+  color: var(--color-pine);
+  font-family: var(--font-display);
   font-size: 1.6rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.015em;
   scroll-margin-top: 6rem;
@@ -213,7 +839,7 @@ body {
 .prose h3 {
   margin-top: 2em;
   margin-bottom: -0.5em;
-  color: var(--color-body);
+  color: var(--color-pine);
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.4;
@@ -221,19 +847,20 @@ body {
 }
 
 .prose strong {
-  color: var(--color-body);
+  color: var(--color-pine);
   font-weight: 600;
 }
 
 .prose a {
-  color: var(--color-accent);
+  color: var(--color-pine);
   text-decoration: underline;
+  text-decoration-color: var(--color-ruby);
   text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 2px;
 }
 
 .prose a:hover {
-  color: var(--color-accent-hot);
+  color: var(--color-ruby-deep);
 }
 
 .prose ul,
@@ -255,30 +882,28 @@ body {
 }
 
 .prose li::marker {
-  color: var(--color-accent);
+  color: var(--color-ruby);
 }
 
 .prose blockquote {
-  border-left: 2px solid var(--color-accent);
+  border-left: 2px solid var(--color-ruby);
   padding-left: 1.25em;
-  color: var(--color-body);
+  color: var(--color-pine);
   font-style: italic;
 }
 
 .prose code {
   border-radius: 0.35em;
-  background: var(--color-elevated);
+  background: var(--color-paper-sunk);
   padding: 0.15em 0.4em;
-  color: var(--color-body);
-  font-family: var(--font-mono);
+  color: var(--color-pine);
   font-size: 0.9em;
 }
 
 .prose pre {
   overflow-x: auto;
-  border: 1px solid var(--color-line);
-  border-radius: 0.9em;
-  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
   padding: 1.1em 1.3em;
 }
 
@@ -288,13 +913,13 @@ body {
 }
 
 .prose hr {
-  border-color: var(--color-line);
+  border-color: var(--color-rule);
   margin-top: 2.75em;
   margin-bottom: 2.75em;
 }
 
 .prose img {
-  border-radius: 0.9em;
+  border-radius: 0.25em;
 }
 
 /* Tables in an article must never widen the page on a phone. */
@@ -304,33 +929,1372 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95em;
+  font-variant-numeric: tabular-nums;
 }
 
 .prose th,
 .prose td {
-  border-bottom: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-rule);
   padding: 0.7em 1em;
   text-align: left;
 }
 
 .prose th {
-  color: var(--color-body);
+  color: var(--color-pine);
   font-weight: 600;
 }
 
+/* ---------------------------------------------------------------------------
+   The hero's graph paper.
+
+   From Uiverse.io by adamgiebl - https://uiverse.io/adamgiebl/curvy-earwig-79
+   MIT License, Copyright (c) adamgiebl (Adam Giebl)
+
+   The geometry is the original's: two linear gradients crossed at 55px, each
+   drawing a line at a quarter and three-quarters of the tile so the sheet has
+   a heavier rule every half square. The colours are not — the original lays
+   grey on #191a1a, and a near-black hero would put pine text on pine-black.
+   It is pine on Vanilla Line here instead, at an alpha low enough to sit
+   behind a photograph without competing with it.
+
+   Named `hero-grid`, not `chart-grid`: the old class of that name was retired
+   when the drafting language was cut back to the hero diagram, and
+   `voice.test.ts` still holds it gone.
+--------------------------------------------------------------------------- */
+.hero-grid {
+  /* 0.09 was invisible on cream. The original's 0.3 grey reads at that
+     strength because it sits on near-black; on Vanilla Line the same ratio
+     needs more. */
+  --grid-line: rgba(22, 58, 48, 0.2);
+  background-image:
+    linear-gradient(
+      0deg,
+      transparent 24%,
+      var(--grid-line) 25%,
+      var(--grid-line) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--grid-line) 75%,
+      var(--grid-line) 76%,
+      transparent 77%,
+      transparent
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      var(--grid-line) 25%,
+      var(--grid-line) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--grid-line) 75%,
+      var(--grid-line) 76%,
+      transparent 77%,
+      transparent
+    );
+  background-size: 55px 55px;
+  /* The sheet fades out before the section ends, so the grid reads as paper
+     the hero is drawn on rather than a block with four visible edges. */
+  /* Two masks intersected. The radial one fades the sheet out towards the
+     bottom and sides; the linear one eases in the top edge, which otherwise
+     began at full strength exactly where the header ends and drew a crisp
+     horizontal seam across the page. */
+  mask-image:
+    radial-gradient(
+      125% 110% at 50% 0%,
+      #000 45%,
+      rgba(0, 0, 0, 0.5) 72%,
+      transparent 100%
+    ),
+    linear-gradient(to bottom, transparent, #000 9%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+/* ---------------------------------------------------------------------------
+   The reasons showcase on /copytrade.
+
+   Copy down one side, a tall picture down the other, and pills over the foot
+   of the picture. Shape from the feature-showcase component the owner chose;
+   the colours, the single shared state and the stacked crossfade are this
+   site's.
+
+   The pictures are stacked in one positioned panel rather than swapped in
+   and out, so a switch costs an opacity change on an image the browser has
+   already decoded. A swap would cost a decode, and the panel would flash
+   empty on a slow connection.
+--------------------------------------------------------------------------- */
+/* The split lives here rather than in utilities, so it shares the 64rem
+   breakpoint with the panel below it and cannot drift from it. */
+.show-grid {
+  display: grid;
+  align-items: start;
+  gap: 2.5rem;
+  margin-block-start: 3rem;
+}
+
+@media (min-width: 64rem) {
+  .show-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    gap: 4rem;
+  }
+}
+
+.show-list {
+  border-block: 1px solid var(--color-rule);
+}
+
+.show-row + .show-row {
+  border-block-start: 1px solid var(--color-rule);
+}
+
+.show-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 1.5rem 0;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+  color: var(--color-pine);
+}
+
+.show-head:hover {
+  color: var(--color-ruby-deep);
+}
+
+/* Open: the heading keeps its own weight but the row is marked, so the
+   reader can see which body belongs to which heading without reading. */
+.show-row[data-open] .show-head {
+  padding-block-end: 1rem;
+}
+
+.show-sign {
+  position: relative;
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.show-sign::before,
+.show-sign::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.show-sign::after {
+  rotate: 90deg;
+}
+
+.show-row[data-open] .show-sign::after {
+  opacity: 0;
+}
+
+/* ---- The picture ---- */
+
+.show-panel {
+  position: relative;
+  overflow: hidden;
+  /* The pictures' own proportion. Cropping a composed illustration to a
+     taller panel cut a third off the side that carried the point. */
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-sunk);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06);
+}
+
+.show-shot {
+  object-fit: cover;
+  opacity: 0;
+}
+
+.show-shot[data-on] {
+  opacity: 1;
+}
+
+.show-thumbs {
+  position: absolute;
+  inset-block-end: 0.75rem;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.375rem;
+  border-radius: var(--radius-float);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-fill-strong);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.show-thumb {
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  width: 4rem;
+  height: 3rem;
+  border-radius: calc(var(--radius-float) - 0.3125rem);
+  /* Transparent rather than absent, so the lit one does not resize the row. */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  opacity: 0.55;
+}
+
+.show-thumb > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.show-thumb[data-on] {
+  outline-color: var(--color-pine);
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .motion-ready [data-reveal] {
-    opacity: 0;
-    transform: translateY(20px);
+  .show-head,
+  .show-thumb {
+    transition:
+      color 180ms var(--ease-out-ui),
+      background-color 180ms var(--ease-out-ui),
+      opacity 180ms var(--ease-out-ui),
+      outline-color 180ms var(--ease-out-ui);
   }
 
-  .motion-ready [data-reveal].is-visible {
+  /* Entering and leaving, so ease-out both ways; 240ms because this is a
+     picture changing, not a control answering a press. */
+  .show-shot {
+    transition: opacity 240ms var(--ease-out-ui);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .show-thumb:hover {
     opacity: 1;
-    transform: none;
-    /* Decelerating curve — quick to start, settles softly. */
+  }
+}
+
+/* Below the split, the picture leads and the reasons read under it. */
+@media (max-width: 64rem) {
+  .show-panel {
+    order: -1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The FAQ on /copytrade.
+
+   A <details> element, styled rather than replaced. The browser already
+   gives it keyboard handling, the right role, and find-in-page that opens
+   the matching answer — all of which a div with an onClick gives up.
+--------------------------------------------------------------------------- */
+.faq-item > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  cursor: pointer;
+  padding: 1.25rem 0;
+  font-weight: 600;
+  color: var(--color-pine);
+  list-style: none;
+}
+
+/* Safari draws its own triangle through ::-webkit-details-marker, which
+   `list-style: none` alone does not remove. */
+.faq-item > summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item > summary:hover {
+  color: var(--color-ruby-deep);
+}
+
+/* The sign is drawn, not typed: a glyph would inherit the font's own
+   metrics and sit off centre against the line it belongs to. */
+.faq-sign {
+  position: relative;
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.faq-sign::before,
+.faq-sign::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  translate: 0 -50%;
+}
+
+.faq-sign::after {
+  rotate: 90deg;
+}
+
+/* Open: the upright stroke goes, leaving a minus. */
+.faq-item[open] .faq-sign::after {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq-sign::after {
+    transition: opacity 180ms ease;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The order flow on /copytrade.
+
+   One master emitting to three followers, one route lit at a time. Drawn in
+   a square SVG with a 0-100 viewBox, so a stroke width of 0.5 is half a per
+   cent of the panel and the whole thing scales without a media query.
+
+   Two strokes per route: a grey one always there, and a dashed coloured one
+   that wakes in turn. The dashes march continuously and the waking is a
+   second animation on the same element with its own delay, which is what
+   keeps one route lit and the other two dark without any JavaScript.
+--------------------------------------------------------------------------- */
+.flow-line {
+  stroke: rgba(22, 58, 48, 0.18);
+  stroke-width: 0.45;
+  stroke-linecap: round;
+}
+
+.flow-live {
+  stroke: var(--color-ruby);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-dasharray: 1.8 1.8;
+  /* Dark until its turn. Motion is decoration, so the state everyone gets
+     when the query below is forgotten is the still one. */
+  opacity: 0;
+}
+
+/* The follower tiles. Centred on their coordinate rather than placed by
+   their corner, so a tile and a path endpoint come from the same numbers,
+   and sized in per cent so the drawing holds its proportions at any width. */
+.flow-node {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 15%;
+  height: 15%;
+  border-radius: 9999px;
+  background: var(--color-paper-raised);
+  color: var(--color-pine-soft);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.08), 0 8px 20px rgba(22, 58, 48, 0.07);
+}
+
+.flow-hub {
+  position: absolute;
+  left: 26%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  /* 24%, which is what the paths were drawn against: they leave at 39 and
+     this tile reaches 38. */
+  width: 24%;
+  height: 24%;
+  border-radius: 26%;
+  /* Paper, not pine. The Fukyaa mark is dark and transparent, so on a pine
+     tile it disappeared into it. The ring is what marks this as the one the
+     others are listening to, rather than a fourth account of the same kind. */
+  background: var(--color-paper-raised);
+  box-shadow:
+    0 0 0 2px var(--color-pine),
+    0 2px 4px rgba(22, 58, 48, 0.12),
+    0 16px 36px rgba(22, 58, 48, 0.16);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flow-live {
+    animation-name: flow-march, flow-wake;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+  }
+
+  .flow-node {
+    animation-name: flow-arrive;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+}
+
+/* The dashes travel from the master outwards, which is the direction the
+   path is drawn in. A decreasing offset moves them forward along it. */
+@keyframes flow-march {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -3.6;
+  }
+}
+
+/* A third of the cycle lit, with the edges eased so a route fades up rather
+   than switching on. */
+@keyframes flow-wake {
+  0%,
+  2% {
+    opacity: 0;
+  }
+  8%,
+  28% {
+    opacity: 1;
+  }
+  34%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The follower answers its own route: it lifts and takes the accent as the
+   order reaches it, a beat behind the line waking. */
+@keyframes flow-arrive {
+  0%,
+  10% {
+    color: var(--color-pine-soft);
+    scale: 1;
+  }
+  20%,
+  28% {
+    color: var(--color-ruby-deep);
+    scale: 1.08;
+  }
+  38%,
+  100% {
+    color: var(--color-pine-soft);
+    scale: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The connection diagram beside the packages.
+
+   Three marks joined to Mastery Signal. The lines are drawn in a square SVG
+   whose viewBox is 0 0 100 100, so a stroke width of 0.5 is half a per cent
+   of the panel and the whole thing scales without a media query.
+
+   `vector-effect: non-scaling-stroke` is deliberately NOT used: the lines
+   should get finer as the panel gets smaller, the way a drawing does, rather
+   than holding one pixel weight and turning into wire at phone size.
+--------------------------------------------------------------------------- */
+.connect-line {
+  stroke: rgba(22, 58, 48, 0.28);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  /* Dashed, so the line reads as a route rather than a pipe. The gap is a
+     little longer than the dash, which is what keeps it quiet. */
+  stroke-dasharray: 1.4 2.2;
+}
+
+/* The travelling pulse: one short dash on an otherwise empty stroke, moved
+   along the path by its offset. The dash array's gap is longer than any of
+   the paths, so exactly one pulse is ever on a line at a time.
+
+   Off by default. Motion here is decoration, and a page that starts moving
+   before anyone has asked for it is the version everyone gets when the
+   query is forgotten. The rule below turns it on. */
+.connect-pulse {
+  opacity: 0;
+  stroke: var(--color-ruby);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-dasharray: 3 200;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .connect-pulse {
+    opacity: 1;
+    /* From the node to the hub. The offset counts backwards along the path,
+       so it starts at the dash length and runs to the far end. */
+    animation: connect-flow 3.2s linear infinite;
+  }
+}
+
+@keyframes connect-flow {
+  from {
+    stroke-dashoffset: 3;
+  }
+  to {
+    stroke-dashoffset: -60;
+  }
+}
+
+/* The three marks. Centred on their coordinate rather than placed by their
+   top-left corner, which is what lets the component position a tile and a
+   path endpoint from the same pair of numbers. */
+/* Sized in per cent of the square panel, not in rem. The geometry above is
+   in per cent too, so a tile given a fixed width is correct at exactly one
+   panel size and wrong at every other: at phone width a 7.5rem hub was a
+   third of the panel instead of a quarter, and the joins shrank to stubs. */
+.connect-node {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 17%;
+  height: 17%;
+  border-radius: 9999px;
+  background: var(--color-paper-raised);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.08), 0 8px 20px rgba(22, 58, 48, 0.07);
+}
+
+.connect-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  /* 26% is what the paths were drawn against: they stop 16 units from the
+     centre, and this tile reaches 13. */
+  width: 26%;
+  height: 26%;
+  border-radius: 24%;
+  background: var(--color-paper-raised);
+  /* Heavier than the nodes. It is the thing the other three arrive at, and
+     a shadow is how a diagram says which element is in front. */
+  box-shadow: 0 2px 4px rgba(22, 58, 48, 0.1), 0 16px 36px rgba(22, 58, 48, 0.12);
+}
+
+/* ---------------------------------------------------------------------------
+   The logo strip under the hero.
+
+   Two identical rows side by side; the track slides left by half its width,
+   which is one whole row, so the loop returns to a frame that looks the same
+   and never shows a join.
+--------------------------------------------------------------------------- */
+.logo-marquee {
+  overflow: hidden;
+  /* The row runs off both sides rather than stopping at an edge, which is
+     what says it continues past the window. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+.logo-marquee-track {
+  display: flex;
+  width: max-content;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo-marquee-track {
+    animation: logo-slide 42s linear infinite;
+  }
+}
+
+@keyframes logo-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The walkthrough on /copytrade.
+
+   A still with a play button until it is pressed. The sizing is here rather
+   than in utilities because the frame, the cover and the button are one
+   thing: the cover fills the frame absolutely, so the frame is what holds
+   the ratio, and the two cannot be set in different places.
+--------------------------------------------------------------------------- */
+.video-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-panel);
+  background: var(--color-pine-deep);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.08);
+}
+
+.video-cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.video-play {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 9999px;
+  background: var(--color-ruby);
+  color: var(--color-paper);
+  box-shadow: 0 8px 24px rgba(22, 58, 48, 0.28);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .video-play {
     transition:
-      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    transition-delay: var(--reveal-delay, 0ms);
+      transform 180ms var(--ease-out-ui),
+      background-color 180ms var(--ease-out-ui);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .video-cover:hover .video-play {
+    transform: scale(1.06);
+    background: var(--color-ruby-deep);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The register track on /copytrade.
+
+   Numbered nodes joined by a rule, a card under each. Shape from the layout
+   the owner chose; the colours and the breakpoint behaviour are this site's.
+
+   The joining rule is drawn by each cell rather than by a bar behind them,
+   so it cannot drift out of line with the nodes when a card changes height:
+   it starts at this cell's node and ends at the next one, and the last cell
+   does not draw one.
+--------------------------------------------------------------------------- */
+.track {
+  display: grid;
+  gap: 2rem 1.5rem;
+  margin-block-start: 3rem;
+}
+
+.track-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-node {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  border-radius: 9999px;
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-paper-raised);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-pine);
+}
+
+.track-card {
+  flex: 1;
+  /* A column, so the action can be pushed to the foot: the four cards hold
+     different amounts of copy and two of them end in a button, which read as
+     misaligned when each sat wherever its own text left it. */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-block-start: 1.25rem;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
+  padding: 1.5rem;
+}
+
+.track-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-float);
+  background: var(--color-sage);
+  color: var(--color-pine);
+}
+
+.track-points {
+  margin-block-start: 1.25rem;
+  width: 100%;
+  display: grid;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-pine-soft);
+}
+
+.track-points > li {
+  position: relative;
+  padding-inline-start: 1.375rem;
+}
+
+/* The marker is drawn, not a list-style: a bullet glyph sits on the text
+   baseline and this one has to sit on the first line's optical centre. */
+.track-points > li::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.4375rem;
+  inset-inline-start: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  border: 2px solid var(--color-pine);
+}
+
+@media (min-width: 64rem) {
+  .track {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .track-node {
+    margin-inline: auto;
+  }
+
+  /* Node centre to node centre: out from this node's edge, across the gap,
+     and up to the next node's edge. */
+  .track-cell:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 1.125rem;
+    inset-inline-start: calc(50% + 1.5rem);
+    width: calc(100% - 3rem + 1.5rem);
+    border-block-start: 1px solid var(--color-rule-strong);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The record chart on /copytrade.
+
+   Geometry from the chart the owner chose; the card around it is this
+   site's. The first pass drew the source's hairline straight onto the paper
+   and it read as a sketch dropped into a finished page — everything else
+   here that holds content sits on a card.
+--------------------------------------------------------------------------- */
+.record {
+  /* Its own cap, centred on its own: the card is the section's one column,
+     so the width lives here rather than on a wrapper that would have to
+     agree with this number. */
+  max-width: 44rem;
+  margin-inline: auto;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06);
+}
+
+.record-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.record-plot {
+  position: relative;
+  margin-block-start: 1.5rem;
+  height: 14rem;
+  touch-action: none;
+  user-select: none;
+}
+
+/* The scale, written over the gridlines. Right-aligned to the frame so the
+   three numbers form a column without taking a column of layout. */
+.record-scale > span {
+  position: absolute;
+  inset-inline-end: 0;
+  translate: 0 -50%;
+  padding-inline-start: 0.5rem;
+  background: var(--color-paper-raised);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-pine-faint);
+  pointer-events: none;
+}
+
+.record-cursor {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: 9999px;
+  background: var(--color-rule-strong);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.record-dot {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 10;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 9999px;
+  background: var(--color-pine);
+  box-shadow: 0 0 0 3px var(--color-paper-raised);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.record-tip {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 20;
+  min-width: 8rem;
+  border-radius: var(--radius-float);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-fill-strong);
+  backdrop-filter: blur(var(--glass-blur));
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.record-axis {
+  position: relative;
+  height: 1.25rem;
+  margin-block-start: 0.5rem;
+  border-block-start: 1px solid var(--color-rule);
+  padding-block-start: 0.5rem;
+}
+
+.record-axis > span {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  translate: -50% 0;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-pine-faint);
+}
+
+/* Inside the card, under the chart: a caveat printed beside a picture
+   travels with the screenshot, one written under it does not. */
+.record-note {
+  margin-block-start: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-pine-faint);
+}
+
+.record-table {
+  margin-block-start: 1rem;
+  font-size: 0.875rem;
+}
+
+.record-table > summary {
+  cursor: pointer;
+  color: var(--color-pine-soft);
+}
+
+.record-table table {
+  margin-block-start: 0.75rem;
+  width: 100%;
+}
+
+.record-table th,
+.record-table td {
+  border-block-end: 1px solid var(--color-rule);
+  padding: 0.375rem 0;
+  text-align: start;
+  font-weight: 400;
+  color: var(--color-pine-soft);
+}
+
+.record-table thead th {
+  font-weight: 600;
+  color: var(--color-pine);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .record-cursor,
+  .record-dot {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* The same card on the dark band.
+   The owner moved this section onto `pine` and asked for a glow behind the
+   chart, because pine ink on a pine band is ink nobody can see.
+
+   Rather than restyle each of the card's fifteen parts, this retargets the
+   colour tokens they already read. The chart's SVG strokes, the scale's
+   cover over the gridlines, and every `text-pine*` utility inside the card
+   are all `var(--color-*)` lookups, so redefining them here moves the whole
+   card at once and leaves the component unaware of where it is standing.
+   Scoped to `.record`, so nothing else on the band moves with it. */
+[data-tone="pine"] .record {
+  /* A step below the band, so the card reads as a recess holding a lit
+     line rather than a panel laid on top. */
+  --record-face: #0b1f19;
+
+  --color-paper-raised: var(--record-face);
+  --color-pine: var(--color-neon);
+  /* The area fill under the line. The gradient multiplies this by its own
+     0.9, so the alpha here is what keeps a lit line from becoming a lit
+     block. */
+  --color-sage: rgba(78, 242, 163, 0.22);
+  --color-pine-soft: rgba(242, 233, 216, 0.74);
+  --color-pine-faint: rgba(242, 233, 216, 0.55);
+  --color-rule: rgba(242, 233, 216, 0.14);
+  --color-rule-strong: rgba(78, 242, 163, 0.5);
+
+  border-color: rgba(78, 242, 163, 0.2);
+  background: var(--record-face);
+  /* The glow, in two parts: a tight bloom that separates the card's edge
+     from the band, and a wide one that reads as light coming off it. Both
+     are drawn outside the card, so nothing inside loses contrast to them. */
+  box-shadow:
+    0 0 32px -10px rgba(78, 242, 163, 0.4),
+    0 0 90px -28px rgba(78, 242, 163, 0.45);
+}
+
+/* The line itself, glowing. The card's bloom lifts the frame off the band;
+   this is what makes the line read as lit rather than merely bright. Kept
+   small: a wide drop-shadow on a 2.5px stroke turns it into a smear. */
+[data-tone="pine"] .record-line {
+  filter: drop-shadow(0 0 6px rgba(78, 242, 163, 0.55));
+}
+
+/* The tooltip rides over the lit line, so it cannot be the pale glass pane
+   it is on paper. */
+[data-tone="pine"] .record-tip {
+  border-color: rgba(78, 242, 163, 0.28);
+  background: rgba(11, 31, 25, 0.92);
+}
+
+/* Nothing to draw: the frame at the height the chart will occupy, so the
+   section does not jump on the day the feed is wired up. */
+.record-empty {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 14rem;
+  text-align: center;
+}
+
+.record-empty-rule {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  border-block-start: 1px solid var(--color-rule);
+}
+
+/* The account's own figure, under the headline one. Small and quiet: it is
+   there to be recognised when a reader opens MT5, not to be read first. */
+.record-sub {
+  margin-block-start: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-pine-faint);
+}
+
+/* ---------------------------------------------------------------------------
+   Around the chart: the live mark, the four figures, the calendar.
+
+   The figures and the calendar are `.record` cards too, so the dark band's
+   token retargeting above lights them exactly as it lights the chart.
+--------------------------------------------------------------------------- */
+.record-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(78, 242, 163, 0.3);
+  padding: 0.25rem 0.875rem;
+  font-size: 0.8125rem;
+  color: rgba(242, 233, 216, 0.8);
+}
+
+.record-live-dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-neon);
+}
+
+/* Quiet for three hours: no pulse, no green. */
+.record-live--stale {
+  border-color: rgba(242, 233, 216, 0.2);
+}
+.record-live--stale .record-live-dot {
+  background: rgba(242, 233, 216, 0.45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .record-live:not(.record-live--stale) .record-live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: record-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+}
+
+@keyframes record-pulse {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+/* One tab per account, the same width as the cards below them. */
+.record-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.record-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  border-radius: var(--radius-float);
+  border: 1px solid rgba(242, 233, 216, 0.14);
+  background: #0b1f19;
+  padding: 0.75rem 1rem;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.record-tab:hover {
+  border-color: rgba(78, 242, 163, 0.35);
+}
+
+.record-tab[aria-selected="true"] {
+  border-color: rgba(78, 242, 163, 0.6);
+  box-shadow: 0 0 24px -10px rgba(78, 242, 163, 0.5);
+}
+
+.record-tab:focus-visible {
+  outline: 2px solid var(--color-neon);
+  outline-offset: 2px;
+}
+
+.record-tab-label {
+  font-size: 0.8125rem;
+  color: rgba(242, 233, 216, 0.74);
+}
+
+.record-tab-result {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(242, 233, 216, 0.9);
+}
+
+.record-tab-result--up {
+  color: var(--color-neon);
+}
+
+.record-tab-result--down {
+  color: var(--color-ruby);
+}
+
+.record-tab-since {
+  font-size: 0.75rem;
+  color: rgba(242, 233, 216, 0.55);
+}
+
+.record-tab-badge {
+  margin-block-start: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(78, 242, 163, 0.14);
+  padding: 0.0625rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--color-neon);
+}
+
+.record-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .record-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.record-stat dt {
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+.record-stat-value {
+  margin-block-start: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-pine-soft);
+}
+
+.record-stat-value--up {
+  color: var(--color-neon);
+}
+
+.record-stat-value--down {
+  color: var(--color-ruby);
+}
+
+.record-stat-sub {
+  margin-block-start: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+.record-stat-unit {
+  margin-inline-start: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-pine-faint);
+}
+
+.record-calendar {
+  margin-block-start: 1rem;
+}
+
+.record-calendar-head,
+.record-month-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.record-calendar-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+.record-calendar-legend .record-day {
+  width: 0.75rem;
+  height: 0.75rem;
+  min-height: 0;
+  border-radius: 0.1875rem;
+  margin-inline-start: 0.5rem;
+  --strength: 0.8;
+}
+
+.record-month {
+  margin-block-start: 1.5rem;
+}
+
+.record-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.375rem;
+  margin-block-start: 0.75rem;
+}
+
+.record-weekday {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: var(--color-pine-faint);
+}
+
+.record-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: 2.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-rule);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-pine-faint);
+}
+
+/* The day's figure, under its date. Hidden on a phone, where seven cells
+   across have no room for "+104.65" — the tooltip and the screen-reader
+   label still carry it. */
+.record-day-amount {
+  display: none;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+@media (min-width: 40rem) {
+  .record-day {
+    min-height: 3.25rem;
+  }
+  .record-day-amount {
+    display: block;
+  }
+}
+
+/* Before the account opened, or not yet come. A date, nothing more. */
+.record-day--off {
+  border-color: transparent;
+  opacity: 0.35;
+}
+
+/* `--strength` runs 0.25–1 with the size of the day's move. The fill is
+   capped well short of opaque so the light date stays readable on the
+   strongest day as well as on the faintest. */
+.record-day--up,
+.record-day--down {
+  border-color: transparent;
+  color: rgba(242, 233, 216, 0.95);
+}
+
+.record-day--up {
+  background: rgba(78, 242, 163, calc(var(--strength, 0.5) * 0.55));
+}
+
+.record-day--down {
+  background: rgba(240, 40, 60, calc(var(--strength, 0.5) * 0.65));
+}
+
+/* ---------------------------------------------------------------------------
+   The buttons.
+
+   From Uiverse.io by alexroumi - https://uiverse.io/alexroumi/shy-sloth-91
+   MIT License, Copyright (c) alexroumi (Alexander Roumeliotis)
+
+   The behaviour is the original's: a panel sweeps in from the left edge on
+   hover and the label flips to the colour behind it, both over 250ms.
+
+   Three things are this site's. The colours — each tone keeps the resting
+   pair it already had, and sweeps to the colour it used to jump to, so the
+   page reads the same standing still. The radius — pill, not the original's
+   15px, because every other action on this site is a pill. And the motion:
+   the original animates `width` from 0 to 100%, which lays out and paints
+   on every frame; this scales a panel that is already the full size, which
+   is the same picture on the compositor.
+
+   `isolation` is what lets the panel sit at z-index -1 without falling
+   behind the button's own background: it gives the button a stacking
+   context of its own, so -1 means "under the label", not "under the page".
+--------------------------------------------------------------------------- */
+.btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: color 250ms var(--ease-out-ui);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 250ms var(--ease-out-ui);
+}
+
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: scaleX(1);
+}
+
+/* The default action, and the one the sweep had to be argued over. Pine
+   deepening to pine-deep is the hover this button already had, and under a
+   panel crossing the label it is a six per cent change nobody sees — the
+   motion would be there and the point of it would not. Inverting to paper
+   is the original's own trick, but a paper button on paper is a button with
+   no edges.
+
+   Sage: the pine hue lightened, already on the page behind photographs. It
+   reads against both the cream and the band, and it carries pine type at
+   the weight this class sets. */
+.btn--ink {
+  background: var(--color-pine);
+  color: var(--color-paper);
+}
+.btn--ink:hover,
+.btn--ink:focus-visible {
+  color: var(--color-pine);
+}
+.btn--ink::before {
+  background: var(--color-sage);
+}
+
+/* Ruby, and the rule that comes with it: once per screen, never for running
+   text. */
+.btn--accent {
+  background: var(--color-ruby);
+  color: #fff;
+}
+.btn--accent::before {
+  background: var(--color-ruby-deep);
+}
+
+/* The second action beside a first: an outline, which the panel fills. */
+.btn--ghost {
+  border: 1px solid var(--color-pine);
+  color: var(--color-pine);
+}
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  color: var(--color-paper);
+}
+.btn--ghost::before {
+  background: var(--color-pine);
+}
+
+/* The same outline on the dark band. */
+.btn--onDark {
+  border: 1px solid rgba(242, 233, 216, 0.7);
+  color: var(--color-paper);
+}
+.btn--onDark:hover,
+.btn--onDark:focus-visible {
+  color: var(--color-pine);
+}
+.btn--onDark::before {
+  background: var(--color-paper);
+}
+
+/* A disabled action does not promise anything on hover. `:hover` still
+   matches a disabled button in some browsers, so this is said rather than
+   assumed. */
+.btn:disabled::before {
+  transform: scaleX(0);
+}
+
+/* The sweep is the animation; the colour change is the information. Under
+   reduced motion the panel is simply there or not. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn::before {
+    transition: none;
   }
 }

@@ -1,495 +1,479 @@
-import type { CSSProperties } from "react";
-import Link from "next/link";
-import { formatDate, getPosts } from "@/lib/blog";
-import { services } from "@/lib/services";
-import { site, waLink } from "@/lib/site";
-import { Faq } from "@/components/faq";
+import Image from "next/image";
+import { ibProducts } from "@/lib/products";
+import { site } from "@/lib/site";
+import { heroCards } from "@/lib/commercial";
+import { classList } from "@/lib/coaching";
+import { Container, Section } from "@/components/ui";
+import { SectionHeading } from "@/components/section-heading";
+import { PlanGroup } from "@/components/plan-cards";
+import { PlanSwitch } from "@/components/plan-switch";
+import { fukyaaPlanCards, masteryPlanCards } from "@/lib/plans";
+import { checkoutEnabled } from "@/lib/checkout/config";
+import { LogoMarquee } from "@/components/logo-marquee";
+import { BuildShowcase } from "@/components/build-showcase";
+import { ConnectDiagram } from "@/components/connect-diagram";
 import {
-  ButtonAnchor,
-  ButtonLink,
-  Card,
-  CheckItem,
-  Container,
+  ActionLink,
+  ActionOut,
   Eyebrow,
-  Section,
-  SectionHeading,
-} from "@/components/ui";
+  FloatCard,
+  Marked,
+  OffsetFrame,
+  Scallop,
+  TextLink,
+} from "@/components/shell";
 
-/* The three things SMEs actually complain about. Naming the pain before
-   pitching the service is what makes a visitor feel understood. */
-const problems = [
-  {
-    title: "You are paying for ads you cannot measure",
-    body: "Money leaves the account every month. Someone sends a report full of impressions and reach. Nobody can tell you how many customers it produced.",
-  },
-  {
-    title: "Your website gets visitors but no enquiries",
-    body: "It looks acceptable. It loads slowly on mobile, buries your phone number, and gives visitors no obvious reason to contact you today.",
-  },
-  {
-    title: "Three vendors, three excuses",
-    body: "The web developer blames the ads guy. The ads guy blames the website. You are left coordinating people who are supposed to be helping you.",
-  },
-];
-
-/* Replaces the usual "trusted by" logo wall — honest facts that reduce risk. */
-const trustPoints = [
-  { label: "Month to month", detail: "No lock-in contracts" },
-  { label: "You own everything", detail: "Accounts, code, and data" },
-  { label: "Fixed-price scope", detail: "Quoted before we start" },
-  { label: "Direct line to me", detail: "No junior account manager" },
-];
-
-const process = [
-  {
-    step: "01",
-    title: "Free audit",
-    body: "We look at your website, ad accounts, and search presence, then tell you plainly what is wrong and what it is costing you. No charge, no obligation, and you keep the findings even if you never hire us.",
-  },
-  {
-    step: "02",
-    title: "Plan and quote",
-    body: "You get a written scope: what we will do, what it costs, and when it will be done. One price, agreed upfront. No surprise line items later.",
-  },
-  {
-    step: "03",
-    title: "Build and launch",
-    body: "We do the work — site, campaigns, tracking, systems. You get progress updates you can actually understand, not jargon designed to sound busy.",
-  },
-  {
-    step: "04",
-    title: "Measure honestly",
-    body: "Tracking is set up before launch, so we can attribute enquiries to their source. If something is not working, you hear it from us first.",
-  },
-  {
-    step: "05",
-    title: "Improve monthly",
-    body: "Marketing is not a project you finish. Each month we review what happened, cut what failed, and put more behind what worked.",
-  },
-];
-
-const homeFaqs = [
-  {
-    q: "How much does it cost?",
-    a: "We quote per project rather than publishing packages, because a five-page site and a booking system are not the same job and should not carry the same price. The free audit comes first: we look at what you have, agree the scope, then give you one fixed written price before any work begins. No hourly billing, and no line items appearing later.",
-  },
-  {
-    q: "You look like a new agency. Why should I trust you?",
-    a: "Fair question, and we would rather answer it than dodge it. We are early, and we price and structure our work accordingly: no lock-in contract, you own every account and all the code, scope and price are fixed in writing before we start, and you deal directly with the founder rather than a junior. If we do not deliver, leaving costs you nothing but the month you paid for.",
-  },
-  {
-    q: "Do you work with my industry?",
-    a: "We work with Malaysian SMEs across services, retail, F&B, clinics, and professional firms. What matters more than industry is whether your customers are findable online and whether you can handle more enquiries. If we are not a good fit, we will say so at the audit stage.",
-  },
-  {
-    q: "Do I have to take all your services?",
-    a: "No. Most clients start with one thing — usually the website or Google Ads — and add more only once it is working. Bundling everything on day one is how budgets get wasted.",
-  },
-  {
-    q: "Do we need to meet in person?",
-    a: "Not necessarily. Our office is in Seremban, Negeri Sembilan, so we can meet in person around Seremban, Nilai, Port Dickson, and the Klang Valley. Most work runs over WhatsApp, email, and video calls, and we take clients from anywhere in Malaysia.",
-  },
-  {
-    q: "How quickly can you start?",
-    a: "The free audit usually comes back within two to three working days. If you go ahead, most projects begin within a week of the quote being approved.",
-  },
-];
-
-export default function Home() {
-  // Three most recent — enough to show the blog is alive without pushing the
-  // conversion sections further down the page.
-  const posts = getPosts().slice(0, 3);
+export default function HomePage() {
+  /* Read here, on the server. `checkoutEnabled` reads the service-role key
+     and the Billplz credentials; a client component asking the question
+     would either fail or bundle the answer's inputs. */
+  const checkout = checkoutEnabled();
 
   return (
     <>
-      {/* ---------------------------------------------------------------- Hero */}
-      <section className="relative overflow-hidden border-b border-line/60">
-        <div aria-hidden className="bg-grid bg-grid-fade absolute inset-0" />
-        {/* Two blurred orbs drifting on different cycles. They never align, so
-            the background keeps moving without ever looking like a loop. */}
-        <div
-          aria-hidden
-          className="animate-drift-a absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent/20 blur-[110px]"
-        />
-        <div
-          aria-hidden
-          className="animate-drift-b absolute -right-32 top-40 h-[380px] w-[520px] rounded-full bg-accent-deep/30 blur-[120px]"
-        />
-        <Container className="relative py-24 sm:py-32">
-          <div className="max-w-3xl">
-            <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-line-bright bg-elevated/70 px-4 py-1.5 text-xs font-medium text-muted">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping-soft absolute inline-flex h-full w-full rounded-full bg-accent" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-              </span>
-              Taking on founding clients for 2026
-            </p>
-            <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight text-body sm:text-6xl">
-              Marketing that ends in{" "}
-              <span className="text-accent">enquiries</span>, not reports
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">
-              {site.name} builds the website, runs the ads, and fixes the SEO
-              for Malaysian SMEs — one team, one invoice, one person you can
-              actually call.
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <ButtonAnchor
-                href={waLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                size="lg"
-              >
-                Get a free audit
-              </ButtonAnchor>
-              <ButtonLink href="/services" variant="outline" size="lg">
-                See what we do
-              </ButtonLink>
-            </div>
-            <p className="mt-5 text-sm text-faint">
-              No cost, no obligation. We tell you what is broken — you decide
-              what to do about it.
-            </p>
-          </div>
+      {/* ---------------------------------------------------------------
+          1. Hero. The owner's own copy, kept as he wrote it.
+      --------------------------------------------------------------- */}
+      <Section
+        pad="pt-14 pb-10 sm:pt-20 sm:pb-12"
+        className="relative overflow-hidden"
+      >
+        {/* Graph paper behind the hero. Decorative, so it is hidden from
+            assistive technology, and it sits under its own stacking layer
+            rather than on the section itself — the section's background
+            colour is what keeps the paper tone consistent between bands. */}
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
+          <div className="grid items-center gap-16 lg:grid-cols-[1fr_minmax(0,460px)]">
+            <div>
+              <h1 className="display text-4xl text-pine sm:text-5xl lg:text-6xl">
+                Trade Shouldn&rsquo;t Be <Marked>Complicated</Marked>.
+              </h1>
 
-          {/* Risk-reversal strip. Stands in for the client logos we do not
-              have yet, and arguably says more than logos would. */}
-          <ul className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {trustPoints.map((point, i) => (
-              <li
-                key={point.label}
-                data-reveal
-                style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
-                className="group relative overflow-hidden bg-surface px-6 py-5"
-              >
-                {/* Light sweeps across on hover. */}
-                <span
-                  aria-hidden
-                  className="animate-sheen pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-linear-to-r from-transparent via-white/[0.06] to-transparent"
+              <p className="mt-8 max-w-xl text-lg leading-relaxed text-pine-soft">
+                Twelve years in the market went into the tools I build.
+                Simpler to set up, smarter about risk, built to fit how
+                you already trade.
+              </p>
+
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <ActionLink href="#fork">Find where you fit</ActionLink>
+                <ActionLink href="/about" tone="ghost">
+                  How I got here
+                </ActionLink>
+              </div>
+            </div>
+
+            {/* The portrait, in the reference's shape: a rounded image with a
+                block of colour offset behind it, and fragments of the real
+                terms floating over the edges. In the reference those cards
+                are product screenshots; built from config instead, they say
+                something true and needed no asset that does not exist. */}
+            <div className="relative" data-reveal>
+              <OffsetFrame tint="sage">
+                <Image
+                  src="/asri-hero.webp"
+                  alt={`${site.founder.name}, founder of ${site.name}`}
+                  width={1003}
+                  height={1516}
+                  className="h-auto w-full"
+                  sizes="(min-width: 1024px) 460px, 100vw"
+                  priority
                 />
-                <p className="relative text-sm font-semibold text-body">
-                  {point.label}
-                </p>
-                <p className="relative mt-1 text-sm text-faint">
-                  {point.detail}
-                </p>
-              </li>
-            ))}
-          </ul>
+              </OffsetFrame>
+
+              {/* Both cards sit low, below the feet. They were at the top
+                  left and the mid right, where the upper one landed across
+                  his face — the one part of a portrait that cannot be
+                  covered.
+
+                  They hang outside the frame only from `lg`, where the
+                  column is a fixed 460px inside a 1152px container and there
+                  is gutter to hang into. Below that the image is the full
+                  container width, so a negative offset would push past the
+                  page gutter and give a phone a horizontal scrollbar.
+
+                  They also sit side by side only from `lg`. On a phone the
+                  frame is about 350px wide and each card is around half of
+                  that, so the low row had them nearly touching; below `lg`
+                  the first one lifts and they stack instead. */}
+              <FloatCard
+                className="absolute bottom-16 left-2 lg:bottom-4 lg:-left-8"
+                label={heroCards.mastery.label}
+                value={heroCards.mastery.value}
+                note={heroCards.mastery.note}
+                mark={heroCards.mastery.mark}
+              />
+              <FloatCard
+                className="absolute -bottom-5 right-2 lg:-right-6"
+                label={heroCards.fukyaa.label}
+                value={heroCards.fukyaa.value}
+                note={heroCards.fukyaa.note}
+                mark={heroCards.fukyaa.mark}
+              />
+            </div>
+          </div>
         </Container>
-      </section>
+      </Section>
 
-      {/* ------------------------------------------------------------- Problem */}
-      <Section tone="surface">
-        <SectionHeading
-          eyebrow="The usual situation"
-          title="You are not short of marketing. You are short of answers."
-          lead="Most SMEs we speak to are already spending money online. The problem is rarely effort — it is that nobody can point to what is working."
-        />
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {problems.map((p, i) => (
-            <div
-              key={p.title}
-              data-reveal
-              style={{ "--reveal-delay": `${i * 110}ms` } as CSSProperties}
-            >
-              <Card className="h-full">
-                <h3 className="text-lg font-semibold leading-snug text-body">
-                  {p.title}
-                </h3>
-                <p className="mt-3 leading-relaxed text-muted">{p.body}</p>
-              </Card>
+      {/* ---------------------------------------------------------------
+          The logo strip. Sits directly under the hero, where a visitor who
+          has read the headline is deciding whether any of this is real.
+      --------------------------------------------------------------- */}
+      <Section pad="py-9 sm:py-11">
+        <Container>
+          <p className="text-center text-sm text-pine-faint" data-reveal>
+            The products I build, and the brokers they run on.
+          </p>
+        </Container>
+        <div className="mt-8">
+          <LogoMarquee />
+        </div>
+      </Section>
+
+      {/* The trust line the reference runs under its hero. One sentence,
+          already true, and the only number on the page that is about me. */}
+      <Section pad="pt-0 pb-10 sm:pb-14">
+        <Container>
+          <p className="text-center text-lg text-pine-soft" data-reveal>
+            More than{" "}
+            <span className="display tnum text-pine">
+              {site.founder.tradersGuided.toLocaleString("en-MY")} traders
+            </span>{" "}
+            across Malaysia and Indonesia have been through a class or a call
+            with me.
+          </p>
+        </Container>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          2. Who I am. The reference's dark band: the page inverts, and
+          one thing is on screen.
+      --------------------------------------------------------------- */}
+      <Scallop />
+      <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
+        <Container>
+          <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-20">
+            <div>
+              <SectionHeading
+                eyebrow="My expertise"
+                title="Trading goes beyond the charts."
+                onDark
+              >
+                <p>
+                  I&rsquo;m {site.founder.name}. With 12 years in the market,
+                  my work goes beyond taking trades. I study the economics
+                  behind price movements, teach traders to think beyond
+                  entries, and manage trading accounts for clients.
+                </p>
+              </SectionHeading>
+
+              <div className="mt-9">
+                <ActionLink href="/about" tone="onDark">
+                  More about me
+                </ActionLink>
+              </div>
             </div>
-          ))}
-        </div>
-      </Section>
 
-      {/* ------------------------------------------------------------ Services */}
-      <Section id="services">
-        <SectionHeading
-          eyebrow="What we do"
-          title="Five services. One team accountable for the result."
-          lead="Take one or take all of them. Most clients start with the one thing that is costing them the most, then expand once it works."
-        />
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((s, i) => (
-            <Link
-              key={s.slug}
-              href={`/services/${s.slug}`}
-              data-reveal
-              style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
-              className="group flex flex-col rounded-2xl border border-line bg-elevated/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:bg-elevated"
-            >
-              <span className="font-mono text-xs text-faint">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-4 text-xl font-semibold text-body transition-colors group-hover:text-accent">
-                {s.name}
-              </h3>
-              <p className="mt-3 flex-1 leading-relaxed text-muted">
-                {s.summary}
-              </p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-                Learn more
-                <svg
-                  aria-hidden
-                  viewBox="0 0 16 16"
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M3 8h10M9 4l4 4-4 4" />
-                </svg>
-              </span>
-            </Link>
-          ))}
-
-          <div
-            data-reveal
-            style={{ "--reveal-delay": "400ms" } as CSSProperties}
-            className="flex flex-col justify-center rounded-2xl border border-dashed border-line-bright p-7 transition-colors duration-300 hover:border-accent/40"
-          >
-            <h3 className="text-lg font-semibold text-body">
-              Not sure which you need?
-            </h3>
-            <p className="mt-3 leading-relaxed text-muted">
-              That is what the free audit is for. We will tell you where your
-              money is best spent first — even if that means spending less.
-            </p>
-            <ButtonAnchor
-              href={waLink("Hi, I'm not sure which service I need. Can you audit my business?")}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="outline"
-              className="mt-6 self-start"
-            >
-              Ask us
-            </ButtonAnchor>
+            {/* The three roles, stacked rather than laid out as a third card
+                grid. The showcase below is already a row of three cards; two
+                in a row makes the page read as a template with its content
+                poured in. A list also suits three roles better than cards do,
+                because nothing here is being chosen between. */}
+            {/* Frosted on the dark band rather than a cream card on it. This
+                is the one pane on the site with a genuinely dark surface
+                behind it, which is where the treatment reads strongest, and
+                the text inverts with it: paper on the glass measures about
+                13:1, where pine on it would have been about 5:1. */}
+            <div data-reveal className="panel-dark p-6 sm:p-8">
+              <ul className="space-y-6">
+                {[
+                  {
+                    k: "economics",
+                    n: "01",
+                    role: "Economic trader",
+                    t: "The chart only tells half the story.",
+                    b: "Price shows you what is happening. Economic data helps you understand why. I use both to make sense of the market.",
+                  },
+                  {
+                    k: "teaching",
+                    n: "02",
+                    role: "Trading educator",
+                    t: "Trading is more than buying and selling.",
+                    b: "It is about understanding the market, managing risk, controlling emotions, and knowing when not to trade.",
+                  },
+                  {
+                    k: "funds",
+                    n: "03",
+                    role: "Fund manager",
+                    t: "Trading takes time. I will handle the work.",
+                    b: "Not everyone has hours to spend watching the market. I manage trading accounts so my clients do not have to do it themselves.",
+                  },
+                ].map((row) => (
+                  <li
+                    key={row.k}
+                    className="border-b border-paper/15 pb-6 last:border-0 last:pb-0"
+                  >
+                    {/* The numeral sits at label size beside the role, not as
+                        a large marker: three roles held at once are not a
+                        sequence, and a big numeral would promise an order. */}
+                    <p className="text-sm text-paper/55">
+                      <span className="tnum">{row.n}</span>
+                      <span className="mx-2 text-paper/35">&mdash;</span>
+                      <span className="font-semibold text-paper/80">
+                        {row.role}
+                      </span>
+                    </p>
+                    <p className="mt-2 font-semibold text-paper">{row.t}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-paper/75">
+                      {row.b}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        </Container>
       </Section>
 
-      {/* ----------------------------------------------------------- Why us */}
-      <Section tone="surface">
-        <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
-          <div>
-            <Eyebrow>Why one team</Eyebrow>
-            <h2 className="text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-4xl">
-              Your ads and your website are the same problem
-            </h2>
-            <div className="mt-6 space-y-5 leading-relaxed text-muted">
-              <p>
-                A great campaign sending traffic to a weak page still fails. A
-                beautiful website nobody can find still fails. When these are
-                handled by different vendors, the gap between them is where your
-                budget disappears — and nobody owns it.
+      {/* ---------------------------------------------------------------
+          3. What the products look like.
+
+          The header is two columns rather than one: the sentence that sets
+          the section up and the action that leaves it sit side by side, so
+          the cards start higher up the screen than a stacked header allows.
+      --------------------------------------------------------------- */}
+      <Section id="build">
+        <Container>
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-xl" data-reveal>
+              <Eyebrow>Built from experience</Eyebrow>
+              <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
+                Built from experience. Made for real traders.
+              </h2>
+            </div>
+            <div className="max-w-sm lg:pt-2" data-reveal>
+              <p className="leading-relaxed text-pine-soft">
+                Years of trading, turned into products people actually
+                use.
               </p>
-              <p>
-                We handle both. So when something underperforms, there is no
-                argument about whose fault it is. There is one person
-                responsible, and you know their number.
+              <div className="mt-6">
+                <ActionLink href="#fork">See which one fits</ActionLink>
+              </div>
+            </div>
+          </div>
+
+          <BuildShowcase />
+        </Container>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          4. Getting started: what each product costs, and how to start it.
+      --------------------------------------------------------------- */}
+      <Section id="fork" tone="raised">
+        <Container>
+          {/* Two columns from lg. The heading runs to a two-column measure
+              whatever the window does, so on a wide screen the right half of
+              this band was air; the diagram is what goes in it. One column
+              below that, where there is no spare half to fill. */}
+          <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-center lg:gap-16">
+            <div>
+              <SectionHeading
+                eyebrow="Get started"
+                title="Find what works for you."
+              >
+                <p>
+                  Trade it yourself, or let the automation do it.
+                </p>
+              </SectionHeading>
+
+              {/* Before the packages, not after. It decides whether to open
+                  one broker account or two, which is no use to somebody who
+                  has already picked a package and clicked. */}
+              <p
+                className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
+                data-reveal
+              >
+                Mastery Signal needs a standard account, Fukyaa a cent
+                account. Using both means opening separate accounts.
               </p>
             </div>
-            <ButtonLink href="/about" variant="outline" className="mt-8">
-              More about how we work
-            </ButtonLink>
+
+            <ConnectDiagram />
           </div>
 
-          <Card className="lg:mt-10">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent">
-              What you get either way
-            </p>
-            <ul className="mt-6 space-y-4">
-              <CheckItem>
-                A written audit of your current marketing, free
-              </CheckItem>
-              <CheckItem>
-                Honest advice on what to fix first — even if it is not us doing it
-              </CheckItem>
-              <CheckItem>
-                Fixed pricing agreed before any work begins
-              </CheckItem>
-              <CheckItem>
-                Full ownership of your website, accounts, and data
-              </CheckItem>
-              <CheckItem>
-                Monthly reporting in plain English, tied to enquiries
-              </CheckItem>
-              <CheckItem>
-                The freedom to walk away at the end of any month
-              </CheckItem>
-            </ul>
-          </Card>
-        </div>
+          <PlanSwitch
+            firstLabel="Mastery Signal"
+            secondLabel="Fukyaa"
+            first={
+              <PlanGroup
+                eyebrow="Mastery Signal"
+                title="Choose your access."
+                intro={
+                  <>
+                    <p>
+                      Already trading, but want a second read on it.
+                    </p>
+                    <p>
+                      Pay for a subscription or get access through our broker
+                      partner.
+                    </p>
+                  </>
+                }
+                plans={masteryPlanCards({ checkout })}
+                alternative={{
+                  title: "Prefer to start without a subscription?",
+                  body: "Open and fund an account with our broker partner to qualify for Mastery Signal access.",
+                  action: {
+                    label: "Explore broker access",
+                    href: "/go/mastery-broker-access",
+                    external: true,
+                  },
+                }}
+              />
+            }
+            second={
+              <PlanGroup
+                eyebrow="Fukyaa"
+                title="Choose how it runs."
+                /* Written to match the Mastery block beside it: a question a
+                   visitor would recognise themselves in, then what they get,
+                   then the choice the cards below are asking them to make. */
+                intro={
+                  <>
+                    <p>
+                      No time to watch the market, or no wish to place the
+                      trades. The automation does it; the account stays in
+                      your name.
+                    </p>
+                    <p>
+                      Fund a cent account and pick how it runs &mdash; a
+                      robot on your own server, or the copy.
+                    </p>
+                  </>
+                }
+                note="The deposit is not a payment. It stays in your own account at the broker; what differs between the three is the running cost."
+                plans={fukyaaPlanCards()}
+              />
+            }
+          />
+
+          {/* The IB lane. A door, not a pitch — these two have no page yet. */}
+          <div className="mt-14" data-reveal>
+            <Eyebrow>If you have clients of your own</Eyebrow>
+            <div className="mt-6 grid max-w-3xl gap-8 sm:grid-cols-2">
+              {ibProducts.map((product) => (
+                <div key={product.key}>
+                  <p className="font-semibold text-pine">{product.name}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-pine-soft">
+                    {product.summary}
+                  </p>
+                  <div className="mt-3">
+                    <TextLink href={product.href} external className="text-sm">
+                      {product.cta}
+                    </TextLink>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Container>
       </Section>
 
-      {/* ------------------------------------------------------------- Process */}
-      <Section id="process">
-        <SectionHeading
-          eyebrow="How we work"
-          title="Five steps, and you know where you stand at every one"
-          lead="Agencies that hide their process are usually hiding something. Here is ours, start to finish."
-        />
-        <ol className="mt-14 space-y-px overflow-hidden rounded-2xl border border-line bg-line">
-          {process.map((p, i) => (
-            <li
-              key={p.step}
-              data-reveal
-              style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
-              className="group grid gap-4 bg-surface px-6 py-7 transition-colors duration-300 hover:bg-elevated sm:grid-cols-[auto_1fr] sm:gap-8 sm:px-8"
-            >
-              <span className="font-mono text-sm text-accent transition-transform duration-300 group-hover:translate-x-0.5 sm:pt-1">
-                {p.step}
-              </span>
-              <div>
-                <h3 className="text-lg font-semibold text-body">{p.title}</h3>
-                <p className="mt-2 max-w-3xl leading-relaxed text-muted">
-                  {p.body}
+      {/* ---------------------------------------------------------------
+          5. Award and recognition.
+      --------------------------------------------------------------- */}
+      <Section className="relative overflow-hidden">
+        {/* The same graph paper as the hero, for the same reason: two cream
+            bands running into each other read as a gap in the page rather
+            than as two sections. Decorative, so hidden from assistive
+            technology, and under its own layer so the band's background
+            colour still sets the paper tone. `relative` on the section is
+            what keeps inset-0 inside this band, and overflow-hidden is what
+            stops the sheet from bleeding past its edges. */}
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
+          <div className="grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-20">
+            <div data-reveal>
+              {/* A cut-out standing on a tinted surface rather than a
+                  photograph filling the frame. The figure is bottom-aligned
+                  so he stands on the base of the card instead of floating in
+                  the middle of it, and the frame is given a height rather
+                  than taking the image's own: at 553x936 the picture is far
+                  taller than it is wide, and sized to the column it would
+                  have run a third longer than the text beside it. */}
+              <OffsetFrame tint="sage">
+                <div className="flex h-[24rem] items-end justify-center bg-sand sm:h-[30rem]">
+                  <Image
+                    src={site.founder.award.image}
+                    alt={`${site.founder.name} receiving the ${site.founder.award.title} award`}
+                    width={site.founder.award.imageWidth}
+                    height={site.founder.award.imageHeight}
+                    className="h-full w-auto object-contain"
+                    sizes="(min-width: 640px) 480px, 100vw"
+                    priority={false}
+                  />
+                </div>
+              </OffsetFrame>
+            </div>
+
+            <div>
+              <SectionHeading
+                eyebrow="Recognition"
+                title={site.founder.award.title}
+              />
+              <div className="mt-6 space-y-5 text-lg leading-relaxed text-pine-soft">
+                <p>
+                  {site.founder.award.body},{" "}
+                  <span className="tnum">{site.founder.award.year}</span>.
+                </p>
+                <p>
+                  From an earlier chapter, before any of the products
+                  existed. I was studying the market and taking the trades
+                  myself.
+                </p>
+                <p>
+                  It is a recognition I still value because it came from the
+                  work itself.
                 </p>
               </div>
-            </li>
-          ))}
-        </ol>
-      </Section>
-
-      {/* ------------------------------------------------- Founding client offer */}
-      <Section tone="surface">
-        <div
-          data-reveal
-          className="relative overflow-hidden rounded-3xl border border-accent/25 bg-elevated p-8 sm:p-12"
-        >
-          <div
-            aria-hidden
-            className="animate-drift-a absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-accent/20 blur-3xl"
-          />
-          <div className="relative max-w-2xl">
-            <Eyebrow>Founding clients</Eyebrow>
-            <h2 className="text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-4xl">
-              We are new. That is your advantage right now.
-            </h2>
-            <div className="mt-6 space-y-4 leading-relaxed text-muted">
-              <p>
-                We are not going to pretend to a ten-year track record we do not
-                have. Here is the honest trade: for our first clients we charge
-                below what this work will cost in a year, and in return we ask
-                for a testimonial and permission to publish the results once we
-                have them.
-              </p>
-              <p>
-                You also get something later clients will not — our full
-                attention, and a founder who genuinely cannot afford for your
-                project to go badly.
-              </p>
             </div>
-            <ButtonAnchor
-              href={waLink("Hi, I'd like to know about the founding client rate.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              size="lg"
-              className="mt-8"
-            >
-              Ask about founding client rates
-            </ButtonAnchor>
-          </div>
-        </div>
-      </Section>
-
-      {/* ------------------------------------------------------------ Insights */}
-      {posts.length > 0 ? (
-        <Section>
-          <SectionHeading
-            eyebrow="Insights"
-            title="Things worth knowing before you hire anyone"
-            lead="We write down what we end up explaining to clients anyway. Free to read, useful whether or not you work with us."
-          />
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {posts.map((post, i) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                data-reveal
-                style={{ "--reveal-delay": `${i * 90}ms` } as CSSProperties}
-                className="group flex flex-col rounded-2xl border border-line bg-elevated/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:bg-elevated"
-              >
-                <p className="text-xs text-faint">
-                  {formatDate(post.date)} · {post.readingMinutes} min read
-                </p>
-                <h3 className="mt-3 flex-1 text-lg font-semibold leading-snug text-body transition-colors group-hover:text-accent">
-                  {post.title}
-                </h3>
-                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-                  Read it
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 16 16"
-                    className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M3 8h10M9 4l4 4-4 4" />
-                  </svg>
-                </span>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-10">
-            <ButtonLink href="/blog" variant="outline">
-              All insights
-            </ButtonLink>
-          </div>
-        </Section>
-      ) : null}
-
-      {/* ----------------------------------------------------------------- FAQ */}
-      <Section>
-        <SectionHeading
-          eyebrow="Questions"
-          title="The things people ask before they call"
-        />
-        <div className="mt-12">
-          <Faq items={homeFaqs} />
-        </div>
-      </Section>
-
-      {/* ------------------------------------------------------------ Final CTA */}
-      <section className="relative overflow-hidden border-t border-line bg-surface">
-        <div
-          aria-hidden
-          className="animate-drift-b absolute left-1/2 top-full h-[380px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[110px]"
-        />
-        <Container className="relative py-24 text-center sm:py-32">
-          <h2
-            data-reveal
-            className="mx-auto max-w-2xl text-3xl font-semibold leading-[1.15] tracking-tight text-body sm:text-5xl"
-          >
-            Find out what your marketing is actually doing
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
-            A free audit of your website, ads, and search presence. You get a
-            written summary of what is working, what is wasting money, and what
-            to fix first — whether or not you hire us.
-          </p>
-          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonAnchor
-              href={waLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              size="lg"
-            >
-              WhatsApp us now
-            </ButtonAnchor>
-            <ButtonLink href="/contact" variant="outline" size="lg">
-              Send an enquiry
-            </ButtonLink>
           </div>
         </Container>
-      </section>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          6. Coaching and classes — the close.
+      --------------------------------------------------------------- */}
+      <Scallop />
+      <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center" data-reveal>
+            <Eyebrow tone="onDark">Coaching and classes</Eyebrow>
+            <h2 className="display mt-3 text-3xl text-paper sm:text-5xl">
+              Need help with your trading?
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-paper/80">
+              {/* The names come from the ladder in coaching.ts. Typed out
+                  here, they went stale the first time one was renamed. */}
+              I teach three things: {classList()}.
+            </p>
+            <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-paper/70">
+              Tell me what you already know and what you are struggling with.
+              We will decide which class makes sense before setting a date.
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <ActionOut href="/go/whatsapp?m=coaching">
+                Ask about coaching
+              </ActionOut>
+              <ActionLink href="/coaching" tone="onDark">
+                See the classes
+              </ActionLink>
+            </div>
+          </div>
+        </Container>
+      </Section>
     </>
   );
 }

@@ -1,0 +1,335 @@
+"use client";
+
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import {
+  formatMyr,
+  masteryPlanTotalMyr,
+  masteryPlans,
+  type MasteryPlan,
+} from "@/lib/commercial";
+
+/**
+ * The checkout pop-up.
+ *
+ * Shape from the Uiverse form the owner chose; its styles and the credit are
+ * in `globals.css` beside the rules they belong to.
+ *
+ * Three things about what this does NOT do:
+ *
+ * It never states a price. Every figure comes from `commercial.ts`, the same
+ * declaration the packages behind it read, so what a buyer was shown and what
+ * they are charged cannot drift apart.
+ *
+ * It never posts an amount. It posts a plan **key**; the server resolves the
+ * money. A price that arrives from a browser is a price a browser can change.
+ *
+ * It opts into no scroll reveal. Those are collected once, on mount, and
+ * this mounts later — anything marked would arrive hidden with no trigger
+ * left to show it.
+ */
+
+type Props = {
+  /** The term already chosen, or null when the opener did not name one. */
+  planKey: MasteryPlan["key"] | null;
+  onClose: () => void;
+};
+
+/* Never fires. The value this store reports — whether a document exists —
+   cannot change for the life of the page, and a subscribe function defined
+   inside the component would be a new function on every render, which
+   re-subscribes on every render. */
+const subscribeToNothing = () => () => {};
+
+export function CheckoutDialog({ planKey, onClose }: Props) {
+  /* The portal cannot be drawn until there is a document to draw into.
+     This is a client component, but Next still renders it once on the
+     server for the first paint, where `document` does not exist.
+
+     `useSyncExternalStore` rather than a state set in an effect: this is a
+     question about the environment, not a change to the component, and
+     setting state on mount schedules a second render of the whole dialog
+     for an answer React can give during the first one. It is also what
+     `react-hooks/set-state-in-effect` was reporting here. */
+  const mounted = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+
+  /* The page behind holds still. The dialog covers the window, so a scroll
+     gesture that misses the card would otherwise move the packages under
+     it — and on a phone the backdrop is most of what a thumb lands on.
+     Restored on close rather than cleared, in case anything else has a
+     claim on it. */
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  const [chosen, setChosen] = useState<MasteryPlan["key"] | null>(planKey);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const card = useRef<HTMLDivElement>(null);
+  /* Whatever should hold focus when the dialog opens: the first term when
+     none is chosen, the name field when one is. Typed as the element they
+     have in common so one ref can serve both. */
+  const first = useRef<HTMLElement>(null);
+
+  const plan =
+    masteryPlans.find((candidate) => candidate.key === chosen) ?? null;
+
+  /* Focus starts inside rather than behind, and lands again when the choice
+     changes. Picking a term unmounts the term buttons — the one that held
+     focus goes with them, focus falls to <body>, and the next Tab starts
+     from the top of the page behind the dialog. Keyed on `chosen` so the
+     name field takes it the moment the form appears. */
+  useEffect(() => {
+    first.current?.focus();
+  }, [chosen]);
+
+  /* Escape closes, and Tab stays in. */
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key !== "Tab" || !card.current) return;
+
+      // Trap. Without it, tabbing walks out of the dialog and into the page
+      // behind it, which is still there and still scrolled to the packages.
+      const focusable = card.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input, a[href], [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const edge = event.shiftKey
+        ? focusable[0]
+        : focusable[focusable.length - 1];
+      if (document.activeElement === edge) {
+        event.preventDefault();
+        (event.shiftKey
+          ? focusable[focusable.length - 1]
+          : focusable[0]
+        ).focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!plan || submitting) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planKey: plan.key,
+          name: data.get("name"),
+          email: data.get("email"),
+          phone: data.get("phone"),
+        }),
+      });
+
+      const body = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !body.url) {
+        setError(body.error ?? "Could not start the payment");
+        setSubmitting(false);
+        return;
+      }
+      // Billplz owns the payment screen; leaving is the point. `assign` is
+      // a call rather than an assignment, which is what the immutability
+      // rule is asking for — writing to window.location.href looks like
+      // mutating state defined outside the component, and the rule cannot
+      // tell the difference.
+      window.location.assign(body.url);
+    } catch {
+      setError("Could not reach the payment page");
+      setSubmitting(false);
+    }
+  }
+
+  if (!mounted) return null;
+
+  /* Portalled to <body>, and that is load-bearing rather than tidy.
+     `position: fixed` is positioned against the nearest ancestor carrying a
+     transform, not against the window, and GSAP puts one on every panel
+     this dialog's opener sits inside. Left in the page tree it became a box
+     clipped to its own section, with the pricing cards painting over it —
+     and no z-index can climb out of a stacking context it is trapped in.
+     The portal leaves all of those ancestors behind. */
+  return createPortal(
+    <div
+      className="checkout-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={card}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="checkout-heading"
+        className="checkout-card"
+      >
+        <div className="checkout-title">
+          <span id="checkout-heading">Checkout</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="text-base leading-none text-pine-faint hover:text-pine"
+          >
+            &times;
+          </button>
+        </div>
+
+        <form onSubmit={submit} className="checkout-body">
+          {plan === null ? (
+            <div>
+              <p className="checkout-label">Choose a term</p>
+              <div className="mt-2 grid gap-2">
+                {masteryPlans.map((candidate, index) => (
+                  <button
+                    key={candidate.key}
+                    type="button"
+                    ref={
+                      index === 0
+                        ? (first as React.Ref<HTMLButtonElement>)
+                        : undefined
+                    }
+                    onClick={() => setChosen(candidate.key)}
+                    className={`checkout-term ${
+                      candidate.recommended ? "checkout-term-pick" : ""
+                    }`}
+                  >
+                    <span>
+                      {candidate.name}
+                      {candidate.recommended ? " · recommended" : ""}
+                    </span>
+                    <span className="tnum font-semibold">
+                      {formatMyr(masteryPlanTotalMyr(candidate))}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="checkout-label">Your package</p>
+              <p className="mt-1 font-semibold text-pine">
+                Mastery Signal &mdash; {plan.name}
+              </p>
+              <p className="tnum mt-0.5 text-xs italic text-pine-faint">
+                {formatMyr(plan.monthlyMyr)}/month equivalent
+              </p>
+            </div>
+          )}
+
+          <hr className="checkout-rule" />
+
+          <div>
+            <p className="checkout-label">Your details</p>
+            <div className="mt-2 grid gap-2">
+              <input
+                ref={
+                  plan === null
+                    ? undefined
+                    : (first as React.Ref<HTMLInputElement>)
+                }
+                className="checkout-field"
+                name="name"
+                type="text"
+                required
+                autoComplete="name"
+                placeholder="Full name"
+                aria-label="Full name"
+              />
+              <input
+                className="checkout-field"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="Email"
+                aria-label="Email"
+              />
+              <input
+                className="checkout-field"
+                name="phone"
+                type="tel"
+                required
+                autoComplete="tel"
+                placeholder="Phone (WhatsApp)"
+                aria-label="Phone number"
+              />
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-pine-faint">
+              Register on Mastery with this same email &mdash; it is how your
+              payment is found.
+            </p>
+          </div>
+
+          <hr className="checkout-rule" />
+
+          <div className="checkout-figures">
+            <span className="text-pine-faint">
+              {plan ? plan.name : "No term chosen yet"}
+            </span>
+            <span className="tnum font-semibold">
+              {plan ? formatMyr(masteryPlanTotalMyr(plan)) : "—"}
+            </span>
+            <span className="text-pine-faint">Pay by</span>
+            <span className="font-semibold">FPX</span>
+          </div>
+
+          {error ? (
+            <p className="text-sm leading-relaxed text-ruby-deep">
+              {error}.{" "}
+              <a
+                href="/go/whatsapp?m=checkout"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Message me on WhatsApp
+              </a>{" "}
+              and I will sort it out.
+            </p>
+          ) : null}
+
+          <p className="text-xs leading-relaxed text-pine-faint">
+            Your details are used to send your registration link and to reach
+            you about this purchase.{" "}
+            <a href="/privacy" className="underline">
+              Privacy notice
+            </a>
+            .
+          </p>
+
+          <div className="checkout-footer -mx-4 -mb-4 mt-1">
+            <span className="checkout-price tnum">
+              {plan ? formatMyr(masteryPlanTotalMyr(plan)) : "—"}
+            </span>
+            <button
+              type="submit"
+              className="btn btn--accent checkout-pay"
+              disabled={!plan || submitting}
+            >
+              {submitting ? "Taking you to Billplz…" : "Pay with Billplz"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body,
+  );
+}
