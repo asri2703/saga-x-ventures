@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
   formatMyr,
@@ -35,12 +35,27 @@ type Props = {
   onClose: () => void;
 };
 
+/* Never fires. The value this store reports — whether a document exists —
+   cannot change for the life of the page, and a subscribe function defined
+   inside the component would be a new function on every render, which
+   re-subscribes on every render. */
+const subscribeToNothing = () => () => {};
+
 export function CheckoutDialog({ planKey, onClose }: Props) {
   /* The portal cannot be drawn until there is a document to draw into.
      This is a client component, but Next still renders it once on the
-     server for the first paint, where `document` does not exist. */
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+     server for the first paint, where `document` does not exist.
+
+     `useSyncExternalStore` rather than a state set in an effect: this is a
+     question about the environment, not a change to the component, and
+     setting state on mount schedules a second render of the whole dialog
+     for an answer React can give during the first one. It is also what
+     `react-hooks/set-state-in-effect` was reporting here. */
+  const mounted = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
 
   /* The page behind holds still. The dialog covers the window, so a scroll
      gesture that misses the card would otherwise move the packages under
@@ -65,7 +80,8 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
      have in common so one ref can serve both. */
   const first = useRef<HTMLElement>(null);
 
-  const plan = masteryPlans.find((candidate) => candidate.key === chosen) ?? null;
+  const plan =
+    masteryPlans.find((candidate) => candidate.key === chosen) ?? null;
 
   /* Focus starts inside rather than behind, and lands again when the choice
      changes. Picking a term unmounts the term buttons — the one that held
@@ -88,10 +104,15 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
         'button:not([disabled]), input, a[href], [tabindex]:not([tabindex="-1"])',
       );
       if (focusable.length === 0) return;
-      const edge = event.shiftKey ? focusable[0] : focusable[focusable.length - 1];
+      const edge = event.shiftKey
+        ? focusable[0]
+        : focusable[focusable.length - 1];
       if (document.activeElement === edge) {
         event.preventDefault();
-        (event.shiftKey ? focusable[focusable.length - 1] : focusable[0]).focus();
+        (event.shiftKey
+          ? focusable[focusable.length - 1]
+          : focusable[0]
+        ).focus();
       }
     };
     document.addEventListener("keydown", onKey);
@@ -180,7 +201,11 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
                   <button
                     key={candidate.key}
                     type="button"
-                    ref={index === 0 ? (first as React.Ref<HTMLButtonElement>) : undefined}
+                    ref={
+                      index === 0
+                        ? (first as React.Ref<HTMLButtonElement>)
+                        : undefined
+                    }
                     onClick={() => setChosen(candidate.key)}
                     className={`checkout-term ${
                       candidate.recommended ? "checkout-term-pick" : ""
@@ -215,7 +240,11 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
             <p className="checkout-label">Your details</p>
             <div className="mt-2 grid gap-2">
               <input
-                ref={plan === null ? undefined : (first as React.Ref<HTMLInputElement>)}
+                ref={
+                  plan === null
+                    ? undefined
+                    : (first as React.Ref<HTMLInputElement>)
+                }
                 className="checkout-field"
                 name="name"
                 type="text"
