@@ -8,7 +8,7 @@ import {
 } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
-import { ReasonOrbit } from "@/components/reason-orbit";
+import { ReasonShowcase } from "@/components/reason-showcase";
 import { SectionHeading } from "@/components/section-heading";
 import {
   ActionLink,
@@ -201,10 +201,11 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           3. Why people choose it.
 
-          Tabs, asked for by the owner. It was four identical rounded tiles
-          in a 2x2 grid, then four ruled rows. Tabs do a different reading
-          job from either: the four headlines sit together as a menu, and
-          only the one being asked about is explained.
+          A showcase, from the component the owner chose. It was four tiles
+          in a grid, then ruled rows, then tabs, then an orbit. This one
+          carries a picture per reason, which is the part none of the others
+          had: the four headlines sit together as a menu, the one being asked
+          about is explained, and the picture says which one that is.
 
           This replaced a section listing what a visitor meets on the
           broker's own screens. Two of those — the "Fuky AA" provider name
@@ -225,23 +226,27 @@ export default function CopytradePage() {
             </p>
           </SectionHeading>
 
-          <ReasonOrbit
+          <ReasonShowcase
             reasons={[
               {
                 title: "Busy with life",
-                body: "Trades from the master account are copied to your account. You can check your positions without spending the whole day in front of the screen.",
+                body: "Trades from the master account are copied to yours. Check your positions when you have a minute, not all day.",
+                image: "busy.webp",
               },
               {
                 title: "Your trading account",
                 body: "Your deposit goes into your own broker account. I do not hold your money or withdraw it for you.",
+                image: "account.webp",
               },
               {
                 title: "Minimum deposit",
-                body: `Copytrade starts from a ${formatUsd(copytrade.minimumUsd)} deposit in a cent account. The balance may appear 100 times larger because the account is measured in cents.`,
+                body: `Start from ${formatUsd(copytrade.minimumUsd)} in a cent account. The balance reads a hundred times larger, because the broker counts in cents.`,
+                image: "deposit.webp",
               },
               {
                 title: "Monitor yourself",
-                body: "The trades, positions and account activity are visible from your own broker account. You do not have to rely only on screenshots or updates from someone else.",
+                body: "Every trade and position is visible from your own broker account. You are not relying on my screenshots.",
+                image: "monitor.webp",
               },
             ]}
           />

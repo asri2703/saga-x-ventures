@@ -1001,162 +1001,180 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
-   The orbiting reasons on /copytrade.
+   The reasons showcase on /copytrade.
 
-   Four marks travel a ring and the lit one's reason reads in the middle.
-   Shape from the orbiting-circles component the owner chose; the colours,
-   the hold-on-hover and the reduced-motion behaviour are this site's.
+   Copy down one side, a tall picture down the other, and pills over the foot
+   of the picture. Shape from the feature-showcase component the owner chose;
+   the colours, the single shared state and the stacked crossfade are this
+   site's.
 
-   The seat is what rotates, not the mark. A seat is a zero-size point at
-   the centre that is turned to its angle, pushed out to the radius, and
-   then turned back by the same amount so the mark it carries stays
-   upright. Rotating the mark itself would spin each icon on its own axis
-   all the way round the ring.
+   The pictures are stacked in one positioned panel rather than swapped in
+   and out, so a switch costs an opacity change on an image the browser has
+   already decoded. A swap would cost a decode, and the panel would flash
+   empty on a slow connection.
 --------------------------------------------------------------------------- */
-@keyframes orbit-travel {
-  from {
-    transform: rotate(var(--orbit-angle)) translateY(var(--orbit-radius))
-      rotate(calc(var(--orbit-angle) * -1));
-  }
-  to {
-    transform: rotate(calc(var(--orbit-angle) + 360deg))
-      translateY(var(--orbit-radius))
-      rotate(calc(var(--orbit-angle) * -1 - 360deg));
+/* The split lives here rather than in utilities, so it shares the 64rem
+   breakpoint with the panel below it and cannot drift from it. */
+.show-grid {
+  display: grid;
+  align-items: start;
+  gap: 2.5rem;
+  margin-block-start: 3rem;
+}
+
+@media (min-width: 64rem) {
+  .show-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    gap: 4rem;
   }
 }
 
-.orbit {
-  position: relative;
-  display: grid;
-  place-items: center;
-  margin-block-start: 2.5rem;
-  /* Room for the ring plus a mark either side of it. */
-  min-height: calc(var(--orbit-radius) * 2 + 5rem);
-  margin-inline: auto;
+.show-list {
+  border-block: 1px solid var(--color-rule);
+}
+
+.show-row + .show-row {
+  border-block-start: 1px solid var(--color-rule);
+}
+
+.show-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
   width: 100%;
-}
-
-.orbit-ring {
-  position: absolute;
-  width: calc(var(--orbit-radius) * 2);
-  height: calc(var(--orbit-radius) * 2);
-  border-radius: 9999px;
-  border: 1px solid var(--color-rule);
-}
-
-/* The panel sits inside the ring, narrow enough that a mark at the top or
-   the bottom of the circle never meets the text. */
-.orbit-panel {
-  position: relative;
-  z-index: 1;
-  max-width: calc(var(--orbit-radius) * 1.5);
-  text-align: center;
-}
-
-.orbit-seat {
-  position: absolute;
-  /* Pinned to the centre explicitly rather than left to the static
-     position: an absolutely positioned grid child with no insets resolves
-     against its grid area, which is not reliably the middle. */
-  top: 50%;
-  left: 50%;
-  /* The seat has no size of its own: it is the centre of the circle, and
-     the transform is what carries the mark out to the rim. */
-  width: 0;
-  height: 0;
-  display: grid;
-  place-items: center;
+  padding: 1.5rem 0;
   cursor: pointer;
-  transform: rotate(var(--orbit-angle)) translateY(var(--orbit-radius))
-    rotate(calc(var(--orbit-angle) * -1));
+  text-align: start;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+  color: var(--color-pine);
 }
 
-.orbit-mark {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-rule);
-  background: var(--color-paper-raised);
-  color: var(--color-pine-faint);
+.show-head:hover {
+  color: var(--color-ruby-deep);
 }
 
-.orbit-mark-on {
-  border-color: var(--color-pine);
-  background: var(--color-pine);
-  color: var(--color-paper);
+/* Open: the heading keeps its own weight but the row is marked, so the
+   reader can see which body belongs to which heading without reading. */
+.show-row[data-open] .show-head {
+  padding-block-end: 1rem;
+}
+
+.show-sign {
+  position: relative;
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.show-sign::before,
+.show-sign::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.show-sign::after {
+  rotate: 90deg;
+}
+
+.show-row[data-open] .show-sign::after {
+  opacity: 0;
+}
+
+/* ---- The picture ---- */
+
+.show-panel {
+  position: relative;
+  overflow: hidden;
+  /* The pictures' own proportion. Cropping a composed illustration to a
+     taller panel cut a third off the side that carried the point. */
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-sunk);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06);
+}
+
+.show-shot {
+  object-fit: cover;
+  opacity: 0;
+}
+
+.show-shot[data-on] {
+  opacity: 1;
+}
+
+.show-thumbs {
+  position: absolute;
+  inset-block-end: 0.75rem;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.375rem;
+  border-radius: var(--radius-float);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-fill-strong);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.show-thumb {
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  width: 4rem;
+  height: 3rem;
+  border-radius: calc(var(--radius-float) - 0.3125rem);
+  /* Transparent rather than absent, so the lit one does not resize the row. */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  opacity: 0.55;
+}
+
+.show-thumb > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.show-thumb[data-on] {
+  outline-color: var(--color-pine);
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .orbit-seat {
-    animation-name: orbit-travel;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-
-  /* Reaching for a moving target is a click you have to time. The ring
-     freezes while the component is hovered or focused, and the panel stops
-     advancing with it. */
-  .orbit[data-held] .orbit-seat {
-    animation-play-state: paused;
-  }
-
-  .orbit-mark {
+  .show-head,
+  .show-thumb {
     transition:
-      background-color 180ms ease,
-      border-color 180ms ease,
-      color 180ms ease,
-      scale 180ms var(--ease-out-ui);
+      color 180ms var(--ease-out-ui),
+      background-color 180ms var(--ease-out-ui),
+      opacity 180ms var(--ease-out-ui),
+      outline-color 180ms var(--ease-out-ui);
   }
 
-  .orbit-mark-on {
-    scale: 1.12;
-  }
-
-  .orbit-panel {
-    animation: orbit-in 220ms var(--ease-out-ui);
+  /* Entering and leaving, so ease-out both ways; 240ms because this is a
+     picture changing, not a control answering a press. */
+  .show-shot {
+    transition: opacity 240ms var(--ease-out-ui);
   }
 }
 
-@keyframes orbit-in {
-  from {
-    opacity: 0;
-    translate: 0 0.3rem;
+@media (hover: hover) and (pointer: fine) {
+  .show-thumb:hover {
+    opacity: 1;
   }
 }
 
-/* Under the ring's width the circle would run off the page, so the marks
-   come off the rim and sit in a row above the copy. The animation is a
-   per-seat transform, so dropping it is all that is needed. */
-@media (max-width: 40rem) {
-  .orbit {
-    min-height: 0;
-    gap: 2rem;
-  }
-
-  .orbit-ring {
-    display: none;
-  }
-
-  .orbit-seat {
-    position: static;
-    inset: auto;
-    width: auto;
-    height: auto;
-    transform: none;
-    animation: none;
-  }
-
-  .orbit-panel {
-    max-width: none;
-    order: 2;
-  }
-
-  .orbit [role="tablist"] {
-    display: flex;
-    order: 1;
-    gap: 0.75rem;
+/* Below the split, the picture leads and the reasons read under it. */
+@media (max-width: 64rem) {
+  .show-panel {
+    order: -1;
   }
 }
 
