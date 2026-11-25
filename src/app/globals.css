@@ -1003,64 +1003,84 @@ html.lenis {
 /* ---------------------------------------------------------------------------
    The reason tabs on /copytrade.
 
-   A rail of four on wide screens, a scrolling strip on a phone. The tabs
-   carry whole sentences rather than one-word labels, so they are set left
-   and allowed to wrap: centred tab text with two lines in one tab and one
-   in the next reads as a mistake.
+   Text on a rule, with a marker that slides. The filled pill this replaced
+   was the shape every tab set had in 2014: the selected one became a
+   button, the others stopped looking clickable at all, and the marker
+   teleported between them.
+
+   Easing and duration are from Emil Kowalski's tables. The marker is moving
+   on screen rather than entering it, so ease-in-out; the panel is entering,
+   so ease-out. Both stay under 300ms, which is the ceiling for UI.
 --------------------------------------------------------------------------- */
+:root {
+  /* The built-in curves are too weak to read at these durations. */
+  --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-ui: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
 .reason-tab {
-  flex: none;
-  border-radius: var(--radius-panel);
-  padding: 0.875rem 1.125rem;
-  text-align: left;
+  position: relative;
+  padding: 0.5rem 0 0.875rem;
   font-weight: 600;
-  line-height: 1.35;
-  color: var(--color-pine-soft);
+  line-height: 1.4;
+  color: var(--color-pine-faint);
   cursor: pointer;
-  transition: background-color 180ms ease, color 180ms ease;
 }
 
 .reason-tab:hover {
-  background: var(--color-paper-raised);
+  color: var(--color-pine-soft);
+}
+
+.reason-tab-on,
+.reason-tab-on:hover {
   color: var(--color-pine);
 }
 
-/* The selected one. A filled tile rather than an underline: the rail runs
-   down the side on a wide screen, where an underline has no edge to sit on
-   and would read as a rule between items instead of a marker on one. */
-.reason-tab-on,
-.reason-tab-on:hover {
+@media (prefers-reduced-motion: no-preference) {
+  .reason-tab {
+    transition: color 160ms ease;
+  }
+}
+
+/* Laid out 100px wide and scaled to the tab above it, so the width is
+   never animated. `transform-origin: left` is what makes the scale grow
+   rightwards from the translated position rather than from its own
+   middle. */
+.reason-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 2px;
+  border-radius: 2px;
   background: var(--color-pine);
-  color: var(--color-paper);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reason-marker {
+    transition: transform 260ms var(--ease-in-out-ui);
+  }
 }
 
 .reason-panel {
-  border-radius: var(--radius-panel);
-  background: var(--color-paper-raised);
-  padding: 1.75rem;
-  display: grid;
-  align-content: center;
+  padding-top: 2rem;
   /* Held tall enough for the longest of the four, so switching tabs does
      not move the rest of the page up and down under the reader. */
-  min-height: 7.5rem;
-}
-
-@media (min-width: 640px) {
-  .reason-panel {
-    padding: 2.25rem;
-  }
+  min-height: 8.5rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .reason-panel {
-    animation: reason-in 260ms ease-out;
+    animation: reason-in 220ms var(--ease-out-ui);
   }
 }
 
 @keyframes reason-in {
   from {
     opacity: 0;
-    translate: 0 0.35rem;
+    translate: 0 0.3rem;
   }
 }
 
