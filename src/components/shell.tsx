@@ -20,28 +20,18 @@ import Link from "next/link";
 
 type ButtonTone = "ink" | "accent" | "ghost" | "onDark";
 
-const buttonTone: Record<ButtonTone, string> = {
-  /* The default action. Pine on paper, the pairing used everywhere else. */
-  ink: "bg-pine text-paper hover:bg-pine-deep",
-  /* Ruby, and the rule that comes with it: once per screen, never for
-     running text. White on ruby measures ~4.4:1, which needs the weight and
-     size this class already sets. */
-  accent: "bg-ruby text-white hover:bg-ruby-deep",
-  /* The second action beside a first. An outline, not a second fill. */
-  ghost: "border border-pine text-pine hover:bg-pine hover:text-paper",
-  /* The same outline on the dark band. This exists as a tone rather than a
-     className override on `ghost`: two utilities setting the same property
-     have equal specificity, so which one wins is decided by their order in
-     the compiled stylesheet, not by the order they are written here. The
-     override lost, and the button rendered pine on pine. */
-  onDark: "border border-paper/70 text-paper hover:bg-paper hover:text-pine",
-};
-
+/*
+ * The tones are now colour classes in globals.css, beside the sweep that
+ * crosses them on hover — see the `.btn` block. They used to be Tailwind
+ * utilities with a `hover:bg-*` each; a utility cannot reach the panel that
+ * does the sweeping, and two descriptions of one button's hover state is how
+ * they come to disagree.
+ */
 function buttonClass(tone: ButtonTone, className: string): string {
   return [
-    "inline-flex items-center justify-center rounded-full px-7 py-3.5",
-    "text-base font-semibold transition-colors",
-    buttonTone[tone],
+    "btn inline-flex items-center justify-center rounded-full px-7 py-3.5",
+    "text-base font-semibold",
+    `btn--${tone}`,
     className,
   ].join(" ");
 }

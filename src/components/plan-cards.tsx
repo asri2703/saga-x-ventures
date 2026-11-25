@@ -251,7 +251,7 @@ export function PlanGroup({
                   rel: "noopener noreferrer",
                 }
               : {})}
-            className="shrink-0 self-start rounded-full border border-pine px-6 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper sm:self-auto"
+            className="btn btn--ghost shrink-0 self-start rounded-full px-6 py-3 text-base font-semibold sm:self-auto"
           >
             {alternative.action.label}
           </Link>

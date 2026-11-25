@@ -29,10 +29,11 @@ export function CheckoutOpener({
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
 
-  const style =
-    tone === "accent"
-      ? "bg-ruby text-white hover:bg-ruby-deep"
-      : "border border-pine text-pine hover:bg-pine hover:text-paper";
+  /* The same classes `ActionLink` wears, written out rather than imported:
+     this is a client component and `shell.tsx` is a server one. The sweep
+     and the colours both live in globals.css, so the two stay together
+     without the helper crossing the boundary. */
+  const style = `btn btn--${tone}`;
 
   return (
     <>
@@ -40,7 +41,7 @@ export function CheckoutOpener({
         ref={button}
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex items-center justify-center rounded-full px-7 py-3.5 text-base font-semibold transition-colors ${style} ${className}`}
+        className={`inline-flex items-center justify-center rounded-full px-7 py-3.5 text-base font-semibold ${style} ${className}`}
       >
         {label}
       </button>

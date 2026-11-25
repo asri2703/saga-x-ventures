@@ -162,7 +162,7 @@ export function SiteHeader() {
                 would compete with it on every single view. */}
             <Link
               href="/coaching"
-              className="ml-3 rounded-full bg-pine px-5 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-pine-deep"
+              className="btn btn--ink ml-3 rounded-full px-5 py-2.5 text-sm font-semibold"
             >
               Start here
             </Link>
@@ -242,7 +242,7 @@ export function SiteHeader() {
           <Link
             href="/coaching"
             onClick={close}
-            className="mt-8 block rounded-full bg-pine px-5 py-3.5 text-center text-base font-semibold text-paper"
+            className="btn btn--ink mt-8 block rounded-full px-5 py-3.5 text-center text-base font-semibold"
           >
             Start here
           </Link>

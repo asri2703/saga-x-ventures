@@ -102,7 +102,7 @@ function Steps({
                 prefetch={false}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex shrink-0 items-center justify-center self-start rounded-full border border-pine px-6 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
+                className="btn btn--ghost inline-flex shrink-0 items-center justify-center self-start rounded-full px-6 py-3 text-base font-semibold"
               >
                 {step.cta}
               </Link>
@@ -116,7 +116,7 @@ function Steps({
                 href="/go/whatsapp?m=mastery"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex shrink-0 items-center justify-center self-start rounded-full border border-pine px-6 py-3 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
+                className="btn btn--ghost inline-flex shrink-0 items-center justify-center self-start rounded-full px-6 py-3 text-base font-semibold"
               >
                 Message me to arrange it
               </a>

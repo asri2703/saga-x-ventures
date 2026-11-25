@@ -90,6 +90,16 @@
   --glass-line-dark: rgba(255, 255, 255, 0.18);
   --glass-blur: 20px;
 
+  /* The one easing curve for interface motion: fast out of the gate, settling
+     at the end, so a thing that moves because somebody acted looks like it
+     was already on its way.
+
+     It is declared here because nine transitions across this stylesheet were
+     already asking for it and nothing defined it. A transition shorthand with
+     an invalid timing function is an invalid declaration, so those nine were
+     not easing — they were not animating at all. */
+  --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
+
   /* One family. General Sans is the nearest freely licensed relative of the
      reference's GT Walsheim: geometric, soft-terminalled, and friendlier
      than the Archivo it replaces. Display type is the same family heavier
@@ -355,16 +365,9 @@
   padding: 0 1.1rem;
   border: 0;
   border-radius: 999px;
-  background: var(--color-ruby);
-  color: #fff;
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.checkout-pay:hover:not(:disabled) {
-  background: var(--color-ruby-deep);
 }
 
 .checkout-pay:disabled {
@@ -1900,4 +1903,122 @@ html.lenis {
   margin-block-start: 0.125rem;
   font-size: 0.8125rem;
   color: var(--color-pine-faint);
+}
+
+/* ---------------------------------------------------------------------------
+   The buttons.
+
+   From Uiverse.io by alexroumi - https://uiverse.io/alexroumi/shy-sloth-91
+   MIT License, Copyright (c) alexroumi (Alexander Roumeliotis)
+
+   The behaviour is the original's: a panel sweeps in from the left edge on
+   hover and the label flips to the colour behind it, both over 250ms.
+
+   Three things are this site's. The colours — each tone keeps the resting
+   pair it already had, and sweeps to the colour it used to jump to, so the
+   page reads the same standing still. The radius — pill, not the original's
+   15px, because every other action on this site is a pill. And the motion:
+   the original animates `width` from 0 to 100%, which lays out and paints
+   on every frame; this scales a panel that is already the full size, which
+   is the same picture on the compositor.
+
+   `isolation` is what lets the panel sit at z-index -1 without falling
+   behind the button's own background: it gives the button a stacking
+   context of its own, so -1 means "under the label", not "under the page".
+--------------------------------------------------------------------------- */
+.btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: color 250ms var(--ease-out-ui);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 250ms var(--ease-out-ui);
+}
+
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: scaleX(1);
+}
+
+/* The default action, and the one the sweep had to be argued over. Pine
+   deepening to pine-deep is the hover this button already had, and under a
+   panel crossing the label it is a six per cent change nobody sees — the
+   motion would be there and the point of it would not. Inverting to paper
+   is the original's own trick, but a paper button on paper is a button with
+   no edges.
+
+   Sage: the pine hue lightened, already on the page behind photographs. It
+   reads against both the cream and the band, and it carries pine type at
+   the weight this class sets. */
+.btn--ink {
+  background: var(--color-pine);
+  color: var(--color-paper);
+}
+.btn--ink:hover,
+.btn--ink:focus-visible {
+  color: var(--color-pine);
+}
+.btn--ink::before {
+  background: var(--color-sage);
+}
+
+/* Ruby, and the rule that comes with it: once per screen, never for running
+   text. */
+.btn--accent {
+  background: var(--color-ruby);
+  color: #fff;
+}
+.btn--accent::before {
+  background: var(--color-ruby-deep);
+}
+
+/* The second action beside a first: an outline, which the panel fills. */
+.btn--ghost {
+  border: 1px solid var(--color-pine);
+  color: var(--color-pine);
+}
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  color: var(--color-paper);
+}
+.btn--ghost::before {
+  background: var(--color-pine);
+}
+
+/* The same outline on the dark band. */
+.btn--onDark {
+  border: 1px solid rgba(242, 233, 216, 0.7);
+  color: var(--color-paper);
+}
+.btn--onDark:hover,
+.btn--onDark:focus-visible {
+  color: var(--color-pine);
+}
+.btn--onDark::before {
+  background: var(--color-paper);
+}
+
+/* A disabled action does not promise anything on hover. `:hover` still
+   matches a disabled button in some browsers, so this is said rather than
+   assumed. */
+.btn:disabled::before {
+  transform: scaleX(0);
+}
+
+/* The sweep is the animation; the colour change is the information. Under
+   reduced motion the panel is simply there or not. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn::before {
+    transition: none;
+  }
 }

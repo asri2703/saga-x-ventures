@@ -290,7 +290,11 @@ export function CheckoutDialog({ planKey, onClose }: Props) {
             <span className="checkout-price tnum">
               {plan ? formatMyr(masteryPlanTotalMyr(plan)) : "—"}
             </span>
-            <button type="submit" className="checkout-pay" disabled={!plan || submitting}>
+            <button
+              type="submit"
+              className="btn btn--accent checkout-pay"
+              disabled={!plan || submitting}
+            >
               {submitting ? "Taking you to Billplz…" : "Pay with Billplz"}
             </button>
           </div>

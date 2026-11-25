@@ -130,7 +130,7 @@ export default async function CheckoutDonePage({
               <div className="mt-7">
                 <Link
                   href="/#fork"
-                  className="inline-flex items-center justify-center rounded-full border border-pine px-7 py-3.5 text-base font-semibold text-pine transition-colors hover:bg-pine hover:text-paper"
+                  className="btn btn--ghost inline-flex items-center justify-center rounded-full px-7 py-3.5 text-base font-semibold"
                 >
                   Back to the packages
                 </Link>
