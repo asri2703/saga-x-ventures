@@ -16,30 +16,47 @@
 
 export const copytrade = {
   minimumUsd: 500,
-  /** Of the account's gain, settled weekly. */
-  masterShare: 30,
-  investorShare: 70,
-  /**
-   * The owner's own worked example. It explains how the fee is calculated and
-   * is never an earnings illustration: "if the account goes from 500 to 600,
-   * the 100 is split" is the term; "turn 500 into 600" is a performance claim
-   * and is banned.
-   */
-  example: { funded: 500, grown: 600 },
 } as const;
 
-export function exampleSplit(): {
-  gain: number;
-  master: number;
-  investor: number;
-} {
-  const gain = copytrade.example.grown - copytrade.example.funded;
-  return {
-    gain,
-    master: (gain * copytrade.masterShare) / 100,
-    investor: (gain * copytrade.investorShare) / 100,
-  };
+/**
+ * The same minimum, as the broker's own screen states it.
+ *
+ * The copy account is a cent account: the broker counts it in cents and
+ * writes the minimum as 50,000, not 500. Somebody who deposits 500 sees a
+ * balance a hundred times larger than the money they put in, and that is the
+ * single most alarming thing about the first screen they land on. The page
+ * says so — and derives the figure, because two descriptions of one deposit
+ * is how they come to disagree.
+ */
+export function copytradeMinimumCents(): number {
+  return copytrade.minimumUsd * CENTS_PER_USD;
 }
+
+/** Not a rate anyone sets. A cent account's unit is a hundredth of a dollar. */
+export const CENTS_PER_USD = 100;
+
+export function formatCents(cents: number): string {
+  return `${new Intl.NumberFormat("en-MY").format(cents)} cent`;
+}
+
+/*
+ * What used to be here, and why it is gone.
+ *
+ * Until 25 November 2026 this modelled a weekly profit share — `masterShare`
+ * 30, `investorShare` 70, a worked `example` of 500 growing to 600, and
+ * `exampleSplit()` to divide it. /copytrade rendered the whole arithmetic.
+ *
+ * The broker's own join screen says "There are no fees", and the owner
+ * confirmed nothing is charged today; the share begins later. A page telling
+ * a buyer that 30% of their gain is taken, one click before a screen telling
+ * them nothing is, is a false statement about their money — and the buyer is
+ * the one who finds out.
+ *
+ * Deleted rather than left unused, the same way the dated Fukyaa deposit was
+ * below: an unused export is still the one somebody imports next. It comes
+ * back from the git history when the share starts, along with the page
+ * section that read it.
+ */
 
 /* ------------------------------------------------------------------ *
  * Fukyaa
@@ -210,10 +227,11 @@ export const fukyaaPlans: FukyaaPlan[] = [
     name: "Copytrade",
     depositUsd: copytrade.minimumUsd,
     vpsMonthlyMyr: null,
-    /* What the client hands over out of a gain, not what the business earns
-       anywhere else. This figure is a cost to the buyer and is stated for
-       that reason. */
-    weeklyShare: copytrade.masterShare,
+    /* Null, not zero: nothing is charged on the copy today. It was 30 until
+       25 November 2026, when the broker's own join screen was found to say
+       "There are no fees" and the owner confirmed it. The field stays — the
+       share starts later and this is where it goes back. */
+    weeklyShare: null,
     automated: false,
     recommended: false,
   },

@@ -1001,6 +1001,150 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   The FAQ on /copytrade.
+
+   A <details> element, styled rather than replaced. The browser already
+   gives it keyboard handling, the right role, and find-in-page that opens
+   the matching answer — all of which a div with an onClick gives up.
+--------------------------------------------------------------------------- */
+.faq-item > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  cursor: pointer;
+  padding: 1.25rem 0;
+  font-weight: 600;
+  color: var(--color-pine);
+  list-style: none;
+}
+
+/* Safari draws its own triangle through ::-webkit-details-marker, which
+   `list-style: none` alone does not remove. */
+.faq-item > summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item > summary:hover {
+  color: var(--color-ruby-deep);
+}
+
+/* The sign is drawn, not typed: a glyph would inherit the font's own
+   metrics and sit off centre against the line it belongs to. */
+.faq-sign {
+  position: relative;
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.faq-sign::before,
+.faq-sign::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  translate: 0 -50%;
+}
+
+.faq-sign::after {
+  rotate: 90deg;
+}
+
+/* Open: the upright stroke goes, leaving a minus. */
+.faq-item[open] .faq-sign::after {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq-sign::after {
+    transition: opacity 180ms ease;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The copy mirror on /copytrade.
+
+   Two panels of the same rows, the right one lagging the left. The lag is
+   the whole point: it is what makes "your account mirrors mine" a thing you
+   can see rather than a sentence you agree with.
+
+   Every row is in the markup from the start and only its opacity is
+   animated, so the panels never change height and nothing below them moves.
+--------------------------------------------------------------------------- */
+.copy-panel {
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06), 0 10px 26px rgba(22, 58, 48, 0.07);
+}
+
+/* The receiving side, marked by a tint rather than a label. It is the one a
+   visitor is being asked to picture as theirs. */
+.copy-panel-yours {
+  background: var(--color-sage);
+}
+
+.copy-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+.copy-side-buy,
+.copy-side-sell {
+  border-radius: 9999px;
+  padding: 0.0625rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.copy-side-buy {
+  background: rgba(22, 58, 48, 0.1);
+  color: var(--color-pine);
+}
+
+.copy-side-sell {
+  background: rgba(240, 40, 60, 0.12);
+  color: var(--color-ruby-deep);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copy-row {
+    opacity: 0;
+    animation-name: copy-land;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+  }
+}
+
+/* Held visible for most of the cycle, then cleared, so the pair of panels
+   reads as "a trade arrived" rather than as a list blinking. */
+@keyframes copy-land {
+  0%,
+  6% {
+    opacity: 0;
+    translate: 0 0.4rem;
+  }
+  14%,
+  88% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    translate: 0 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    The connection diagram beside the packages.
 
    Three marks joined to Mastery Signal. The lines are drawn in a square SVG

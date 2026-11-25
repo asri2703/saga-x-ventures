@@ -11,7 +11,11 @@ import {
 import { copytrade, fukyaaPlans } from "@/lib/commercial";
 
 test("the invite codes are per account type, not per product", () => {
-  expect(outbound["broker-cent"]).toContain("invitid=004VL9-TRMRV13456");
+  // The cent code changed on 25 November 2026: OQVHB73609 opens the account
+  // on a tighter spread than TRMRV13456 did, which on a cent account —
+  // small positions, taken often — is most of the difference.
+  expect(outbound["broker-cent"]).toContain("invitid=004VL9-OQVHB73609");
+  expect(outbound["broker-cent"]).not.toContain("TRMRV13456");
   expect(outbound["broker-standard"]).toContain("invitid=1AA974-WAVJR35865");
   expect(outbound["broker-cent"]).not.toEqual(outbound["broker-standard"]);
 });

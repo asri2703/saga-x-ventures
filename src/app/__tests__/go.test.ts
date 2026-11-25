@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { GET } from "@/app/go/[product]/route";
+import { outbound } from "@/lib/products";
 
 /**
  * Attribution is the reason this site exists: Mastery Signal and Fukyaa are
@@ -14,9 +15,13 @@ const req = (product: string) =>
   new Request(`https://sagaxventures.com/go/${product}`);
 
 test("a known key redirects to its destination", async () => {
+  // Read from the table rather than repeated here. This test is about the
+  // route handing over the declared destination; which invite code that is
+  // belongs to products.test.ts, and a second copy of it only means this
+  // file breaks on the day the code is legitimately changed.
   const res = await GET(req("broker-cent"), ctx("broker-cent"));
   expect(res.status).toBe(302);
-  expect(res.headers.get("location")).toContain("invitid=004VL9-TRMRV13456");
+  expect(res.headers.get("location")).toBe(outbound["broker-cent"]);
 });
 
 test("the two products do not share a broker link", async () => {

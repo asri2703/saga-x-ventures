@@ -34,8 +34,12 @@ export type OutboundKey =
 export const outbound: Record<OutboundKey, string> = {
   // Cent: smaller contract sizes, which is why the EA and copy-trading
   // products sit here — finer position sizing, smaller risk per step.
+  //
+  // The code changed from TRMRV13456 on 25 November 2026. Both open a cent
+  // account; this one opens it on a tighter spread, and on an account that
+  // takes small positions often, the spread is most of the cost.
   "broker-cent":
-    "https://platform.hmvestportal.com/regist-real?invitid=004VL9-TRMRV13456",
+    "https://platform.hmvestportal.com/regist-real?invitid=004VL9-OQVHB73609",
   "broker-standard":
     "https://platform.hmvestportal.com/regist-real?invitid=1AA974-WAVJR35865",
   // Both routes through this site end here: the client registers, chooses
