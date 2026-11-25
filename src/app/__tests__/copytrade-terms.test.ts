@@ -111,3 +111,18 @@ test("the record section labels its figures as a sample", () => {
   // that the label is attached to the chart rather than sitting beside it.
   expect(FLAT).toMatch(/Sample figures/);
 });
+
+test("the hero is drawn on graph paper, pinned to its own band", () => {
+  // A sheet pinned to inset-0 inside a static parent spreads over the whole
+  // page, and one inside a parent with no overflow rule bleeds past the
+  // band's edge into the section below. Both only show up in a browser, so
+  // they are asserted here — the same guard the homepage carries.
+  const sheet = FLAT.indexOf("hero-grid");
+  expect(sheet).toBeGreaterThan(-1);
+  const opens = FLAT.slice(FLAT.lastIndexOf("<Section", sheet), sheet);
+  expect(opens).toContain("relative");
+  expect(opens).toContain("overflow-hidden");
+  // Under the content, not over it: a Container that is not positioned
+  // sits in the same layer as an absolutely positioned sibling and loses.
+  expect(FLAT.slice(sheet)).toMatch(/<Container className="relative">/);
+});

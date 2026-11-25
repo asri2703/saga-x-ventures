@@ -164,8 +164,18 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           1. The question, then what this is.
       --------------------------------------------------------------- */}
-      <Section pad="pt-14 pb-12 sm:pt-20 sm:pb-16">
-        <Container>
+      <Section
+        pad="pt-14 pb-12 sm:pt-20 sm:pb-16"
+        className="relative overflow-hidden"
+      >
+        {/* The same graph paper the homepage hero is drawn on. Decorative,
+            so it is hidden from assistive technology, and it sits in its own
+            layer rather than on the section — the section's background
+            colour is what keeps the paper tone consistent between bands.
+            `relative` on the section and on the Container, `overflow-hidden`
+            so the sheet stops at the band's edge. */}
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
           <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:items-center lg:gap-16">
             <div data-reveal>
               <Eyebrow tone="quiet">Copytrade</Eyebrow>
