@@ -182,6 +182,10 @@ export default function CopytradePage() {
           believes the first sentence and then meets the second has been
           told something untrue about their money. What is free is the fixed
           side: no monthly fee, no server, nothing before there is a gain.
+
+          One paragraph a column, not two. Two short paragraphs with a gap
+          between them took the height of four lines to say two, which is
+          what made the band look mostly empty.
       --------------------------------------------------------------- */}
       <Scallop />
       {/* The band sat 40px under its scallop and 80px above its own edge,
@@ -193,38 +197,25 @@ export default function CopytradePage() {
             <div data-reveal>
               <Eyebrow tone="onDark">What is copytrade</Eyebrow>
               <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
-                Your account takes the same positions as mine.
+                Same trades, your size.
               </h2>
-              <div className="mt-5 space-y-4 leading-relaxed text-paper/80">
-                <p>
-                  Every trade the master account opens, yours opens too, at
-                  the same time.
-                </p>
-                <p>
-                  The lot size is scaled to your balance, not mine. It
-                  follows your risk, not my capital.
-                </p>
-              </div>
+              <p className="mt-5 leading-relaxed text-paper/80">
+                Every trade my account opens, yours opens too, sized to your
+                own balance.
+              </p>
             </div>
 
             <div data-reveal>
               <Eyebrow tone="onDark">Why choose it</Eyebrow>
               <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
-                You pay out of the gain, or you pay nothing.
+                Pay from the profit.
               </h2>
-              <div className="mt-5 space-y-4 leading-relaxed text-paper/80">
-                <p>
-                  Fukyaa AI Auto Trade rents a server at{" "}
-                  {formatMyr(fukyaa.vpsMonthlyMyr)} a month. Copytrade rents
-                  nothing: no commitment fee, no hidden fee, no server to set
-                  up.
-                </p>
-                <p>
-                  {formatPct(copytrade.masterSharePct)} of the month&rsquo;s
-                  profit, settled monthly. A month with no profit costs you
-                  nothing.
-                </p>
-              </div>
+              <p className="mt-5 leading-relaxed text-paper/80">
+                Fukyaa rents a server at {formatMyr(fukyaa.vpsMonthlyMyr)} a
+                month. Copytrade rents nothing. You pay{" "}
+                {formatPct(copytrade.masterSharePct)} of the month&rsquo;s
+                profit, settled monthly, and nothing in a month without one.
+              </p>
             </div>
           </div>
         </Container>
