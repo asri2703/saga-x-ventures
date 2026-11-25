@@ -271,8 +271,14 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------
           4. Getting started: what each product costs, and how to start it.
       --------------------------------------------------------------- */}
-      <Section id="fork" tone="raised">
-        <Container>
+      <Section id="fork" tone="raised" className="relative overflow-hidden">
+        {/* The same sheet as the hero and the award. This is the tallest
+            band on the page and the one whose column leaves the most window
+            empty either side of it. Decorative, so hidden from assistive
+            technology; `relative` keeps inset-0 inside this band and
+            overflow-hidden stops the sheet bleeding past its edges. */}
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
           <SectionHeading eyebrow="Get started" title="Find what works for you.">
             <p>
               Whether you prefer trading on your own or letting automation do

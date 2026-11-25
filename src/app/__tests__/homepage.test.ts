@@ -86,27 +86,44 @@ test("the sentence the homepage renders is the three class names", () => {
   expect(classList()).toBe("Basic Trading, Advanced Trading and News Trading");
 });
 
-test("the award section is drawn on the same graph paper as the hero", () => {
-  // Two cream bands in a row with nothing behind them read as a gap rather
-  // than as two sections. The hero already establishes the sheet; the award
-  // reuses it so the page has a surface rather than a hole in the middle.
+/**
+ * The graph paper, and the three bands drawn on it.
+ *
+ * Pale bands running into each other with nothing behind them read as a gap
+ * in the page rather than as sections, and a centred column leaves most of a
+ * wide window empty either side of it. The hero establishes the sheet; the
+ * two widest bands below reuse it, so those margins have a surface.
+ *
+ * The anchors are content, not markup: a heading can be reworded, but the
+ * packages are still the packages and the award photo is still the award.
+ */
+const SHEET_BANDS = [
+  // The switch, not the section's id: the id is on the opening tag, which
+  // comes BEFORE the sheet, and "the nearest sheet above this" would then
+  // find the hero's and pass on a band that has none.
+  { what: "the packages", anchor: "<PlanSwitch" },
+  { what: "the award", anchor: "founder.award.image" },
+];
+
+test("the hero's graph paper is behind the widest bands too", () => {
   const flat = HOME.replace(/\s+/g, " ");
   const sheets = flat.match(/hero-grid/g) ?? [];
-  expect(sheets.length).toBe(2);
+  expect(sheets.length).toBe(1 + SHEET_BANDS.length);
 
-  // It has to be behind the award, not behind something else that happens
-  // to come later in the file.
-  const award = flat.indexOf("founder.award.image");
-  const before = flat.lastIndexOf("hero-grid", award);
   const hero = flat.indexOf("hero-grid");
-  expect(before).toBeGreaterThan(hero);
+  for (const band of SHEET_BANDS) {
+    const at = flat.indexOf(band.anchor);
+    expect(at, band.what).toBeGreaterThan(-1);
+    // The nearest sheet ABOVE the band's content, and not the hero's.
+    const sheet = flat.lastIndexOf("hero-grid", at);
+    expect(sheet, band.what).toBeGreaterThan(hero);
 
-  // A sheet pinned to inset-0 inside a static parent spreads over the whole
-  // page, and one inside a parent with no overflow rule bleeds past the
-  // band's edges. Both are the kind of thing that only shows up in a
-  // browser, so they are asserted here.
-  const section = flat.lastIndexOf("<Section", before);
-  const opens = flat.slice(section, before);
-  expect(opens).toContain("relative");
-  expect(opens).toContain("overflow-hidden");
+    // A sheet pinned to inset-0 inside a static parent spreads over the
+    // whole page, and one inside a parent with no overflow rule bleeds past
+    // the band's edges. Both only show up in a browser, so they are
+    // asserted here.
+    const opens = flat.slice(flat.lastIndexOf("<Section", sheet), sheet);
+    expect(opens, band.what).toContain("relative");
+    expect(opens, band.what).toContain("overflow-hidden");
+  }
 });
