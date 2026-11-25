@@ -228,19 +228,19 @@ export default function CopytradePage() {
           <ReasonTabs
             reasons={[
               {
-                title: "You do not have to watch the chart all day",
+                title: "Busy with life",
                 body: "Trades from the master account are copied to your account. You can check your positions without spending the whole day in front of the screen.",
               },
               {
-                title: "Your account stays in your own name",
+                title: "Your trading account",
                 body: "Your deposit goes into your own broker account. I do not hold your money or withdraw it for you.",
               },
               {
-                title: "The minimum is clear from the start",
+                title: "Minimum deposit",
                 body: `Copytrade starts from a ${formatUsd(copytrade.minimumUsd)} deposit in a cent account. The balance may appear 100 times larger because the account is measured in cents.`,
               },
               {
-                title: "You can see what is happening",
+                title: "Monitor yourself",
                 body: "The trades, positions and account activity are visible from your own broker account. You do not have to rely only on screenshots or updates from someone else.",
               },
             ]}

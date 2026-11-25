@@ -47,16 +47,17 @@ export function ReasonTabs({ reasons }: { reasons: Reason[] }) {
   }
 
   return (
-    <div className="mt-10 grid gap-4 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-10">
+    <div className="mt-10">
       <div
         role="tablist"
         aria-label="Reasons people copy this account"
         onKeyDown={onKeyDown}
-        /* Stacked at every width. A horizontal strip is the usual answer
-           on a phone, but these tabs carry whole sentences: one and a half
-           fit, the selected one scrolls out of sight, and the reader is
-           left steering a scrollbar to find out what the options were. */
-        className="flex flex-col gap-2"
+        /* A row that wraps, not a strip that scrolls. The labels are two
+           or three words now, so all four fit across a desktop and fall to
+           two lines on a phone — nothing hidden, and no scrollbar to steer.
+           They were whole sentences until the owner cut them, and a rail
+           down the side was the only thing that worked at that length. */
+        className="flex flex-wrap gap-2"
       >
         {reasons.map((reason, index) => (
           <button
@@ -92,7 +93,7 @@ export function ReasonTabs({ reasons }: { reasons: Reason[] }) {
              keyboard user arriving from the tab list needs somewhere to go
              that is not back out of the component. */
           tabIndex={0}
-          className="reason-panel"
+          className="reason-panel mt-4"
         >
           {/* No heading inside. The tab beside it says the same words, and
               `aria-labelledby` already names the panel from that tab, so a

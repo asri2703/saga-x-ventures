@@ -1010,7 +1010,6 @@ html.lenis {
 --------------------------------------------------------------------------- */
 .reason-tab {
   flex: none;
-  max-width: 17rem;
   border-radius: var(--radius-panel);
   padding: 0.875rem 1.125rem;
   text-align: left;
@@ -1019,12 +1018,6 @@ html.lenis {
   color: var(--color-pine-soft);
   cursor: pointer;
   transition: background-color 180ms ease, color 180ms ease;
-}
-
-@media (min-width: 1024px) {
-  .reason-tab {
-    max-width: none;
-  }
 }
 
 .reason-tab:hover {
@@ -1049,7 +1042,7 @@ html.lenis {
   align-content: center;
   /* Held tall enough for the longest of the four, so switching tabs does
      not move the rest of the page up and down under the reader. */
-  min-height: 9.5rem;
+  min-height: 7.5rem;
 }
 
 @media (min-width: 640px) {
