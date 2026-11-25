@@ -151,13 +151,11 @@ export default function CopytradePage() {
               </div>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
+                {/* One action. The second link sent the reader to the
+                    questions before they had one, and a hero that offers two
+                    doors points at neither. The questions are still a section
+                    away, down the page, where a reader arrives with one. */}
                 <ActionLink href="#steps">Join us now</ActionLink>
-                {/* The questions, not the reasons: "what happens after I
-                    join" is answered by "do I have to do anything", "can I
-                    stop" and "what about a losing week". */}
-                <ActionLink href="#questions" tone="ghost">
-                  What happens after I join
-                </ActionLink>
               </div>
             </div>
 
