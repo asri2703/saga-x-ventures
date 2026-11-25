@@ -1001,6 +1001,42 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   The dot field behind the packages.
+
+   The hero's ruled paper did this job first and did it badly: two bands
+   drawn in the same hand stop reading as two bands, and ruled lines running
+   under three price cards compete with the cards' own edges.
+
+   Same drafting language, lower volume. One radial gradient repeated on a
+   26px tile, which is half the hero's 55px square — close enough to belong
+   to it, far enough not to be mistaken for it.
+
+   It fades at the top and the bottom and not at the sides, because the
+   sides are the point: a centred column leaves most of a wide window empty,
+   and this is what that emptiness is made of.
+--------------------------------------------------------------------------- */
+.dot-field {
+  /* Lighter than the grid's 0.2. A dot is a smaller mark than a line and
+     reads heavier at the same alpha, which on cream turns into a texture
+     you notice instead of a surface you don't. */
+  --dot: rgba(22, 58, 48, 0.17);
+  /* The second stop is a sixteenth of a pixel past the first: it is what
+     gives the dot an edge instead of a halo that smears into the tile. */
+  background-image: radial-gradient(var(--dot) 1.4px, transparent 1.5px);
+  background-size: 26px 26px;
+  /* Top and bottom only. Beginning at full strength where the band begins
+     draws a crisp horizontal seam across the page, which is the one thing
+     a background is not allowed to do. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 9%,
+    #000 76%,
+    transparent 100%
+  );
+}
+
+/* ---------------------------------------------------------------------------
    The logo strip under the hero.
 
    Two identical rows side by side; the track slides left by half its width,

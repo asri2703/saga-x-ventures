@@ -97,13 +97,7 @@ test("the sentence the homepage renders is the three class names", () => {
  * The anchors are content, not markup: a heading can be reworded, but the
  * packages are still the packages and the award photo is still the award.
  */
-const SHEET_BANDS = [
-  // The switch, not the section's id: the id is on the opening tag, which
-  // comes BEFORE the sheet, and "the nearest sheet above this" would then
-  // find the hero's and pass on a band that has none.
-  { what: "the packages", anchor: "<PlanSwitch" },
-  { what: "the award", anchor: "founder.award.image" },
-];
+const SHEET_BANDS = [{ what: "the award", anchor: "founder.award.image" }];
 
 test("the hero's graph paper is behind the widest bands too", () => {
   const flat = HOME.replace(/\s+/g, " ");
@@ -126,4 +120,43 @@ test("the hero's graph paper is behind the widest bands too", () => {
     expect(opens, band.what).toContain("relative");
     expect(opens, band.what).toContain("overflow-hidden");
   }
+});
+
+test("the packages band has a surface of its own, not the hero's", () => {
+  // Ruled paper behind the packages put the hero's drawing straight behind
+  // the prices, and two bands drawn the same way stop reading as two
+  // bands. Dots are the same hand at a lower volume: they fill the margins
+  // either side of the column without competing with three cards.
+  const flat = HOME.replace(/\s+/g, " ");
+  // The switch, not the section's id: the id is on the opening tag, which
+  // comes BEFORE the surface, so "the nearest one above this" would find
+  // the hero's and pass on a band that has none of its own.
+  const switchAt = flat.indexOf("<PlanSwitch");
+  expect(switchAt).toBeGreaterThan(-1);
+
+  const dots = flat.lastIndexOf("dot-field", switchAt);
+  expect(dots).toBeGreaterThan(-1);
+  // No band begins between the dots and the packages, so the dots are this
+  // band's own. `<Section` followed by a space or a `>`: `<SectionHeading`
+  // starts with the same nine characters and sits in exactly this gap.
+  expect(flat.slice(dots, switchAt)).not.toMatch(/<Section[\s>]/);
+  expect(flat.lastIndexOf("hero-grid", switchAt)).toBeLessThan(
+    flat.indexOf("<Section", flat.indexOf("hero-grid")),
+  );
+
+  const opens = flat.slice(flat.lastIndexOf("<Section", dots), dots);
+  expect(opens).toContain("relative");
+  expect(opens).toContain("overflow-hidden");
+});
+
+test("the dot field is a real rule, not a class name nothing styles", () => {
+  // A decorative layer with no CSS behind it is an empty div: the band
+  // looks exactly as bare as before and every assertion above still passes.
+  const css = fs.readFileSync(
+    path.join(process.cwd(), "src", "app", "globals.css"),
+    "utf8",
+  );
+  const rule = css.slice(css.indexOf(".dot-field"));
+  expect(rule).toMatch(/^\.dot-field\s*\{/);
+  expect(rule.slice(0, rule.indexOf("}"))).toContain("radial-gradient");
 });
