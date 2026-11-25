@@ -1664,3 +1664,124 @@ html.lenis {
     border-block-start: 1px solid var(--color-rule-strong);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The record chart on /copytrade.
+
+   Ported from the chart the owner chose. The source carries its colours in
+   shadcn tokens and a blue hex; these are the site's own, and the fill is
+   sage rather than grey because grey is not in the palette.
+--------------------------------------------------------------------------- */
+.chart {
+  max-width: 40rem;
+}
+
+.chart-cursor {
+  position: absolute;
+  inset-block-start: 11%;
+  inset-inline-start: 0;
+  width: 2px;
+  height: 83%;
+  border-radius: 9999px;
+  background: var(--color-rule-strong);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.chart-dot {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 10;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: var(--color-pine);
+  box-shadow: 0 0 0 2px var(--color-paper-raised);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.chart-tip {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 20;
+  min-width: 9rem;
+  border-radius: var(--radius-float);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-fill-strong);
+  backdrop-filter: blur(var(--glass-blur));
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.chart-axis {
+  position: relative;
+  height: 1.25rem;
+  margin-block-start: 0.5rem;
+}
+
+.chart-axis > span {
+  position: absolute;
+  inset-block-start: 0;
+  translate: -50% 0;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-pine-faint);
+}
+
+.chart-table {
+  margin-block-start: 1rem;
+  font-size: 0.875rem;
+}
+
+.chart-table > summary {
+  cursor: pointer;
+  color: var(--color-pine-soft);
+}
+
+.chart-table table {
+  margin-block-start: 0.75rem;
+  width: 100%;
+  text-align: start;
+}
+
+.chart-table th,
+.chart-table td {
+  border-block-end: 1px solid var(--color-rule);
+  padding: 0.375rem 0;
+  text-align: start;
+  font-weight: 400;
+  color: var(--color-pine-soft);
+}
+
+.chart-table thead th {
+  font-weight: 600;
+  color: var(--color-pine);
+}
+
+/* Nothing to draw yet: the frame the line will arrive in, at the proportion
+   it will arrive at, so the section does not change height on the day the
+   feed is wired up. */
+.chart-empty {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 640 / 220;
+  max-width: 40rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-panel);
+  border: 1px dashed var(--color-rule-strong);
+  text-align: center;
+}
+
+.chart-baseline {
+  position: absolute;
+  inset-inline: 1.5rem;
+  inset-block-end: 1.5rem;
+  border-block-start: 1px solid var(--color-rule);
+}

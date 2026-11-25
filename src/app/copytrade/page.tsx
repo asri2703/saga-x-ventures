@@ -9,10 +9,12 @@ import {
   formatUsd,
   fukyaa,
 } from "@/lib/commercial";
+import { recordPoints } from "@/lib/record";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
 import { ReasonShowcase } from "@/components/reason-showcase";
 import { SectionHeading } from "@/components/section-heading";
+import { RecordChart } from "@/components/record-chart";
 import { StepTrack } from "@/components/step-track";
 import { VideoEmbed } from "@/components/video-embed";
 import {
@@ -306,7 +308,16 @@ export default function CopytradePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          5. The record, and why it is not here.
+          5. The record.
+
+          The chart is here before the numbers are, which the owner asked
+          for so that wiring the feed is one change rather than a design.
+          `recordPoints()` returns nothing today and the chart draws its
+          frame and says so.
+
+          What it must never draw is a sample series. A rising line on a
+          trading page is a track record to everyone who sees it, whatever
+          the caption says, and nobody screenshots the caption.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
@@ -315,12 +326,18 @@ export default function CopytradePage() {
             <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
               There are no numbers on this page yet.
             </h2>
-            <div className="mt-5 space-y-5 leading-relaxed text-pine-soft">
-              <p>
-                It will be read from the account itself, not typed in by me.
-                That is not wired up yet.
-              </p>
-            </div>
+            <p className="mt-5 leading-relaxed text-pine-soft">
+              It will be read from the account itself, not typed in by me.
+              That is not wired up yet.
+            </p>
+          </div>
+
+          <div className="mt-10" data-reveal>
+            <RecordChart
+              points={recordPoints()}
+              name="Balance"
+              empty="The line starts the day the account feed is connected. Nothing is drawn here until it is."
+            />
           </div>
         </Container>
       </Section>
