@@ -44,9 +44,8 @@ export default function CoachingPage() {
               One to one, not a class of thirty
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-pine-soft">
-              Three classes. Take them in order or take one on its own. Each
-              runs about a day, just the two of us. Some things land in an hour.
-              Some take the whole afternoon.
+              Three classes, about a day each, just the two of us. Take
+              them in order or take one on its own.
             </p>
           </div>
         </Container>
@@ -65,8 +64,8 @@ export default function CoachingPage() {
                 Take this if you want to trade yourself
               </h2>
               <p className="mt-3 leading-relaxed text-pine-soft">
-                You want to place your own trades and understand what you are
-                looking at while you do it. That is what these days are for.
+                You want to place your own trades, and understand what you
+                are looking at while you do it.
               </p>
             </Panel>
             <Panel>
@@ -100,8 +99,8 @@ export default function CoachingPage() {
             The three classes
           </h2>
           <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
-            Each one assumes the one before it. Most people should start at the
-            top, including the ones who think they are past it.
+            Each one assumes the one before it. Most people should start
+            at the top.
           </p>
 
           {/* Numbered, because this is a real sequence: each class assumes
@@ -178,8 +177,8 @@ export default function CoachingPage() {
               Tell me where you are
             </h2>
             <p className="mx-auto mt-5 max-w-xl leading-relaxed text-paper/80">
-              Message me with what you have traded so far and which class you
-              think you need. We fix the dates first. The payment link comes
+              Tell me what you have traded and which class you need. We
+              fix the dates first. The payment link comes
               after that, not before.
             </p>
 

@@ -30,9 +30,8 @@ export default function FukyaaPage() {
             What it costs
           </h2>
           <p className="mt-4 leading-relaxed text-pine-soft">
-            Two ways, and which is cheaper depends on whether you were going to
-            fund a trading account anyway. Either way the deposit stays in your
-            own account; it is not a payment to me.
+            Which is cheaper depends on whether you were funding a trading
+            account anyway. Either way the deposit stays in your own account; it is not a payment to me.
           </p>
         </div>
 
@@ -82,13 +81,12 @@ export default function FukyaaPage() {
 
             <div className="mt-7 space-y-5 text-lg leading-relaxed text-pine-soft">
               <p>
-                Some people told me straight that they were never going to sit
-                and learn this. Selling them a course would have wasted their
-                money.
+                Some people told me straight they were never going to
+                learn this. A course would have wasted their money.
               </p>
               <p>
-                So: an expert advisor places the trades, running on a server
-                that stays on. You fund the account and leave it alone.
+                An expert advisor places the trades, on a server that
+                stays on. You fund the account and leave it alone.
               </p>
               <p>
                 If you would rather follow a person than an algorithm, that is{" "}

@@ -30,9 +30,8 @@ export function MarkedChart({ className = "" }: { className?: string }) {
             A price chart with two zones boxed and one level marked
           </title>
           <desc id="marked-chart-desc">
-            An illustration of how a level is chosen: the market returns to the
-            same area twice, and the level is drawn where it was rejected, not
-            where the candle closed.
+            How a level is chosen: the market returns to the same area
+            twice, and the level is drawn where it was rejected, not where the candle closed.
           </desc>
 
           {/* Zones — where price turned before. Dashed, because a zone is an

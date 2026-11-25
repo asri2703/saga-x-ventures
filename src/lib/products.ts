@@ -139,7 +139,7 @@ export const products: Product[] = [
     name: "Mastery Signal",
     forWho: "I can trade. I just need the setups.",
     summary:
-      "Live signals with the level and the reason for it, so you can check the call before you take it.",
+      "Live signals with the level and the reason for it, so you can check the call first.",
     steps: [
       { label: "Open a standard account", outbound: "broker-standard" },
       { label: "Fund it to match the package you want", outbound: null },
@@ -189,7 +189,7 @@ export const products: Product[] = [
     name: "Copytrade",
     forWho: "I'd rather follow a person than a system.",
     summary:
-      "You follow the master account from your own account. The money stays with you; the broker runs the copying and settles the share weekly.",
+      "You follow the master account from your own. The money stays with you and the broker runs the copying.",
     steps: [
       { label: "Open a cent account", outbound: "broker-cent" },
       { label: "Fund it with the minimum", outbound: null },

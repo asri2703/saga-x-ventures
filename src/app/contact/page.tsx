@@ -30,9 +30,8 @@ export default function ContactPage() {
             Message me directly
           </h1>
           <p className="mt-7 text-lg leading-relaxed text-pine-soft">
-            WhatsApp is fastest and it reaches me rather than an inbox someone
-            checks on Monday. Tell me what you have traded so far and what you
-            are trying to fix.
+            WhatsApp is fastest, and it reaches me rather than an inbox.
+            Tell me what you have traded and what you are trying to fix.
           </p>
 
           {/* The only ruby on this page. Enquiries are what it exists for. */}

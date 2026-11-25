@@ -29,9 +29,8 @@ export default function BlogIndex() {
         <div className="max-w-2xl">
           <h1 className="display text-4xl text-pine sm:text-5xl">Writing</h1>
           <p className="mt-6 text-lg leading-relaxed text-pine-soft">
-            Notes on reading a market, what the week looked like, and the
-            mistakes I keep making. No tips, and nothing telling you what to
-            buy.
+            Reading a market, what the week looked like, and the mistakes
+            I keep making. No tips, nothing telling you what to buy.
           </p>
         </div>
 
@@ -66,8 +65,8 @@ export default function BlogIndex() {
           <Panel className="mt-14 max-w-2xl">
             <p className="display text-xl text-pine">Nothing published yet.</p>
             <p className="mt-3 leading-relaxed text-pine-soft">
-              I am writing the first ones. If there is something you want
-              explained, tell me and I will start there.
+              I am writing the first ones. Tell me what you want explained
+              and I will start there.
             </p>
             <div className="mt-8">
               <ActionOut href="/go/whatsapp?m=topic" tone="ink">

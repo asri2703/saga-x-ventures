@@ -87,8 +87,8 @@ export default async function CheckoutDonePage({
                 for Mastery Signal &mdash; {plan?.name ?? order.planKey}.
               </p>
               <p className="mt-4 leading-relaxed text-pine-soft">
-                Check your email: the registration link is in it. It is also
-                here, in case that email takes its time.
+                The registration link is in your email. It is also here,
+                in case that takes its time.
               </p>
 
               <div className="mt-7">
@@ -109,9 +109,9 @@ export default async function CheckoutDonePage({
                 Waiting on the bank
               </h1>
               <p className="mt-4 leading-relaxed text-pine-soft">
-                We have not had confirmation from Billplz yet. That usually
-                takes a moment. Your registration link is emailed the instant
-                it arrives &mdash; nothing more is needed from you.
+                No confirmation from Billplz yet. That usually takes a
+                moment. Your registration link is emailed the instant it
+                arrives &mdash; nothing more is needed from you.
               </p>
               <p className="mt-4 leading-relaxed text-pine-soft">
                 If nothing reaches you in a few minutes, message me and I will
@@ -124,9 +124,8 @@ export default async function CheckoutDonePage({
                 That payment did not go through
               </h1>
               <p className="mt-4 leading-relaxed text-pine-soft">
-                Either it was not completed, or this page was opened without a
-                payment to look up. Nothing has been charged that this site
-                can see &mdash; you are welcome to try again.
+                Either it was not completed, or this page was opened
+                without a payment to look up. Nothing has been charged &mdash; you are welcome to try again.
               </p>
               <div className="mt-7">
                 <Link

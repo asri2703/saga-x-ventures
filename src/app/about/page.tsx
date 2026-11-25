@@ -57,9 +57,8 @@ export default function AboutPage() {
             <div className="space-y-6 text-lg leading-relaxed text-pine-soft">
               <p>I started trading for the money. Everyone does.</p>
               <p>
-                What kept me at it was narrower. Why a market turns at one price
-                and not the one ten pips above it. Why I kept taking the trade I
-                already knew was wrong.
+                What kept me at it was narrower. Why a market turns at one
+                price and not the one ten pips above it.
               </p>
               <p>
                 Over those years I have taught more than{" "}
@@ -71,14 +70,14 @@ export default function AboutPage() {
                 membership count, and nobody is currently subscribed to it.
               </p>
               <p>
-                Mastery Signal started with one question I kept getting: what
-                are you looking at right now. An entry price does not answer it,
-                so the signals carry the level and the reason for it.
+                Mastery Signal started with one question I kept getting:
+                what are you looking at right now. So the signals carry
+                the level, and the reason for it.
               </p>
               <p>
-                Fukyaa came from people who told me plainly that they did not
-                want to learn and never would. I would rather hand them
-                automation than sell them a course they will not finish.
+                Fukyaa came from people who told me plainly they would
+                never learn. Better to hand them automation than a course
+                they will not finish.
               </p>
 
               {/* No eyebrow here. A label repeating the heading beneath it
@@ -87,8 +86,8 @@ export default function AboutPage() {
                 What I will not tell you
               </h2>
               <p>
-                I will not tell you what you are going to earn. Not a monthly
-                figure, not a percentage, not a screenshot of a good week.
+                I will not tell you what you are going to earn. No monthly
+                figure, no percentage, no screenshot of a good week.
               </p>
               <p>
                 Trading carries real risk of losing real money. Everything here

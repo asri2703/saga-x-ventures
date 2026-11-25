@@ -51,10 +51,9 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-8 max-w-xl text-lg leading-relaxed text-pine-soft">
-                I believe trading shouldn&rsquo;t be complicated. Twelve years
-                in the market went into the tools I build: simpler to set up,
-                smarter about risk, and flexible enough to fit how you already
-                trade.
+                Twelve years in the market went into the tools I build.
+                Simpler to set up, smarter about risk, built to fit how
+                you already trade.
               </p>
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -255,9 +254,8 @@ export default function HomePage() {
             </div>
             <div className="max-w-sm lg:pt-2" data-reveal>
               <p className="leading-relaxed text-pine-soft">
-                I&rsquo;ve turned years of trading knowledge, hands-on
-                experience, and ideas into products that have helped clients
-                trade smarter, save time, and stay in control.
+                Years of trading, turned into products people actually
+                use.
               </p>
               <div className="mt-6">
                 <ActionLink href="#fork">See which one fits</ActionLink>
@@ -285,8 +283,7 @@ export default function HomePage() {
                 title="Find what works for you."
               >
                 <p>
-                  Whether you prefer trading on your own or letting automation
-                  do the work, there&rsquo;s an option for both.
+                  Trade it yourself, or let the automation do it.
                 </p>
               </SectionHeading>
 
@@ -297,9 +294,8 @@ export default function HomePage() {
                 className="mt-8 max-w-2xl border-l-2 border-pine pl-4 leading-relaxed text-pine"
                 data-reveal
               >
-                Mastery Signal uses a standard trading account, while Fukyaa
-                runs on a cent account. You&rsquo;ll need separate accounts if
-                you plan to use both.
+                Mastery Signal needs a standard account, Fukyaa a cent
+                account. Using both means opening separate accounts.
               </p>
             </div>
 
@@ -316,8 +312,7 @@ export default function HomePage() {
                 intro={
                   <>
                     <p>
-                      Already trading but need a second perspective? Get access
-                      to my signals, market analysis and trading tools.
+                      Already trading, but want a second read on it.
                     </p>
                     <p>
                       Pay for a subscription or get access through our broker
@@ -347,9 +342,9 @@ export default function HomePage() {
                 intro={
                   <>
                     <p>
-                      No time to watch the market, or no interest in placing
-                      the trades yourself? Let the automation take the
-                      execution while the account stays in your name.
+                      No time to watch the market, or no wish to place the
+                      trades. The automation does it; the account stays in
+                      your name.
                     </p>
                     <p>
                       Fund a cent account and pick how it runs &mdash; a
@@ -433,10 +428,9 @@ export default function HomePage() {
                   <span className="tnum">{site.founder.award.year}</span>.
                 </p>
                 <p>
-                  This award marks one of the earlier chapters of my trading
-                  journey. Before building the products and systems I work on
-                  today, I was already spending my time studying the market,
-                  taking trades and learning from the process.
+                  From an earlier chapter, before any of the products
+                  existed. I was studying the market and taking the trades
+                  myself.
                 </p>
                 <p>
                   It is a recognition I still value because it came from the

@@ -28,13 +28,13 @@ export default function EventsPage() {
             Sessions, online and in person
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-pine-soft">
-            Webinars run on Zoom and the link is emailed the moment you
-            register. In-person seminars have a fixed number of seats.
+            Webinars run on Zoom; the link is emailed when you register.
+            Seminars have a fixed number of seats.
           </p>
           <Panel className="mt-10">
             <p className="leading-relaxed text-pine-soft">
-              Registration is not open on this page yet. Until it is, message us
-              and we will tell you when the next session is set.
+              Registration is not open here yet. Message us and we will
+              tell you when the next session is set.
             </p>
 
             <div className="mt-8">
