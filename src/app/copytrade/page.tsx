@@ -61,23 +61,23 @@ function steps(): Step[] {
     {
       n: 1,
       title: "Open a cent account",
-      body: "Cent accounts price in smaller units, so the copying can size your positions in fine steps instead of blunt ones. Open it through this link — it opens the account on a tighter spread, which on an account that trades often is most of what you pay.",
+      body: "Smaller units, so the copying can size your positions finely. This link opens it on a tighter spread.",
       action: { label: "Open the account", href: "/go/broker-cent", tone: "ink" },
     },
     {
       n: 2,
       title: "Verify it",
-      body: "The broker asks for identification before the account can take money. Nothing on my side is involved and nothing happens until it clears.",
+      body: "The broker checks your ID before the account can take money.",
     },
     {
       n: 3,
       title: "Fund it",
-      body: `Deposit ${formatUsd(copytrade.minimumUsd)} or more. The account will show it as ${formatCents(copytradeMinimumCents())} — see below for why.`,
+      body: `Deposit ${formatUsd(copytrade.minimumUsd)} or more. It shows as ${formatCents(copytradeMinimumCents())}.`,
     },
     {
       n: 4,
       title: "Join the copy",
-      body: "Last, not first. The broker's copy page needs a funded account to link, so joining before the deposit lands gets you a screen that cannot do anything.",
+      body: "Last, not first. The copy page needs money in the account before it can link it.",
       action: { label: "Join the copy", href: "/go/copytrade-join", tone: "accent" },
     },
   ];
@@ -90,35 +90,35 @@ function steps(): Step[] {
 const FAQ: { q: string; a: ReactNode }[] = [
   {
     q: "Do I have to do anything once it is running?",
-    a: "No. Trades open and close in your account on their own. You do not confirm anything and there is nothing to watch.",
+    a: "No. Trades open and close on their own.",
   },
   {
     q: "Can you take my money?",
-    a: "No. The account is opened in your name at the broker and the money sits in it the whole time. I have no access to it, cannot withdraw from it, and never hold it.",
+    a: "No. The account is in your name at the broker. I have no access to it.",
   },
   {
     q: "Who is “Fuky AA” on the broker's screen?",
-    a: "My master account, named after the expert advisor running on it. It is not a third party and not somebody else's book — it is the account yours will be following.",
+    a: "My master account, named after the expert advisor on it. That is what yours follows.",
   },
   {
     q: "The broker labels this “High Risk”. Why?",
-    a: "Because it is. Gold is leveraged and it moves, and the label is the broker's own assessment rather than a formality. Treat it as the honest part of the screen rather than the part to scroll past.",
+    a: "Because it is. Gold is leveraged and it moves, and the label is the broker's own.",
   },
   {
     q: "Why does my balance look so much bigger than my deposit?",
-    a: "Because it is a cent account. The broker counts it in cents, so a hundred times the number, for the same money. Nothing has grown.",
+    a: "It is a cent account. The broker counts in cents — a hundred times the number, for the same money.",
   },
   {
     q: "What does it cost?",
-    a: "Nothing today. There is no subscription and the broker's own join screen says the same. A share of gains starts later; when it does, it will be written here before it begins, not after.",
+    a: "Nothing today. A share of gains starts later, and it will be written here before it does.",
   },
   {
     q: "Can I stop?",
-    a: "Yes, whenever you want. Unsubscribe at the broker and the copying stops. Your account, your money and anything still open stay yours.",
+    a: "Yes, any time. Unsubscribe at the broker and the copying stops.",
   },
   {
     q: "What happens in a losing week?",
-    a: "You lose money, the same as if you had placed the trades yourself. How the broker treats a losing week against the next one is set by them, not by me — ask before you join and I will show you their rule rather than paraphrase it.",
+    a: "You lose money, the same as placing the trade yourself. How the broker carries it into the next week is their rule — ask me and I will show you it.",
   },
 ];
 
@@ -178,11 +178,8 @@ export default function CopytradePage() {
                 Gold moves while you are at work.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
-                Reading gold properly means being at the chart when London
-                opens and again when New York does. Most people are working
-                through one of those and asleep for the other. The cost is not
-                the trade you miss — it is the one you take late, after the
-                move it was supposed to catch has already happened.
+                It moves when London opens, and again when New York does.
+                Most people are working through one and asleep for the other.
               </p>
             </div>
 
@@ -192,10 +189,8 @@ export default function CopytradePage() {
                 The reading still happens. You are not the one doing it.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
-                An expert advisor called Fukyaa runs on my account and trades
-                gold, and only gold. It takes the entries, manages them and
-                closes them. Your account copies what it does, a moment after
-                it does it.
+                Fukyaa runs on my account and trades gold. Your account
+                copies it.
               </p>
             </div>
           </div>
@@ -276,14 +271,8 @@ export default function CopytradePage() {
             </h2>
             <div className="mt-5 space-y-5 leading-relaxed text-pine-soft">
               <p>
-                When the record goes here it will be read from the account
-                itself, on a schedule, and not typed in by me. That work is
-                not finished, so for now this page shows nothing.
-              </p>
-              <p>
-                In the meantime, treat any trading page that shows you figures
-                it wrote down itself with the suspicion it has earned. A
-                number nobody can check is a sentence, not a record.
+                It will be read from the account itself, not typed in by me.
+                That is not wired up yet.
               </p>
             </div>
           </div>
@@ -295,12 +284,7 @@ export default function CopytradePage() {
       --------------------------------------------------------------- */}
       <Section id="steps" tone="raised">
         <Container>
-          <SectionHeading eyebrow="Getting started" title="Four steps, in order.">
-            <p>
-              The order matters: the copy page needs an account that already
-              holds money, so joining is last.
-            </p>
-          </SectionHeading>
+          <SectionHeading eyebrow="Getting started" title="Four steps, in order." />
 
           <ol className="mt-10 max-w-3xl space-y-4">
             {steps().map((step) => (
