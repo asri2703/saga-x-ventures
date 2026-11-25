@@ -1893,3 +1893,11 @@ html.lenis {
   inset-block-end: 0;
   border-block-start: 1px solid var(--color-rule);
 }
+
+/* The account's own figure, under the headline one. Small and quiet: it is
+   there to be recognised when a reader opens MT5, not to be read first. */
+.record-sub {
+  margin-block-start: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-pine-faint);
+}

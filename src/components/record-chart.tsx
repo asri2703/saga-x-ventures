@@ -74,21 +74,56 @@ export function RecordChart({
   points,
   name,
   unit,
+  divisor = 1,
+  secondaryUnit,
   note,
   empty,
-  formatValue = (v) => new Intl.NumberFormat("en-MY").format(v),
 }: {
   points: RecordPoint[];
   /** The series name, in the card's head and in the tooltip. */
   name: string;
-  /** What the figures are counted in, set small beside the latest one. */
+  /** What the headline figure is counted in, set small beside it. */
   unit: string;
+  /**
+   * How many feed units make one of `unit`. The copy account is a cent
+   * account, so the feed counts in hundredths and this is 100.
+   *
+   * A number rather than a formatter: this is a server component's page
+   * talking to a client component, and a function cannot cross that
+   * boundary — the first attempt passed one and the route returned 500.
+   */
+  divisor?: number;
+  /**
+   * The feed's own unit. When set, every reading is printed a second time
+   * in it, small, under the headline figure and under the tooltip's.
+   *
+   * A cent balance reads a hundred times the money deposited. Showing only
+   * the standard figure asks a reader to trust a number their terminal will
+   * not show them; showing only the cent figure asks them to do the
+   * arithmetic. The card does both, in that order.
+   */
+  secondaryUnit?: string;
   /** A standing caveat, shown inside the frame so a screenshot carries it. */
   note?: ReactNode;
   /** What stands in the frame while the feed is unwired. */
   empty: ReactNode;
-  formatValue?: (value: number) => string;
 }) {
+  /* Two decimals at most on the headline: a cent balance divides into
+     dollars evenly only by luck, and three decimals read as an error. The
+     second line is the feed's own integer and takes none. */
+  const formatValue = (value: number) =>
+    new Intl.NumberFormat("en-MY", { maximumFractionDigits: 2 }).format(
+      value / divisor,
+    );
+  /* The gridlines sit at a padded tenth above and below the range, so their
+     values are arbitrary to begin with. Rounded to whole units: three
+     labels reading 561.6 / 528 / 494.4 spend their width on precision the
+     scale does not have. */
+  const formatAxis = (value: number) =>
+    new Intl.NumberFormat("en-MY").format(Math.round(value / divisor));
+  const formatSecondary = (value: number) =>
+    `${new Intl.NumberFormat("en-MY").format(value)} ${secondaryUnit}`;
+
   const plot = useRef<HTMLDivElement>(null);
   const [at, setAt] = useState(Math.max(0, points.length - 1));
   const [boxWidth, setBoxWidth] = useState(VIEW_W);
@@ -193,6 +228,9 @@ export function RecordChart({
               {unit}
             </span>
           </p>
+          {secondaryUnit ? (
+            <p className="record-sub tnum">{formatSecondary(latest.value)}</p>
+          ) : null}
         </div>
         <p className="text-sm text-pine-faint">
           {plotted[0].label} &ndash; {latest.label}
@@ -265,7 +303,7 @@ export function RecordChart({
                 top: `${((PAD_TOP + (1 - g) * (VIEW_H - PAD_TOP - PAD_BOTTOM)) / VIEW_H) * 100}%`,
               }}
             >
-              {formatValue(Math.round(scale.low + g * (scale.high - scale.low)))}
+              {formatAxis(scale.low + g * (scale.high - scale.low))}
             </span>
           ))}
         </div>
@@ -298,6 +336,9 @@ export function RecordChart({
           <p className="mt-0.5 tnum text-pine-soft">
             {formatValue(active.value)} {unit}
           </p>
+          {secondaryUnit ? (
+            <p className="record-sub tnum">{formatSecondary(active.value)}</p>
+          ) : null}
         </div>
       </div>
 
@@ -325,6 +366,7 @@ export function RecordChart({
               <th scope="col">
                 {name} ({unit})
               </th>
+              {secondaryUnit ? <th scope="col">In the account</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -332,6 +374,9 @@ export function RecordChart({
               <tr key={point.label}>
                 <th scope="row">{point.label}</th>
                 <td className="tnum">{formatValue(point.value)}</td>
+                {secondaryUnit ? (
+                  <td className="tnum">{formatSecondary(point.value)}</td>
+                ) : null}
               </tr>
             ))}
           </tbody>

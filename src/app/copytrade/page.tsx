@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import {
   copytrade,
+  CENTS_PER_USD,
   copytradeMinimumCents,
   formatCents,
   formatMyr,
@@ -346,7 +347,13 @@ export default function CopytradePage() {
             <RecordChart
               points={recordPoints()}
               name="Balance"
-              unit="cent"
+              /* The feed counts in cents; the card leads with the standard
+                 figure and prints the cent one under it. The conversion is
+                 derived from `CENTS_PER_USD`, so there is one place that
+                 knows what a cent account's unit is. */
+              unit="USD"
+              divisor={CENTS_PER_USD}
+              secondaryUnit="cent"
               note={
                 RECORD_IS_SAMPLE
                   ? "Sample figures. The account feed is not connected yet, and nothing on this chart is a record of any trading."

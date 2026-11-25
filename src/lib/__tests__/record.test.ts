@@ -67,3 +67,24 @@ test("the sample shape is not a straight climb", () => {
   expect(falls).toBeGreaterThan(1);
   expect(values[values.length - 1]).toBeLessThan(Math.max(...values));
 });
+
+test("the headline figure is standard, with the cent figure under it", () => {
+  // The account is a cent account, so the feed counts in cents and a balance
+  // reads a hundred times the money deposited. The owner's clients were
+  // reading 54,900 and doing the arithmetic themselves, or not doing it.
+  //
+  // So the card leads with the standard figure and prints the cent figure
+  // beneath it — both, because the second is the number they will see when
+  // they log in to MT5, and a page that shows only the first teaches them to
+  // distrust it.
+  //
+  // The conversion is derived, never typed: a page that passes a literal
+  // 100 is a second copy of `CENTS_PER_USD`, and the two disagree the day
+  // one of them changes.
+  const chart = FLAT.slice(FLAT.indexOf("<RecordChart"));
+  const props = chart.slice(0, chart.indexOf("/>"));
+  expect(props).toContain('unit="USD"');
+  expect(props).toContain('secondaryUnit="cent"');
+  expect(props).toContain("divisor={CENTS_PER_USD}");
+  expect(props).not.toMatch(/divisor=\{\s*\d/);
+});

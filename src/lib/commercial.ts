@@ -261,7 +261,21 @@ export function formatMyr(myr: number | null | undefined): string {
 
 /** Dollars, for the deposits. The broker denominates the account in them. */
 export function formatUsd(usd: number): string {
-  return `${new Intl.NumberFormat("en-MY").format(usd)} USD`;
+  return `${formatUsdFigure(usd)} USD`;
+}
+
+/**
+ * The same figure without its unit. Not exported: the record chart, which
+ * sets its own unit, cannot take a formatter from a server component anyway
+ * and formats its axis itself.
+ *
+ * Two decimals at most: a balance converted from cents divides evenly only
+ * by luck, and a dollar figure carrying three decimals reads as an error.
+ */
+function formatUsdFigure(usd: number): string {
+  return new Intl.NumberFormat("en-MY", { maximumFractionDigits: 2 }).format(
+    usd,
+  );
 }
 
 /* ------------------------------------------------------------------ *
