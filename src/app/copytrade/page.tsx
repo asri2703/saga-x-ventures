@@ -69,41 +69,47 @@ function steps(): Step[] {
   return [
     {
       n: 1,
-      title: "Open a cent account",
-      body: "Smaller units, so the copying can size your positions finely.",
+      title: "Open a trading account",
+      body: "Make sure it is a cent account.",
       points: [
-        "In your own name, at the broker",
-        "This link opens it on a tighter spread",
-        "No money moves yet",
+        "Keep your MT5 ID and password",
+        "They are what logs you into MetaTrader 5",
+        "This is the account you deposit into",
       ],
       action: { label: "Open the account", href: "/go/broker-cent", tone: "ink" },
     },
     {
       n: 2,
-      title: "Verify it",
-      body: "The broker checks your ID before the account can take money.",
+      title: "Verify your account",
+      body: "The broker checks a valid document before the account can take money.",
       points: [
-        "Their check, not mine",
-        "Needed before any deposit",
+        "Identity card",
+        "Passport",
+        "Another document issued by your country",
       ],
     },
     {
       n: 3,
-      title: "Fund it",
-      body: `Deposit ${formatUsd(copytrade.minimumUsd)} or more. It shows as ${formatCents(copytradeMinimumCents())}.`,
+      title: "Fund your account",
+      body: `At least ${formatUsd(copytrade.minimumUsd)}, which shows as ${formatCents(copytradeMinimumCents())}.`,
       points: [
-        `Minimum ${formatUsd(copytrade.minimumUsd)}`,
-        "A cent account reads a hundred times larger",
-        "Withdraw any time, straight to you",
+        "Into the cent account, not another one",
+        "Help2Pay or any of the broker's payment channels",
+        "Keep the slip as proof of payment",
       ],
     },
     {
       n: 4,
-      title: "Join the copy",
-      body: "Last, not first. The copy page needs money in the account before it can link it.",
+      title: "Subscribe to the copy",
+      body: "Connect your trading account to mine.",
       points: [
-        "The provider is named Fuky AA",
-        "Unsubscribe at the broker to stop",
+        "Register as a follower first",
+        /* His line reads "use MT5 ID and password as credentials". Written
+           plainly it could be read as sending them to me, which is not what
+           happens and not something anybody should do: they are the login
+           for the broker's own copy page. */
+        "Sign in to the broker with your MT5 ID and password",
+        "The video below walks through it",
       ],
       action: { label: "Join the copy", href: "/go/copytrade-join", tone: "accent" },
     },

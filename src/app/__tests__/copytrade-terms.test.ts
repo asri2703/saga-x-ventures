@@ -75,8 +75,11 @@ test("the page makes no claim about an outcome", () => {
 test("joining comes after funding, because the broker requires it", () => {
   // The copy page cannot link an account with no money in it. A visitor sent
   // to join first meets a screen that does nothing and assumes it is broken.
-  const fund = FLAT.indexOf("Fund it");
-  const join = FLAT.indexOf("Join the copy");
+  // The headings are the owner's and have been rewritten twice; what the
+  // guard is actually about is the order, so it anchors on the two words
+  // that cannot change without the steps themselves changing.
+  const fund = FLAT.indexOf("Fund your account");
+  const join = FLAT.indexOf("Subscribe to the copy");
   expect(fund).toBeGreaterThan(-1);
   expect(join).toBeGreaterThan(fund);
 });
