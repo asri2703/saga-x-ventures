@@ -326,7 +326,7 @@ export default function CopytradePage() {
       <Section>
         <Container>
           <div className="mx-auto max-w-xl text-center" data-reveal>
-            <Eyebrow tone="quiet">The record</Eyebrow>
+            <Eyebrow tone="quiet">Our record</Eyebrow>
             <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
               Trading performance
             </h2>
