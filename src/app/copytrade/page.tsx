@@ -229,23 +229,23 @@ export default function CopytradePage() {
           <ReasonShowcase
             reasons={[
               {
-                title: "Busy with life",
-                body: "Trades from the master account are copied to yours. Check your positions when you have a minute, not all day.",
+                title: "Don't have time to learn and trade?",
+                body: "Most of my clients have the same problem. Work runs 6 to 8, and learning the basics takes three to six months. You don't need to. Just copy my trades.",
                 image: "busy.webp",
               },
               {
-                title: "Your trading account",
-                body: "Your deposit goes into your own broker account. I do not hold your money or withdraw it for you.",
+                title: "Worried about your money?",
+                body: "I never ask for your money. You open a trading account in your own name and deposit into that account. Withdraw any time, straight from it, with nobody in the middle.",
                 image: "account.webp",
               },
               {
-                title: "Minimum deposit",
-                body: `Start from ${formatUsd(copytrade.minimumUsd)} in a cent account. The balance reads a hundred times larger, because the broker counts in cents.`,
+                title: "Want to start now?",
+                body: `The minimum is ${formatUsd(copytrade.minimumUsd)}. More capital means bigger positions, up and down alike. It sits in a cent account, so the copying can size your trades in small units.`,
                 image: "deposit.webp",
               },
               {
-                title: "Monitor yourself",
-                body: "Every trade and position is visible from your own broker account. You are not relying on my screenshots.",
+                title: "Take control of your account",
+                body: "Watch it yourself in MT5. Log in to your trading account and every trade and position is there. Need a hand? Ask me.",
                 image: "monitor.webp",
               },
             ]}
