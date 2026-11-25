@@ -8,6 +8,7 @@ import {
 } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
+import { ReasonTabs } from "@/components/reason-tabs";
 import { SectionHeading } from "@/components/section-heading";
 import {
   ActionLink,
@@ -200,11 +201,10 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           3. Why people choose it.
 
-          Rows, not cards. Four identical rounded tiles in a 2x2 grid give
-          four unequal statements the same weight and the same voice, and
-          are the layout anything generated for any product arrives in. A
-          ruled list puts the reason in the display face at the left and its
-          explanation beside it, which is a shape with a hierarchy in it.
+          Tabs, asked for by the owner. It was four identical rounded tiles
+          in a 2x2 grid, then four ruled rows. Tabs do a different reading
+          job from either: the four headlines sit together as a menu, and
+          only the one being asked about is explained.
 
           This replaced a section listing what a visitor meets on the
           broker's own screens. Two of those — the "Fuky AA" provider name
@@ -225,37 +225,26 @@ export default function CopytradePage() {
             </p>
           </SectionHeading>
 
-          <dl className="mt-12 max-w-4xl divide-y divide-rule border-y border-rule">
-            {[
+          <ReasonTabs
+            reasons={[
               {
-                t: "You do not have to watch the chart all day",
-                d: "Trades from the master account are copied to your account. You can check your positions without spending the whole day in front of the screen.",
+                title: "You do not have to watch the chart all day",
+                body: "Trades from the master account are copied to your account. You can check your positions without spending the whole day in front of the screen.",
               },
               {
-                t: "Your account stays in your own name",
-                d: "Your deposit goes into your own broker account. I do not hold your money or withdraw it for you.",
+                title: "Your account stays in your own name",
+                body: "Your deposit goes into your own broker account. I do not hold your money or withdraw it for you.",
               },
               {
-                t: "The minimum is clear from the start",
-                d: `Copytrade starts from a ${formatUsd(copytrade.minimumUsd)} deposit in a cent account. The balance may appear 100 times larger because the account is measured in cents.`,
+                title: "The minimum is clear from the start",
+                body: `Copytrade starts from a ${formatUsd(copytrade.minimumUsd)} deposit in a cent account. The balance may appear 100 times larger because the account is measured in cents.`,
               },
               {
-                t: "You can see what is happening",
-                d: "The trades, positions and account activity are visible from your own broker account. You do not have to rely only on screenshots or updates from someone else.",
+                title: "You can see what is happening",
+                body: "The trades, positions and account activity are visible from your own broker account. You do not have to rely only on screenshots or updates from someone else.",
               },
-            ].map((item) => (
-              <div
-                key={item.t}
-                className="grid gap-3 py-8 sm:grid-cols-[minmax(0,16rem)_1fr] sm:gap-12"
-                data-reveal
-              >
-                <dt className="display text-xl leading-tight text-pine sm:text-2xl">
-                  {item.t}
-                </dt>
-                <dd className="leading-relaxed text-pine-soft">{item.d}</dd>
-              </div>
-            ))}
-          </dl>
+            ]}
+          />
         </Container>
       </Section>
 

@@ -1001,6 +1001,77 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   The reason tabs on /copytrade.
+
+   A rail of four on wide screens, a scrolling strip on a phone. The tabs
+   carry whole sentences rather than one-word labels, so they are set left
+   and allowed to wrap: centred tab text with two lines in one tab and one
+   in the next reads as a mistake.
+--------------------------------------------------------------------------- */
+.reason-tab {
+  flex: none;
+  max-width: 17rem;
+  border-radius: var(--radius-panel);
+  padding: 0.875rem 1.125rem;
+  text-align: left;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-pine-soft);
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+@media (min-width: 1024px) {
+  .reason-tab {
+    max-width: none;
+  }
+}
+
+.reason-tab:hover {
+  background: var(--color-paper-raised);
+  color: var(--color-pine);
+}
+
+/* The selected one. A filled tile rather than an underline: the rail runs
+   down the side on a wide screen, where an underline has no edge to sit on
+   and would read as a rule between items instead of a marker on one. */
+.reason-tab-on,
+.reason-tab-on:hover {
+  background: var(--color-pine);
+  color: var(--color-paper);
+}
+
+.reason-panel {
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  padding: 1.75rem;
+  display: grid;
+  align-content: center;
+  /* Held tall enough for the longest of the four, so switching tabs does
+     not move the rest of the page up and down under the reader. */
+  min-height: 9.5rem;
+}
+
+@media (min-width: 640px) {
+  .reason-panel {
+    padding: 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reason-panel {
+    animation: reason-in 260ms ease-out;
+  }
+}
+
+@keyframes reason-in {
+  from {
+    opacity: 0;
+    translate: 0 0.35rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    The FAQ on /copytrade.
 
    A <details> element, styled rather than replaced. The browser already
