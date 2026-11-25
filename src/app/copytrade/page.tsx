@@ -97,6 +97,14 @@ const FAQ: { q: string; a: ReactNode }[] = [
     a: "No. The account is opened in your name at the broker and the money sits in it the whole time. I have no access to it, cannot withdraw from it, and never hold it.",
   },
   {
+    q: "Who is “Fuky AA” on the broker's screen?",
+    a: "My master account, named after the expert advisor running on it. It is not a third party and not somebody else's book — it is the account yours will be following.",
+  },
+  {
+    q: "The broker labels this “High Risk”. Why?",
+    a: "Because it is. Gold is leveraged and it moves, and the label is the broker's own assessment rather than a formality. Treat it as the honest part of the screen rather than the part to scroll past.",
+  },
+  {
     q: "Why does my balance look so much bigger than my deposit?",
     a: "Because it is a cent account. The broker counts it in cents, so a hundred times the number, for the same money. Nothing has grown.",
   },
@@ -143,7 +151,10 @@ export default function CopytradePage() {
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <ActionLink href="#steps">Join us now</ActionLink>
-                <ActionLink href="#what-you-see" tone="ghost">
+                {/* The questions, not the reasons: "what happens after I
+                    join" is answered by "do I have to do anything", "can I
+                    stop" and "what about a losing week". */}
+                <ActionLink href="#questions" tone="ghost">
                   What happens after I join
                 </ActionLink>
               </div>
@@ -192,110 +203,61 @@ export default function CopytradePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          3. What is on the screen after you click.
+          3. Why people choose it.
+
+          Rows, not cards. Four identical rounded tiles in a 2x2 grid give
+          four unequal statements the same weight and the same voice, and
+          are the layout anything generated for any product arrives in. A
+          ruled list puts the reason in the display face at the left and its
+          explanation beside it, which is a shape with a hierarchy in it.
+
+          This replaced a section listing what a visitor meets on the
+          broker's own screens. Two of those — the "Fuky AA" provider name
+          and the "High Risk" label — are the most useful things on this
+          page and did not deserve to vanish with it, so they moved into the
+          questions below.
       --------------------------------------------------------------- */}
-      <Section id="what-you-see">
+      <Section id="reasons">
         <Container>
           <SectionHeading
-            eyebrow="Before you click"
-            title="Four things on the broker&rsquo;s screen that surprise people."
+            eyebrow="Why people join"
+            title="Four reasons people choose to copy my account."
           >
             <p>
-              You reach the broker&rsquo;s own pages to join. None of this is
-              hidden there; it is just easier to read it here, in advance,
-              than to meet it halfway through signing up.
+              Copytrade is not a shortcut, and it is not for everyone. It is
+              for people who want their own trading account to follow a
+              strategy without having to place every trade themselves.
             </p>
           </SectionHeading>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
-            <Panel>
-              <h3 className="font-semibold text-pine">
-                The provider is called &ldquo;Fuky AA&rdquo;
-              </h3>
-              <p className="mt-2 leading-relaxed text-pine-soft">
-                That is my master account at the broker, named after the
-                expert advisor on it. It is not a third party and not somebody
-                else&rsquo;s book.
-              </p>
-            </Panel>
-
-            <Panel>
-              <h3 className="font-semibold text-pine">
-                The offer is labelled &ldquo;High Risk&rdquo;
-              </h3>
-              <p className="mt-2 leading-relaxed text-pine-soft">
-                The broker&rsquo;s label, and a fair one. Gold is leveraged
-                and it moves. Treat that label as the honest part of the
-                screen rather than the part to scroll past.
-              </p>
-            </Panel>
-
-            <Panel>
-              <h3 className="font-semibold text-pine">
-                The minimum is written in cents
-              </h3>
-              <p className="mt-2 leading-relaxed text-pine-soft">
-                {formatUsd(copytrade.minimumUsd)} appears as{" "}
-                {formatCents(copytradeMinimumCents())}. It is a cent account:
-                the same money, counted in smaller units. Your balance will
-                read a hundred times larger than what you put in, and nothing
-                has grown.
-              </p>
-            </Panel>
-
-            <Panel>
-              <h3 className="font-semibold text-pine">
-                There is nothing to pay
-              </h3>
-              <p className="mt-2 leading-relaxed text-pine-soft">
-                The join screen says there are no fees, and that is accurate
-                today. A share of gains starts later. It will be written on
-                this page before it begins.
-              </p>
-            </Panel>
-          </div>
-        </Container>
-      </Section>
-
-      {/* ---------------------------------------------------------------
-          4. What the visitor keeps hold of.
-      --------------------------------------------------------------- */}
-      <Section tone="raised">
-        <Container>
-          <SectionHeading
-            eyebrow="What stays yours"
-            title="The parts you keep control of."
-          >
-            <p>
-              Copying a trader means giving up the decisions, not the money or
-              the account. These are the things that do not change.
-            </p>
-          </SectionHeading>
-
-          <dl className="mt-10 grid max-w-4xl gap-x-12 gap-y-8 sm:grid-cols-2">
+          <dl className="mt-12 max-w-4xl divide-y divide-rule border-y border-rule">
             {[
               {
-                t: "Your account, your name",
-                d: "Opened by you, at the broker, with your own identification. I am not on it.",
+                t: "You do not have to watch the chart all day",
+                d: "Trades from the master account are copied to your account. You can check your positions without spending the whole day in front of the screen.",
               },
               {
-                t: "Your money never moves",
-                d: "It sits in that account. Deposits and withdrawals go through the broker and only you can make them.",
+                t: "Your account stays in your own name",
+                d: "Your deposit goes into your own broker account. I do not hold your money or withdraw it for you.",
               },
               {
-                t: "One instrument",
-                d: "Gold. Not a basket of whatever looked good this month, and nothing you have to learn the names of.",
+                t: "The minimum is clear from the start",
+                d: `Copytrade starts from a ${formatUsd(copytrade.minimumUsd)} deposit in a cent account. The balance may appear 100 times larger because the account is measured in cents.`,
               },
               {
-                t: "Stop whenever",
-                d: "Unsubscribe at the broker and the copying stops. There is no term, no notice period and no lock-in.",
+                t: "You can see what is happening",
+                d: "The trades, positions and account activity are visible from your own broker account. You do not have to rely only on screenshots or updates from someone else.",
               },
             ].map((item) => (
-              <div key={item.t} data-reveal>
-                <dt className="font-semibold text-pine">{item.t}</dt>
-                <dd className="mt-2 leading-relaxed text-pine-soft">
-                  {item.d}
-                </dd>
+              <div
+                key={item.t}
+                className="grid gap-3 py-8 sm:grid-cols-[minmax(0,16rem)_1fr] sm:gap-12"
+                data-reveal
+              >
+                <dt className="display text-xl leading-tight text-pine sm:text-2xl">
+                  {item.t}
+                </dt>
+                <dd className="leading-relaxed text-pine-soft">{item.d}</dd>
               </div>
             ))}
           </dl>
@@ -375,7 +337,7 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           7. Questions.
       --------------------------------------------------------------- */}
-      <Section>
+      <Section id="questions">
         <Container>
           <SectionHeading eyebrow="Questions" title="Asked before, answered here." />
 
