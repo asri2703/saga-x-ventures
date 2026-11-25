@@ -13,6 +13,7 @@ import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
 import { ReasonShowcase } from "@/components/reason-showcase";
 import { SectionHeading } from "@/components/section-heading";
+import { VideoEmbed } from "@/components/video-embed";
 import {
   ActionLink,
   ActionOut,
@@ -291,6 +292,35 @@ export default function CopytradePage() {
                 It will be read from the account itself, not typed in by me.
                 That is not wired up yet.
               </p>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ---------------------------------------------------------------
+          5b. The walkthrough.
+
+          Above the steps, not below them. The four steps are the thing to
+          do; this is what doing them looks like, and a reader who wants to
+          see it first should not have to scroll past the instructions to
+          find out it exists.
+      --------------------------------------------------------------- */}
+      <Section pad="pb-4">
+        <Container>
+          {/* No data-reveal on this wrapper: SectionHeading carries its
+              own, and a reveal inside a reveal leaves the inner one waiting
+              on an observer whose target is already faded in. */}
+          <div className="max-w-3xl">
+            <SectionHeading
+              eyebrow="Watch it done"
+              title="The whole thing, start to finish."
+            />
+            <div className="mt-8" data-reveal>
+              <VideoEmbed
+                id="q4ARWVtJMdo"
+                title="Copytrade Follower Tutorial"
+                still="copytrade-walkthrough.webp"
+              />
             </div>
           </div>
         </Container>

@@ -1499,3 +1499,56 @@ html.lenis {
     transform: translateX(-50%);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The walkthrough on /copytrade.
+
+   A still with a play button until it is pressed. The sizing is here rather
+   than in utilities because the frame, the cover and the button are one
+   thing: the cover fills the frame absolutely, so the frame is what holds
+   the ratio, and the two cannot be set in different places.
+--------------------------------------------------------------------------- */
+.video-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-panel);
+  background: var(--color-pine-deep);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.08);
+}
+
+.video-cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.video-play {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 9999px;
+  background: var(--color-ruby);
+  color: var(--color-paper);
+  box-shadow: 0 8px 24px rgba(22, 58, 48, 0.28);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .video-play {
+    transition:
+      transform 180ms var(--ease-out-ui),
+      background-color 180ms var(--ease-out-ui);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .video-cover:hover .video-play {
+    transform: scale(1.06);
+    background: var(--color-ruby-deep);
+  }
+}
