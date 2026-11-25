@@ -1906,6 +1906,282 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   Around the chart: the live mark, the four figures, the calendar.
+
+   The figures and the calendar are `.record` cards too, so the dark band's
+   token retargeting above lights them exactly as it lights the chart.
+--------------------------------------------------------------------------- */
+.record-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(78, 242, 163, 0.3);
+  padding: 0.25rem 0.875rem;
+  font-size: 0.8125rem;
+  color: rgba(242, 233, 216, 0.8);
+}
+
+.record-live-dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-neon);
+}
+
+/* Quiet for three hours: no pulse, no green. */
+.record-live--stale {
+  border-color: rgba(242, 233, 216, 0.2);
+}
+.record-live--stale .record-live-dot {
+  background: rgba(242, 233, 216, 0.45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .record-live:not(.record-live--stale) .record-live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: record-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+}
+
+@keyframes record-pulse {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+/* One tab per account, the same width as the cards below them. */
+.record-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.record-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  border-radius: var(--radius-float);
+  border: 1px solid rgba(242, 233, 216, 0.14);
+  background: #0b1f19;
+  padding: 0.75rem 1rem;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.record-tab:hover {
+  border-color: rgba(78, 242, 163, 0.35);
+}
+
+.record-tab[aria-selected="true"] {
+  border-color: rgba(78, 242, 163, 0.6);
+  box-shadow: 0 0 24px -10px rgba(78, 242, 163, 0.5);
+}
+
+.record-tab:focus-visible {
+  outline: 2px solid var(--color-neon);
+  outline-offset: 2px;
+}
+
+.record-tab-label {
+  font-size: 0.8125rem;
+  color: rgba(242, 233, 216, 0.74);
+}
+
+.record-tab-result {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(242, 233, 216, 0.9);
+}
+
+.record-tab-result--up {
+  color: var(--color-neon);
+}
+
+.record-tab-result--down {
+  color: var(--color-ruby);
+}
+
+.record-tab-since {
+  font-size: 0.75rem;
+  color: rgba(242, 233, 216, 0.55);
+}
+
+.record-tab-badge {
+  margin-block-start: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(78, 242, 163, 0.14);
+  padding: 0.0625rem 0.5rem;
+  font-size: 0.6875rem;
+  color: var(--color-neon);
+}
+
+.record-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .record-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.record-stat dt {
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+.record-stat-value {
+  margin-block-start: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-pine-soft);
+}
+
+.record-stat-value--up {
+  color: var(--color-neon);
+}
+
+.record-stat-value--down {
+  color: var(--color-ruby);
+}
+
+.record-stat-sub {
+  margin-block-start: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+.record-stat-unit {
+  margin-inline-start: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-pine-faint);
+}
+
+.record-calendar {
+  margin-block-start: 1rem;
+}
+
+.record-calendar-head,
+.record-month-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.record-calendar-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+.record-calendar-legend .record-day {
+  width: 0.75rem;
+  height: 0.75rem;
+  min-height: 0;
+  border-radius: 0.1875rem;
+  margin-inline-start: 0.5rem;
+  --strength: 0.8;
+}
+
+.record-month {
+  margin-block-start: 1.5rem;
+}
+
+.record-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.375rem;
+  margin-block-start: 0.75rem;
+}
+
+.record-weekday {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: var(--color-pine-faint);
+}
+
+.record-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: 2.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-rule);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-pine-faint);
+}
+
+/* The day's figure, under its date. Hidden on a phone, where seven cells
+   across have no room for "+104.65" — the tooltip and the screen-reader
+   label still carry it. */
+.record-day-amount {
+  display: none;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+@media (min-width: 40rem) {
+  .record-day {
+    min-height: 3.25rem;
+  }
+  .record-day-amount {
+    display: block;
+  }
+}
+
+/* Before the account opened, or not yet come. A date, nothing more. */
+.record-day--off {
+  border-color: transparent;
+  opacity: 0.35;
+}
+
+/* `--strength` runs 0.25–1 with the size of the day's move. The fill is
+   capped well short of opaque so the light date stays readable on the
+   strongest day as well as on the faintest. */
+.record-day--up,
+.record-day--down {
+  border-color: transparent;
+  color: rgba(242, 233, 216, 0.95);
+}
+
+.record-day--up {
+  background: rgba(78, 242, 163, calc(var(--strength, 0.5) * 0.55));
+}
+
+.record-day--down {
+  background: rgba(240, 40, 60, calc(var(--strength, 0.5) * 0.65));
+}
+
+/* ---------------------------------------------------------------------------
    The buttons.
 
    From Uiverse.io by alexroumi - https://uiverse.io/alexroumi/shy-sloth-91

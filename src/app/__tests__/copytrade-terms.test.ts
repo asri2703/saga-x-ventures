@@ -103,13 +103,17 @@ test("the hero's call to action starts the process rather than skipping it", () 
   expect(hero).not.toContain("copytrade-join");
 });
 
-test("the record section labels its figures as a sample", () => {
-  // The owner writes this section's copy and, on 25 November 2026, took out
-  // the heading that said the numbers were not real. What has to survive
-  // every later rewrite of the copy is the label on the figures themselves:
-  // without it the section reads as a track record. `record.test.ts` checks
-  // that the label is attached to the chart rather than sitting beside it.
-  expect(FLAT).toMatch(/Sample figures/);
+test("the record section says where its figures come from", () => {
+  // The owner writes this section's copy and rewrites it often. What has to
+  // survive every rewrite is the note on the figures themselves: their
+  // source, and that a balance moves with deposits as well as with trading.
+  // `record.test.ts` checks that the note is attached to the chart rather
+  // than sitting beside it. The note lives in the panel each account's
+  // record is drawn with; the page must still be the one drawing it.
+  const panel = fs.readFileSync("src/components/record-panel.tsx", "utf8");
+  expect(FLAT).toContain("<RecordPanel");
+  expect(panel).toMatch(/MT5 terminal/);
+  expect(panel).toMatch(/deposits and withdrawals/);
 });
 
 test("the hero is drawn on graph paper, pinned to its own band", () => {

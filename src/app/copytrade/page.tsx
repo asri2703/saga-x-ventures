@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import {
   copytrade,
-  CENTS_PER_USD,
   copytradeMinimumCents,
   formatCents,
   formatMyr,
@@ -10,7 +9,17 @@ import {
   formatUsd,
   fukyaa,
 } from "@/lib/commercial";
-import { RECORD_IS_SAMPLE, recordPoints } from "@/lib/record";
+import {
+  lastReportAt,
+  recordDays,
+  recordFunding,
+  summarise,
+  todayInMalaysia,
+  usd,
+} from "@/lib/record";
+import { divisorFor, recordAccounts } from "@/lib/record-accounts";
+import { RecordPanel } from "@/components/record-panel";
+import { RecordTabs } from "@/components/record-tabs";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
 import { ReasonShowcase } from "@/components/reason-showcase";
@@ -24,6 +33,11 @@ import {
   Eyebrow,
   Scallop,
 } from "@/components/shell";
+
+/* The record is read from the feed at render. An hour is the EA's own
+   interval, and the ingest route revalidates this page on every post, so
+   this is only the backstop for a post that never came. */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/copytrade" },
@@ -158,7 +172,20 @@ const FAQ: { q: string; a: ReactNode }[] = [
   },
 ];
 
-export default function CopytradePage() {
+export default async function CopytradePage() {
+  // Every configured account, master first, read in parallel.
+  const records = await Promise.all(
+    recordAccounts().map(async (account) => {
+      const [days, funding, lastAt] = await Promise.all([
+        recordDays(account.login),
+        recordFunding(account.login),
+        lastReportAt(account.login),
+      ]);
+      return { account, days, funding, lastAt };
+    }),
+  );
+  const today = todayInMalaysia();
+
   return (
     <>
       {/* ---------------------------------------------------------------
@@ -330,15 +357,12 @@ export default function CopytradePage() {
           .record` block in globals.css, which retargets the chart's colour
           tokens instead of restyling each of its parts.
 
-          The chart is on the page before the feed is, because he wants to
-          see it while the site is unreleased. What it draws today is a
-          shape, not a history, and the only place that is said is inside
-          the card — which is the place that matters, because a screenshot
-          of the card carries it and a caption under one does not.
-
-          `RECORD_IS_SAMPLE` is the switch. When the feed lands, it goes
-          false, `recordPoints()` returns the account's own readings, and
-          the note below goes with it.
+          The readings are each account's own, posted hourly by a reporter
+          EA on its terminal — see `src/lib/record.ts`, and
+          `src/lib/record-accounts.ts` for which accounts. Each panel's note
+          says where its figures come from and what a balance includes,
+          inside the card (`record-panel.tsx`), because a screenshot of the
+          card carries it and a caption under one does not.
       --------------------------------------------------------------- */}
       <Section tone="pine">
         <Container>
@@ -353,24 +377,53 @@ export default function CopytradePage() {
             </p>
           </div>
 
+          {/* One account: its panel. Several: a tab each, master first.
+              None configured: the empty chart, which says why. */}
           <div className="mt-10" data-reveal>
-            <RecordChart
-              points={recordPoints()}
-              name="Balance"
-              /* The feed counts in cents; the card leads with the standard
-                 figure and prints the cent one under it. The conversion is
-                 derived from `CENTS_PER_USD`, so there is one place that
-                 knows what a cent account's unit is. */
-              unit="USD"
-              divisor={CENTS_PER_USD}
-              secondaryUnit="cent"
-              note={
-                RECORD_IS_SAMPLE
-                  ? "Sample figures. The account feed is not connected yet, and nothing on this chart is a record of any trading."
-                  : undefined
-              }
-              empty="The line starts the day the account feed is connected. Nothing is drawn here until it is."
-            />
+            {records.length > 1 ? (
+              <RecordTabs
+                tabs={records.map(({ account, days, funding, lastAt }) => {
+                  const summary = summarise(days);
+                  const trading = summary?.trading ?? 0;
+                  return {
+                    key: account.key,
+                    label: account.label,
+                    result: `${usd(trading, true, divisorFor(account.unit))} USD`,
+                    tone: trading > 0 ? "up" : trading < 0 ? "down" : "flat",
+                    // Read from the record itself, so three masters from
+                    // three different months tell themselves apart.
+                    since: summary
+                      ? `Since ${new Date(`${summary.since}T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}`
+                      : undefined,
+                    badge: account.badge,
+                    panel: (
+                      <RecordPanel
+                        account={account}
+                        days={days}
+                        funding={funding}
+                        lastAt={lastAt}
+                        today={today}
+                      />
+                    ),
+                  };
+                })}
+              />
+            ) : records.length === 1 ? (
+              <RecordPanel
+                account={records[0].account}
+                days={records[0].days}
+                funding={records[0].funding}
+                lastAt={records[0].lastAt}
+                today={today}
+              />
+            ) : (
+              <RecordChart
+                points={[]}
+                name="Balance"
+                unit="USD"
+                empty="The line starts the day the account feed is connected. Nothing is drawn here until it is."
+              />
+            )}
           </div>
         </Container>
       </Section>

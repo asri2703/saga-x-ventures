@@ -1,0 +1,81 @@
+import { type RecordAccount, divisorFor } from "@/lib/record-accounts";
+import {
+  type RecordDay,
+  type RecordFunding,
+  calendarMonths,
+  summarise,
+  toPoints,
+} from "@/lib/record";
+import { RecordCalendar } from "@/components/record-calendar";
+import { RecordChart } from "@/components/record-chart";
+import { RecordLive } from "@/components/record-live";
+import { RecordStats } from "@/components/record-stats";
+
+/**
+ * One account's whole record: when it last reported, the four figures, the
+ * balance, and the calendar.
+ *
+ * Server-rendered and handed to `RecordTabs` as a prop, so switching account
+ * swaps markup that is already built. Nothing in here carries `data-reveal`:
+ * the reveals are collected once on mount, and a panel that is not showing
+ * then would arrive later hidden with nothing to un-hide it (the same rule
+ * `plan-switch.tsx` follows). The tabs' wrapper carries the reveal instead.
+ */
+export function RecordPanel({
+  account,
+  days,
+  funding,
+  lastAt,
+  today,
+}: {
+  account: RecordAccount;
+  days: RecordDay[];
+  funding: RecordFunding;
+  lastAt: string | null;
+  /** Malaysian date; the calendar's record runs to here. */
+  today: string;
+}) {
+  const divisor = divisorFor(account.unit);
+  const summary = summarise(days);
+  const months = calendarMonths(days, 3, today);
+
+  return (
+    <div>
+      <div className="text-center">
+        {lastAt ? <RecordLive at={lastAt} /> : null}
+        <p className="mx-auto mt-3 max-w-md text-sm text-paper/70">
+          {account.note}
+        </p>
+      </div>
+
+      {summary ? (
+        <div className="record mt-6">
+          <RecordStats summary={summary} funding={funding} divisor={divisor} />
+        </div>
+      ) : null}
+
+      <div className={summary ? "mt-4" : "mt-6"}>
+        <RecordChart
+          points={toPoints(days)}
+          name="Balance"
+          /* The card leads with the dollar figure; for a cent account it
+             prints the account's own figure under it, the number the reader
+             sees in MT5. The conversion is `divisorFor`, which reads
+             `CENTS_PER_USD`, so there is one place that knows what a cent
+             account's unit is. */
+          unit="USD"
+          divisor={divisor}
+          secondaryUnit={account.unit === "cent" ? "cent" : undefined}
+          note="From this account's MT5 terminal, updated every hour: each point is the balance at the close of its day, from every deal since the account opened. The balance includes deposits and withdrawals. Past results do not predict future ones."
+          empty="The line starts the day this account's feed is connected. Nothing is drawn here until it is."
+        />
+      </div>
+
+      {months.length > 0 ? (
+        <div className="record mt-4">
+          <RecordCalendar months={months} divisor={divisor} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
