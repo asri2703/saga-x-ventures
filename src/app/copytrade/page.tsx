@@ -298,40 +298,32 @@ export default function CopytradePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          5b. The walkthrough.
-
-          Above the steps, not below them. The four steps are the thing to
-          do; this is what doing them looks like, and a reader who wants to
-          see it first should not have to scroll past the instructions to
-          find out it exists.
-      --------------------------------------------------------------- */}
-      <Section pad="pb-4">
-        <Container>
-          {/* No data-reveal on this wrapper: SectionHeading carries its
-              own, and a reveal inside a reveal leaves the inner one waiting
-              on an observer whose target is already faded in. */}
-          <div className="max-w-3xl">
-            <SectionHeading
-              eyebrow="Watch it done"
-              title="The whole thing, start to finish."
-            />
-            <div className="mt-8" data-reveal>
-              <VideoEmbed
-                id="q4ARWVtJMdo"
-                title="Copytrade Follower Tutorial"
-                still="copytrade-walkthrough.webp"
-              />
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* ---------------------------------------------------------------
           6. How to start.
+
+          The walkthrough opens this section rather than standing as one of
+          its own. It is a recording of these four steps being done, so a
+          reader meets it where they are deciding whether they can do them,
+          not a screen earlier where it was one more thing to scroll past.
+
+          Before the list, not after: somebody who would rather watch than
+          read should not have to finish the reading to find that out.
       --------------------------------------------------------------- */}
       <Section id="steps" tone="raised">
         <Container>
-          <SectionHeading eyebrow="Getting started" title="Four steps, in order." />
+          <SectionHeading
+            eyebrow="Getting started"
+            title="Four steps, in order."
+          >
+            <p>Or watch me do all four, once, before you start.</p>
+          </SectionHeading>
+
+          <div className="mt-8 max-w-3xl" data-reveal>
+            <VideoEmbed
+              id="q4ARWVtJMdo"
+              title="Copytrade Follower Tutorial"
+              still="copytrade-walkthrough.webp"
+            />
+          </div>
 
           <ol className="mt-10 max-w-3xl space-y-4">
             {steps().map((step) => (

@@ -124,7 +124,47 @@ export function MotionRoot() {
           }),
       });
 
+      /* ---------------------------------------------------------------
+         The hash landing.
+
+         A visitor who opens /copytrade#steps arrives with the page already
+         scrolled there. The browser's jump is a native scroll, and Lenis is
+         what drives `ScrollTrigger.update` here, so nothing told the
+         triggers the view had moved: every reveal in that section stayed at
+         zero and the reader met an empty band. The hero's only call to
+         action is such a link, so this is the common case, not the odd one.
+
+         A refresh on the next frame re-measures against where the page
+         actually is and fires whatever is already in view.
+      --------------------------------------------------------------- */
+      /* ---------------------------------------------------------------
+         The landing, measured a second time.
+
+         The pass above runs the moment these chunks arrive, and on a hash
+         landing the browser has not jumped yet: /copytrade#steps mounts at
+         the top, every section below is "held", and then the page moves to
+         the anchor by a native scroll Lenis never performed and therefore
+         never reported. The triggers go on believing the view is at the top
+         and the section the visitor actually landed on stays at zero. The
+         hero's only call to action is such a link.
+
+         So the same question is asked again once the page has settled: is
+         this still below the fold? Anything that is not is simply shown.
+         It does not go through ScrollTrigger, because what is wrong in that
+         moment is ScrollTrigger's idea of where the page is.
+      --------------------------------------------------------------- */
+      const settle = window.setTimeout(() => {
+        const nowFold = window.innerHeight * 0.9;
+        for (const el of held) {
+          if (el.getBoundingClientRect().top < nowFold) {
+            gsap.set(el, { opacity: 1, y: 0 });
+          }
+        }
+        ScrollTrigger.refresh();
+      }, 250);
+
       teardown = () => {
+        window.clearTimeout(settle);
         for (const trigger of triggers) trigger.kill();
         gsap.ticker.remove(raf);
         lenis.destroy();
