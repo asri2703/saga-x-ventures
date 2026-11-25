@@ -126,24 +126,25 @@ export default function CopytradePage() {
             <div data-reveal>
               <Eyebrow tone="quiet">Copytrade</Eyebrow>
               <h1 className="display mt-3 text-4xl leading-[1.1] text-pine sm:text-5xl">
-                No time to read the chart every day?
+                My trades. Your account. Your call.
               </h1>
 
               <div className="mt-7 space-y-5 text-lg leading-relaxed text-pine-soft">
                 <p>
-                  My account trades gold. Yours copies it, trade for trade,
-                  from a broker account opened in your own name.
+                  Fukyaa copies the trades from my account to yours. Your
+                  account stays under your own name, and your funds remain
+                  with your broker.
                 </p>
                 <p>
-                  The money stays on your side of it the whole time. I never
-                  hold it and I cannot withdraw it.
+                  You stay in control &mdash; including when to pause, close
+                  or withdraw, subject to your broker&rsquo;s terms.
                 </p>
               </div>
 
               <div className="mt-9 flex flex-wrap items-center gap-4">
-                <ActionLink href="#steps">See the four steps</ActionLink>
+                <ActionLink href="#steps">See how it works</ActionLink>
                 <ActionLink href="#what-you-see" tone="ghost">
-                  What you&rsquo;ll see
+                  What happens after I join
                 </ActionLink>
               </div>
             </div>
