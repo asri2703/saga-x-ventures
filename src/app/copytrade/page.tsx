@@ -9,7 +9,7 @@ import {
   formatUsd,
   fukyaa,
 } from "@/lib/commercial";
-import { recordPoints } from "@/lib/record";
+import { RECORD_IS_SAMPLE, recordPoints } from "@/lib/record";
 import { Container, Section } from "@/components/ui";
 import { CopyFlow } from "@/components/copy-flow";
 import { ReasonShowcase } from "@/components/reason-showcase";
@@ -310,25 +310,28 @@ export default function CopytradePage() {
       {/* ---------------------------------------------------------------
           5. The record.
 
-          The chart is here before the numbers are, which the owner asked
-          for so that wiring the feed is one change rather than a design.
-          `recordPoints()` returns nothing today and the chart draws its
-          frame and says so.
+          The chart is on the page before the feed is, because the owner
+          wants to see it while the site is unreleased. What it draws today
+          is a shape, not a history, and that is said twice: in the heading
+          and inside the card, where a screenshot carries it.
 
-          What it must never draw is a sample series. A rising line on a
-          trading page is a track record to everyone who sees it, whatever
-          the caption says, and nobody screenshots the caption.
+          `RECORD_IS_SAMPLE` is the switch. When the feed lands, it goes
+          false, `recordPoints()` returns the account's own readings, and
+          the two lines below go with it.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
           <div className="max-w-2xl" data-reveal>
             <Eyebrow tone="quiet">The record</Eyebrow>
             <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
-              There are no numbers on this page yet.
+              {RECORD_IS_SAMPLE
+                ? "The chart is here. The numbers are not."
+                : "What the account has done."}
             </h2>
             <p className="mt-5 leading-relaxed text-pine-soft">
-              It will be read from the account itself, not typed in by me.
-              That is not wired up yet.
+              {RECORD_IS_SAMPLE
+                ? "It will be read from the account itself, not typed in by me. That is not wired up yet, so what is drawn below is a shape, not a result."
+                : "Read from the account itself, not typed in by me."}
             </p>
           </div>
 
@@ -336,6 +339,12 @@ export default function CopytradePage() {
             <RecordChart
               points={recordPoints()}
               name="Balance"
+              unit="cent"
+              note={
+                RECORD_IS_SAMPLE
+                  ? "Sample figures. The account feed is not connected yet, and nothing on this chart is a record of any trading."
+                  : undefined
+              }
               empty="The line starts the day the account feed is connected. Nothing is drawn here until it is."
             />
           </div>

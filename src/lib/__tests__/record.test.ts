@@ -1,45 +1,63 @@
 import fs from "node:fs";
 import { expect, test } from "vitest";
-import { hasRecord, recordPoints } from "@/lib/record";
+import { RECORD_IS_SAMPLE, hasRecord, recordPoints } from "@/lib/record";
 
 /**
- * The chart on /copytrade is built and waiting for a feed that does not
- * exist yet. The tempting thing to do with an empty chart is to give it
- * something to draw — a sample series, a demo curve, a "representative"
- * shape to check the styling with.
+ * The chart on /copytrade is drawing invented readings, at the owner's
+ * instruction, while the site is unreleased and the account feed is not
+ * wired up.
  *
- * On a trading page a rising line is a track record to everyone who sees
- * it, whatever the caption underneath says, and a screenshot carries the
- * line without the caption. These guards hold the file empty until the
- * numbers are real, and `claims.test.ts` holds the rest of the site to the
- * same rule.
+ * That is a reasonable thing to want and a dangerous thing to forget. A
+ * rising line on a trading page is a track record to everyone who sees it,
+ * and a caption written under a picture is not part of the picture: the
+ * screenshot that ends up in a WhatsApp group carries the line alone.
  *
- * They are meant to be deleted in the same change that wires the feed up —
- * at which point the series is the account's own and no longer invented.
+ * So these guard the two things that make it safe, and they are written to
+ * fail loudly on the day the feed lands and somebody changes one half of it.
  */
 
 const SOURCE = fs.readFileSync("src/lib/record.ts", "utf8");
+const PAGE = fs.readFileSync("src/app/copytrade/page.tsx", "utf8");
+const FLAT = PAGE.replace(/\s+/g, " ");
 
-test("the guard is reading the right file", () => {
+test("the guards are reading the right files", () => {
   expect(SOURCE).toContain("export function recordPoints");
+  expect(FLAT).toContain("<RecordChart");
 });
 
-test("there is no series yet", () => {
-  expect(recordPoints()).toEqual([]);
-  expect(hasRecord()).toBe(false);
+test("the flag and the readings agree", () => {
+  // Turning the flag off while the invented readings are still in the file
+  // would publish them as the account's own history.
+  if (!RECORD_IS_SAMPLE) {
+    expect(SOURCE, "sample readings left behind").not.toMatch(
+      /label:\s*"\d+ Nov"/,
+    );
+  }
+  expect(hasRecord()).toBe(recordPoints().length > 0);
 });
 
-test("no sample readings are written into the file", () => {
-  // Any object literal carrying a value is a reading, and a reading nobody
-  // took is a fabricated one.
-  expect(SOURCE).not.toMatch(/value:\s*[\d.]/);
-  expect(SOURCE).not.toMatch(/label:\s*"/);
+test("a sample series is labelled as one, inside the card", () => {
+  if (!RECORD_IS_SAMPLE) return;
+  // `note` prints inside the chart's own frame, above the readings table,
+  // so a screenshot of the card carries it.
+  expect(FLAT).toMatch(/note=/);
+  expect(FLAT).toMatch(/Sample figures/);
+  expect(FLAT).toMatch(/not connected yet/i);
 });
 
-test("the page states the absence rather than leaving a blank frame", () => {
-  const page = fs.readFileSync("src/app/copytrade/page.tsx", "utf8");
-  expect(page).toMatch(/no numbers on this page yet/i);
-  // The chart's own empty state, which is what a reader sees inside the
-  // frame if they skip the heading.
-  expect(page).toMatch(/empty=/);
+test("the heading does not claim a record while the figures are invented", () => {
+  if (!RECORD_IS_SAMPLE) return;
+  expect(FLAT).toContain("The chart is here. The numbers are not.");
+  // And nowhere near it the words that would make the shape a result.
+  expect(FLAT).toMatch(/a shape, not a result/);
+});
+
+test("the sample shape is not a straight climb", () => {
+  if (!RECORD_IS_SAMPLE) return;
+  const values = recordPoints().map((p) => p.value);
+  const falls = values.filter((v, i) => i > 0 && v < values[i - 1]).length;
+  // A line that only goes up is the shape of a claim. This one has to come
+  // down more than once, and must not end on its own high.
+  expect(falls).toBeGreaterThan(1);
+  expect(values[values.length - 1]).toBeLessThan(Math.max(...values));
 });

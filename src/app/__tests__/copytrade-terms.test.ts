@@ -106,5 +106,8 @@ test("the hero's call to action starts the process rather than skipping it", () 
 test("the record section says there is no record, rather than implying one", () => {
   // It is the honest answer until the account feed is wired up, and it is
   // also the section most likely to be "improved" into something suggestive.
-  expect(FLAT).toMatch(/no numbers on this page yet/i);
+  // The chart now draws a sample shape there, at the owner's instruction, so
+  // what this holds is the sentence that stops the shape being read as one.
+  // `record.test.ts` guards the rest of that arrangement.
+  expect(FLAT).toMatch(/The numbers are not/i);
 });
