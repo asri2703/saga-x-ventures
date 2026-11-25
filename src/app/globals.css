@@ -1065,82 +1065,130 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
-   The copy mirror on /copytrade.
+   The order flow on /copytrade.
 
-   Two panels of the same rows, the right one lagging the left. The lag is
-   the whole point: it is what makes "your account mirrors mine" a thing you
-   can see rather than a sentence you agree with.
+   One master emitting to three followers, one route lit at a time. Drawn in
+   a square SVG with a 0-100 viewBox, so a stroke width of 0.5 is half a per
+   cent of the panel and the whole thing scales without a media query.
 
-   Every row is in the markup from the start and only its opacity is
-   animated, so the panels never change height and nothing below them moves.
+   Two strokes per route: a grey one always there, and a dashed coloured one
+   that wakes in turn. The dashes march continuously and the waking is a
+   second animation on the same element with its own delay, which is what
+   keeps one route lit and the other two dark without any JavaScript.
 --------------------------------------------------------------------------- */
-.copy-panel {
-  border-radius: var(--radius-panel);
-  background: var(--color-paper-raised);
-  padding: 1.5rem;
-  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06), 0 10px 26px rgba(22, 58, 48, 0.07);
+.flow-line {
+  stroke: rgba(22, 58, 48, 0.18);
+  stroke-width: 0.45;
+  stroke-linecap: round;
 }
 
-/* The receiving side, marked by a tint rather than a label. It is the one a
-   visitor is being asked to picture as theirs. */
-.copy-panel-yours {
-  background: var(--color-sage);
+.flow-live {
+  stroke: var(--color-ruby);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-dasharray: 1.8 1.8;
+  /* Dark until its turn. Motion is decoration, so the state everyone gets
+     when the query below is forgotten is the still one. */
+  opacity: 0;
 }
 
-.copy-row {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.6);
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-}
-
-.copy-side-buy,
-.copy-side-sell {
+/* The follower tiles. Centred on their coordinate rather than placed by
+   their corner, so a tile and a path endpoint come from the same numbers,
+   and sized in per cent so the drawing holds its proportions at any width. */
+.flow-node {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 15%;
+  height: 15%;
   border-radius: 9999px;
-  padding: 0.0625rem 0.5rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  background: var(--color-paper-raised);
+  color: var(--color-pine-soft);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.08), 0 8px 20px rgba(22, 58, 48, 0.07);
 }
 
-.copy-side-buy {
-  background: rgba(22, 58, 48, 0.1);
-  color: var(--color-pine);
-}
-
-.copy-side-sell {
-  background: rgba(240, 40, 60, 0.12);
-  color: var(--color-ruby-deep);
+.flow-hub {
+  position: absolute;
+  left: 26%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  /* 24%, which is what the paths were drawn against: they leave at 39 and
+     this tile reaches 38. */
+  width: 24%;
+  height: 24%;
+  border-radius: 26%;
+  /* Paper, not pine. The Fukyaa mark is dark and transparent, so on a pine
+     tile it disappeared into it. The ring is what marks this as the one the
+     others are listening to, rather than a fourth account of the same kind. */
+  background: var(--color-paper-raised);
+  box-shadow:
+    0 0 0 2px var(--color-pine),
+    0 2px 4px rgba(22, 58, 48, 0.12),
+    0 16px 36px rgba(22, 58, 48, 0.16);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .copy-row {
-    opacity: 0;
-    animation-name: copy-land;
-    animation-timing-function: ease-out;
+  .flow-live {
+    animation-name: flow-march, flow-wake;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+  }
+
+  .flow-node {
+    animation-name: flow-arrive;
+    animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
   }
 }
 
-/* Held visible for most of the cycle, then cleared, so the pair of panels
-   reads as "a trade arrived" rather than as a list blinking. */
-@keyframes copy-land {
+/* The dashes travel from the master outwards, which is the direction the
+   path is drawn in. A decreasing offset moves them forward along it. */
+@keyframes flow-march {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -3.6;
+  }
+}
+
+/* A third of the cycle lit, with the edges eased so a route fades up rather
+   than switching on. */
+@keyframes flow-wake {
   0%,
-  6% {
+  2% {
     opacity: 0;
-    translate: 0 0.4rem;
   }
-  14%,
-  88% {
+  8%,
+  28% {
     opacity: 1;
-    translate: 0 0;
   }
-  96%,
+  34%,
   100% {
     opacity: 0;
-    translate: 0 0;
+  }
+}
+
+/* The follower answers its own route: it lifts and takes the accent as the
+   order reaches it, a beat behind the line waking. */
+@keyframes flow-arrive {
+  0%,
+  10% {
+    color: var(--color-pine-soft);
+    scale: 1;
+  }
+  20%,
+  28% {
+    color: var(--color-ruby-deep);
+    scale: 1.08;
+  }
+  38%,
+  100% {
+    color: var(--color-pine-soft);
+    scale: 1;
   }
 }
 

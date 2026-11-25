@@ -7,7 +7,7 @@ import {
   formatUsd,
 } from "@/lib/commercial";
 import { Container, Section } from "@/components/ui";
-import { CopyMirror } from "@/components/copy-mirror";
+import { CopyFlow } from "@/components/copy-flow";
 import { SectionHeading } from "@/components/section-heading";
 import {
   ActionLink,
@@ -149,7 +149,7 @@ export default function CopytradePage() {
               </div>
             </div>
 
-            <CopyMirror />
+            <CopyFlow />
           </div>
         </Container>
       </Section>
