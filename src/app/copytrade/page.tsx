@@ -217,7 +217,7 @@ export default function CopytradePage() {
         <Container>
           <SectionHeading
             eyebrow="Why people join"
-            title="Four reasons people choose to copy my account."
+            title="Why trade alone? Just follow my step."
           >
             <p>
               Copytrade is not a shortcut, and it is not for everyone. It is
