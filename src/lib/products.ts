@@ -53,9 +53,11 @@ export const outbound: Record<OutboundKey, string> = {
   // reason this redirect exists.
   "mastery-broker-access": "https://www.masterysignal.com/ads/signal",
   "fukyaa-register": "https://fukyaa.com/register",
-  // Not set up yet. Empty rather than absent so the type stays closed and a
-  // step renders a placeholder instead of linking to the current page.
-  "copytrade-join": "",
+  // The broker's own copy portal. The number in the path is the subscription
+  // being followed — the master account — so copying the wrong one would
+  // silently mirror somebody else's trades. Written down once, here.
+  "copytrade-join":
+    "https://copytrading.hmvest.com/portal/registration/subscription/83454/fukyaa",
   // Built from site.ts rather than copied. A second set of digits means
   // changing the number updates the footer, the tel: link and the schema
   // while the float on every page keeps dialling the old one.

@@ -47,9 +47,10 @@ export type PaymentRoute = {
 /**
  * A step links out only when it has somewhere to go.
  *
- * `copytrade-join` is declared empty until the owner sets it up. Rendering a
- * link to "" produces a link to the current page — it looks like it worked
- * and did not, which is worse than showing nothing.
+ * A key is declared before its URL exists — `copytrade-join` was, until 25
+ * November 2026 — and an empty destination still has to be caught here.
+ * Rendering a link to "" produces a link to the current page: it looks like
+ * it worked and did not, which is worse than showing nothing.
  */
 export function stepIsReady(step: GuideStep): boolean {
   if (!step.outbound || !step.cta) return false;

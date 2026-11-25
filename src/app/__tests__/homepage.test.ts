@@ -45,9 +45,9 @@ test("every package carries a figure and an action", () => {
 });
 
 test("no package links to an outbound key that is not set", () => {
-  // `copytrade-join` is declared empty until the owner sets it up. A card
-  // linking to "" is a link to the current page: it looks like it worked and
-  // did not, which is worse than saying nothing.
+  // A key can be declared before its URL exists — `copytrade-join` was, until
+  // 25 November 2026. A card linking to "" is a link to the current page: it
+  // looks like it worked and did not, which is worse than saying nothing.
   for (const card of [...masteryPlanCards(), ...fukyaaPlanCards()]) {
     const key = card.action.href.replace(/^\/go\//, "");
     if (key === card.action.href) continue;

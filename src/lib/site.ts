@@ -11,6 +11,16 @@ export const site = {
   description:
     "Asri Zulzali's trading practice. Signals for traders who can already read a chart, automated trading for those who cannot, and one-to-one coaching for anyone who wants to learn. Serving Malaysia and Indonesia.",
 
+  /**
+   * The line under the logo in the footer.
+   *
+   * Deliberately not `description`. That one is written for a search result
+   * and names him in the third person, which is right in a snippet and wrong
+   * under his own logo. This is him talking. A test holds the two apart.
+   */
+  footerLine:
+    "I trade, build tools for traders and teach one-to-one. This is where I put that work together.",
+
   url: "https://sagaxventures.com",
 
   email: "enquiry@sagaxventures.com",

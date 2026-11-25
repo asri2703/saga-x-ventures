@@ -22,8 +22,14 @@ test("each existing product names its account type", () => {
   expect(getProduct("mastery-signal")!.account).toBe("standard");
 });
 
-test("a destination that is not set yet is empty, not a broken URL", () => {
-  expect(outbound["copytrade-join"]).toBe("");
+test("the copy link goes to the master account's own subscription page", () => {
+  // Set up on 25 November 2026; it was empty before that, and the step
+  // rendered a placeholder instead of a link. The subscription id at the end
+  // IS the master account being followed: a different number copies someone
+  // else, so it is written down once and never retyped into a page.
+  expect(outbound["copytrade-join"]).toBe(
+    "https://copytrading.hmvest.com/portal/registration/subscription/83454/fukyaa",
+  );
 });
 
 test("the two Mastery routes are counted apart", () => {

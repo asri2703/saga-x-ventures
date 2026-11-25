@@ -47,7 +47,7 @@ export function SiteFooter() {
                 </span>
               </Link>
               <p className="mt-5 max-w-sm leading-relaxed text-paper/70">
-                {site.description}
+                {site.footerLine}
               </p>
             </div>
 

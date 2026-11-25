@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { stepIsReady, type GuideStep } from "@/components/product-guide";
+import { outbound, type OutboundKey } from "@/lib/products";
 
 const step = (over: Partial<GuideStep>): GuideStep => ({
   n: 1,
@@ -13,11 +14,22 @@ const step = (over: Partial<GuideStep>): GuideStep => ({
 });
 
 test("a step with no destination yet renders no link", () => {
-  // copytrade-join is empty until the owner supplies it. A link to "" is a
-  // link to the current page, which looks like it worked and did not.
-  expect(stepIsReady(step({ outbound: "copytrade-join", cta: "Join" }))).toBe(
-    false,
-  );
+  // A link to "" is a link to the current page: it looks like it worked and
+  // did not. Every key has a destination now — copytrade-join was the last
+  // one and was filled on 25 November 2026 — so the empty case is staged
+  // here rather than named, and the guard still has to hold for the next key
+  // that is declared before its URL exists.
+  const key: OutboundKey = "copytrade-join";
+  const real = outbound[key];
+  try {
+    outbound[key] = "";
+    expect(stepIsReady(step({ outbound: key, cta: "Join" }))).toBe(false);
+  } finally {
+    outbound[key] = real;
+  }
+  // Anti-vacuity: the same step with the real destination back IS a link, so
+  // the assertion above is about the empty string and not about the key.
+  expect(stepIsReady(step({ outbound: key, cta: "Join" }))).toBe(true);
   expect(stepIsReady(step({ outbound: "broker-cent", cta: "Open" }))).toBe(
     true,
   );
