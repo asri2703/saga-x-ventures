@@ -374,8 +374,16 @@ export default function HomePage() {
       {/* ---------------------------------------------------------------
           5. Award and recognition.
       --------------------------------------------------------------- */}
-      <Section>
-        <Container>
+      <Section className="relative overflow-hidden">
+        {/* The same graph paper as the hero, for the same reason: two cream
+            bands running into each other read as a gap in the page rather
+            than as two sections. Decorative, so hidden from assistive
+            technology, and under its own layer so the band's background
+            colour still sets the paper tone. `relative` on the section is
+            what keeps inset-0 inside this band, and overflow-hidden is what
+            stops the sheet from bleeding past its edges. */}
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
           <div className="grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-20">
             <div data-reveal>
               {/* A cut-out standing on a tinted surface rather than a

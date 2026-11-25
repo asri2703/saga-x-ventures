@@ -85,3 +85,28 @@ test("the sentence the homepage renders is the three class names", () => {
   // typed in, this one proves what arrives instead is the real list.
   expect(classList()).toBe("Basic Trading, Advanced Trading and News Trading");
 });
+
+test("the award section is drawn on the same graph paper as the hero", () => {
+  // Two cream bands in a row with nothing behind them read as a gap rather
+  // than as two sections. The hero already establishes the sheet; the award
+  // reuses it so the page has a surface rather than a hole in the middle.
+  const flat = HOME.replace(/\s+/g, " ");
+  const sheets = flat.match(/hero-grid/g) ?? [];
+  expect(sheets.length).toBe(2);
+
+  // It has to be behind the award, not behind something else that happens
+  // to come later in the file.
+  const award = flat.indexOf("founder.award.image");
+  const before = flat.lastIndexOf("hero-grid", award);
+  const hero = flat.indexOf("hero-grid");
+  expect(before).toBeGreaterThan(hero);
+
+  // A sheet pinned to inset-0 inside a static parent spreads over the whole
+  // page, and one inside a parent with no overflow rule bleeds past the
+  // band's edges. Both are the kind of thing that only shows up in a
+  // browser, so they are asserted here.
+  const section = flat.lastIndexOf("<Section", before);
+  const opens = flat.slice(section, before);
+  expect(opens).toContain("relative");
+  expect(opens).toContain("overflow-hidden");
+});
