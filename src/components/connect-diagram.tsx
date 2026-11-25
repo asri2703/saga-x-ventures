@@ -49,8 +49,8 @@ const NODES: Node[] = [
   {
     x: 81,
     y: 32,
-    src: "/connect/node-b.png",
-    alt: "Trading platform",
+    src: "/connect/codex.png",
+    alt: "Codex",
     // Mirrors the first, so the pair reads as one shape rather than two
     // lines that happen to arrive from above.
     path: "M 81 32 Q 74 40 64 42",
@@ -59,8 +59,8 @@ const NODES: Node[] = [
   {
     x: 50,
     y: 86,
-    src: "/connect/node-c.png",
-    alt: "AI analysis",
+    src: "/connect/claude.png",
+    alt: "Claude",
     path: "M 50 86 Q 47 75 50 66",
     delay: "2.2s",
   },
