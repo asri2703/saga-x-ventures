@@ -3106,118 +3106,191 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
-   The package rows on /fukyaa.
+   The plan cards on /fukyaa.
 
-   Two rows of figures between hairlines, not two cards. A card per package
-   needs a sentence each to say how they differ; set as rows, the columns
-   line up and the difference is read straight down them.
+   The arrangement of watermelon's `pricing-3`: a heading with a second route
+   beside it, then two cards, each split down the middle — the figure and its
+   button on one side, what you get on the other. The block's code is shadcn
+   and react-icons over `bg-card` and `text-muted-foreground`; what is kept
+   is the shape, in this site's colours, with the tick that the steps below
+   already use.
 
-   Each row is one button. Pressing it chooses the package and moves to the
-   steps, so there is no separate control to keep in agreement with it.
+   The recommended card is marked by a ring and a tab, as the original marks
+   its popular one. Which card that is stays a question for the data, not for
+   this file.
 --------------------------------------------------------------------------- */
-.pack {
-  margin-block-start: 2.5rem;
-  border-block-start: 1px solid var(--color-rule-strong);
-}
-
-.pack-row {
+.plan-head {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem 1.25rem;
-  align-items: end;
-  width: 100%;
-  padding: 1.5rem 0.25rem;
-  border: 0;
-  border-block-end: 1px solid var(--color-rule-strong);
-  background: transparent;
-  text-align: start;
-  color: var(--color-pine);
-  cursor: pointer;
-  transition: background-color 180ms ease;
+  gap: 2rem;
+  align-items: start;
 }
 
-.pack-row:hover {
-  background: rgba(250, 244, 232, 0.7);
+.plan-aside {
+  max-width: 26rem;
 }
 
-.pack-row[aria-checked="true"] {
-  background: var(--color-paper-raised);
-}
-
-.pack-name {
-  grid-column: 1 / -1;
-  font-size: 1.375rem;
-  line-height: 1.2;
-}
-
-.pack-fig {
-  display: grid;
-  gap: 0.125rem;
-}
-
-.pack-num {
-  font-size: 1.25rem;
+.plan-aside-title {
+  font-size: 0.75rem;
   font-weight: 700;
-  line-height: 1.2;
-}
-
-.pack-unit {
-  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--color-pine-faint);
 }
 
-/* Not a second button inside the button: a label that says what pressing
-   the row does. It fills in on the chosen row. */
-.pack-go {
-  justify-self: start;
-  align-self: center;
-  border-radius: 999px;
-  border: 1px solid var(--color-pine);
-  padding: 0.5rem 1.375rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  transition:
-    background-color 180ms ease,
-    color 180ms ease,
-    transform 160ms var(--ease-out-ui);
+.plan-aside-body {
+  margin-block: 0.75rem 1rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
 }
 
-.pack-row[aria-checked="true"] .pack-go {
+.plan-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-block-start: 3rem;
+}
+
+.plan {
+  position: relative;
+  display: grid;
+  gap: 1.75rem;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-paper-raised);
+  padding: 1.75rem 1.5rem;
+}
+
+/* The one being recommended, and the one the steps below are currently
+   following. They are different things: the first is the owner's advice and
+   is true before anybody touches the page, the second answers "which card
+   did I press". */
+.plan[data-pick] {
+  border-color: var(--color-pine);
+  box-shadow: 0 0 0 1px var(--color-pine);
+}
+
+.plan[data-chosen] {
+  background: var(--color-sage);
+}
+
+.plan-flag {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.5rem;
+  border-radius: 0.4rem;
   background: var(--color-pine);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-paper);
 }
 
-.pack-row:active .pack-go {
+.plan-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.plan-name {
+  border-radius: 9999px;
+  border: 1px solid var(--color-rule-strong);
+  padding: 0.2rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-pine-soft);
+}
+
+.plan-price {
+  margin-block-start: 1rem;
+  font-size: 2.5rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-pine);
+}
+
+.plan-blurb {
+  margin-block: 0.75rem 1.5rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+.plan-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Pushed to the foot of its half so two cards of different heights still
+     line their buttons up. */
+  margin-block-start: auto;
+  border-radius: 9999px;
+  padding: 0.85rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-go:active {
   transform: scale(0.97);
 }
 
-.pack-note {
-  margin-block-start: 1.25rem;
+.plan-list {
+  display: grid;
+  gap: 0.875rem;
+  border-block-start: 1px solid var(--color-rule);
+  padding-block-start: 1.5rem;
+}
+
+.plan-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.5;
+  color: var(--color-pine);
+}
+
+.plan-check {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-block-start: 0.15rem;
+  color: var(--color-ruby);
+}
+
+.plan-note {
+  margin-block-start: 1.75rem;
   max-width: 36rem;
   font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--color-pine-soft);
 }
 
-@media (min-width: 52rem) {
-  .pack-row {
-    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) auto;
-    gap: 1.5rem;
-    align-items: center;
-    padding: 1.75rem 1.25rem;
+@media (min-width: 64rem) {
+  .plan-head {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 3rem;
   }
 
-  .pack-name {
-    grid-column: auto;
-    font-size: 1.5rem;
+  .plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
   }
 
-  .pack-num {
-    font-size: 1.5rem;
+  /* The split the original makes at its own `sm`: figure and button on the
+     left, the list on the right, with a rule between them. */
+  .plan {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem;
+    padding: 2.25rem 2rem;
   }
 
-  .pack-go {
-    justify-self: end;
+  .plan-list {
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--color-rule);
+    padding-block-start: 0;
+    padding-inline-start: 2rem;
+    align-content: center;
   }
 }
 

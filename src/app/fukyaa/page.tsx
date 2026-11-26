@@ -150,10 +150,15 @@ export default async function FukyaaPage() {
     {
       key: included.key,
       name: included.name,
-      deposit: formatUsd(included.depositUsd),
-      rent: "Included",
-      rentUnit: "server",
-      year: formatMyr(0),
+      deposit: `${formatUsd(included.depositUsd)} deposit`,
+      blurb: "Your deposit stays in your trading account.",
+      features: [
+        "Fukyaa trades on your account",
+        "Server included",
+        "No monthly server rental",
+      ],
+      cta: `Start with ${included.name}`,
+      recommended: true,
       finish: {
         title: "Register",
         body: "No rent to pay. Register, and I connect your account to the server. You get an email when it is running.",
@@ -167,11 +172,15 @@ export default async function FukyaaPage() {
     {
       key: rented.key,
       name: rented.name,
-      deposit: formatUsd(rented.depositUsd),
-      rent,
-      rentUnit: "server, a month",
-      /* Twelve times a figure the owner changes, so computed here. */
-      year: formatMyr(fukyaa.vpsMonthlyMyr * 12),
+      deposit: `${formatUsd(rented.depositUsd)} deposit`,
+      blurb: "Your deposit stays in your trading account.",
+      features: [
+        "Fukyaa trades on your account",
+        `${rent} monthly server rental`,
+        "Check your trades through your broker",
+      ],
+      cta: `Start with ${rented.name}`,
+      recommended: false,
       finish: {
         title: "Rent the server",
         body: `${rent} pays for one month. Pay after your deposit has landed: the server has nothing to trade until it has, and nothing is taken from you before then.`,
@@ -502,20 +511,35 @@ export default async function FukyaaPage() {
         between={null}
         heading={
           <div className="max-w-xl" data-reveal>
-            <Eyebrow tone="quiet">Getting started</Eyebrow>
+            <Eyebrow tone="quiet">Fukyaa plans</Eyebrow>
             <h2 className="display mt-3 text-4xl text-pine">
-              Pick a package.
+              Choose your setup.
             </h2>
             <p className="mt-4 leading-relaxed text-pine-soft">
-              The deposit stays yours. Only the server rent is paid to me.
+              Fukyaa trades on your own account. Choose whether you rent the
+              server monthly or have it included.
             </p>
+          </div>
+        }
+        aside={
+          /* The third way in, which is not a package and does not belong in
+             a row with two that are: it is paid out of the gain rather than
+             up front, and it lives on its own page. */
+          <div className="plan-aside" data-reveal>
+            <p className="plan-aside-title">Rather not pay monthly</p>
+            <p className="plan-aside-body">
+              Copytrade has no server to rent. It follows the same robot on
+              your own account, and what it costs is settled out of the
+              result instead.
+            </p>
+            <TextLink href="/copytrade">See Copytrade</TextLink>
           </div>
         }
         note={
           <>
-            Rent is due every month, in a losing month too. Rather pay only
-            when there is profit?{" "}
-            <TextLink href="/copytrade">See Copytrade</TextLink>.
+            Rent is due every month, in a losing month too &mdash; over a
+            year that is {formatMyr(fukyaa.vpsMonthlyMyr * 12)} against{" "}
+            {formatMyr(0)} on the larger deposit.
           </>
         }
       />

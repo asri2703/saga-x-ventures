@@ -34,14 +34,15 @@ import {
 export type FlowPackage = {
   key: string;
   name: string;
-  /** The deposit, formatted, with its currency. */
+  /** The deposit, formatted, with its currency. It is the card's headline. */
   deposit: string;
-  /** The monthly rent, or that there is none. */
-  rent: string;
-  /** What `rent` is a figure of. Kept off the figure so it never wraps. */
-  rentUnit: string;
-  /** A year of rent, formatted. */
-  year: string;
+  /** The line under the figure. */
+  blurb: string;
+  /** What this package gets you, one short line each. */
+  features: string[];
+  /** The card's own button. */
+  cta: string;
+  recommended: boolean;
   finish: {
     title: string;
     body: string;
@@ -72,12 +73,15 @@ export function AutoTradeFlow({
   packages,
   steps,
   heading,
+  aside = null,
   note,
   between = null,
 }: {
   packages: FlowPackage[];
   steps: FlowStep[];
   heading: ReactNode;
+  /** The other way in, beside the heading: the route that is not a package. */
+  aside?: ReactNode;
   /** The line under the rows. */
   note: ReactNode;
   /** What the page shows between the rows and the steps, if anything. */
@@ -117,37 +121,49 @@ export function AutoTradeFlow({
       {/* ---------------- the packages ---------------- */}
       <section id="start" data-tone="paper" className="scroll-mt-20 bg-paper py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-          {heading}
+          <div className="plan-head">
+            {heading}
+            {aside}
+          </div>
 
-          <div className="pack" role="radiogroup" aria-label="Package">
+          <div className="plan-grid">
             {packages.map((p) => (
-              <button
+              <article
                 key={p.key}
-                type="button"
-                role="radio"
-                aria-checked={p.key === chosen}
-                onClick={() => choose(p.key)}
-                className="pack-row"
+                className="plan"
+                data-pick={p.recommended ? "" : undefined}
+                data-chosen={p.key === chosen ? "" : undefined}
               >
-                <span className="pack-name display">{p.name}</span>
-                <span className="pack-fig">
-                  <span className="pack-num tnum">{p.deposit}</span>
-                  <span className="pack-unit">deposit</span>
-                </span>
-                <span className="pack-fig">
-                  <span className="pack-num tnum">{p.rent}</span>
-                  <span className="pack-unit">{p.rentUnit}</span>
-                </span>
-                <span className="pack-fig">
-                  <span className="pack-num tnum">{p.year}</span>
-                  <span className="pack-unit">rent in a year</span>
-                </span>
-                <span className="pack-go">Start</span>
-              </button>
+                {p.recommended ? (
+                  <p className="plan-flag">Recommended</p>
+                ) : null}
+
+                <div className="plan-main">
+                  <p className="plan-name">{p.name}</p>
+                  <p className="plan-price display tnum">{p.deposit}</p>
+                  <p className="plan-blurb">{p.blurb}</p>
+                  <button
+                    type="button"
+                    onClick={() => choose(p.key)}
+                    className="plan-go btn btn--ink"
+                  >
+                    {p.cta}
+                  </button>
+                </div>
+
+                <ul className="plan-list">
+                  {p.features.map((feature) => (
+                    <li key={feature}>
+                      <Check className="plan-check" strokeWidth={3} aria-hidden />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
             ))}
           </div>
 
-          <p className="pack-note">{note}</p>
+          <p className="plan-note">{note}</p>
         </div>
       </section>
 
