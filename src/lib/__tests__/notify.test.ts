@@ -27,8 +27,13 @@ const ENV = {
   TELEGRAM_CHAT_ID: "999",
 };
 
-const { notifyBuyer, notifyOwner, notifyRegistration, notifyInvoice } =
-  await import("@/lib/notify");
+const {
+  notifyBuyer,
+  notifyOwner,
+  notifyRegistration,
+  notifyInvoice,
+  notifyExpiring,
+} = await import("@/lib/notify");
 
 const ORDER: Order = {
   id: "order-1",
@@ -40,6 +45,8 @@ const ORDER: Order = {
   buyerName: "Aminah",
   buyerEmail: "aminah@example.com",
   mt5Login: null,
+  paidUntil: null,
+  remindedAt: null,
   buyerPhone: "0123456789",
   paidAt: "2026-11-24T02:00:00Z",
   linkSentAt: null,
@@ -312,4 +319,34 @@ test("every client email carries the header", async () => {
     expect(client!.html).toContain("/email/mark.png");
     expect(client!.html).toContain("Saga X Ventures");
   }
+});
+
+/* ------------------------------------------------------------------ *
+ * Before the month runs out
+ * ------------------------------------------------------------------ */
+
+const EXPIRING: Order = {
+  ...PAID_SERVER,
+  id: "order-5",
+  paidUntil: "2026-12-27T03:00:00.000Z",
+};
+
+test("the reminder says when the server stops and how to keep it", async () => {
+  await notifyExpiring(EXPIRING);
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+
+  expect(message.to).toBe("aminah@example.com");
+  expect(message.html).toMatch(/reminder/i);
+  expect(message.html).toContain("27 Dec");
+  expect(message.html).toContain("000000");
+  // The way back in, which is the whole reason for sending it.
+  expect(message.html).toContain("/fukyaa");
+});
+
+test("the reminder never says anything will be taken automatically", async () => {
+  // One payment buys one month. A line that hints at a renewal nobody
+  // agreed to is the thing this arrangement exists not to be.
+  await notifyExpiring(EXPIRING);
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+  expect(message.html).not.toMatch(/auto-?renew|will be charged|we will debit/i);
 });

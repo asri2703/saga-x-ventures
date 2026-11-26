@@ -33,6 +33,8 @@ type Row = {
   buyer_phone: string;
   mt5_login: string | null;
   paid_at: string | null;
+  paid_until: string | null;
+  reminded_at: string | null;
   link_sent_at: string | null;
   notified_at: string | null;
   access_granted_at: string | null;
@@ -51,6 +53,9 @@ export type Order = {
   buyerPhone: string;
   mt5Login: string | null;
   paidAt: string | null;
+  /** When the month this payment bought runs out. Rentals only. */
+  paidUntil: string | null;
+  remindedAt: string | null;
   linkSentAt: string | null;
   notifiedAt: string | null;
   accessGrantedAt: string | null;
@@ -70,6 +75,8 @@ export function toOrder(row: Row): Order {
     buyerPhone: row.buyer_phone,
     mt5Login: row.mt5_login,
     paidAt: row.paid_at,
+    paidUntil: row.paid_until,
+    remindedAt: row.reminded_at,
     linkSentAt: row.link_sent_at,
     notifiedAt: row.notified_at,
     accessGrantedAt: row.access_granted_at,
@@ -226,6 +233,70 @@ export async function markNotified(orderId: string): Promise<boolean> {
       .update({ notified_at: new Date().toISOString() })
       .eq("id", orderId)
       .is("notified_at", null)
+      .select()
+      .maybeSingle(),
+  );
+  return row !== null;
+}
+
+/* ------------------------------------------------------------------ *
+ * The rental month
+ * ------------------------------------------------------------------ */
+
+/**
+ * Start the month this payment bought.
+ *
+ * Written when the money settles and never at checkout: a bill nobody pays
+ * must not reserve a month. Separate from `markPaid` because only one
+ * product has a month at all — a Mastery order has no server to switch off,
+ * and giving every row a `paid_until` would put them all in the reminder's
+ * query.
+ */
+export async function startRentalMonth(
+  orderId: string,
+  endsAt: Date,
+): Promise<void> {
+  unwrap(
+    await serviceClient()
+      .from(TABLE)
+      .update({ paid_until: endsAt.toISOString() })
+      .eq("id", orderId)
+      .select()
+      .maybeSingle(),
+  );
+}
+
+/**
+ * The rentals whose month is nearly over and who have not been told.
+ *
+ * Three conditions, and each one is a bug if it is dropped. Paid, because a
+ * bill that was never settled bought nothing. Inside the window, because a
+ * reminder two weeks early is noise and one sent afterwards is an apology.
+ * Not yet reminded, because this runs daily and the window is days wide:
+ * without that fence the same person hears from us every morning.
+ */
+export async function dueForReminder(before: Date): Promise<Order[]> {
+  const rows = unwrap(
+    await serviceClient()
+      .from(TABLE)
+      .select()
+      .eq("status", "paid")
+      .is("reminded_at", null)
+      .not("paid_until", "is", null)
+      .lte("paid_until", before.toISOString())
+      .limit(200),
+  );
+  return ((rows ?? []) as Row[]).map(toOrder);
+}
+
+/** Said once. The same conditional update the other three flags use. */
+export async function markReminded(orderId: string): Promise<boolean> {
+  const row = unwrap(
+    await serviceClient()
+      .from(TABLE)
+      .update({ reminded_at: new Date().toISOString() })
+      .eq("id", orderId)
+      .is("reminded_at", null)
       .select()
       .maybeSingle(),
   );

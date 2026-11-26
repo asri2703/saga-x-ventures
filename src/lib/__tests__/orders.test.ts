@@ -56,6 +56,8 @@ const ROW = {
   buyer_phone: "0123456789",
   mt5_login: null,
   paid_at: null,
+  paid_until: null,
+  reminded_at: null,
   link_sent_at: null,
   notified_at: null,
   access_granted_at: null,

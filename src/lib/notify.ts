@@ -362,3 +362,67 @@ export async function notifyInvoice(
     }),
   });
 }
+
+/* ------------------------------------------------------------------ *
+ * Before the month runs out
+ * ------------------------------------------------------------------ */
+
+/** The date a reader recognises: "27 Dec 2026", in Malaysian time. */
+function onDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Kuala_Lumpur",
+  }).format(new Date(iso));
+}
+
+/**
+ * The email that makes "one month, not a subscription" workable.
+ *
+ * The arrangement the owner chose is that nothing recurs: no card is kept,
+ * no bank mandate exists, and the next month is the same four steps again.
+ * The cost of that is silence — a month ends, the server stops, and the
+ * first a client knows of it is a flat chart. This is what pays that cost.
+ *
+ * It states the day and nothing more urgent than the day. There is no
+ * discount, no countdown and no warning dressed up as one, because the
+ * reader has already bought once and does not need selling to; and it
+ * promises no automatic charge, which is the one thing this arrangement
+ * exists not to do.
+ */
+export async function notifyExpiring(order: Order): Promise<void> {
+  if (!order.paidUntil) throw new Error("notify: that rental has no month");
+
+  const ends = onDay(order.paidUntil);
+  const again = sen(order.amountSen);
+
+  await send({
+    from: process.env.RESEND_FROM ?? "",
+    to: order.buyerEmail,
+    replyTo: process.env.RESEND_REPLY_TO ?? "",
+    subject: `Your server runs until ${ends}`,
+    html: layout({
+      kind: "Reminder",
+      preheader: `The month you paid for ends on ${ends}.`,
+      body: `
+        <p>Hi ${esc(order.buyerName)},</p>
+        <p>The month you paid for ends on <strong>${esc(ends)}</strong>. After
+           that the server stops and Fukyaa stops trading with it.</p>
+        ${facts([
+          { label: "Package", value: label(order) },
+          { label: "MT5 account", value: order.mt5Login ?? "not given" },
+          { label: "Runs until", value: ends, strong: true },
+          { label: "Another month", value: again },
+        ])}
+        <p>Nothing happens by itself &mdash; I hold no card and no mandate.
+           If you want another month, start it the same way you did the
+           first:</p>
+        ${button(`${site.url}/fukyaa#start`, "Keep the server running")}
+        <p>Your trading account and the money in it are not affected either
+           way. They are yours, with your broker.</p>
+        <p>${esc(site.founder.name)}</p>
+      `,
+    }),
+  });
+}

@@ -11,6 +11,7 @@ import {
   fukyaaPlans,
   formatMyr,
   sellableFor,
+  rentalMonthEnds,
 } from "@/lib/commercial";
 import { formatPrice } from "@/lib/coaching";
 
@@ -61,9 +62,16 @@ test("the dated deposit model is gone, not merely unused", () => {
   expect(live).not.toMatch(/depositPromoUsd|depositStandardUsd/);
 });
 
-test("the server rental is the only recurring Fukyaa figure", () => {
+test("the server rental is the only money figure in `fukyaa`", () => {
   expect(fukyaa.vpsMonthlyMyr).toBeGreaterThan(0);
-  expect(Object.keys(fukyaa)).toEqual(["vpsMonthlyMyr"]);
+  /* Narrowed from "exactly one key" when the rental month arrived: lengths
+     of time belong here, prices do not. What this guards is the promo that
+     was deleted in November — three money fields that the page then had to
+     explain — and a second price appearing here is how that comes back. */
+  const money = Object.keys(fukyaa).filter((key) =>
+    /myr|usd|price|fee|cost/i.test(key),
+  );
+  expect(money).toEqual(["vpsMonthlyMyr"]);
 });
 
 test("the two automated packages are the cheaper deposit and the dearer", () => {
@@ -184,5 +192,20 @@ describe("sellableFor", () => {
   test("an unknown key sells nothing", () => {
     expect(sellableFor("year-and-a-half")).toBeNull();
     expect(sellableFor("")).toBeNull();
+  });
+});
+
+describe("the rental month", () => {
+  test("a payment buys exactly one month from the day it settles", () => {
+    const paidAt = new Date("2026-11-27T03:00:00Z");
+    expect(rentalMonthEnds(paidAt).toISOString()).toBe(
+      new Date("2026-12-27T03:00:00Z").toISOString(),
+    );
+  });
+
+  test("the reminder goes out before the month is out, not after", () => {
+    // A reminder that arrives the day the server stops is not a reminder.
+    expect(fukyaa.remindDaysBefore).toBeGreaterThan(0);
+    expect(fukyaa.remindDaysBefore).toBeLessThan(fukyaa.monthDays);
   });
 });

@@ -76,7 +76,26 @@ export function formatCents(cents: number): string {
 export const fukyaa = {
   /** Monthly VPS rental on the package that does not include the server. */
   vpsMonthlyMyr: 100,
+
+  /**
+   * How long one payment buys.
+   *
+   * Thirty days, not a calendar month: the arrangement is not a
+   * subscription and nothing recurs, so there is no billing date to align
+   * to — there is only the day the money arrived and the day the server
+   * stops. A fixed length is also the same length for everybody, which a
+   * calendar month is not.
+   */
+  monthDays: 30,
+
+  /** How long before the month ends the reminder goes out. */
+  remindDaysBefore: 5,
 } as const;
+
+/** When a month bought on this day runs out. */
+export function rentalMonthEnds(paidAt: Date): Date {
+  return new Date(paidAt.getTime() + fukyaa.monthDays * 24 * 60 * 60 * 1000);
+}
 
 /*
  * What used to be here, and why it is gone.
