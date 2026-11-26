@@ -60,15 +60,15 @@ export function AutoTradeFlow({
   steps,
   heading,
   note,
-  between,
+  between = null,
 }: {
   packages: FlowPackage[];
   steps: FlowStep[];
   heading: ReactNode;
   /** The line under the rows. */
   note: ReactNode;
-  /** What the page shows between the rows and the steps. */
-  between: ReactNode;
+  /** What the page shows between the rows and the steps, if anything. */
+  between?: ReactNode;
 }) {
   const [chosen, setChosen] = useState(packages[0].key);
   const [at, setAt] = useState(0);
@@ -100,7 +100,7 @@ export function AutoTradeFlow({
   return (
     <>
       {/* ---------------- the packages ---------------- */}
-      <section id="packages" data-tone="paper" className="scroll-mt-20 bg-paper py-16 sm:py-24">
+      <section id="start" data-tone="paper" className="scroll-mt-20 bg-paper py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
           {heading}
 

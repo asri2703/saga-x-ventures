@@ -3495,3 +3495,83 @@ html.lenis {
     transform: translateY(6px);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The reasons grid on /fukyaa.
+
+   Large drawings, words beneath, separated by hairlines rather than made
+   into cards. The package rows below use the same rules, so the page has
+   one idea about how things are divided.
+
+   The drawings sit in a tinted frame so a pine line reads against it
+   without a border round every cell. Nothing in them moves: they are
+   diagrams, and the page already has one thing that moves.
+--------------------------------------------------------------------------- */
+.why {
+  display: grid;
+  gap: 2.5rem;
+  margin-block-start: 3rem;
+}
+
+.why-frame {
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  padding: 1.25rem;
+}
+
+.why-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: none;
+}
+
+.why-line {
+  stroke: var(--color-pine);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.why-faint-line {
+  stroke: rgba(22, 58, 48, 0.3);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.why-rule {
+  stroke: rgba(22, 58, 48, 0.2);
+  stroke-width: 1.5;
+}
+
+.why-faint {
+  fill: var(--color-sage);
+  stroke: none;
+}
+
+.why-fill {
+  fill: var(--color-pine);
+  stroke: none;
+}
+
+.why-title {
+  margin-block-start: 1.5rem;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  color: var(--color-pine);
+}
+
+.why-body {
+  margin-block-start: 0.625rem;
+  max-width: 28rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+@media (min-width: 48rem) {
+  .why {
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem 3rem;
+  }
+}
