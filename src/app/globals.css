@@ -3544,10 +3544,9 @@ html.lenis {
 
 /* The drawing travels with the words until the panel is beside them. */
 .whyai-inline-art {
+  overflow: hidden;
   margin-block-start: 1.25rem;
   border-radius: var(--radius-panel);
-  background: var(--color-paper-raised);
-  padding: 1rem;
 }
 
 .whyai-panel {
@@ -3560,11 +3559,19 @@ html.lenis {
   padding: 2.5rem;
 }
 
+/* The picture sits in the recess like a photograph in a frame: clipped to
+   the radius, with no padding of its own, so the panel's inset edge is the
+   only border it needs. */
 .whyai-stage {
+  overflow: hidden;
   border-radius: var(--radius-panel);
-  background: var(--color-paper-raised);
   box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06), 0 16px 36px rgba(22, 58, 48, 0.08);
-  padding: 1.75rem;
+}
+
+.whyai-shot {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -3596,47 +3603,4 @@ html.lenis {
   .whyai-inline-art {
     display: none;
   }
-}
-
-/* ---------------------------------------------------------------------------
-   The drawings, on /fukyaa.
-
-   Line weights are shared by every diagram on the page. Nothing here is a
-   chart: no drawing carries a figure, and none of them moves.
---------------------------------------------------------------------------- */
-.why-art {
-  display: block;
-  width: 100%;
-  height: auto;
-  fill: none;
-}
-
-.why-line {
-  stroke: var(--color-pine);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-}
-
-.why-faint-line {
-  stroke: rgba(22, 58, 48, 0.3);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  fill: none;
-}
-
-.why-rule {
-  stroke: rgba(22, 58, 48, 0.2);
-  stroke-width: 1.5;
-}
-
-.why-faint {
-  fill: var(--color-sage);
-  stroke: none;
-}
-
-.why-fill {
-  fill: var(--color-pine);
-  stroke: none;
 }
