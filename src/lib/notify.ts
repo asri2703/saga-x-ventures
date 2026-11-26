@@ -3,6 +3,7 @@ import type { Order } from "@/lib/checkout/orders";
 import { formatMyr, masteryPlans, sellableFor } from "@/lib/commercial";
 import { outbound } from "@/lib/products";
 import { site } from "@/lib/site";
+import { button, escape as esc, facts, layout } from "@/lib/email";
 
 /**
  * Who gets told what, when money arrives.
@@ -46,16 +47,6 @@ function resend(): Resend {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
-/** Markup in a name is the recipient's own, but it still does not belong in
- *  their email. */
-function escape(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 /**
  * Send, and raise if it did not.
  *
@@ -90,44 +81,64 @@ function sen(amount: number): string {
  */
 export async function notifyBuyer(order: Order): Promise<void> {
   if (isServerRental(order)) {
+    const paid = sen(order.paidAmountSen ?? order.amountSen);
     await send({
       from: process.env.RESEND_FROM ?? "",
       to: order.buyerEmail,
       replyTo: process.env.RESEND_REPLY_TO ?? "",
-      subject: `Payment received — ${label(order)}`,
-      html: `
-        <p>Hi ${escape(order.buyerName)},</p>
-        <p>I&rsquo;ve received your payment of
-           ${sen(order.paidAmountSen ?? order.amountSen)}. That covers one
-           month of the server.</p>
-        <p>I&rsquo;ll set up Fukyaa on this MT5 account:</p>
-        <p><strong>${escape(order.mt5Login ?? "not given")}</strong></p>
-        <p>If the account number is wrong, reply to this email so I can
-           correct it. I&rsquo;ll email you again once Fukyaa is running.</p>
-        <p>Nothing renews by itself. I&rsquo;ll remind you before the month
-           is out.</p>
-        <p>${escape(site.founder.name)}</p>
-      `.trim(),
+      subject: `Receipt — ${label(order)}`,
+      html: layout({
+        kind: "Receipt",
+        preheader: `${paid} received for ${label(order)}.`,
+        body: `
+          <p>Hi ${esc(order.buyerName)},</p>
+          <p>I&rsquo;ve received your payment of ${esc(paid)}. That covers one
+             month of the server.</p>
+          ${facts([
+            { label: "Package", value: label(order) },
+            { label: "MT5 account", value: order.mt5Login ?? "not given" },
+            { label: "Reference", value: order.id },
+            { label: "Paid", value: paid, strong: true },
+          ])}
+          <p>I&rsquo;ll set up Fukyaa on that account. If the number is wrong,
+             reply to this email so I can correct it. I&rsquo;ll email you
+             again once Fukyaa is running.</p>
+          <p>Nothing renews by itself. I&rsquo;ll remind you before the month
+             is out.</p>
+          <p>${esc(site.founder.name)}</p>
+        `,
+      }),
     });
     return;
   }
 
+  const paid = sen(order.paidAmountSen ?? order.amountSen);
   await send({
     from: process.env.RESEND_FROM ?? "",
     to: order.buyerEmail,
     replyTo: process.env.RESEND_REPLY_TO ?? "",
-    subject: `Your Mastery Signal access — ${planName(order)}`,
-    html: `
-      <p>Hi ${escape(order.buyerName)},</p>
-      <p>Your payment for <strong>Mastery Signal &mdash; ${planName(order)}</strong>
-         (${sen(order.paidAmountSen ?? order.amountSen)}) has gone through. Thank you.</p>
-      <p>Register here to set up your account:</p>
-      <p><a href="${REGISTER_URL}">${REGISTER_URL}</a></p>
-      <p><strong>Register with this same email address</strong> &mdash;
-         ${order.buyerEmail}. That is how your payment is found and your
-         access approved. Approval is by hand, so it is not instant.</p>
-      <p>If anything looks wrong, reply to this email.</p>
-    `.trim(),
+    subject: `Receipt — Mastery Signal ${planName(order)}`,
+    html: layout({
+      kind: "Receipt",
+      preheader: `${paid} received. Your registration link is inside.`,
+      body: `
+        <p>Hi ${esc(order.buyerName)},</p>
+        <p>I&rsquo;ve received your payment of ${esc(paid)} for Mastery
+           Signal &mdash; ${esc(planName(order))}. Thank you.</p>
+        ${facts([
+          { label: "Package", value: `Mastery Signal — ${planName(order)}` },
+          { label: "Reference", value: order.id },
+          { label: "Paid", value: paid, strong: true },
+        ])}
+        <p>Register here to set up your account:</p>
+        ${button(REGISTER_URL, "Open the registration page")}
+        <p><strong>Register with this same email address</strong> &mdash;
+           ${esc(order.buyerEmail)}. That is how your payment is found and
+           your access approved. Approval is by hand, so it is not
+           instant.</p>
+        <p>If anything looks wrong, reply to this email.</p>
+      `,
+    }),
   });
 }
 
@@ -280,15 +291,74 @@ ${text}`);
     to: order.buyerEmail,
     replyTo: process.env.RESEND_REPLY_TO ?? "",
     subject: `Registration received — ${label}`,
-    html: `
-      <p>Hi ${escape(order.buyerName)},</p>
-      <p>I&rsquo;ve received your details. Your server is included with this
-         package, so there&rsquo;s no monthly server fee.</p>
-      <p>I&rsquo;ll set up Fukyaa on this MT5 account:</p>
-      <p><strong>${escape(account)}</strong></p>
-      <p>If the account number is wrong, reply to this email so I can correct
-         it. I&rsquo;ll email you again once Fukyaa is running.</p>
-      <p>${escape(site.founder.name)}</p>
-    `.trim(),
+    html: layout({
+      kind: "Registration",
+      preheader: `Your details are with me. Nothing to pay on ${label}.`,
+      body: `
+        <p>Hi ${esc(order.buyerName)},</p>
+        <p>I&rsquo;ve received your details. Your server is included with this
+           package, so there&rsquo;s no monthly server fee.</p>
+        ${facts([
+          { label: "Package", value: label },
+          { label: "MT5 account", value: account, strong: true },
+          { label: "Reference", value: order.id },
+          { label: "Monthly server fee", value: "None" },
+        ])}
+        <p>I&rsquo;ll set up Fukyaa on that account. If the number is wrong,
+           reply to this email so I can correct it. I&rsquo;ll email you again
+           once Fukyaa is running.</p>
+        <p>${esc(site.founder.name)}</p>
+      `,
+    }),
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * A bill that has not been paid yet
+ * ------------------------------------------------------------------ */
+
+/**
+ * The invoice, sent the moment the bill exists.
+ *
+ * Billplz's own page is a tab, and a tab is closed by a phone call. Without
+ * this, somebody who gets as far as the payment screen and steps away has
+ * nothing: no figure, no reference, and no way back to the bill. It is also
+ * the document a company needs before it will release RM100.
+ *
+ * It states what is owed and never that anything arrived. The receipt is a
+ * different email with a different word in its corner, and the gap between
+ * them is the whole point of sending two.
+ */
+export async function notifyInvoice(
+  order: Order,
+  billUrl: string,
+): Promise<void> {
+  const due = sen(order.amountSen);
+
+  await send({
+    from: process.env.RESEND_FROM ?? "",
+    to: order.buyerEmail,
+    replyTo: process.env.RESEND_REPLY_TO ?? "",
+    subject: `Invoice — ${label(order)}, ${due}`,
+    html: layout({
+      kind: "Invoice",
+      preheader: `${due} due for ${label(order)}.`,
+      body: `
+        <p>Hi ${esc(order.buyerName)},</p>
+        <p>Here is your invoice for one month of the server. It is not
+           settled yet &mdash; the link below is the bill itself.</p>
+        ${facts([
+          { label: "Package", value: label(order) },
+          { label: "MT5 account", value: order.mt5Login ?? "not given" },
+          { label: "Reference", value: order.id },
+          { label: "Amount due", value: due, strong: true },
+        ])}
+        ${button(billUrl, `Pay ${due}`)}
+        <p>Nothing starts until it is settled, and nothing is taken from you
+           before then. If you have changed your mind, ignore this &mdash;
+           there is nothing to cancel.</p>
+        <p>${esc(site.founder.name)}</p>
+      `,
+    }),
   });
 }

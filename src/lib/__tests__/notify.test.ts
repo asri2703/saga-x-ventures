@@ -27,9 +27,8 @@ const ENV = {
   TELEGRAM_CHAT_ID: "999",
 };
 
-const { notifyBuyer, notifyOwner, notifyRegistration } = await import(
-  "@/lib/notify",
-);
+const { notifyBuyer, notifyOwner, notifyRegistration, notifyInvoice } =
+  await import("@/lib/notify");
 
 const ORDER: Order = {
   id: "order-1",
@@ -169,8 +168,15 @@ test("a missing ADMIN_EMAIL is raised rather than sent to nobody", async () => {
 test("the buyer's name cannot inject markup into their own email", async () => {
   await notifyBuyer({ ...ORDER, buyerName: '<img src=x onerror="alert(1)">' });
   const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
-  expect(message.html).not.toContain("<img");
-  expect(message.html).toContain("&lt;img");
+  /* Narrowed from "no <img anywhere" when the emails gained a header: the
+     layout has an image of its own, and a test that forbids every image
+     forbids the brand rather than the injection. What must not appear is
+     THIS img and anything it carries. */
+  expect(message.html).toContain("&lt;img src=x");
+  // The header has exactly one image of its own, and the name added none.
+  expect(message.html.match(/<img/g)).toHaveLength(1);
+  // Escaped quotes cannot close an attribute, so nothing here is live.
+  expect(message.html).not.toContain('onerror="');
 });
 
 /* ------------------------------------------------------------------ *
@@ -250,4 +256,60 @@ test("the owner's notification for a rental names the account to connect", async
   const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
   expect(message.text).toContain("000000");
   expect(message.text).not.toContain("Mastery Signal");
+});
+
+/* ------------------------------------------------------------------ *
+ * The document a client is actually holding
+ * ------------------------------------------------------------------ */
+
+const UNPAID_SERVER: Order = {
+  ...PAID_SERVER,
+  id: "order-4",
+  status: "pending",
+  paidAmountSen: null,
+  paidAt: null,
+};
+
+test("an unpaid bill is sent as an invoice, with the way to pay it", async () => {
+  await notifyInvoice(UNPAID_SERVER, "https://www.billplz.com/bills/abc123");
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+
+  expect(message.to).toBe("aminah@example.com");
+  expect(message.html).toContain("https://www.billplz.com/bills/abc123");
+  expect(message.html).toMatch(/invoice/i);
+  // The figure it is an invoice for, and the account it is about.
+  expect(message.html).toContain("RM100");
+  expect(message.html).toContain("000000");
+});
+
+test("an invoice never says the money arrived", async () => {
+  await notifyInvoice(UNPAID_SERVER, "https://www.billplz.com/bills/abc123");
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+  expect(message.html).not.toMatch(/payment received|you paid|thank you for your payment/i);
+});
+
+test("a settled payment is sent as a receipt", async () => {
+  await notifyBuyer(PAID_SERVER);
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+  expect(message.html).toMatch(/receipt/i);
+  expect(message.html).toContain("RM100");
+});
+
+test("every client email carries the header", async () => {
+  // Unbranded text is the shape phishing has, and the person reading it has
+  // just sent money.
+  for (const run of [
+    () => notifyBuyer(PAID_SERVER),
+    () => notifyRegistration(REGISTRATION),
+    () => notifyInvoice(UNPAID_SERVER, "https://www.billplz.com/bills/abc123"),
+  ]) {
+    sendEmail.mockClear();
+    await run();
+    const client = (sendEmail.mock.calls as [Record<string, string>][])
+      .map(([message]) => message)
+      .find((message) => message.to === "aminah@example.com");
+
+    expect(client!.html).toContain("/email/mark.png");
+    expect(client!.html).toContain("Saga X Ventures");
+  }
 });

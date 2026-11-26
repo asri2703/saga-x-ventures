@@ -5,7 +5,7 @@ import {
   createPendingOrder,
   markNotified,
 } from "@/lib/checkout/orders";
-import { notifyRegistration } from "@/lib/notify";
+import { notifyInvoice, notifyRegistration } from "@/lib/notify";
 import { sellableFor } from "@/lib/commercial";
 
 /**
@@ -235,6 +235,23 @@ export async function POST(request: Request): Promise<Response> {
       { error: "Could not start the payment" },
       { status: 503 },
     );
+  }
+
+  /* The invoice, before the browser leaves for Billplz.
+     The payment page is a tab, and a tab is closed by a phone call. Without
+     this, somebody who steps away from it has no figure, no reference and no
+     way back to the bill — and a company that has to approve the
+     spend has nothing to approve.
+
+     Its failure cannot fail the checkout: the bill exists and is payable,
+     and refusing the sale now would be refusing it over an email. */
+  try {
+    await notifyInvoice(order, bill.url);
+  } catch (error) {
+    console.error("checkout: the invoice did not go out", {
+      order: order.id,
+      error,
+    });
   }
 
   return Response.json({ url: bill.url });
