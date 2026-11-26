@@ -26,7 +26,7 @@ import { RecordChart } from "@/components/record-chart";
 import { RecordPanel } from "@/components/record-panel";
 import { RecordTabs } from "@/components/record-tabs";
 import { SectionHeading } from "@/components/section-heading";
-import { ServerFeed } from "@/components/server-feed";
+import { AiMesh } from "@/components/ai-mesh";
 import {
   WhyGrid,
   artAwake,
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
  * is never mixed into a dollar figure: this site has no exchange rate, on
  * purpose, and inventing one would put a number on the page nobody set.
  *
- * Nothing on this page animates a balance. See `server-feed.tsx`.
+ * Nothing on this page animates a balance.
  */
 
 const STEPS: FlowStep[] = [
@@ -224,6 +224,10 @@ export default async function FukyaaPage() {
           {/* No eyebrow. The owner's headline names the product itself,
               and a label above it saying the same words twice would spend
               the top of the page repeating. */}
+          {/* Two columns from `lg` up: the drawing belongs beside the
+              headline, not under it. Below that it stacks, and the headline
+              keeps its measure either way. */}
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <div className="max-w-3xl" data-reveal>
             <h1 className="display text-6xl leading-[1.05] text-pine">
               New Generation AI Auto Trade
@@ -241,13 +245,14 @@ export default async function FukyaaPage() {
               money. Let the AI handle your account instead.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-              <ActionLink href="#start">Start</ActionLink>
+              <ActionLink href="#start">Subscribe AI Now</ActionLink>
               <TextLink href="#record">See its record</TextLink>
             </div>
           </div>
 
-          <div className="mt-14 sm:mt-20" data-reveal>
-            <ServerFeed />
+            <div data-reveal>
+              <AiMesh />
+            </div>
           </div>
         </Container>
       </Section>
