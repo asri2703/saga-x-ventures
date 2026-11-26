@@ -79,7 +79,12 @@ export function RecordPanel({
           unit="USD"
           divisor={divisor}
           secondaryUnit={account.unit === "cent" ? "cent" : undefined}
-          note="From this account's MT5 terminal, updated every hour: each point is the balance at the close of its day, from every deal since the account opened. The balance includes deposits and withdrawals. Past results do not predict future ones."
+          /* Short on purpose. The long version explained what a point was,
+             what the balance included and where it came from — three facts
+             a reader who is looking at the line does not need spelled out,
+             and a paragraph nobody finishes. What has to stay is whose
+             account it is, how fresh it is, and the caveat. */
+          note="From the account's MT5 terminal, updated hourly. The balance includes deposits and withdrawals. Past results do not predict future ones."
           empty="The line starts the day this account's feed is connected. Nothing is drawn here until it is."
         />
       </div>
