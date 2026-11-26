@@ -322,15 +322,15 @@ export default async function FukyaaPage() {
             <h2 className="display mt-3 text-4xl text-paper">
               Fukyaa AI trading results.
             </h2>
-            {/* His sentence, with one word corrected: he wrote that results
-                are updated daily, and they are read every hour. Saying daily
-                would also be contradicted a few lines below by the live
-                "Updated <time>" stamp, which is the one claim on this page
-                a reader can check in one glance. "Losing days included"
-                stays: it is the owner's own rule about this section. */}
+            {/* The owner's sentence, his wording, kept after he was told
+                the feed is read hourly rather than daily. A new day on the
+                chart every trading day is what it promises, and that is
+                what the feed delivers while it runs. The losing days it
+                does not mention are still all there, in the calendar and in
+                the line: nothing below this sentence is filtered. */}
             <p className="mt-5 leading-relaxed text-paper/80">
-              See how the AI manages a live trading account. Read from MT5
-              every hour, losing days included.
+              See our AI manage the account, with new performance updates
+              every day.
             </p>
           </div>
 
