@@ -223,20 +223,22 @@ export default async function FukyaaPage() {
               keeps its measure either way. */}
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <div className="max-w-3xl" data-reveal>
+            {/* The owner's headline. "AI Handle" is his; "handles" is the
+                only change, because a display line is the one place on a
+                page where a slip is read as carelessness about everything
+                under it. */}
             <h1 className="display text-6xl leading-[1.05] text-pine">
-              New Generation AI Auto Trade
+              Your Account, AI Handles Everything
             </h1>
-            {/* The owner's own sentence, with its second half removed.
-                His draft read "sometimes you have to lose a lot of money
-                before start gaining", which tells a reader that gaining
-                follows losing. It does not, for plenty of people, and a
-                projected return is the thing his own rule forbids —
-                `claims.test.ts` cannot catch it in prose, which is exactly
-                why it had to be caught here. What is left is the true half,
-                and it was carrying the sentence anyway. */}
+            {/* His sentence, with one repetition taken out: the draft said
+                the trades go "through the system while the AI handles the
+                trading activity", which is the same half twice. What stays
+                is the part a reader needs — whose account it is, and who
+                places the trades in it. */}
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-pine-soft">
-              Trading is hard, and most people pay to learn it with their own
-              money. Let the AI handle your account instead.
+              Fukyaa is an AI auto-trading system. It connects to your own
+              account and places the trades there, while the AI handles the
+              trading.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
               {/* One action. The record is a section away, and a hero that
