@@ -402,9 +402,8 @@ export default async function CopytradePage() {
               Trading performance
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">
-              Straight from our MT5 terminals, updated every hour. Every
-              figure here is the account&rsquo;s own &mdash; the bad days
-              included.
+              Still hesitating? Watch our trading performance &mdash; it is
+              already helping others grow.
             </p>
           </div>
 
