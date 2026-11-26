@@ -327,17 +327,6 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
                 .
               </p>
 
-              {/* The last thing before the money, on the package that takes
-                  any. It stays wherever the pay button goes: what the rent
-                  does and does not buy is not a detail to meet afterwards. */}
-              {free ? null : (
-                <p className="mt-3 text-xs leading-relaxed text-pine-faint">
-                  One month, not a subscription. Nothing renews on its own:
-                  a reminder reaches you before it ends and renewing is this
-                  same step again. The rent is the same in a losing month as
-                  in a good one &mdash; it buys the server, not a result.
-                </p>
-              )}
             </div>
           )}
 
