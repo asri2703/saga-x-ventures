@@ -4,347 +4,149 @@ import {
   lastReportAt,
   recordDays,
   recordFunding,
-  recordLots,
   summarise,
   todayInMalaysia,
   usd,
 } from "@/lib/record";
 import { divisorFor, recordAccounts } from "@/lib/record-accounts";
 import { performance } from "@/lib/record-outcomes";
+import {
+  AutoTradeFlow,
+  type FlowPackage,
+  type FlowStep,
+} from "@/components/auto-trade-flow";
 import { RecordChart } from "@/components/record-chart";
 import { RecordPanel } from "@/components/record-panel";
 import { RecordTabs } from "@/components/record-tabs";
-import { RentSteps, type RentFinish, type RentStep } from "@/components/rent-steps";
 import { ServerFeed } from "@/components/server-feed";
 import { Container, Section } from "@/components/ui";
 import {
+  ActionLink,
   ActionOut,
   Eyebrow,
-  Panel,
   Scallop,
   TextLink,
 } from "@/components/shell";
 
-/* The record is read from the feed at render, exactly as /copytrade reads
-   it: same accounts, same EA, same hourly interval. */
+/* The record is read from the feed at render, as /copytrade reads it. */
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/fukyaa" },
   title: "AI Auto Trade",
   description:
-    "A robot places the trades on a rented server that stays on. Deposit the smaller amount and rent the server monthly, or deposit more and the server is included.",
+    "A robot trades your account on a server that stays on. Deposit less and rent the server monthly, or deposit more and the server is included.",
 };
 
 /**
  * AI Auto Trade.
  *
- * The same template as /copytrade — hero, a dark band that says what the
- * thing is, the real record, then the steps — because it is the same EA
- * underneath and a reader who has seen one page should recognise the other.
- * What differs is the commercial shape, and that difference is the whole
- * reason this page is written the way it is.
+ * Five things on the page, in the order a buyer asks about them: what it
+ * is, what it costs, what it has done, how to start, who to ask.
  *
- * On /copytrade the owner is paid out of the month's profit, so a month
- * without one costs the client nothing. Here the server is rented: the
- * client pays whether the month went well or badly. The risk is no longer
- * shared, and that is the question a reader has even when they would not
- * put it in those words. So the rent is stated as a year of rent as well as
- * a month of it, and the section that explains what is being rented also
- * says what is not.
+ * The page went through two longer versions first. The owner's note on both
+ * was the same — right design, nobody will read the sentences — and on the
+ * second he asked for the layout to stop looking generated as well. So:
  *
- * Stating the yearly figure argues for the larger deposit, which is what
- * the owner wants. It also tells somebody considering the smaller package
- * that the rent is real money, and some of them will stop there. He was
- * told that and asked for the figure anyway.
+ * - One line of copy per idea. Where a figure can say it, a figure does.
+ * - No label above every heading. Only the hero names the product.
+ * - The packages are two rows of figures, not two cards and a third card
+ *   explaining them. The year of rent is a column in the row.
+ * - One set of steps. Choosing a row sets the deposit and the last step.
+ * - The server drawing sits on the paper with no card and no caption.
  *
- * The picture is a server sending data, not a balance climbing. See
- * `server-feed.tsx` for why that is not a stylistic preference.
+ * What survived every cut, because cutting it would be dishonest: the rent
+ * is due in a losing month too, the deposit is not a payment to the owner,
+ * and the record shown is the robot's own, losing days included.
  *
- * ON LENGTH. The first build of this page said all of the above in full
- * paragraphs and the owner's verdict was that nobody would read them. He is
- * right, and the cut is not a loss: every fact survived, including the
- * uncomfortable ones. What went was the second clause of each sentence.
- * "Expert advisor" became "robot" throughout for the same reason — it is
- * the word he uses and it is four syllables shorter. The fine print keeps
- * the long form, because that one is read by people looking for exactly it.
+ * Nothing on the page animates a balance. See `server-feed.tsx`.
  */
 
-/* --------------------------------------------------------------- *
- * The steps.
- *
- * Shared up to the last one, where the two packages genuinely part: the
- * smaller one has a server to pay for and the larger one does not.
- * --------------------------------------------------------------- */
-
-function sharedSteps(depositUsd: number): RentStep[] {
-  return [
-    {
-      key: "account",
-      title: "Open a cent account",
-      short: "Open",
-      body: "Cent accounts trade in smaller sizes, so the robot can size positions finely.",
-      points: [
-        "Keep the MT5 login number and password",
-        "This is the account you deposit into",
-      ],
-      href: "/go/broker-cent",
-      cta: "Open the account",
-    },
-    {
-      key: "verify",
-      title: "Verify it",
-      short: "Verify",
-      body: "The broker checks a document before the account can take money. Not instant.",
-      points: ["Identity card", "Passport", "Or another government document"],
-    },
-    {
-      key: "deposit",
-      title: "Fund it",
-      short: "Deposit",
-      body: `At least ${formatUsd(depositUsd)}. It stays in your own account — what the robot trades with, not a payment to me.`,
-      points: [
-        "Deposit and withdraw through the broker",
-        "More capital means bigger positions, up and down alike",
-        "I never hold your funds",
-      ],
-    },
-  ];
-}
+const STEPS: FlowStep[] = [
+  {
+    key: "account",
+    title: "Open a cent account",
+    body: "The robot trades on a cent account. Keep the MT5 login and password you are given.",
+    href: "/go/broker-cent",
+    cta: "Open the account",
+  },
+  {
+    key: "verify",
+    title: "Verify it",
+    body: "Upload your ID or passport. The broker has to approve it before you can deposit.",
+  },
+  {
+    key: "deposit",
+    title: "Deposit",
+    body: "At least {deposit}, into your own account. You can withdraw it yourself.",
+  },
+];
 
 export default async function FukyaaPage() {
   const rented = fukyaaPlans.find((plan) => plan.key === "rented-vps")!;
   const included = fukyaaPlans.find((plan) => plan.key === "included-vps")!;
+  const rent = formatMyr(fukyaa.vpsMonthlyMyr);
 
-  /* A year of rent, computed rather than written down. A ringgit figure
-     typed into a page is a bug even while it is correct — see the money
-     detector in `claims.test.ts` — and this one is twelve times a number
-     the owner changes. */
-  const rentYearMyr = fukyaa.vpsMonthlyMyr * 12;
+  /* The larger deposit first: it is the one the owner would rather people
+     took, and it is also the cheaper one over a year.
 
-  /* The record. The same accounts /copytrade publishes, because they run
-     this EA: a page about renting the robot that hid the robot's own record
-     would be hiding the only evidence on the site. */
+     The smaller package ends in a payment whose Billplz route is not built
+     yet — the checkout resolves Mastery's terms only — so until it is, the
+     last step is the arrangement that already works. */
+  const packages: FlowPackage[] = [
+    {
+      key: included.key,
+      name: included.name,
+      deposit: formatUsd(included.depositUsd),
+      rent: "Included",
+      rentUnit: "server",
+      year: formatMyr(0),
+      finish: {
+        title: "Register",
+        body: "No rent to pay. Register, and I connect your account to the server. You get an email when it is running.",
+        cta: "Register",
+        href: "/go/fukyaa-register",
+      },
+    },
+    {
+      key: rented.key,
+      name: rented.name,
+      deposit: formatUsd(rented.depositUsd),
+      rent,
+      rentUnit: "server, a month",
+      /* Twelve times a figure the owner changes, so computed here. */
+      year: formatMyr(fukyaa.vpsMonthlyMyr * 12),
+      finish: {
+        title: "Rent the server",
+        body: `${rent} pays for one month. Your registration link comes by email, and so does a reminder before the month ends.`,
+        cta: "Rent the server",
+        href: "/go/whatsapp?m=server",
+      },
+    },
+  ];
+
+  /* The same accounts /copytrade publishes, because they run this robot. */
   const records = await Promise.all(
     recordAccounts().map(async (account) => {
-      const [days, funding, lastAt, lots] = await Promise.all([
+      const [days, funding, lastAt] = await Promise.all([
         recordDays(account.login),
         recordFunding(account.login),
         lastReportAt(account.login),
-        recordLots(account.login),
       ]);
-      return { account, days, funding, lastAt, lots };
+      return { account, days, funding, lastAt };
     }),
   );
   const today = todayInMalaysia();
 
-  /* The two finishes.
-
-     The smaller package ends in a payment, and the Billplz route for it is
-     not built yet — the checkout resolves Mastery's terms only. Rather than
-     a button that cannot work, this takes the arrangement that already
-     works, which is the same fallback `product-guide.tsx` uses when the
-     checkout gate is shut. It is replaced by the dialog once the route
-     accepts these packages. */
-  const rentedFinish: RentFinish = {
-    title: "Rent the server",
-    short: "Get AI Auto Trade",
-    body: `${formatMyr(fukyaa.vpsMonthlyMyr)} buys one month. Nothing recurring: when it runs out it stops, and you get a reminder before it does.`,
-    cta: "Arrange the server",
-    href: "/go/whatsapp?m=fukyaa",
-    note: "The registration link comes by email once the month is paid.",
-  };
-
-  const includedFinish: RentFinish = {
-    title: "Register for auto trade",
-    short: "Get AI Auto Trade",
-    body: "Nothing to pay here. Register, and your account is connected after.",
-    cta: "Register",
-    href: "/go/fukyaa-register",
-    note: "Connected by hand, not instantly. You get an email when it is done.",
-  };
-
-  return (
+  const record = (
     <>
-      {/* ---------------------------------------------------------------
-          1. The hero.
-      --------------------------------------------------------------- */}
-      <Section className="relative overflow-hidden">
-        <div aria-hidden className="hero-grid absolute inset-0" />
-        <Container className="relative">
-          <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,30rem)] lg:items-center lg:gap-16">
-            <div data-reveal>
-              <Eyebrow tone="quiet">AI Auto Trade</Eyebrow>
-              <h1 className="display mt-3 text-5xl leading-[1.1] text-pine">
-                You rent the server. The robot does the clicking.
-              </h1>
-
-              <div className="mt-7 space-y-5 text-lg leading-relaxed text-pine-soft">
-                <p>
-                  Some people told me straight: they are never going to learn
-                  to read a chart.
-                </p>
-                <p>
-                  A robot places the trades instead, on a server that stays
-                  awake. You fund your own account and leave it alone.
-                </p>
-                <p>
-                  Rather follow a person? That is{" "}
-                  <TextLink href="/copytrade">Copytrade</TextLink> — paid out
-                  of the profit, not monthly.
-                </p>
-              </div>
-            </div>
-
-            <div data-reveal>
-              <ServerFeed />
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* ---------------------------------------------------------------
-          2. What you rent, and what you do not.
-
-          The honest half. A rental is paid in a losing month too, and a
-          page that leaves a reader to discover that has sold them
-          something they did not agree to.
-      --------------------------------------------------------------- */}
       <Scallop />
-      <Section tone="pine" pad="pt-12 pb-12 sm:pt-14 sm:pb-14">
+      <Section id="record" tone="pine" pad="pt-12 pb-16 sm:pb-24">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <div data-reveal>
-              <Eyebrow tone="onDark">What you rent</Eyebrow>
-              <h2 className="display mt-3 text-4xl text-paper">
-                A machine that never sleeps.
-              </h2>
-              <p className="mt-5 leading-relaxed text-paper/80">
-                A server running the robot on your account, awake when you are
-                not. No decision from you, none from me.
-              </p>
-            </div>
-
-            <div data-reveal>
-              <Eyebrow tone="onDark">What you do not rent</Eyebrow>
-              <h2 className="display mt-3 text-4xl text-paper">
-                An outcome.
-              </h2>
-              <p className="mt-5 leading-relaxed text-paper/80">
-                Rent is due whether the month gained or lost. A flat month
-                costs the same as a good one.
-              </p>
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* ---------------------------------------------------------------
-          3. What it costs.
-
-          Two packages, and the yearly figure beneath them. The deposit and
-          the rent are not the same kind of money and the paragraph says so
-          first, because a reader who thinks the deposit is a fee to me has
-          misread the entire page.
-      --------------------------------------------------------------- */}
-      <Section tone="raised">
-        <Container>
-          <div className="max-w-2xl" data-reveal>
-            <Eyebrow tone="quiet">What it costs</Eyebrow>
-            <h2 className="display mt-3 text-4xl text-pine">
-              Only one of these is a payment.
-            </h2>
-            <p className="mt-4 leading-relaxed text-pine-soft">
-              The deposit stays in your own account and you can withdraw it.
-              Only the server rent comes to me.
-            </p>
-          </div>
-
-          <div className="mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
-            {[rented, included].map((plan) => (
-              <Panel key={plan.key} className="flex flex-col" data-reveal>
-                <Eyebrow tone="quiet">{plan.name}</Eyebrow>
-                <p className="display mt-3 text-3xl text-pine">
-                  <span className="tnum">{formatUsd(plan.depositUsd)}</span>{" "}
-                  deposit
-                </p>
-                <p className="mt-3 flex-1 leading-relaxed text-pine-soft">
-                  {plan.vpsMonthlyMyr === null
-                    ? "Server included. Nothing monthly."
-                    : "Smaller deposit. Server rented month by month."}
-                </p>
-                <p
-                  className={`mt-6 rounded-[var(--radius-float)] px-4 py-3 text-sm font-semibold text-pine ${plan.vpsMonthlyMyr === null ? "bg-sage" : "bg-blush"}`}
-                >
-                  {plan.vpsMonthlyMyr === null ? (
-                    <>No server rent.</>
-                  ) : (
-                    <>
-                      Plus{" "}
-                      <span className="tnum">
-                        {formatMyr(plan.vpsMonthlyMyr)}
-                      </span>{" "}
-                      a month for the server.
-                    </>
-                  )}
-                </p>
-              </Panel>
-            ))}
-          </div>
-
-          {/* The year. One line of arithmetic the owner asked for, in
-              ringgit on both sides so there is no exchange rate in it —
-              this site has never had one and inventing one here would put a
-              figure on the page that nobody set. */}
-          <div className="mt-8 max-w-3xl" data-reveal>
-            <Panel>
-              <h3 className="display text-xl text-pine">
-                Over a year, the rent is the difference.
-              </h3>
-              <dl className="mt-5 grid gap-5 sm:grid-cols-2">
-                <div>
-                  <dt className="text-sm font-semibold text-pine-faint">
-                    {rented.name}, a year of server
-                  </dt>
-                  <dd className="display tnum mt-1 text-3xl text-pine">
-                    {formatMyr(rentYearMyr)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-pine-faint">
-                    {included.name}, a year of server
-                  </dt>
-                  <dd className="display tnum mt-1 text-3xl text-pine">
-                    {formatMyr(0)}
-                  </dd>
-                </div>
-              </dl>
-              <p className="mt-5 leading-relaxed text-pine-soft">
-                A bigger deposit stays your money. A year of rent does not.
-              </p>
-            </Panel>
-          </div>
-        </Container>
-      </Section>
-
-      {/* ---------------------------------------------------------------
-          4. The record.
-
-          The same accounts as /copytrade. They run this EA, so this is the
-          robot's own record rather than an illustration of one — and the
-          losing days are in it, because a record that drops them is not a
-          record.
-      --------------------------------------------------------------- */}
-      <Section tone="pine">
-        <Container>
-          <div className="mx-auto max-w-xl text-center" data-reveal>
-            <Eyebrow tone="onDark">The robot&rsquo;s own record</Eyebrow>
-            <h2 className="display mt-3 text-4xl text-paper">
-              This is what it has done.
-            </h2>
-            <p className="mt-5 leading-relaxed text-paper/80">
-              Same robot, our own accounts. Read from MT5 hourly, losing days
-              and all. Past results do not predict future ones.
+          <div className="max-w-xl" data-reveal>
+            <h2 className="display text-4xl text-paper">Its record</h2>
+            <p className="mt-4 leading-relaxed text-paper/80">
+              The same robot on my own accounts. Losing days included.
             </p>
           </div>
 
@@ -357,24 +159,19 @@ export default async function FukyaaPage() {
                   const perf = performance(days);
                   const pct = (r: number) =>
                     `${r < 0 ? "−" : "+"}${(Math.abs(r) * 100).toFixed(1)}%`;
+                  const tone = (n: number) =>
+                    n > 0
+                      ? ("up" as const)
+                      : n < 0
+                        ? ("down" as const)
+                        : ("flat" as const);
                   return {
                     key: account.key,
                     label: account.label,
                     result: `${usd(trading, true, divisorFor(account.unit))} USD`,
-                    tone:
-                      trading > 0
-                        ? ("up" as const)
-                        : trading < 0
-                          ? ("down" as const)
-                          : ("flat" as const),
+                    tone: tone(trading),
                     returnPct: perf ? pct(perf.returnPct) : undefined,
-                    returnTone: perf
-                      ? perf.returnPct > 0
-                        ? ("up" as const)
-                        : perf.returnPct < 0
-                          ? ("down" as const)
-                          : ("flat" as const)
-                      : undefined,
+                    returnTone: perf ? tone(perf.returnPct) : undefined,
                     since: summary
                       ? `Since ${new Date(`${summary.since}T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}`
                       : undefined,
@@ -409,84 +206,78 @@ export default async function FukyaaPage() {
           </div>
         </Container>
       </Section>
+    </>
+  );
 
-      {/* ---------------------------------------------------------------
-          5 and 6. The two packages, step by step.
-
-          A section each, as /fukyaa has always had — the reader picks a
-          package and reads that set of steps, rather than a toggle that
-          hides half the page behind a control. The steps are identical up
-          to the deposit figure and part at the finish.
-      --------------------------------------------------------------- */}
-      <Section id="included">
-        <Container>
-          <div className="max-w-2xl" data-reveal>
-            <Eyebrow>Package one</Eyebrow>
-            <h2 className="display mt-3 text-3xl text-pine">
-              {included.name} — {formatUsd(included.depositUsd)}, no rent
-            </h2>
-            <p className="mt-3 leading-relaxed text-pine-soft">
-              Fund it this far and the server comes with it.
+  return (
+    <>
+      {/* ---- 1. What it is ---- */}
+      <Section className="relative overflow-hidden" pad="pt-16 pb-12 sm:pt-24 sm:pb-16">
+        <div aria-hidden className="hero-grid absolute inset-0" />
+        <Container className="relative">
+          <div className="max-w-3xl" data-reveal>
+            <Eyebrow tone="quiet">AI Auto Trade</Eyebrow>
+            <h1 className="display mt-3 text-6xl leading-[1.05] text-pine">
+              A robot trades your account while you work.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-pine-soft">
+              It runs on a server that never switches off. The money stays in
+              your own account.
             </p>
+            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+              <ActionLink href="#packages">See the packages</ActionLink>
+              <TextLink href="#record">See its record</TextLink>
+            </div>
           </div>
-          <div className="mt-10 max-w-3xl" data-reveal>
-            <RentSteps
-              steps={sharedSteps(included.depositUsd)}
-              finish={includedFinish}
-            />
+
+          <div className="mt-14 sm:mt-20" data-reveal>
+            <ServerFeed />
           </div>
         </Container>
       </Section>
 
-      <Section id="rented" tone="raised">
-        <Container>
-          <div className="max-w-2xl" data-reveal>
-            <Eyebrow>Package two</Eyebrow>
-            <h2 className="display mt-3 text-3xl text-pine">
-              {rented.name} — {formatUsd(rented.depositUsd)}, plus the server
-            </h2>
-            <p className="mt-3 leading-relaxed text-pine-soft">
-              Start smaller and rent the server monthly. Any broker that
-              allows a robot will do.
+      {/* ---- 2 to 4. What it costs, what it has done, how to start ---- */}
+      <AutoTradeFlow
+        packages={packages}
+        steps={STEPS}
+        between={record}
+        heading={
+          <div className="max-w-xl" data-reveal>
+            <h2 className="display text-4xl text-pine">Two packages</h2>
+            <p className="mt-4 leading-relaxed text-pine-soft">
+              The deposit stays yours. Only the server rent is paid to me.
             </p>
           </div>
-          <div className="mt-10 max-w-3xl" data-reveal>
-            <RentSteps
-              steps={sharedSteps(rented.depositUsd)}
-              finish={rentedFinish}
-            />
-          </div>
-        </Container>
-      </Section>
+        }
+        note={
+          <>
+            Rent is due every month, in a losing month too. Rather pay only
+            when there is profit?{" "}
+            <TextLink href="/copytrade">See Copytrade</TextLink>.
+          </>
+        }
+      />
 
-      {/* ---------------------------------------------------------------
-          7. The close, and the fine print.
-      --------------------------------------------------------------- */}
+      {/* ---- 5. Who to ask ---- */}
       <Scallop />
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="display text-3xl text-paper">
-              Not sure which package fits?
+              Not sure which package?
             </h2>
-            <p className="mt-5 leading-relaxed text-paper/80">
-              Ask me before you pay or deposit anything.
-            </p>
-            <div className="mt-9">
-              <ActionOut href="/go/whatsapp?m=contact">
-                Ask about AI Auto Trade
-              </ActionOut>
+            <div className="mt-8">
+              <ActionOut href="/go/whatsapp?m=contact">Ask me on WhatsApp</ActionOut>
             </div>
           </div>
         </Container>
       </Section>
 
-      {/* The one block deliberately left in full. It is read by people
-          looking for exactly it, and shortening a risk warning to save a
-          line is the one cut that costs something. */}
+      {/* The one block left at full length. It is read by people looking
+          for exactly it. */}
       <Section pad="py-14">
         <Container>
-          <p className="max-w-2xl rounded-[var(--radius-panel)] bg-paper-sunk px-7 py-6 text-sm leading-relaxed text-pine-soft">
+          <p className="max-w-2xl text-sm leading-relaxed text-pine-faint">
             An expert advisor places trades automatically and can lose money
             doing it. The server rent is payable whether the month gained or
             lost. Nothing here is financial advice or a recommendation to buy

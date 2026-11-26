@@ -1,144 +1,133 @@
-import { fukyaa, formatMyr } from "@/lib/commercial";
-
 /**
  * The server, sending.
  *
- * What a rental actually buys is a machine that stays awake, so the picture
- * on this page is that machine working — a rack with its lights on, pushing
- * packets down three rails into an MT5 terminal, and taking prices back up
- * the middle one.
+ * A line drawing on the hero's graph paper: a rack on the left, an MT5
+ * window on the right, and three rails between them with packets moving
+ * along. Two rails carry instructions out; the middle one carries prices
+ * back, drawn hollow so the direction is told by shape as well as by
+ * movement.
  *
- * It deliberately shows no money. An animation of a balance climbing is a
- * performance claim in a form nobody reads a disclaimer under, and a moving
- * number is more persuasive and less honest than any sentence this page
- * could print. The real figures are further down the page, dated, in the
- * account's own record.
+ * It has no panel behind it and no caption under it. The first build put it
+ * on a dark card with a sentence beneath, and the owner asked for both to
+ * go: the card made it a widget, and the sentence explained a picture that
+ * did not need it. Drawn straight onto the paper it reads as part of the
+ * page's own drafting.
  *
- * Server-rendered with no state: every bit of movement is a CSS keyframe on
- * `transform` or `opacity`, so there is no JavaScript behind it and nothing
- * to hydrate. The whole animation block sits inside
- * `prefers-reduced-motion: no-preference`, so a visitor who asked for less
- * gets the same drawing, still — lights on, packets parked on the rails,
- * which reads as a diagram rather than a broken animation.
+ * It shows no money, and that is not a style choice. A balance climbing on
+ * its own is a performance claim in the one form nobody reads small print
+ * under. The real figures are further down, dated, in the account's record.
  *
- * On a dark pane rather than the cream paper: the packets are neon, and neon
- * on paper is barely visible.
+ * Server-rendered, no state. Everything that moves does so on `transform`
+ * or `opacity` from keyframes in globals.css, all inside
+ * `prefers-reduced-motion: no-preference`. Without motion the drawing is
+ * still whole: lights on, packets spaced along the rails.
  */
 
-/* The three rails. `up` is the terminal answering, which is the half people
-   forget: the server is not shouting into the dark, it is in a conversation
-   with the broker. */
+/* x1 and x2 of every rail, in viewBox units. The keyframes in globals.css
+   travel RAIL_END - RAIL_START, so the two have to change together. */
+const RAIL_START = 118;
+const RAIL_END = 594;
+
 const RAILS = [
-  { y: 46, up: false, delay: 0 },
-  { y: 80, up: true, delay: 1.1 },
-  { y: 114, up: false, delay: 2.2 },
+  { y: 52, back: false, delay: 0 },
+  { y: 95, back: true, delay: 1.4 },
+  { y: 138, back: false, delay: 0.7 },
 ];
 
-/* Packets per rail, spread across the run so the rail is never empty. */
-const PER_RAIL = 3;
+const PER_RAIL = 4;
+const SPACING = (RAIL_END - RAIL_START) / PER_RAIL;
 
 export function ServerFeed() {
   return (
-    <figure className="feed">
-      <svg
-        viewBox="0 0 420 180"
-        className="feed-plot"
-        role="img"
-        aria-label="A server sending trade instructions to an MT5 terminal and receiving prices back."
-      >
-        {/* ---- the rack ---- */}
-        <rect x="14" y="30" width="86" height="120" rx="10" className="feed-rack" />
-        {[46, 80, 114].map((y, index) => (
-          <g key={y}>
-            <rect
-              x="26"
-              y={y - 11}
-              width="62"
-              height="22"
-              rx="5"
-              className="feed-slot"
-            />
-            {/* The light. One per unit, blinking in sequence, so the rack
-                reads as three machines rather than one box. */}
-            <circle
-              cx="36"
-              cy={y}
-              r="3.4"
-              className="feed-light"
-              style={{ animationDelay: `${index * 0.45}s` }}
-            />
-            {/* Vents: four short strokes, static. They are what makes the
-                slot read as hardware at this size. */}
-            {[0, 1, 2, 3].map((n) => (
-              <line
-                key={n}
-                x1={50 + n * 8}
-                x2={50 + n * 8}
-                y1={y - 5}
-                y2={y + 5}
-                className="feed-vent"
-              />
-            ))}
-          </g>
-        ))}
-
-        {/* ---- the rails ---- */}
-        {RAILS.map((rail) => (
-          <g key={rail.y}>
+    <svg
+      viewBox="0 0 720 190"
+      className="feed"
+      role="img"
+      aria-label="A server sending trade instructions to an MT5 terminal and receiving prices back."
+    >
+      {/* ---- the rack ---- */}
+      <rect x="6" y="20" width="106" height="150" rx="12" className="feed-box" />
+      {RAILS.map((rail, index) => (
+        <g key={rail.y}>
+          <rect
+            x="18"
+            y={rail.y - 15}
+            width="82"
+            height="30"
+            rx="7"
+            className="feed-slot"
+          />
+          <circle
+            cx="32"
+            cy={rail.y}
+            r="4"
+            className="feed-light"
+            style={{ animationDelay: `${index * 0.5}s` }}
+          />
+          {[0, 1, 2, 3].map((n) => (
             <line
-              x1="104"
-              x2="300"
-              y1={rail.y}
-              y2={rail.y}
-              className="feed-rail"
+              key={n}
+              x1={52 + n * 11}
+              x2={52 + n * 11}
+              y1={rail.y - 6}
+              y2={rail.y + 6}
+              className="feed-vent"
             />
-            {Array.from({ length: PER_RAIL }, (_, n) => (
-              <circle
-                key={n}
-                /* Parked at the rail's start; the keyframe carries it
-                   across. A reduced-motion visitor sees them here, which is
-                   why they are spaced rather than stacked. */
-                cx={rail.up ? 300 - n * 26 : 104 + n * 26}
-                cy={rail.y}
-                r="3.6"
-                className={`feed-packet ${rail.up ? "feed-packet--back" : ""}`}
-                style={{ animationDelay: `${rail.delay + n * 0.8}s` }}
-              />
-            ))}
-          </g>
-        ))}
+          ))}
+        </g>
+      ))}
 
-        {/* ---- the terminal ---- */}
-        <rect x="302" y="38" width="104" height="104" rx="10" className="feed-term" />
-        <rect x="302" y="38" width="104" height="22" rx="10" className="feed-term-bar" />
-        {/* Three window dots, the universal shorthand for an application
-            window. Static: nothing about them is a state. */}
-        {[316, 328, 340].map((cx) => (
-          <circle key={cx} cx={cx} cy="49" r="2.6" className="feed-term-dot" />
-        ))}
-        {/* Rows of a position list, filling in and clearing as instructions
-            land. No figures: bars, not balances. */}
-        {[76, 95, 114].map((y, index) => (
-          <g key={y}>
-            <rect x="316" y={y - 4} width="24" height="7" rx="3.5" className="feed-row" />
-            <rect
-              x="346"
-              y={y - 4}
-              width="46"
-              height="7"
-              rx="3.5"
-              className="feed-row feed-row--live"
-              style={{ animationDelay: `${0.6 + index * 0.9}s` }}
+      {/* ---- the rails ---- */}
+      {RAILS.map((rail) => (
+        <g key={rail.y}>
+          <line
+            x1={RAIL_START}
+            x2={RAIL_END}
+            y1={rail.y}
+            y2={rail.y}
+            className="feed-rail"
+          />
+          {Array.from({ length: PER_RAIL }, (_, n) => (
+            <circle
+              key={n}
+              /* Every packet is authored at the rail's start and carried the
+                 full length; the negative delay is what spreads them out, so
+                 the rail is populated from the first frame instead of
+                 filling up over the first few seconds. */
+              cx={rail.back ? RAIL_END : RAIL_START}
+              cy={rail.y}
+              r="4"
+              className={`feed-packet ${rail.back ? "feed-packet--back" : ""}`}
+              style={{
+                animationDelay: `${-(rail.delay + n * 1.5)}s`,
+                /* Where it rests when nothing moves. */
+                ["--feed-rest" as string]: `${(rail.back ? -1 : 1) * (n + 0.5) * SPACING}px`,
+              }}
             />
-          </g>
-        ))}
-      </svg>
+          ))}
+        </g>
+      ))}
 
-      <figcaption className="feed-caption">
-        The server stays on when your laptop does not.{" "}
-        {formatMyr(fukyaa.vpsMonthlyMyr)} a month, or included with the larger
-        deposit.
-      </figcaption>
-    </figure>
+      {/* ---- the terminal ---- */}
+      <rect x="600" y="26" width="114" height="138" rx="12" className="feed-box" />
+      <line x1="600" x2="714" y1="52" y2="52" className="feed-vent" />
+      {[616, 629, 642].map((cx) => (
+        <circle key={cx} cx={cx} cy="39" r="3" className="feed-dot" />
+      ))}
+      {[78, 104, 130].map((y, index) => (
+        <g key={y}>
+          <rect x="614" y={y - 5} width="26" height="10" rx="5" className="feed-row" />
+          <rect
+            x="646"
+            y={y - 5}
+            width="54"
+            height="10"
+            rx="5"
+            className="feed-row feed-row--live"
+            style={{ animationDelay: `${index * 0.9}s` }}
+          />
+        </g>
+      ))}
+    </svg>
   );
 }

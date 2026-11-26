@@ -275,6 +275,7 @@ export const whatsappPrefills = {
   contact: "Hi Asri, I have a question about ",
   events: "Hi, when is the next session?",
   topic: "Hi Asri, something I'd like you to write about: ",
+  server: "Hi Asri, I'd like to rent the server for AI Auto Trade.",
 } as const;
 
 export type WhatsAppPrefill = keyof typeof whatsappPrefills;
