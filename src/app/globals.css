@@ -3450,30 +3450,160 @@ html.lenis {
     transform: translateY(6px);
   }
 }
-
 /* ---------------------------------------------------------------------------
-   The reasons grid on /fukyaa.
+   Why use AI Auto Trade, on /fukyaa.
 
-   Large drawings, words beneath, separated by hairlines rather than made
-   into cards. The package rows below use the same rules, so the page has
-   one idea about how things are divided.
+   The arrangement of watermelon's `feature-2`: words on the left, a recessed
+   panel on the right holding a drawing that changes with the open reason.
+   The original is shadcn and Radix on `bg-background` and
+   `text-muted-foreground`; those are another project's tokens, so what is
+   kept is the shape and the recess, in this site's colours.
 
-   The drawings sit in a tinted frame so a pine line reads against it
-   without a border round every cell. Nothing in them moves: they are
-   diagrams, and the page already has one thing that moves.
+   The drawing rules below are older than this block — they drew the reasons
+   grid that stood here — and are unchanged, which is why the lines in the
+   panel weigh the same as every other diagram on the page.
 --------------------------------------------------------------------------- */
-.why {
+.whyai {
   display: grid;
   gap: 2.5rem;
-  margin-block-start: 3rem;
+  align-items: center;
 }
 
-.why-frame {
+/* The pill above the heading: a dot and a word, the one place on this page
+   where a label gets a background of its own. */
+.whyai-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-paper-sunk);
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-pine-soft);
+}
+
+.whyai-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-ruby);
+}
+
+.whyai-list {
+  margin-block-start: 2rem;
+  /* Hairlines, like the package rows further down, rather than four cards. */
+  border-block-start: 1px solid var(--color-paper-sunk);
+}
+
+.whyai-item {
+  border-block-end: 1px solid var(--color-paper-sunk);
+}
+
+.whyai-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  text-align: start;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-pine);
+  cursor: pointer;
+}
+
+.whyai-item[data-open="false"] .whyai-trigger {
+  color: var(--color-pine-soft);
+}
+
+/* The chevron, built from one corner of a box so no icon file is needed. */
+.whyai-chevron {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  rotate: 45deg;
+  translate: 0 -0.125rem;
+  transition: rotate 200ms var(--ease-out-ui);
+}
+
+.whyai-item[data-open="true"] .whyai-chevron {
+  rotate: 225deg;
+  translate: 0 0.125rem;
+}
+
+.whyai-body {
+  padding-block-end: 1.25rem;
+  max-width: 32rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+/* The drawing travels with the words until the panel is beside them. */
+.whyai-inline-art {
+  margin-block-start: 1.25rem;
   border-radius: var(--radius-panel);
   background: var(--color-paper-raised);
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
+.whyai-panel {
+  display: none;
+  border-radius: var(--radius-panel);
+  /* Sunk rather than raised: the original's panel is a recess the cards sit
+     inside, and an inner shadow is what says so without a border. */
+  background: var(--color-paper-band);
+  box-shadow: inset 0 1px 4px rgba(22, 58, 48, 0.12);
+  padding: 2.5rem;
+}
+
+.whyai-stage {
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06), 0 16px 36px rgba(22, 58, 48, 0.08);
+  padding: 1.75rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Keyed on the open reason, so this runs when the drawing is replaced and
+     at no other time. It answers a press, which is the only motion this
+     section has. */
+  .whyai-stage {
+    animation: whyai-in 220ms var(--ease-out-ui);
+  }
+}
+
+@keyframes whyai-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (min-width: 64rem) {
+  .whyai {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  .whyai-panel {
+    display: block;
+  }
+
+  .whyai-inline-art {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The drawings, on /fukyaa.
+
+   Line weights are shared by every diagram on the page. Nothing here is a
+   chart: no drawing carries a figure, and none of them moves.
+--------------------------------------------------------------------------- */
 .why-art {
   display: block;
   width: 100%;
@@ -3493,6 +3623,7 @@ html.lenis {
   stroke: rgba(22, 58, 48, 0.3);
   stroke-width: 1.5;
   stroke-linecap: round;
+  fill: none;
 }
 
 .why-rule {
@@ -3508,25 +3639,4 @@ html.lenis {
 .why-fill {
   fill: var(--color-pine);
   stroke: none;
-}
-
-.why-title {
-  margin-block-start: 1.5rem;
-  font-size: 1.375rem;
-  line-height: 1.25;
-  color: var(--color-pine);
-}
-
-.why-body {
-  margin-block-start: 0.625rem;
-  max-width: 28rem;
-  line-height: 1.6;
-  color: var(--color-pine-soft);
-}
-
-@media (min-width: 48rem) {
-  .why {
-    grid-template-columns: 1fr 1fr;
-    gap: 3.5rem 3rem;
-  }
 }

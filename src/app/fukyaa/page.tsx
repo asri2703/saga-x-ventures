@@ -27,13 +27,7 @@ import { RecordPanel } from "@/components/record-panel";
 import { RecordTabs } from "@/components/record-tabs";
 import { SectionHeading } from "@/components/section-heading";
 import { AiMesh } from "@/components/ai-mesh";
-import {
-  WhyGrid,
-  artAwake,
-  artFlat,
-  artLearn,
-  artOwn,
-} from "@/components/why-grid";
+import { WhyAi } from "@/components/why-ai";
 import { Container, Section } from "@/components/ui";
 import {
   ActionSweep,
@@ -296,45 +290,16 @@ export default async function FukyaaPage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          3. Why anyone rents one.
+          3. Why use AI Auto Trade.
 
-          About the reader's situation, not about the product — the product
-          is the section above. The last cell is the flat fee, stated as a
-          reason rather than hidden: for somebody whose account does well,
-          a fee that does not grow is the argument.
+          The owner's four reasons, in watermelon's `feature-2` arrangement:
+          the words on the left, one reason open at a time, and a drawing of
+          it in the panel beside them. See `why-ai.tsx` for what was kept
+          from that block and what was not.
       --------------------------------------------------------------- */}
       <Section>
         <Container>
-          <SectionHeading eyebrow="Why rent one" title="Why people rent it.">
-            <p>
-              Four reasons I hear, in the words people say them in.
-            </p>
-          </SectionHeading>
-
-          <WhyGrid
-            reasons={[
-              {
-                title: "No months of learning",
-                body: "Reading a chart well enough to trade on it takes three to six months, in evenings you do not have. The robot already knows the rules it trades by.",
-                art: artLearn,
-              },
-              {
-                title: "Your laptop can be shut",
-                body: "The robot lives on the server, not on your machine. That is what the rent buys: it keeps trading while you are at work or asleep.",
-                art: artAwake,
-              },
-              {
-                title: "The account is yours",
-                body: "Opened in your name, with your broker. You deposit into it and withdraw from it yourself. I never hold your money.",
-                art: artOwn,
-              },
-              {
-                title: "The fee does not grow",
-                body: "A flat monthly rent, whatever the account does. Nobody takes a cut of a good month. If you would rather pay only out of profit, that is Copytrade.",
-                art: artFlat,
-              },
-            ]}
-          />
+          <WhyAi />
         </Container>
       </Section>
 
