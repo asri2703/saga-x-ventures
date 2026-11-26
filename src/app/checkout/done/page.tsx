@@ -158,10 +158,18 @@ export default async function CheckoutDonePage({
               <h1 className="display text-3xl text-pine">
                 Waiting on the bank
               </h1>
+              {/* What arrives when the bank confirms is not the same for
+                  both products, and this screen was telling a server
+                  rental it would be sent a registration link — Mastery's
+                  wording, on a page a rental buyer reaches just as often.
+                  Found by paying a sandbox bill rather than by reading. */}
               <p className="mt-4 leading-relaxed text-pine-soft">
                 No confirmation from Billplz yet. That usually takes a
-                moment. Your registration link is emailed the instant it
-                arrives &mdash; nothing more is needed from you.
+                moment.{" "}
+                {isFukyaa
+                  ? "Your confirmation is emailed the instant it arrives, and I set the server up from there."
+                  : "Your registration link is emailed the instant it arrives."}{" "}
+                Nothing more is needed from you.
               </p>
               <p className="mt-4 leading-relaxed text-pine-soft">
                 If nothing reaches you in a few minutes, message me and I will
