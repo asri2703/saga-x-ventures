@@ -24,7 +24,7 @@ export default function EventsPage() {
     <Section>
       <Container>
         <div className="max-w-2xl">
-          <h1 className="display text-4xl text-pine sm:text-5xl">
+          <h1 className="display text-5xl text-pine">
             Sessions, online and in person
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-pine-soft">

@@ -16,7 +16,7 @@ export default function AboutPage() {
       <Section pad="pt-16 pb-10 sm:pt-24">
         <Container>
           <div className="max-w-2xl">
-            <h1 className="display text-4xl text-pine sm:text-5xl">
+            <h1 className="display text-5xl text-pine">
               How I got here
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-pine-soft">
@@ -103,7 +103,7 @@ export default function AboutPage() {
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="display text-2xl text-paper sm:text-3xl">
+            <h2 className="display text-3xl text-paper">
               Where to start
             </h2>
             <p className="mx-auto mt-5 max-w-xl leading-relaxed text-paper/80">

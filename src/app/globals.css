@@ -100,6 +100,31 @@
      not easing — they were not animating at all. */
   --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
 
+  /* The type scale, as a continuous run rather than a set of steps.
+     ---------------------------------------------------------------------
+     Each step is one `clamp()` spanning 320px to 1280px: the floor is the
+     size on the narrowest phone, the ceiling the size this scale already
+     used on a desktop, and between them it tracks the width.
+
+     This replaces `text-4xl sm:text-5xl` on the headings, which was two
+     fixed sizes with a jump at 640px — so an h1 was 36px at every width
+     from 320 to 639. A 320px phone and a 639px phone have nearly twice the
+     room between them and were handed identical type; a heading that filled
+     three lines on the small one was what the owner saw.
+
+     The maths for a step running A(px) at 320 to B(px) at 1280:
+       slope = (B - A) / 960 * 100 vw     offset = A - slope/100 * 320
+     Changing a ceiling means recomputing both terms, or the step stops
+     landing on its floor. */
+  /* The floor here is 18px, not 17: this step is a card title sitting
+     directly above 16px body copy, and a 1px difference is not a hierarchy. */
+  --text-xl: clamp(1.125rem, 1.0833rem + 0.2083vw, 1.25rem); /* 18 → 20 */
+  --text-2xl: clamp(1.1875rem, 1.0833rem + 0.5208vw, 1.5rem); /* 19 → 24 */
+  --text-3xl: clamp(1.3125rem, 1.125rem + 0.9375vw, 1.875rem); /* 21 → 30 */
+  --text-4xl: clamp(1.5rem, 1.25rem + 1.25vw, 2.25rem); /* 24 → 36 */
+  --text-5xl: clamp(1.75rem, 1.3333rem + 2.0833vw, 3rem); /* 28 → 48 */
+  --text-6xl: clamp(1.875rem, 1.25rem + 3.125vw, 3.75rem); /* 30 → 60 */
+
   /* One family. General Sans is the nearest freely licensed relative of the
      reference's GT Walsheim: geometric, soft-terminalled, and friendlier
      than the Archivo it replaces. Display type is the same family heavier
@@ -319,7 +344,17 @@
   border: 1px solid rgba(22, 58, 48, 0.18);
   background: var(--color-paper);
   color: var(--color-pine);
-  font-size: 0.875rem;
+  /* 16px, and not a pixel less. Safari on iOS zooms the page in when a
+     person focuses an input whose text is under 16px — the dialog does not
+     grow, the page scales up around it, and the form ends up filling the
+     screen with the field half off the edge. This was 0.875rem. */
+  font-size: 1rem;
+  /* Room for the browser to scroll this field clear when the keyboard
+     opens. `100dvh` does not shrink for the keyboard on iOS, so the card
+     keeps its height while half the screen is keyboard; the browser scrolls
+     the focused field into the card, and without a margin it lands flush
+     against the edge, which is where the keyboard is. */
+  scroll-margin-block: 1.5rem;
   transition:
     background-color 0.2s,
     border-color 0.2s,
@@ -387,7 +422,10 @@
   border: 1px solid rgba(22, 58, 48, 0.14);
   background: var(--color-paper);
   color: var(--color-pine);
-  font-size: 0.875rem;
+  /* 16px for the same reason as the field above: this is the control a
+     thumb lands on first, and the zoom it triggers is already in effect by
+     the time the fields appear. */
+  font-size: 1rem;
   text-align: left;
   cursor: pointer;
   transition:

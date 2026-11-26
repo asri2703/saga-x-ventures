@@ -26,7 +26,7 @@ export default function ContactPage() {
     <Section>
       <Container>
         <div className="max-w-2xl">
-          <h1 className="display text-4xl text-pine sm:text-5xl">
+          <h1 className="display text-5xl text-pine">
             Message me directly
           </h1>
           <p className="mt-7 text-lg leading-relaxed text-pine-soft">

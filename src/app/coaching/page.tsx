@@ -40,7 +40,7 @@ export default function CoachingPage() {
       <Section pad="pt-16 pb-12 sm:pt-24">
         <Container>
           <div className="max-w-2xl">
-            <h1 className="display text-4xl text-pine sm:text-5xl">
+            <h1 className="display text-5xl text-pine">
               One to one, not a class of thirty
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-pine-soft">
@@ -95,7 +95,7 @@ export default function CoachingPage() {
       {/* The ladder. */}
       <Section tone="raised">
         <Container>
-          <h2 className="display text-3xl text-pine sm:text-4xl">
+          <h2 className="display text-4xl text-pine">
             The three classes
           </h2>
           <p className="mt-4 max-w-xl leading-relaxed text-pine-soft">
@@ -173,7 +173,7 @@ export default function CoachingPage() {
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="display text-2xl text-paper sm:text-3xl">
+            <h2 className="display text-3xl text-paper">
               Tell me where you are
             </h2>
             <p className="mx-auto mt-5 max-w-xl leading-relaxed text-paper/80">

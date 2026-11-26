@@ -31,7 +31,7 @@ export function SectionHeading({
         </Eyebrow>
       ) : null}
       <h2
-        className={`display mt-3 text-3xl sm:text-4xl ${
+        className={`display mt-3 text-4xl ${
           onDark ? "text-paper" : "text-pine"
         }`}
       >

@@ -210,7 +210,7 @@ export function PlanGroup({
     <div>
       <div>
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h3 className="display mt-3 text-2xl text-pine sm:text-3xl">{title}</h3>
+        <h3 className="display mt-3 text-3xl text-pine">{title}</h3>
         <div className="mt-4 max-w-xl space-y-3 leading-relaxed text-pine-soft">
           {intro}
         </div>

@@ -46,7 +46,7 @@ export default function HomePage() {
         <Container className="relative">
           <div className="grid items-center gap-16 lg:grid-cols-[1fr_minmax(0,460px)]">
             <div>
-              <h1 className="display text-4xl text-pine sm:text-5xl lg:text-6xl">
+              <h1 className="display text-6xl text-pine">
                 Trade Shouldn&rsquo;t Be <Marked>Complicated</Marked>.
               </h1>
 
@@ -248,7 +248,7 @@ export default function HomePage() {
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-xl" data-reveal>
               <Eyebrow>Built from experience</Eyebrow>
-              <h2 className="display mt-3 text-3xl text-pine sm:text-4xl">
+              <h2 className="display mt-3 text-4xl text-pine">
                 Built from experience. Made for real traders.
               </h2>
             </div>
@@ -450,7 +450,7 @@ export default function HomePage() {
         <Container>
           <div className="mx-auto max-w-3xl text-center" data-reveal>
             <Eyebrow tone="onDark">Coaching and classes</Eyebrow>
-            <h2 className="display mt-3 text-3xl text-paper sm:text-5xl">
+            <h2 className="display mt-3 text-5xl text-paper">
               Need help with your trading?
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-paper/80">

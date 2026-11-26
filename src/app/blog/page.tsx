@@ -27,7 +27,7 @@ export default function BlogIndex() {
     <Section>
       <Container>
         <div className="max-w-2xl">
-          <h1 className="display text-4xl text-pine sm:text-5xl">Writing</h1>
+          <h1 className="display text-5xl text-pine">Writing</h1>
           <p className="mt-6 text-lg leading-relaxed text-pine-soft">
             Reading a market, what the week looked like, and the mistakes
             I keep making. No tips, nothing telling you what to buy.
