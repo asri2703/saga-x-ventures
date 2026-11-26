@@ -2704,6 +2704,17 @@ html.lenis {
   color: var(--color-pine-faint);
 }
 
+/* What the follower keeps. Not filled — the deposit owns that — but
+   outlined in the brand green, so the eye finds it before the fee beside
+   it. These two are a pair and have to read as one. */
+.calc-box--keep {
+  border-color: var(--color-pine);
+}
+
+.calc-box--keep dd {
+  color: var(--color-pine);
+}
+
 /* The answer: the only filled box on the panel. */
 .calc-box--lead {
   background: var(--color-neon);

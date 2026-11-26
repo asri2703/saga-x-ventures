@@ -501,8 +501,7 @@ export default async function CopytradePage() {
             <div className="mt-10" data-reveal>
               <ProfitCalculator
                 outcomes={spread}
-                deepest={longestPerf.deepest}
-                recovery={longestPerf.recovery}
+                sharePct={copytrade.masterSharePct}
                 lots={longestLots}
               />
             </div>

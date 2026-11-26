@@ -5,6 +5,7 @@ import {
   depositFor,
   outcomes,
   performance,
+  project,
 } from "@/lib/record-outcomes";
 
 /**
@@ -209,6 +210,53 @@ test("returns are unit-free, so a cent account and a dollar one agree", () => {
   ]);
   expect(performance(cents)!.returnPct).toBeCloseTo(
     performance(dollars)!.returnPct,
+    10,
+  );
+});
+
+test("the master's share comes out of the goal, and the rest is the follower's", () => {
+  /* The panel used to report what the ACCOUNT makes as though the follower
+     kept all of it, while the FAQ further down the same page said thirty
+     percent of it does not. Two parts of one page disagreeing about money. */
+  const spread = outcomes(days(steady(40)), 21)!;
+  const p = project(1000, spread, 30, null)!;
+
+  expect(p.gross).toBe(1000);
+  expect(p.fees).toBeCloseTo(300, 10);
+  expect(p.net).toBeCloseTo(700, 10);
+  // The split is exhaustive: nothing is lost between the two.
+  expect(p.fees + p.net).toBeCloseTo(p.gross, 10);
+});
+
+test("a zero share leaves the goal whole, so the split is not hardcoded", () => {
+  // Anti-vacuity: the numbers above would also pass if 30 were baked in.
+  const spread = outcomes(days(steady(40)), 21)!;
+  const free = project(1000, spread, 0, null)!;
+  const half = project(1000, spread, 50, null)!;
+
+  expect(free.net).toBeCloseTo(1000, 10);
+  expect(free.fees).toBeCloseTo(0, 10);
+  expect(half.net).toBeCloseTo(500, 10);
+});
+
+test("daily and weekly are after the share, like the nett figure", () => {
+  /* One panel, one meaning of a dollar. If these were gross, two money
+     boxes would mean the follower's money and two would mean the
+     account's, side by side and unlabelled. */
+  const spread = outcomes(days(steady(40)), 21)!;
+  const gross = project(1000, spread, 0, null)!;
+  const taxed = project(1000, spread, 30, null)!;
+
+  expect(taxed.daily).toBeCloseTo(gross.daily * 0.7, 10);
+  expect(taxed.weekly).toBeCloseTo(gross.weekly * 0.7, 10);
+});
+
+test("the deposit is sized by the account's rate, not by the share", () => {
+  // The share is taken from the profit, not from the capital: changing it
+  // must not move what has to be deposited.
+  const spread = outcomes(days(steady(40)), 21)!;
+  expect(project(1000, spread, 30, null)!.deposit).toBeCloseTo(
+    project(1000, spread, 0, null)!.deposit,
     10,
   );
 });

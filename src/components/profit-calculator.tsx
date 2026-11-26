@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import type { Outcomes, Performance } from "@/lib/record-outcomes";
+import type { Outcomes } from "@/lib/record-outcomes";
 import { project } from "@/lib/record-outcomes";
 
 /**
@@ -73,27 +73,26 @@ const pct = (ratio: number) => {
 
 export function ProfitCalculator({
   outcomes,
-  deepest,
-  recovery,
+  sharePct,
   lots,
 }: {
   outcomes: Outcomes;
-  /** Deepest fall on record, as a negative ratio. */
-  deepest: number;
-  /** Whether that fall came back, and how long it took. */
-  recovery: Performance["recovery"];
+  /** The master's share of the month's gain, as a percentage. */
+  sharePct: number;
   /** Lots a day per $1,000 of capital, or null when it cannot be read. */
   lots: number | null;
 }) {
   const [goal, setGoal] = useState(300);
   const fieldId = useId();
 
-  const result = project(goal, outcomes, deepest, lots);
+  const result = project(goal, outcomes, sharePct, lots);
 
   return (
     <div className="calc">
       <div className="calc-ask">
-        <p className="calc-label">What do you want to make a month?</p>
+        <p className="calc-label">
+          Gross profit you want a month
+        </p>
 
         <p className="calc-goal tnum">
           <span aria-hidden className="calc-currency">
@@ -135,13 +134,34 @@ export function ProfitCalculator({
       ) : (
         <>
           <dl className="calc-boxes">
-            {/* The answer. Given the whole top row and the only fill on the
-                panel, because everything under it is a consequence of it. */}
+            {/* The answer, and the only fill on the panel: everything under
+                it is a consequence of it. */}
             <div className="calc-box calc-box--lead">
               <dt>Amount deposit</dt>
               <dd className="tnum">{money(result.deposit)}</dd>
             </div>
 
+            {/* The split, first, because it is what the slider's figure
+                actually turns into. The slider sets what the ACCOUNT makes;
+                these two say whose it is. */}
+            <div className="calc-box calc-box--keep">
+              <dt>Nett return</dt>
+              <dd className="tnum">{money(result.net)}</dd>
+            </div>
+
+            <div className="calc-box">
+              <dt>Fees ({sharePct}%)</dt>
+              <dd className="tnum">{money(result.fees)}</dd>
+            </div>
+
+            <div className="calc-box">
+              <dt>Profit percentage</dt>
+              <dd className="tnum">{pct(result.monthly)}</dd>
+            </div>
+
+            {/* Then the same money at a shorter cadence, and the volume
+                behind it. Both are after the share, like Nett return — one
+                panel, one meaning of a dollar. */}
             <div className="calc-box">
               <dt>Daily return</dt>
               <dd className="tnum">{money(result.daily, 2)}</dd>
@@ -150,31 +170,6 @@ export function ProfitCalculator({
             <div className="calc-box">
               <dt>Weekly return</dt>
               <dd className="tnum">{money(result.weekly, 2)}</dd>
-            </div>
-
-            <div className="calc-box">
-              <dt>Profit percentage</dt>
-              <dd className="tnum">{pct(result.monthly)}</dd>
-            </div>
-
-            {/* The one box that can show a loss. See the note at the top. */}
-            <div className="calc-box calc-box--down">
-              <dt>Drawdown</dt>
-              <dd className="tnum">{pct(result.drawdown)}</dd>
-              <p className="calc-box-sub tnum">
-                {money(result.drawdownAmount)}
-              </p>
-            </div>
-
-            <div className="calc-box">
-              <dt>Recovery</dt>
-              <dd className="tnum">
-                {recovery?.kind === "recovered"
-                  ? `${recovery.days} days`
-                  : recovery?.kind === "open"
-                    ? "In progress"
-                    : "—"}
-              </dd>
             </div>
 
             <div className="calc-box">

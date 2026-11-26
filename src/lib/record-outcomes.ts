@@ -245,14 +245,25 @@ export function lotsPerDayPer1000(
 export type Projection = {
   /** What the goal implies, at the middle of the spread. */
   deposit: number;
-  /** Dollars a day and a week, at the same rate. */
+  /** What the account makes — the figure the slider sets. */
+  gross: number;
+  /** The master's share of it, and what is left for the follower. */
+  fees: number;
+  net: number;
+  /**
+   * Dollars a day and a week, AFTER the share.
+   *
+   * Net rather than gross, so every dollar figure under the deposit is the
+   * same dollar: money the follower keeps. The share settles monthly, so a
+   * net daily figure is an average rather than a payment — but the
+   * alternative is a panel where two money boxes mean one thing and two
+   * mean another, which is the confusion this whole change is removing.
+   */
   daily: number;
   weekly: number;
-  /** The middle stretch's return, as a ratio. */
+  /** The middle stretch's return, as a ratio. The account's own rate, before
+   *  the share — it is what the record above publishes. */
   monthly: number;
-  /** Deepest fall on record, as a ratio, and what it costs on this deposit. */
-  drawdown: number;
-  drawdownAmount: number;
   /** Lots this deposit would trade in a day, or null when unknown. */
   lots: number | null;
 };
@@ -282,22 +293,32 @@ export const MONTH = 21;
 export function project(
   goal: number,
   spread: Outcomes,
-  deepest: number,
+  sharePct: number,
   lots: number | null,
 ): Projection | null {
   const deposit = depositFor(goal, spread.median);
   if (deposit === null) return null;
 
-  const daily = Math.pow(1 + spread.median, 1 / spread.window) - 1;
-  const weekly = Math.pow(1 + daily, WEEK) - 1;
+  /* The share is the master's cut of the month's gain, declared once in
+     `commercial.ts` and read here rather than repeated. Without it the
+     panel reported what the ACCOUNT makes as though it were the follower's,
+     while the FAQ further down the same page said thirty percent of it is
+     not — two parts of one page disagreeing about money. */
+  const share = Math.min(Math.max(sharePct, 0), 100) / 100;
+  const fees = goal * share;
+  const net = goal - fees;
+
+  const dailyRate = Math.pow(1 + spread.median, 1 / spread.window) - 1;
+  const weeklyRate = Math.pow(1 + dailyRate, WEEK) - 1;
 
   return {
     deposit,
-    daily: deposit * daily,
-    weekly: deposit * weekly,
+    gross: goal,
+    fees,
+    net,
+    daily: deposit * dailyRate * (1 - share),
+    weekly: deposit * weeklyRate * (1 - share),
     monthly: spread.median,
-    drawdown: deepest,
-    drawdownAmount: deposit * deepest,
     lots: lots === null ? null : (deposit / 1000) * lots,
   };
 }
