@@ -206,7 +206,7 @@ export default async function CopytradePage() {
           <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,32rem)] lg:items-center lg:gap-16">
             <div data-reveal>
               <Eyebrow tone="quiet">Copytrade</Eyebrow>
-              <h1 className="display mt-3 text-4xl leading-[1.1] text-pine sm:text-5xl">
+              <h1 className="display mt-3 text-5xl leading-[1.1] text-pine">
                 My trades. Your account. Your call.
               </h1>
 
@@ -265,7 +265,7 @@ export default async function CopytradePage() {
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
             <div data-reveal>
               <Eyebrow tone="onDark">What is copytrade</Eyebrow>
-              <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
+              <h2 className="display mt-3 text-4xl text-paper">
                 Same trades, your size.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
@@ -276,7 +276,7 @@ export default async function CopytradePage() {
 
             <div data-reveal>
               <Eyebrow tone="onDark">Why choose it</Eyebrow>
-              <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
+              <h2 className="display mt-3 text-4xl text-paper">
                 Pay from the profit.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
@@ -368,7 +368,7 @@ export default async function CopytradePage() {
         <Container>
           <div className="mx-auto max-w-xl text-center" data-reveal>
             <Eyebrow tone="onDark">Our record</Eyebrow>
-            <h2 className="display mt-3 text-3xl text-paper sm:text-4xl">
+            <h2 className="display mt-3 text-4xl text-paper">
               Trading performance
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">

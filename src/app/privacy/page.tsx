@@ -30,7 +30,7 @@ export default function PrivacyPage() {
     <Section>
       <Container>
         <div className="max-w-2xl">
-          <h1 className="display text-4xl text-pine sm:text-5xl">
+          <h1 className="display text-5xl text-pine">
             Privacy notice
           </h1>
           <p className="mt-4 text-sm text-pine-faint">Last updated {updated}</p>

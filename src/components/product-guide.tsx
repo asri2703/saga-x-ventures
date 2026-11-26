@@ -172,7 +172,7 @@ export function ProductGuide({
       <Section tone="raised">
         <Container>
           <div className="max-w-2xl" data-reveal>
-            <h2 className="display text-3xl text-pine sm:text-4xl">
+            <h2 className="display text-4xl text-pine">
               Two ways in
             </h2>
             <p className="mt-4 leading-relaxed text-pine-soft">
@@ -211,7 +211,7 @@ export function ProductGuide({
               <Eyebrow>
                 {route.key === "deposit" ? "Route one" : "Route two"}
               </Eyebrow>
-              <h2 className="display mt-3 text-2xl text-pine sm:text-3xl">
+              <h2 className="display mt-3 text-3xl text-pine">
                 {route.label}
               </h2>
               <p className="mt-3 leading-relaxed text-pine-soft">
@@ -229,7 +229,7 @@ export function ProductGuide({
       <Section tone="pine" pad="pt-10 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="display text-2xl text-paper sm:text-3xl">
+            <h2 className="display text-3xl text-paper">
               Not sure which route fits what you have to work with?
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">

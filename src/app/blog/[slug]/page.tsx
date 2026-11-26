@@ -71,7 +71,7 @@ export default async function BlogPost({ params }: PageProps<"/blog/[slug]">) {
               </Link>
             </nav>
 
-            <h1 className="display mt-4 text-4xl leading-[1.1] text-pine sm:text-5xl">
+            <h1 className="display mt-4 text-5xl leading-[1.1] text-pine">
               {post.title}
             </h1>
 

@@ -18,7 +18,7 @@ export default function NotFound() {
       <Container>
         <div className="mx-auto max-w-2xl">
           <p className="tnum text-sm text-sand">404</p>
-          <h1 className="display mt-3 text-4xl text-paper sm:text-5xl">
+          <h1 className="display mt-3 text-5xl text-paper">
             That page is not here
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-paper/80">

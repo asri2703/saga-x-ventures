@@ -26,7 +26,7 @@ export default function FukyaaPage() {
     <Section tone="raised">
       <Container>
         <div className="max-w-2xl" data-reveal>
-          <h2 className="display text-3xl text-pine sm:text-4xl">
+          <h2 className="display text-4xl text-pine">
             What it costs
           </h2>
           <p className="mt-4 leading-relaxed text-pine-soft">
@@ -75,7 +75,7 @@ export default function FukyaaPage() {
         routes={fukyaaRoutes()}
         intro={
           <>
-            <h1 className="display text-4xl leading-[1.1] text-pine sm:text-5xl">
+            <h1 className="display text-5xl leading-[1.1] text-pine">
               For people who will not learn to read a chart
             </h1>
 
