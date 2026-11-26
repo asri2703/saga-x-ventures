@@ -221,14 +221,24 @@ export default async function FukyaaPage() {
       >
         <div aria-hidden className="hero-grid absolute inset-0" />
         <Container className="relative">
+          {/* No eyebrow. The owner's headline names the product itself,
+              and a label above it saying the same words twice would spend
+              the top of the page repeating. */}
           <div className="max-w-3xl" data-reveal>
-            <Eyebrow tone="quiet">AI Auto Trade</Eyebrow>
-            <h1 className="display mt-3 text-6xl leading-[1.05] text-pine">
-              A robot trades your account while you work.
+            <h1 className="display text-6xl leading-[1.05] text-pine">
+              New Generation AI Auto Trade
             </h1>
+            {/* The owner's own sentence, with its second half removed.
+                His draft read "sometimes you have to lose a lot of money
+                before start gaining", which tells a reader that gaining
+                follows losing. It does not, for plenty of people, and a
+                projected return is the thing his own rule forbids —
+                `claims.test.ts` cannot catch it in prose, which is exactly
+                why it had to be caught here. What is left is the true half,
+                and it was carrying the sentence anyway. */}
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-pine-soft">
-              It runs on a server that never switches off. The money stays in
-              your own account.
+              Trading is hard, and most people pay to learn it with their own
+              money. Let the AI handle your account instead.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
               <ActionLink href="#start">Start</ActionLink>
