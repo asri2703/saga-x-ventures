@@ -255,36 +255,39 @@ export default async function FukyaaPage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          2. What EA rental is.
+          2. What it is, and how it trades.
 
-          Two columns, because the arrangement has exactly two halves and
-          the second is the one people are not told: the rent is due in a
-          losing month. A page that leaves that to be discovered after
-          payment has sold something that was not agreed to.
+          The owner's two halves: what the thing is, and what it does all
+          day. The price used to stand here, and the reason it could move is
+          that the uncomfortable half of it did not move with it — the
+          packages below still say the rent is due in a losing month too,
+          above the button that takes the money. A page that leaves that to
+          be discovered after payment has sold something that was not
+          agreed to.
       --------------------------------------------------------------- */}
       <Scallop />
       <Section tone="pine" pad="pt-12 pb-12 sm:pt-14 sm:pb-14">
         <Container>
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
             <div data-reveal>
-              <Eyebrow tone="onDark">What you rent</Eyebrow>
+              <Eyebrow tone="onDark">What is AI Trade</Eyebrow>
               <h2 className="display mt-3 text-4xl text-paper">
-                A machine that never sleeps.
+                Your account, automated.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
-                A server running the robot on your account, awake when you
-                are not. No decision from you, none from me.
+                Fukyaa connects to your broker account and handles the
+                trading steps for you.
               </p>
             </div>
 
             <div data-reveal>
-              <Eyebrow tone="onDark">What it costs</Eyebrow>
+              <Eyebrow tone="onDark">How does AI trade</Eyebrow>
               <h2 className="display mt-3 text-4xl text-paper">
-                {rent} a month, flat.
+                It follows the system.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
-                Not a share of anything, so a losing month costs the same as
-                a good one. Deposit more and the server is included.
+                Fukyaa checks the market, looks for the right conditions and
+                manages the trade in your account.
               </p>
             </div>
           </div>
