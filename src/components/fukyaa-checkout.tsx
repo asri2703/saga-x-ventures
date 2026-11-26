@@ -26,11 +26,23 @@ import { createPortal } from "react-dom";
  * way and comes back with a page rather than a bill.
  */
 
+/** One of the steps that happen at the broker, before anything is paid. */
+export type CheckoutStep = {
+  key: string;
+  title: string;
+  body: string;
+  /** An external page this step sends them to, if it has one. */
+  href?: string;
+  cta?: string;
+};
+
 export type CheckoutPackage = {
   key: string;
   name: string;
   /** The rent, formatted, or null when there is nothing to pay. */
   price: string | null;
+  /** What to do at the broker first, in order. */
+  steps: CheckoutStep[];
 };
 
 type Props = {
@@ -43,7 +55,8 @@ type Props = {
    render, which would re-subscribe on every render. */
 const subscribeToNothing = () => () => {};
 
-const STEPS = ["Your details", "Your account", "Confirm"];
+/** The three this component owns. The broker's come before them. */
+const OWN = ["Your details", "Your account", "Confirm"];
 
 export function FukyaaCheckout({ pack, onClose }: Props) {
   const mounted = useSyncExternalStore(
@@ -53,6 +66,15 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
   );
 
   const [step, setStep] = useState(0);
+
+  /* One list, the broker's steps first. The whole journey is in one dialog
+     because it is one intention: a page-length section of steps with a
+     button at the end of it asked the reader to start again in a second
+     place. */
+  const steps = [...pack.steps.map((s) => s.title), ...OWN];
+  const last = steps.length - 1;
+  const own = step - pack.steps.length;
+  const brokerStep = own < 0 ? pack.steps[step] : null;
   const [details, setDetails] = useState({ name: "", email: "", phone: "" });
   const [login, setLogin] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -180,33 +202,47 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
           </button>
         </div>
 
-        {/* Where they are, and how far there is to go. Announced, because a
-            row of dots tells a screen reader nothing. */}
-        <ol className="step-rail" aria-label={`Step ${step + 1} of 3`}>
-          {STEPS.map((label, index) => (
-            <li
-              key={label}
-              className="step-rail-item"
-              data-state={
-                index === step ? "now" : index < step ? "done" : "later"
-              }
-            >
-              <span className="step-rail-dot" aria-hidden />
-              <span className="step-rail-label">{label}</span>
-            </li>
-          ))}
-        </ol>
+        {/* Where they are, and how far there is to go. Six dots and six
+            words do not fit across a dialog, so it is a bar and a sentence:
+            the sentence is what a screen reader needs anyway. */}
+        <div className="checkout-prog">
+          <div className="checkout-prog-bar" aria-hidden>
+            <span style={{ transform: `scaleX(${(step + 1) / steps.length})` }} />
+          </div>
+          <p className="checkout-prog-text" aria-live="polite">
+            Step {step + 1} of {steps.length} &middot; {steps[step]}
+          </p>
+        </div>
 
         <form
           className="checkout-body"
           onSubmit={(event) => {
             event.preventDefault();
-            if (step === 0 && detailsOk) setStep(1);
-            else if (step === 1 && loginOk) setStep(2);
-            else if (step === 2) void submit();
+            if (step === last) void submit();
+            else setStep(step + 1);
           }}
         >
-          {step === 0 ? (
+          {brokerStep ? (
+            <div>
+              <p className="checkout-label">{brokerStep.title}</p>
+              <p className="mt-2 leading-relaxed text-pine-soft">
+                {brokerStep.body}
+              </p>
+              {brokerStep.href && brokerStep.cta ? (
+                /* It opens in its own tab on purpose: the broker's pages are
+                   where the next ten minutes happen, and this dialog still
+                   holds what has been typed into it. */
+                <a
+                  href={brokerStep.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="checkout-out btn btn--ghost"
+                >
+                  {brokerStep.cta}
+                </a>
+              ) : null}
+            </div>
+          ) : own === 0 ? (
             <div>
               <p className="checkout-label">Your details</p>
               <div className="mt-2 grid gap-2">
@@ -256,7 +292,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
                 before the month ends.
               </p>
             </div>
-          ) : step === 1 ? (
+          ) : own === 1 ? (
             <div>
               <p className="checkout-label">Your MT5 account</p>
               <div className="mt-2 grid gap-2">
@@ -355,12 +391,10 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
               type="submit"
               className="btn btn--accent checkout-pay"
               disabled={
-                submitting ||
-                (step === 0 && !detailsOk) ||
-                (step === 1 && !loginOk)
+                submitting || (own === 0 && !detailsOk) || (own === 1 && !loginOk)
               }
             >
-              {step < 2
+              {step < last
                 ? "Next"
                 : submitting
                   ? free

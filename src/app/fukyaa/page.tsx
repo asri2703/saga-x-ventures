@@ -16,11 +16,8 @@ import {
   outcomes,
   performance,
 } from "@/lib/record-outcomes";
-import {
-  AutoTradeFlow,
-  type FlowPackage,
-  type FlowStep,
-} from "@/components/auto-trade-flow";
+import { FukyaaPlans, type PlanCard } from "@/components/fukyaa-plans";
+import type { CheckoutStep } from "@/components/fukyaa-checkout";
 import { FollowReplay } from "@/components/follow-replay";
 import { ProfitCalculator } from "@/components/profit-calculator";
 import { RecordChart } from "@/components/record-chart";
@@ -73,7 +70,7 @@ export const metadata: Metadata = {
  * Nothing on this page animates a balance.
  */
 
-const STEPS: FlowStep[] = [
+const STEPS: CheckoutStep[] = [
   {
     key: "account",
     title: "Open a cent account",
@@ -145,7 +142,16 @@ export default async function FukyaaPage() {
      The smaller package ends in a payment whose Billplz route is not built
      yet — the checkout resolves Mastery's terms only — so until it is, its
      last step is the arrangement that already works. */
-  const packages: FlowPackage[] = [
+  /* The broker's three, with the chosen package's deposit written into the
+     one that names a figure. They are the same words for both packages; only
+     the figure differs, which is why they are built here rather than twice. */
+  const stepsFor = (deposit: string): CheckoutStep[] =>
+    STEPS.map((step) => ({
+      ...step,
+      body: step.body.replace("{deposit}", deposit),
+    }));
+
+  const plans: PlanCard[] = [
     {
       key: included.key,
       name: included.name,
@@ -158,15 +164,15 @@ export default async function FukyaaPage() {
       ],
       cta: `Start with ${included.name}`,
       recommended: true,
-      finish: {
-        title: "Register",
-        body: "No rent to pay. Register, and I connect your account to the server. You get an email when it is running.",
-        cta: "Register",
-        href: "/go/fukyaa-register",
-        pay: canCheckout
-          ? { key: included.key, name: included.name, price: null }
-          : null,
-      },
+      href: "/go/fukyaa-register",
+      checkout: canCheckout
+        ? {
+            key: included.key,
+            name: included.name,
+            price: null,
+            steps: stepsFor(formatUsd(included.depositUsd)),
+          }
+        : null,
     },
     {
       key: rented.key,
@@ -180,15 +186,15 @@ export default async function FukyaaPage() {
       ],
       cta: `Start with ${rented.name}`,
       recommended: false,
-      finish: {
-        title: "Rent the server",
-        body: `${rent} pays for one month. Pay after your deposit has landed: the server has nothing to trade until it has, and nothing is taken from you before then.`,
-        cta: `Pay ${rent}`,
-        href: "/go/whatsapp?m=server",
-        pay: canCheckout
-          ? { key: rented.key, name: rented.name, price: rent }
-          : null,
-      },
+      href: "/go/whatsapp?m=server",
+      checkout: canCheckout
+        ? {
+            key: rented.key,
+            name: rented.name,
+            price: rent,
+            steps: stepsFor(formatUsd(rented.depositUsd)),
+          }
+        : null,
     },
   ];
 
@@ -504,10 +510,8 @@ export default async function FukyaaPage() {
           a package row sets the deposit figure and the last step. Two sets
           of steps, one per package, said almost everything twice.
       --------------------------------------------------------------- */}
-      <AutoTradeFlow
-        packages={packages}
-        steps={STEPS}
-        between={null}
+      <FukyaaPlans
+        plans={plans}
         heading={
           <div className="max-w-xl" data-reveal>
             <Eyebrow tone="quiet">Fukyaa plans</Eyebrow>

@@ -458,66 +458,6 @@
   color: var(--color-paper);
 }
 
-/* ---------------------------------------------------------------------------
-   The step rail in the AI Auto Trade checkout.
-
-   Three dots and three words, saying which step is open and how many are
-   left. It is a list because it is one, and the whole rail carries the
-   "Step 2 of 3" label: three dots announced one by one tell a screen reader
-   nothing a progress bar should say once.
---------------------------------------------------------------------------- */
-.step-rail {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem 0;
-}
-
-.step-rail-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-pine-faint);
-}
-
-/* The rule between one step and the next, drawn by the item rather than by
-   an element of its own. */
-.step-rail-item + .step-rail-item::before {
-  content: "";
-  width: 0.75rem;
-  height: 1px;
-  background: rgba(22, 58, 48, 0.2);
-}
-
-.step-rail-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
-  background: rgba(22, 58, 48, 0.2);
-}
-
-.step-rail-item[data-state="done"] .step-rail-dot {
-  background: var(--color-pine);
-}
-
-.step-rail-item[data-state="now"] {
-  color: var(--color-pine);
-}
-
-.step-rail-item[data-state="now"] .step-rail-dot {
-  background: var(--color-ruby);
-}
-
-/* The two steps that are not open keep their dot and lose their word on a
-   narrow card, where three labels and two rules do not fit across. */
-@media (max-width: 26rem) {
-  .step-rail-item[data-state="later"] .step-rail-label,
-  .step-rail-item[data-state="done"] .step-rail-label {
-    display: none;
-  }
-}
 
 /* ---------------------------------------------------------------------------
    The product switch
@@ -3293,313 +3233,61 @@ html.lenis {
     align-content: center;
   }
 }
-
 /* ---------------------------------------------------------------------------
-   The steps on /fukyaa.
+   The checkout's progress line.
 
-   A rail of four stops down the left and one step open beside it, with a
-   thin bar across the top. On a phone the rail lies flat and keeps only
-   its numbers: four words do not fit across 320px, and the open step
-   already says its own name.
-
-   The bar is scaled, not widened, and nothing changes size when it becomes
-   current, so pressing Next never moves the things around it.
+   Six steps is too many for a rail of dots and words across a dialog, so it
+   is a bar and a sentence. The sentence is what a screen reader needs in any
+   case, and it is polite rather than assertive: it changes when the reader
+   presses Next, which they already know they did.
 --------------------------------------------------------------------------- */
-.flow {
-  scroll-margin-top: 6rem;
+.checkout-prog {
+  padding: 0.85rem 1rem 0;
 }
 
-.flow-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem 1.5rem;
-}
-
-.flow-pack {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-pine-faint);
-}
-
-.flow-bar {
-  margin-block-start: 1.5rem;
-  height: 2px;
-  background: var(--color-rule-strong);
-}
-
-.flow-bar-fill {
-  height: 100%;
-  background: var(--color-pine);
-  transform-origin: left center;
-}
-
-.flow-body {
-  display: grid;
-  gap: 1.75rem;
-  margin-block-start: 1.75rem;
-}
-
-.flow-rail {
-  display: flex;
-  gap: 0.625rem;
-}
-
-.flow-stop {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border: 0;
-  background: transparent;
-  /* 44px to press, whatever the size of the number drawn inside it. */
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-pine-faint);
-  text-align: start;
-  cursor: pointer;
-  transition: color 180ms ease;
-}
-
-.flow-stop:hover,
-.flow-stop[aria-current="step"] {
-  color: var(--color-pine);
-}
-
-.flow-stop[aria-current="step"] {
-  font-weight: 700;
-}
-
-.flow-n {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 2rem;
-  height: 2rem;
+.checkout-prog-bar {
+  height: 3px;
   border-radius: 999px;
-  border: 1.5px solid var(--color-rule-strong);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease;
-}
-
-.flow-stop[aria-current="step"] .flow-n {
-  border-color: var(--color-pine);
-  background: var(--color-pine);
-  color: var(--color-paper);
-}
-
-.flow-stop[data-done] .flow-n {
-  border-color: var(--color-pine);
-  background: var(--color-sage);
-  color: var(--color-pine);
-}
-
-/* On a phone the stop is its number alone. The title stays in the
-   accessibility tree, so a screen reader still hears which step it is. */
-.flow-title {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+  background: var(--color-paper-sunk);
   overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
-.flow-pane {
-  min-height: 15rem;
-  display: flex;
-  flex-direction: column;
+.checkout-prog-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-ruby);
+  transform-origin: left center;
+  transition: transform 260ms var(--ease-out-ui);
 }
 
-.flow-count {
-  font-size: 0.8125rem;
+.checkout-prog-text {
+  margin-block-start: 0.5rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-pine-faint);
-  margin-block-end: 0.5rem;
 }
 
-.flow-text {
-  margin-block-start: 0.875rem;
-  max-width: 34rem;
-  font-size: 1.0625rem;
-  line-height: 1.6;
-  color: var(--color-pine-soft);
-}
-
-.flow-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.875rem;
-  margin-block-start: 1.75rem;
-}
-
-.flow-tick {
+/* The broker's own page, opened from inside the dialog. An outline rather
+   than a filled button: the filled one at the foot is the way forward, and
+   two solid buttons in one card ask which is the real one. */
+.checkout-out {
   display: inline-flex;
   align-items: center;
-  gap: 0.625rem;
-  border: 0;
-  background: transparent;
-  padding: 0.75rem 0.25rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-pine);
-  cursor: pointer;
-}
-
-.flow-tick-box {
-  display: grid;
-  place-items: center;
-  width: 1.375rem;
-  height: 1.375rem;
-  border-radius: 0.375rem;
-  border: 1.5px solid var(--color-pine);
-  transition:
-    background-color 160ms ease,
-    transform 160ms var(--ease-out-ui);
-}
-
-.flow-tick[aria-pressed="true"] .flow-tick-box {
-  background: var(--color-pine);
-  color: var(--color-paper);
-}
-
-.flow-tick:active .flow-tick-box {
-  transform: scale(0.92);
-}
-
-.flow-locked {
-  margin-block-start: 1.75rem;
-  padding-inline-start: 1rem;
-  border-inline-start: 2px solid var(--color-ruby);
-}
-
-.flow-locked > p {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--color-pine);
-}
-
-.flow-locked > ul {
-  display: grid;
-  gap: 0.25rem;
-  margin-block-start: 0.5rem;
-}
-
-.flow-locked button {
-  border: 0;
-  background: none;
-  padding: 0.25rem 0;
-  font-size: 1rem;
-  color: var(--color-pine);
-  text-decoration: underline;
-  text-decoration-color: var(--color-rule-strong);
-  text-underline-offset: 4px;
-  cursor: pointer;
-  text-align: start;
-}
-
-.flow-locked button:hover {
-  text-decoration-color: var(--color-pine);
-}
-
-.flow-nav {
-  display: flex;
-  gap: 0.75rem;
-  margin-block-start: auto;
-  padding-block-start: 2rem;
-}
-
-.flow-move {
+  justify-content: center;
+  margin-block-start: 1rem;
   border-radius: 999px;
-  border: 1px solid var(--color-rule-strong);
-  background: transparent;
-  padding: 0.6875rem 1.625rem;
-  font-size: 0.9375rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-pine);
-  cursor: pointer;
-  transition:
-    background-color 180ms ease,
-    opacity 180ms ease,
-    transform 160ms var(--ease-out-ui);
 }
 
-.flow-move:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.flow-move:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.flow-move--on {
-  border-color: var(--color-pine);
-  background: var(--color-pine);
-  color: var(--color-paper);
-}
-
-@media (hover: hover) {
-  .flow-move:hover:not(:disabled) {
-    background: var(--color-paper-sunk);
-  }
-
-  .flow-move--on:hover:not(:disabled) {
-    background: var(--color-pine-deep);
+@media (prefers-reduced-motion: reduce) {
+  .checkout-prog-bar span {
+    transition: none;
   }
 }
 
-@media (min-width: 52rem) {
-  .flow-body {
-    grid-template-columns: 17rem minmax(0, 1fr);
-    gap: 3rem;
-    margin-block-start: 2.5rem;
-  }
-
-  .flow-rail {
-    flex-direction: column;
-    gap: 0.875rem;
-  }
-
-  .flow-title {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-  }
-
-  .flow-count {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .flow-bar-fill {
-    transition: transform 300ms var(--ease-out-ui);
-  }
-
-  /* The step arriving. Short, and a few pixels only: it says the content
-     changed without making the reader wait for it. */
-  .flow-pane {
-    animation: flow-in 220ms var(--ease-out-ui);
-  }
-}
-
-@keyframes flow-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
 /* ---------------------------------------------------------------------------
    Why use AI Auto Trade, on /fukyaa.
 
