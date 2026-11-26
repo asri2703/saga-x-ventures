@@ -78,15 +78,14 @@ const STEPS: CheckoutStep[] = [
     href: "/go/broker-cent",
     cta: "Open a cent account",
   },
-  {
-    key: "verify",
-    title: "Verify it",
-    body: "Upload your ID or passport. The broker has to approve it before you can deposit.",
-  },
+  /* Verifying used to be a step of its own. The owner took it out: the
+     broker will not release a deposit until the account is verified, so the
+     next step cannot be reached without it, and a step nobody can skip does
+     not need to be a step. */
   {
     key: "deposit",
     title: "Deposit",
-    body: "At least {deposit}, into your own account. You can withdraw it yourself.",
+    body: "Deposit {deposit} into your trading account, using any payment method your broker offers.",
   },
 ];
 
@@ -162,7 +161,7 @@ export default async function FukyaaPage() {
         "Server included",
         "No monthly server rental",
       ],
-      cta: `Start with ${included.name}`,
+      cta: "Premium",
       recommended: true,
       href: "/go/fukyaa-register",
       checkout: canCheckout
@@ -185,7 +184,7 @@ export default async function FukyaaPage() {
         `${rent} monthly server rental`,
         "Check your trades through your broker",
       ],
-      cta: `Start with ${rented.name}`,
+      cta: "Standard",
       recommended: false,
       href: "/go/whatsapp?m=server",
       checkout: canCheckout

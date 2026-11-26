@@ -57,8 +57,16 @@ type Props = {
    render, which would re-subscribe on every render. */
 const subscribeToNothing = () => () => {};
 
-/** The three this component owns. The broker's come before them. */
-const OWN = ["Your details", "Your account", "Confirm"];
+/**
+ * The two this component owns. The broker's come before them.
+ *
+ * There used to be a third, "What happens next", carrying the sentence that
+ * is now under the account field. The owner took it out: a screen whose only
+ * job is to say "press the button below" is a press nobody needed to make.
+ * The submit lives on the last field instead, which is where the reader
+ * already is when they have nothing left to type.
+ */
+const OWN = ["Your details", "Your account"];
 
 export function FukyaaCheckout({ pack, onClose }: Props) {
   const mounted = useSyncExternalStore(
@@ -287,12 +295,8 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
                   }
                 />
               </div>
-              <p className="mt-2 text-xs leading-relaxed text-pine-faint">
-                The email is where the confirmation goes, and the reminder
-                before the month ends.
-              </p>
             </div>
-          ) : own === 1 ? (
+          ) : (
             <div>
               <h3 className="checkout-step-title">Your MT5 account</h3>
               <div className="mt-2 grid gap-2">
@@ -309,21 +313,23 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
                   onChange={(event) => setLogin(event.target.value)}
                 />
               </div>
-              <p className="mt-2 text-xs leading-relaxed text-pine-faint">
-                The login number of the account the robot will trade. It is
-                in your broker&rsquo;s email and at the top of MT5. Never
-                send me the password &mdash; I do not need it and I will not
-                ask for it.
+
+              <p className="mt-3 leading-relaxed text-pine-soft">
+                We will get back to you soon. If you have any questions,{" "}
+                <a
+                  href="/go/whatsapp?m=server"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  please contact us
+                </a>
+                .
               </p>
-            </div>
-          ) : (
-            <div>
-              <h3 className="checkout-step-title">What happens next</h3>
-              <p className="mt-2 leading-relaxed text-pine-soft">
-                {free
-                  ? "Nothing to pay: the server comes with this deposit. I connect your account to it by hand and email you when it is running."
-                  : "This pays for one month of the server. I connect your account to it by hand and email you when it is running."}
-              </p>
+
+              {/* The last thing before the money, on the package that takes
+                  any. It stays wherever the pay button goes: what the rent
+                  does and does not buy is not a detail to meet afterwards. */}
               {free ? null : (
                 <p className="mt-3 text-xs leading-relaxed text-pine-faint">
                   One month, not a subscription. Nothing renews on its own:
