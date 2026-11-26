@@ -34,29 +34,28 @@ import { useId, useState } from "react";
 /* One viewBox for all four, so the line weights match across the set. */
 const BOX = "0 0 240 130";
 
-/** Many instruments at once, and the one the scan has flagged. */
-const artScan = (
+/** The order placed by the machine, with nobody's hand on it. */
+const artOrder = (
   <svg viewBox={BOX} className="why-art" aria-hidden>
-    {/* Five instruments, each a row of its own. */}
-    {[22, 44, 66, 88, 110].map((y, n) => (
-      <line
-        key={y}
-        x1="16"
-        x2={176 - n * 6}
-        y1={y}
-        y2={y}
-        className="why-faint-line"
-      />
+    {/* The server, where the rules run. */}
+    <rect x="14" y="36" width="56" height="60" rx="8" className="why-line" />
+    {[52, 66, 80].map((y) => (
+      <g key={y}>
+        <circle cx="26" cy={y} r="3" className="why-fill" />
+        <line x1="36" x2="58" y1={y} y2={y} className="why-faint-line" />
+      </g>
     ))}
-    {/* The sweep across them. */}
-    <line x1="150" x2="150" y1="12" y2="120" className="why-rule" />
-    <path
-      d="M16 66c22 0 26-26 44-26s20 34 40 34 16-18 34-18"
-      className="why-line"
-    />
-    {/* The one it stopped on. */}
-    <circle cx="190" cy="66" r="13" className="why-line" />
-    <path d="M199 75l14 14" className="why-line" />
+
+    {/* It reaches the ticket itself. No cursor, because nobody moves one. */}
+    <path d="M78 66h30" className="why-line" strokeDasharray="4 6" />
+    <path d="M100 59l9 7-9 7" className="why-line" />
+
+    {/* The order ticket: a size, and the two sides of a trade. */}
+    <rect x="118" y="24" width="108" height="84" rx="9" className="why-line" />
+    <line x1="118" x2="226" y1="44" y2="44" className="why-faint-line" />
+    <rect x="130" y="56" width="44" height="10" rx="5" className="why-faint" />
+    <rect x="130" y="80" width="40" height="16" rx="8" className="why-fill" />
+    <rect x="178" y="80" width="36" height="16" rx="8" className="why-faint" />
   </svg>
 );
 
@@ -105,62 +104,52 @@ const artAlert = (
   </svg>
 );
 
-/** The idea run over what already happened, before it is run on money. */
-const artTest = (
+/** The account: in the reader's name, and open to them to look at. */
+const artOwn = (
   <svg viewBox={BOX} className="why-art" aria-hidden>
-    {/* History: what the market did, drawn solid. */}
-    <path
-      d="M16 96c20 0 24-22 42-22s22 26 40 26 20-34 38-34"
-      className="why-line"
-    />
-    {/* The idea, run back over it. */}
-    <path
-      d="M16 104c20 0 24-16 42-16s22 20 40 20 20-26 38-26"
-      className="why-faint-line"
-      strokeDasharray="5 6"
-    />
-    {/* Where the record ends and real money would begin. */}
-    <line x1="150" x2="150" y1="16" y2="118" className="why-rule" />
-    <path d="M160 70h50" className="why-faint-line" strokeDasharray="4 6" />
-    <line x1="16" x2="226" y1="118" y2="118" className="why-rule" />
-    {/* Dates behind it, as ticks rather than numbers. */}
-    {[0, 1, 2, 3, 4].map((n) => (
-      <line
-        key={n}
-        x1={28 + n * 28}
-        x2={28 + n * 28}
-        y1="114"
-        y2="122"
-        className="why-faint-line"
-      />
-    ))}
+    {/* The terminal, with the account's own name on it. */}
+    <rect x="14" y="26" width="132" height="82" rx="9" className="why-line" />
+    <line x1="14" x2="146" y1="48" y2="48" className="why-faint-line" />
+    <circle cx="130" cy="37" r="5" className="why-fill" />
+    <rect x="28" y="62" width="54" height="8" rx="4" className="why-faint" />
+    <rect x="28" y="80" width="80" height="8" rx="4" className="why-faint" />
+
+    {/* The owner, watching it. The drawing ends on a person rather than on
+        an arrow into empty space: what this reason says is whose account it
+        is, and an account belongs to somebody. */}
+    <circle cx="196" cy="48" r="13" className="why-line" />
+    <path d="M172 100a24 24 0 0 1 48 0" className="why-line" />
+
+    {/* Looking at it, from their own side. */}
+    <path d="M176 62h-22" className="why-faint-line" strokeDasharray="4 5" />
+    <path d="M161 57l-7 5 7 5" className="why-faint-line" />
   </svg>
 );
 
 const REASONS = [
   {
-    key: "scan",
-    title: "Scan markets faster",
-    body: "It reads prices, volume and market data across many instruments at once, and flags patterns you would miss checking charts one by one.",
-    art: artScan,
-  },
-  {
-    key: "rules",
-    title: "Stick to the rules",
-    body: "Every setup is held against the same entry and risk rules. No chasing a move, and no trade taken because the screen was exciting.",
-    art: artRules,
-  },
-  {
     key: "time",
-    title: "Spend less time watching charts",
-    body: "The routine checks run without you. You hear about a setup when the conditions are met, not by sitting in front of it all evening.",
+    title: "Less time on the chart",
+    body: "Fukyaa handles the trading through the system, so you are not sitting in front of the screen all day.",
     art: artAlert,
   },
   {
-    key: "test",
-    title: "Test ideas before trading live",
-    body: "Rules can be run over years of history first, to see how they would have behaved in different markets, before any real money is at risk.",
-    art: artTest,
+    key: "rules",
+    title: "Trades follow the system",
+    body: "It follows the rules built into the system, not a decision made in a hurry at the moment the chart moves.",
+    art: artRules,
+  },
+  {
+    key: "orders",
+    title: "No orders to place yourself",
+    body: "Once it is connected to your broker account, Fukyaa places and closes the trades. There is nothing for you to click.",
+    art: artOrder,
+  },
+  {
+    key: "yours",
+    title: "The account stays yours",
+    body: "It trades on your own broker account, opened in your name. You can watch everything it does from your side, and the money is never mine to touch.",
+    art: artOwn,
   },
 ];
 
