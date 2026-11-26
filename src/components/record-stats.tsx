@@ -1,7 +1,8 @@
 import { type RecordFunding, type RecordSummary, usd } from "@/lib/record";
+import type { Performance } from "@/lib/record-outcomes";
 
 /**
- * The four figures above the chart.
+ * The figures above the chart.
  *
  * Deposits, withdrawals and trading are kept apart on purpose. A balance
  * that rose from a deposit and one that rose from trading draw the same
@@ -12,17 +13,25 @@ import { type RecordFunding, type RecordSummary, usd } from "@/lib/record";
  * account that has paid out more than it took in has a negative net, which
  * is a good fact that reads as a fault when printed as one number.
  *
+ * Return and deepest fall join them because the absolute figures alone
+ * cannot be compared between accounts funded a hundredfold apart, and
+ * because a page that prints a return and not a drawdown has shown a reader
+ * one side of a strategy that has twice lost a quarter of an account in a
+ * day. The two travel together or neither is honest.
+ *
  * Server-rendered: every figure is computed from the deal history at render.
  */
 export function RecordStats({
   summary,
   funding,
   divisor,
+  performance,
 }: {
   summary: RecordSummary;
   funding: RecordFunding;
   /** Account units per dollar: 100 for a cent account, 1 otherwise. */
   divisor: number;
+  performance: Performance | null;
 }) {
   const since = new Date(`${summary.since}T00:00:00Z`).toLocaleDateString(
     "en-GB",
@@ -35,6 +44,17 @@ export function RecordStats({
       : summary.trading < 0
         ? "record-stat-value--down"
         : "";
+
+  /* A ratio as a signed percentage. The minus is U+2212, to match `usd()`.
+     Zero takes no sign: "Deepest fall +0.0%" reads as a gain of nothing,
+     which is not what an account that has never fallen did. */
+  const pct = (ratio: number) => {
+    const body = `${(Math.abs(ratio) * 100).toFixed(1)}%`;
+    if (Math.abs(ratio) < 0.00005) return body;
+    return `${ratio < 0 ? "−" : "+"}${body}`;
+  };
+
+  const recovery = performance?.recovery;
 
   const stats = [
     {
@@ -65,6 +85,36 @@ export function RecordStats({
       sub: null,
       tone,
     },
+    ...(performance
+      ? [
+          {
+            label: "Return",
+            value: pct(performance.returnPct),
+            unit: null,
+            sub: null,
+            tone:
+              performance.returnPct > 0
+                ? "record-stat-value--up"
+                : performance.returnPct < 0
+                  ? "record-stat-value--down"
+                  : "",
+          },
+          {
+            label: "Deepest fall",
+            value: pct(performance.deepest),
+            unit: null,
+            /* Two readings from one field. An account below its peak says
+               how far; one that climbed back says how long it took. */
+            sub:
+              recovery?.kind === "recovered"
+                ? `recovered in ${recovery.days} day${recovery.days === 1 ? "" : "s"}`
+                : recovery?.kind === "open"
+                  ? `now ${pct(recovery.fromPeak)} from peak`
+                  : null,
+            tone: performance.deepest < 0 ? "record-stat-value--down" : "",
+          },
+        ]
+      : []),
   ];
 
   return (

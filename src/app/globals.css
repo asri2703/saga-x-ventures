@@ -2000,12 +2000,25 @@ html.lenis {
 }
 
 /* One tab per account, the same width as the cards below them. */
+/* One row, always.
+   This was `repeat(auto-fit, minmax(9.5rem, 1fr))`, which fits as many
+   columns as the width allows — and at the widths this card actually gets,
+   that was two. The third account dropped onto a row of its own and sat
+   there half-width beside empty space, which read as a mistake rather than
+   a layout. `auto-fit` is right when the number of items is unknown; here it
+   is at most three, so the count is stated instead of discovered. */
 .record-tabs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.5rem;
   max-width: 44rem;
   margin-inline: auto;
+}
+
+@media (min-width: 40rem) {
+  .record-tabs {
+    grid-template-columns: repeat(var(--record-tab-count, 3), minmax(0, 1fr));
+  }
 }
 
 .record-tab {
@@ -2057,20 +2070,18 @@ html.lenis {
   color: var(--color-ruby);
 }
 
+/* The return, under the dollar figure and smaller than it: it is the line
+   that can be compared across accounts, but the dollars are what the
+   account actually did. */
+.record-tab-return {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
 .record-tab-since {
   font-size: 0.75rem;
   color: rgba(242, 233, 216, 0.55);
 }
-
-.record-tab-badge {
-  margin-block-start: 0.25rem;
-  border-radius: 9999px;
-  background: rgba(78, 242, 163, 0.14);
-  padding: 0.0625rem 0.5rem;
-  font-size: 0.6875rem;
-  color: var(--color-neon);
-}
-
 .record-stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2127,6 +2138,135 @@ html.lenis {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+/* The dropdown.
+   Adapted from the `@uselayouts/smooth-dropdown` block. The panel is
+   absolutely positioned so opening it does not push the calendar down, and
+   it is given a stacking context of its own so it lands over the grid
+   rather than behind it. */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  z-index: 2;
+}
+
+.dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: transparent;
+  padding: 0.2rem 0.5rem;
+  margin-inline-start: -0.5rem;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--ease-out-ui),
+    border-color 200ms var(--ease-out-ui);
+}
+
+.dropdown-trigger:hover {
+  background: rgba(22, 58, 48, 0.06);
+  border-color: var(--color-rule);
+}
+
+.dropdown-trigger:focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: 1px;
+}
+
+.dropdown-caret {
+  display: inline-block;
+  font-size: 0.7rem;
+  opacity: 0.55;
+}
+
+.dropdown-list {
+  position: absolute;
+  inset-block-start: calc(100% + 0.35rem);
+  inset-inline-start: -0.5rem;
+  min-width: 11rem;
+  /* `height: auto` is what motion animates to, so the list cannot be
+     allowed to lay itself out any other way while closed. */
+  overflow: hidden;
+  border-radius: var(--radius-float);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
+  box-shadow: 0 18px 40px -18px rgba(16, 42, 35, 0.45);
+  padding: 0.25rem;
+  list-style: none;
+}
+
+.dropdown-option {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  font-weight: 500;
+  text-align: start;
+  color: var(--color-pine);
+  cursor: pointer;
+}
+
+.dropdown-option[data-focused] {
+  background: var(--color-sage);
+}
+
+.dropdown-option[aria-selected="true"] {
+  font-weight: 700;
+}
+
+.dropdown-option:focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: -2px;
+}
+
+/* On the dark band.
+   The panel's own colours have to be stated here rather than inherited: the
+   `[data-tone="pine"] .record` block retargets `--color-paper-raised` and
+   the rest of the paper tokens to dark values, so a list that asked for
+   "raised paper" came out the same green as the card it floats over and the
+   highlight came out solid neon. A floating panel has to read as a separate
+   surface, so it names its own. */
+.dropdown--dark .dropdown-trigger:hover {
+  background: rgba(242, 233, 216, 0.08);
+  border-color: rgba(242, 233, 216, 0.2);
+}
+
+.dropdown--dark .dropdown-trigger:focus-visible {
+  outline-color: var(--color-neon);
+}
+
+.dropdown--dark .dropdown-list {
+  background: #0b1f19;
+  border-color: rgba(242, 233, 216, 0.16);
+  box-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.7);
+}
+
+.dropdown--dark .dropdown-option {
+  color: rgba(242, 233, 216, 0.82);
+}
+
+/* A tint, not a fill. The chosen month is already in the trigger above; the
+   list only has to show where the pointer is. */
+.dropdown--dark .dropdown-option[data-focused] {
+  background: rgba(78, 242, 163, 0.14);
+  color: var(--color-paper);
+}
+
+.dropdown--dark .dropdown-option[aria-selected="true"] {
+  color: var(--color-neon);
+}
+
+.dropdown--dark .dropdown-option:focus-visible {
+  outline-color: var(--color-neon);
 }
 
 .record-calendar-legend {
@@ -2335,4 +2475,256 @@ html.lenis {
   .btn::before {
     transition: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   The calculator
+   ---------------------------------------------------------------------------
+   One panel. The question sits on a pine block at the top, the six figures
+   in boxes under it, and the deposit takes the whole first row with the only
+   fill on the card — it is the answer, the rest describe living with it.
+
+   Boxes rather than rows, following the owner's reference: a row of label
+   and figure reads as a table to be scanned, a box reads as a fact.
+--------------------------------------------------------------------------- */
+.calc {
+  max-width: 46rem;
+  margin-inline: auto;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-raised);
+  padding: clamp(0.75rem, 0.4rem + 1.6vw, 1.25rem);
+}
+
+.calc-ask {
+  border-radius: var(--radius-float);
+  background: var(--color-pine);
+  color: var(--color-paper);
+  padding: clamp(1rem, 0.7rem + 1.4vw, 1.25rem);
+}
+
+.calc-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(242, 233, 216, 0.6);
+}
+
+/* The goal itself, large, above the slider that sets it. */
+.calc-goal {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-block-start: 0.4rem;
+  font-size: clamp(2rem, 1.4rem + 3vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--color-paper);
+}
+
+.calc-currency {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(242, 233, 216, 0.55);
+}
+
+/* The slider.
+   ---------------------------------------------------------------------
+   A native range input, painted. The track is drawn on the element and
+   the handle on the pseudo-elements each engine provides, which have to be
+   written out twice because `::-webkit-slider-thumb` and
+   `::-moz-range-thumb` cannot be put in one selector list — one unknown
+   selector voids the whole rule. */
+.calc-slider {
+  appearance: none;
+  width: 100%;
+  /* The element has to be as tall as the handle or the handle is clipped to
+     the track: a bare range input is only as tall as its track, and a 36px
+     thumb on an 8px box loses its top and bottom. */
+  height: 2.25rem;
+  margin-block-start: 0.6rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.calc-slider:focus {
+  outline: none;
+}
+
+.calc-slider::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(242, 233, 216, 0.16);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.calc-slider::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(242, 233, 216, 0.16);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* The handle, raised.
+   Three layers make it read as an object rather than a circle: a gradient
+   from light at the top to dark at the bottom, so it is lit from above; an
+   inset highlight along its top edge; and a cast shadow beneath it. 2.25rem
+   across, which clears the 44px touch target this site holds itself to. */
+.calc-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-block-start: -0.875rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8dffc8 0%, var(--color-neon) 48%, #22c47c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.28),
+    0 6px 12px -2px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 150ms var(--ease-out-ui),
+    box-shadow 150ms var(--ease-out-ui);
+}
+
+.calc-slider::-moz-range-thumb {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8dffc8 0%, var(--color-neon) 48%, #22c47c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.28),
+    0 6px 12px -2px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 150ms var(--ease-out-ui),
+    box-shadow 150ms var(--ease-out-ui);
+}
+
+/* Pressed: it sinks. The cast shadow shortens and the inner shading
+   deepens, which is what a real button does under a thumb. */
+.calc-slider:active::-webkit-slider-thumb {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 6px rgba(0, 0, 0, 0.4),
+    0 2px 5px -1px rgba(0, 0, 0, 0.5);
+}
+
+.calc-slider:active::-moz-range-thumb {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 6px rgba(0, 0, 0, 0.4),
+    0 2px 5px -1px rgba(0, 0, 0, 0.5);
+}
+
+.calc-slider:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 3px;
+}
+
+.calc-slider:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calc-slider::-webkit-slider-thumb,
+  .calc-slider::-moz-range-thumb {
+    transition: none;
+  }
+}
+
+.calc-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-block-start: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(242, 233, 216, 0.5);
+}
+
+/* Two columns from the narrowest phone up.
+   One column made the card as tall as the screen on a phone, and the owner's
+   readers are mostly on phones: five stacked boxes meant the last of them
+   was three scrolls below the slider that changes it. Two columns halve
+   that, and the boxes hold figures short enough to take the width. */
+.calc-boxes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-block-start: 0.5rem;
+}
+
+/* The deposit spans the row above the rest, at every width. */
+.calc-box--lead {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 52rem) {
+  .calc-boxes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.calc-box {
+  border-radius: var(--radius-float);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper);
+  padding: clamp(0.65rem, 0.45rem + 0.9vw, 0.9rem)
+    clamp(0.7rem, 0.5rem + 0.9vw, 1rem);
+}
+
+.calc-box dt {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-pine-faint);
+}
+
+.calc-box dd {
+  margin-block-start: 0.3rem;
+  font-size: clamp(1.125rem, 0.95rem + 0.9vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--color-pine);
+}
+
+.calc-box-sub {
+  margin-block-start: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--color-pine-faint);
+}
+
+/* The answer: the only filled box on the panel. */
+.calc-box--lead {
+  background: var(--color-neon);
+  border-color: var(--color-neon);
+}
+
+.calc-box--lead dt {
+  color: rgba(16, 42, 35, 0.65);
+}
+
+.calc-box--lead dd {
+  font-size: clamp(1.875rem, 1.3rem + 2.9vw, 2.5rem);
+  color: var(--color-pine);
+}
+
+/* The one box that can show a loss, and the only red on the panel. */
+.calc-box--down dd {
+  color: var(--color-ruby-deep);
+}
+
+.calc-none {
+  margin-block-start: 1rem;
+  color: var(--color-pine-faint);
 }

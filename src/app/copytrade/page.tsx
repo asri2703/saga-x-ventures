@@ -13,11 +13,18 @@ import {
   lastReportAt,
   recordDays,
   recordFunding,
+  recordLots,
   summarise,
   todayInMalaysia,
   usd,
 } from "@/lib/record";
 import { divisorFor, recordAccounts } from "@/lib/record-accounts";
+import {
+  lotsPerDayPer1000,
+  outcomes,
+  performance,
+} from "@/lib/record-outcomes";
+import { ProfitCalculator } from "@/components/profit-calculator";
 import { RecordPanel } from "@/components/record-panel";
 import { RecordTabs } from "@/components/record-tabs";
 import { Container, Section } from "@/components/ui";
@@ -176,15 +183,38 @@ export default async function CopytradePage() {
   // Every configured account, master first, read in parallel.
   const records = await Promise.all(
     recordAccounts().map(async (account) => {
-      const [days, funding, lastAt] = await Promise.all([
+      const [days, funding, lastAt, lots] = await Promise.all([
         recordDays(account.login),
         recordFunding(account.login),
         lastReportAt(account.login),
+        recordLots(account.login),
       ]);
-      return { account, days, funding, lastAt };
+      return { account, days, funding, lastAt, lots };
     }),
   );
   const today = todayInMalaysia();
+
+  /* The calculator runs on the longest record we have, not on the master.
+     A stretch is thirty trading days and the master has nine, so the master
+     cannot supply a single one; the account that can is the one that has
+     been running longest. They are the same EA on the same settings, which
+     is what makes that substitution honest — and the longest record is also
+     the only one that contains a losing stretch, which is the half of the
+     answer a buyer most needs. */
+  const longest = records.reduce<(typeof records)[number] | null>(
+    (best, record) =>
+      best === null || record.days.length > best.days.length ? record : best,
+    null,
+  );
+  const spread = longest ? outcomes(longest.days) : null;
+  const longestPerf = longest ? performance(longest.days) : null;
+  const longestLots = longest
+    ? lotsPerDayPer1000(
+        longest.days,
+        longest.lots,
+        divisorFor(longest.account.unit),
+      )
+    : null;
 
   return (
     <>
@@ -372,8 +402,9 @@ export default async function CopytradePage() {
               Trading performance
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">
-              The data below shows our daily trading performance. Watch our
-              trading account grow daily.
+              Straight from our MT5 terminals, updated every hour. Every
+              figure here is the account&rsquo;s own &mdash; the bad days
+              included.
             </p>
           </div>
 
@@ -385,17 +416,30 @@ export default async function CopytradePage() {
                 tabs={records.map(({ account, days, funding, lastAt }) => {
                   const summary = summarise(days);
                   const trading = summary?.trading ?? 0;
+                  const perf = performance(days);
+                  const pct = (r: number) =>
+                    `${r < 0 ? "−" : "+"}${(Math.abs(r) * 100).toFixed(1)}%`;
                   return {
                     key: account.key,
                     label: account.label,
                     result: `${usd(trading, true, divisorFor(account.unit))} USD`,
                     tone: trading > 0 ? "up" : trading < 0 ? "down" : "flat",
+                    /* The return gets its own sign, not the dollar figure's.
+                       They can disagree: a gain on a large base and a loss
+                       on a small one are the same account. */
+                    returnPct: perf ? pct(perf.returnPct) : undefined,
+                    returnTone: perf
+                      ? perf.returnPct > 0
+                        ? ("up" as const)
+                        : perf.returnPct < 0
+                          ? ("down" as const)
+                          : ("flat" as const)
+                      : undefined,
                     // Read from the record itself, so three masters from
                     // three different months tell themselves apart.
                     since: summary
                       ? `Since ${new Date(`${summary.since}T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}`
                       : undefined,
-                    badge: account.badge,
                     panel: (
                       <RecordPanel
                         account={account}
@@ -429,7 +473,45 @@ export default async function CopytradePage() {
       </Section>
 
       {/* ---------------------------------------------------------------
-          6. How to start.
+          6. What it would take.
+
+          Sits between the record and the steps on purpose: a reader who has
+          just seen the figures asks "what would that mean for me", and the
+          next thing they are shown is how to start. Putting it after the
+          steps would answer the question once they had stopped asking it.
+
+          The whole section is omitted when the record is too short to hold
+          a single thirty-day stretch — see `record-outcomes.ts`. A
+          calculator with nothing behind it is worse than no calculator.
+      --------------------------------------------------------------- */}
+      {spread && longest && longestPerf ? (
+        <Section id="calculator">
+          <Container>
+            <div className="mx-auto max-w-xl text-center" data-reveal>
+              <Eyebrow tone="quiet">Trading calculator</Eyebrow>
+              <h2 className="display mt-3 text-4xl text-pine">
+                Plan with what you want.
+              </h2>
+              <p className="mt-5 leading-relaxed text-pine-soft">
+                Set a monthly target and see the deposit behind it, worked
+                from our own record.
+              </p>
+            </div>
+
+            <div className="mt-10" data-reveal>
+              <ProfitCalculator
+                outcomes={spread}
+                deepest={longestPerf.deepest}
+                recovery={longestPerf.recovery}
+                lots={longestLots}
+              />
+            </div>
+          </Container>
+        </Section>
+      ) : null}
+
+      {/* ---------------------------------------------------------------
+          7. How to start.
 
           The track, then the walkthrough under it. The order is the owner's
           and it is the right way round: the steps are what a reader came for

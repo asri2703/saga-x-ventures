@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import type { CSSProperties, MouseEvent, ReactNode } from "react";
+import type { PointerEvent } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { RecordPoint } from "@/lib/record";
 
 /**
@@ -125,7 +126,16 @@ export function RecordChart({
     `${new Intl.NumberFormat("en-MY").format(value)} ${secondaryUnit}`;
 
   const plot = useRef<HTMLDivElement>(null);
-  const [at, setAt] = useState(Math.max(0, points.length - 1));
+  /* Null until the reader reaches for it.
+     ---------------------------------------------------------------
+     This used to start on the last point, which did two things nobody
+     asked for: the tooltip was open before anyone touched the chart, and
+     it sat at the right-hand edge — exactly where `.record-scale` writes
+     its gridline values — so the figures it covered were the scale's. One
+     cause, both complaints.
+     Nothing is lost by starting empty: what that tooltip showed was the
+     latest balance, which is already in large type directly above. */
+  const [at, setAt] = useState<number | null>(null);
   const [boxWidth, setBoxWidth] = useState(VIEW_W);
   const ids = useId();
 
@@ -201,14 +211,23 @@ export function RecordChart({
     );
   }
 
-  const active = plotted[Math.min(at, plotted.length - 1)];
   const latest = plotted[plotted.length - 1];
-  const xPct = active.x / VIEW_W;
+  const active = at === null ? null : plotted[Math.min(at, plotted.length - 1)];
+  const xPct = active ? active.x / VIEW_W : 0;
   const cursorX = xPct * boxWidth;
-  const cursorY = (active.y / VIEW_H) * ((boxWidth * VIEW_H) / VIEW_W);
+  const cursorY = active
+    ? (active.y / VIEW_H) * ((boxWidth * VIEW_H) / VIEW_W)
+    : 0;
   const leftward = xPct > 0.55;
 
-  function onMove(event: MouseEvent<HTMLDivElement>) {
+  /* `pointer`, not `mouse`.
+     The chart answered `onMouseMove` alone, so on a phone there was no way
+     to read a value at all — the always-on cursor WAS the mobile story, and
+     removing it without this would have left phone readers with nothing.
+     One pointer handler serves a mouse, a finger and a stylus. `.record-plot`
+     already sets `touch-action: none`, so a drag along the chart reads it
+     instead of scrolling the page. */
+  function onPoint(event: PointerEvent<HTMLDivElement>) {
     const node = plot.current;
     if (!node) return;
     const box = node.getBoundingClientRect();
@@ -239,8 +258,20 @@ export function RecordChart({
 
       <div
         ref={plot}
-        onMouseMove={onMove}
-        onMouseLeave={() => setAt(plotted.length - 1)}
+        onPointerDown={onPoint}
+        onPointerMove={(event) => {
+          /* A finger only reports while it is down; a mouse reports always.
+             `event.pressure` cannot tell them apart reliably, but
+             `pointerType` can. */
+          if (event.pointerType === "mouse" || event.buttons > 0) {
+            onPoint(event);
+          }
+        }}
+        onPointerLeave={() => setAt(null)}
+        onPointerCancel={() => setAt(null)}
+        onPointerUp={(event) => {
+          if (event.pointerType !== "mouse") setAt(null);
+        }}
         className="record-plot"
       >
         <svg
@@ -308,38 +339,42 @@ export function RecordChart({
           ))}
         </div>
 
-        <span
-          aria-hidden
-          className="record-cursor"
-          style={{ transform: `translate3d(${cursorX - 1}px, 0, 0)` }}
-        />
-        <span
-          aria-hidden
-          className="record-dot"
-          style={{
-            transform: `translate3d(${cursorX - 7}px, ${cursorY - 7}px, 0)`,
-          }}
-        />
-        <div
-          aria-hidden
-          className="record-tip"
-          style={
-            {
-              transform: leftward
-                ? `translate3d(calc(${cursorX}px - 100% - 14px), calc(${cursorY}px - 50%), 0)`
-                : `translate3d(${cursorX + 14}px, calc(${cursorY}px - 50%), 0)`,
-              transition: `transform ${EASE}`,
-            } as CSSProperties
-          }
-        >
-          <p className="font-semibold text-pine">{active.label}</p>
-          <p className="mt-0.5 tnum text-pine-soft">
-            {formatValue(active.value)} {unit}
-          </p>
-          {secondaryUnit ? (
-            <p className="record-sub tnum">{formatSecondary(active.value)}</p>
-          ) : null}
-        </div>
+        {active ? (
+          <>
+          <span
+            aria-hidden
+            className="record-cursor"
+            style={{ transform: `translate3d(${cursorX - 1}px, 0, 0)` }}
+          />
+          <span
+            aria-hidden
+            className="record-dot"
+            style={{
+              transform: `translate3d(${cursorX - 7}px, ${cursorY - 7}px, 0)`,
+            }}
+          />
+          <div
+            aria-hidden
+            className="record-tip"
+            style={
+              {
+                transform: leftward
+                  ? `translate3d(calc(${cursorX}px - 100% - 14px), calc(${cursorY}px - 50%), 0)`
+                  : `translate3d(${cursorX + 14}px, calc(${cursorY}px - 50%), 0)`,
+                transition: `transform ${EASE}`,
+              } as CSSProperties
+            }
+          >
+            <p className="font-semibold text-pine">{active.label}</p>
+            <p className="mt-0.5 tnum text-pine-soft">
+              {formatValue(active.value)} {unit}
+            </p>
+            {secondaryUnit ? (
+              <p className="record-sub tnum">{formatSecondary(active.value)}</p>
+            ) : null}
+          </div>
+          </>
+        ) : null}
       </div>
 
       <div aria-hidden className="record-axis">

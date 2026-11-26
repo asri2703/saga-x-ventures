@@ -5,10 +5,15 @@ import { type KeyboardEvent, type ReactNode, useId, useRef, useState } from "rea
 /**
  * One account's record at a time, chosen by tab.
  *
- * Each tab shows the account's name and its trading result, so the three can
- * be compared before any is opened — including the one having a bad month,
- * which is shown like the others. The master account is first and open by
- * default: it is the one a follower copies.
+ * Each tab shows the account's name, its trading result and its return, so
+ * the three can be compared before any is opened — including the one having
+ * a bad month, which is shown like the others.
+ *
+ * The return is on the tab and not only in the panel because the dollar
+ * figures cannot be compared: these accounts were funded a hundredfold
+ * apart, so +317 and +29,499 say more about the deposit than the trading.
+ * The percentage is the only line here that means the same thing on all
+ * three.
  *
  * The panels are rendered on the server and passed in, so switching is a swap
  * of built markup (the `plan-switch.tsx` pattern). This holds only which tab
@@ -21,10 +26,11 @@ export type RecordTab = {
   /** The account's trading result, signed and with its unit. */
   result: string;
   tone: "up" | "down" | "flat";
+  /** The account's return over its whole record, signed. */
+  returnPct?: string;
+  returnTone?: "up" | "down" | "flat";
   /** "Since Jul 2026" — when the account's record starts. */
   since?: string;
-  /** A short status, e.g. which account a follower copies. */
-  badge?: string;
   panel: ReactNode;
 };
 
@@ -51,6 +57,10 @@ export function RecordTabs({ tabs }: { tabs: RecordTab[] }) {
         role="tablist"
         aria-label="Accounts"
         className="record-tabs"
+        /* The column count, stated rather than discovered. See
+           `.record-tabs` in globals.css: an auto-fit grid fitted two
+           columns at this card's real width and orphaned the third. */
+        style={{ "--record-tab-count": tabs.length } as React.CSSProperties}
         onKeyDown={onKeyDown}
       >
         {tabs.map((tab, i) => (
@@ -72,8 +82,16 @@ export function RecordTabs({ tabs }: { tabs: RecordTab[] }) {
             <span className={`record-tab-result tnum record-tab-result--${tab.tone}`}>
               {tab.result}
             </span>
-            {tab.since ? <span className="record-tab-since">{tab.since}</span> : null}
-            {tab.badge ? <span className="record-tab-badge">{tab.badge}</span> : null}
+            {tab.returnPct ? (
+              <span
+                className={`record-tab-return tnum record-tab-result--${tab.returnTone ?? "flat"}`}
+              >
+                {tab.returnPct}
+              </span>
+            ) : null}
+            {tab.since ? (
+              <span className="record-tab-since">{tab.since}</span>
+            ) : null}
           </button>
         ))}
       </div>

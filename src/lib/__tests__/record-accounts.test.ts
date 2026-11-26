@@ -10,13 +10,18 @@ import { divisorFor, recordAccounts } from "@/lib/record-accounts";
  * mostly about what is left out rather than guessed.
  */
 
-test("the master alone, as cent by default", () => {
+test("Jade alone, as cent by default", () => {
   const [master, ...rest] = recordAccounts({ RECORD_ACCOUNT_LOGIN: "11111111" });
   expect(rest).toEqual([]);
-  expect(master).toMatchObject({ key: "master", login: 11111111, unit: "cent", copied: true });
+  expect(master).toMatchObject({
+    key: "master",
+    login: 11111111,
+    unit: "cent",
+    label: "Jade",
+  });
 });
 
-test("three accounts, master first, each with its own unit", () => {
+test("three accounts, Jade first, each with its own unit", () => {
   const accounts = recordAccounts({
     RECORD_ACCOUNT_LOGIN: "11111111",
     RECORD_ACCOUNT_LOGIN_2: "222",
@@ -24,10 +29,10 @@ test("three accounts, master first, each with its own unit", () => {
     RECORD_ACCOUNT_LOGIN_3: "333",
     RECORD_ACCOUNT_UNIT_3: "USD",
   });
-  expect(accounts.map((a) => [a.login, a.unit, a.copied])).toEqual([
-    [11111111, "cent", true],
-    [222, "cent", false],
-    [333, "usd", false],
+  expect(accounts.map((a) => [a.login, a.unit])).toEqual([
+    [11111111, "cent"],
+    [222, "cent"],
+    [333, "usd"],
   ]);
 });
 
@@ -37,7 +42,7 @@ test("an extra account without a valid unit is left out, not guessed", () => {
   expect(recordAccounts({ ...base, RECORD_ACCOUNT_UNIT_2: "cents" })).toHaveLength(1);
 });
 
-test("each earlier master says what it is, and only the current one is 'copied'", () => {
+test("the accounts are named, not described in MT5 terms", () => {
   const accounts = recordAccounts({
     RECORD_ACCOUNT_LOGIN: "1",
     RECORD_ACCOUNT_LOGIN_2: "2",
@@ -45,24 +50,27 @@ test("each earlier master says what it is, and only the current one is 'copied'"
     RECORD_ACCOUNT_LOGIN_3: "3",
     RECORD_ACCOUNT_UNIT_3: "usd",
   });
-  expect(accounts.map((a) => [a.label, a.badge ?? null])).toEqual([
-    ["Master account", "The one you copy"],
-    ["Earlier master", "Closed to new followers"],
-    ["Previous master", null],
-  ]);
-  // The two earlier masters must not read as the account a follower copies.
-  for (const a of accounts.slice(1)) {
-    expect(a.note).toMatch(/not this one|takes no new ones/);
+  expect(accounts.map((a) => a.label)).toEqual(["Jade", "Onyx", "Amber"]);
+  // "master" is terminology for somebody who already runs copytrade, which
+  // the reader most likely to be here does not.
+  for (const a of accounts) {
+    expect(a.label).not.toMatch(/master/i);
   }
 });
 
-test("only the master may be copied, whatever is configured", () => {
+test("an account carries a name and a unit, and nothing else to read", () => {
+  // The badge and the note are gone, on the owner's call: a follower does
+  // not choose which master to copy. Anything left behind would render an
+  // empty element rather than fail, so the shape itself is the assertion.
   const accounts = recordAccounts({
     RECORD_ACCOUNT_LOGIN: "1",
     RECORD_ACCOUNT_LOGIN_2: "2",
-    RECORD_ACCOUNT_UNIT_2: "usd",
+    RECORD_ACCOUNT_UNIT_2: "cent",
   });
-  expect(accounts.filter((a) => a.copied).map((a) => a.login)).toEqual([1]);
+  expect(accounts).toHaveLength(2);
+  for (const a of accounts) {
+    expect(Object.keys(a).sort()).toEqual(["key", "label", "login", "unit"]);
+  }
 });
 
 test("a login is listed once, and a bad login is skipped", () => {
