@@ -1,6 +1,11 @@
 import { createBill } from "@/lib/billplz";
 import { checkoutConfig } from "@/lib/checkout/config";
-import { attachBillId, createPendingOrder } from "@/lib/checkout/orders";
+import {
+  attachBillId,
+  createPendingOrder,
+  markNotified,
+} from "@/lib/checkout/orders";
+import { notifyRegistration } from "@/lib/notify";
 import { sellableFor } from "@/lib/commercial";
 
 /**
@@ -155,12 +160,31 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  /* A package with nothing to pay stops here.
+  /* A package with nothing to pay stops here, and it is a different errand
+     from the one below.
      Billplz cannot raise a bill for zero, and there is nothing to raise one
-     for: the owner has the name, the email and the account number, which is
-     everything connecting the server needs. The browser is sent to the same
-     page a payment ends on, which reads the row rather than the URL. */
+     for: the owner has the name, the email, the phone and the account
+     number, which is everything connecting the server needs. So the thing
+     that happens instead of a payment is the two emails — the owner gets
+     the instruction, the client gets a copy of what was sent, which is also
+     their chance to catch a wrong digit in the account number before
+     anything is wired up.
+
+     A send that fails does not fail the registration. The row is written,
+     and `notified_at` stays null, which is the owner's own list of the ones
+     that never reached him. Telling the client "that did not work" would be
+     false — it did, and only the telling of it did not. */
   if (amountSen === 0) {
+    try {
+      await notifyRegistration(order);
+      await markNotified(order.id);
+    } catch (error) {
+      console.error("checkout: the registration emails did not go out", {
+        order: order.id,
+        error,
+      });
+    }
+
     /* The order id stays out of the URL. A row id in a link is a key to a
        row holding a name, an email address and an account number, and links
        live in history, in referrers and on shared screens. The page this

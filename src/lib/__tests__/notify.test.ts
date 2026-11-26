@@ -27,7 +27,9 @@ const ENV = {
   TELEGRAM_CHAT_ID: "999",
 };
 
-const { notifyBuyer, notifyOwner } = await import("@/lib/notify");
+const { notifyBuyer, notifyOwner, notifyRegistration } = await import(
+  "@/lib/notify",
+);
 
 const ORDER: Order = {
   id: "order-1",
@@ -169,4 +171,83 @@ test("the buyer's name cannot inject markup into their own email", async () => {
   const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
   expect(message.html).not.toContain("<img");
   expect(message.html).toContain("&lt;img");
+});
+
+/* ------------------------------------------------------------------ *
+ * A registration with nothing to pay
+ * ------------------------------------------------------------------ */
+
+const REGISTRATION: Order = {
+  ...ORDER,
+  id: "order-2",
+  planKey: "included-vps",
+  amountSen: 0,
+  paidAmountSen: null,
+  status: "registered",
+  billplzBillId: null,
+  mt5Login: "000000",
+  paidAt: null,
+};
+
+test("the owner is sent the account to connect, not just a name", async () => {
+  // Without the login number the message says somebody registered and not
+  // which account to attach to the server, which is the whole instruction.
+  await notifyRegistration(REGISTRATION);
+  const owner = (sendEmail.mock.calls as [Record<string, string>][])
+    .map(([message]) => message)
+    .find((message) => message.to === "owner@example.com");
+
+  expect(owner).toBeDefined();
+  expect(owner!.text).toContain("000000");
+  expect(owner!.text).toContain("0123456789");
+  expect(owner!.text).toContain("Server Included");
+});
+
+test("the client is copied on their own registration", async () => {
+  await notifyRegistration(REGISTRATION);
+  const copy = (sendEmail.mock.calls as [Record<string, string>][])
+    .map(([message]) => message)
+    .find((message) => message.to === "aminah@example.com");
+
+  expect(copy).toBeDefined();
+  expect(copy!.html).toContain("000000");
+  // Their reply reaches the published address, never the owner's inbox.
+  expect(copy!.replyTo).toBe("enquiry@sagaxventures.com");
+  expect(JSON.stringify(copy)).not.toContain("owner@example.com");
+});
+
+test("a registration never claims a payment was taken", async () => {
+  // Nothing is charged on this package. An email that thanked somebody for
+  // a payment would be the site's own words contradicting their bank.
+  await notifyRegistration(REGISTRATION);
+  const everything = JSON.stringify(sendEmail.mock.calls);
+  expect(everything).not.toMatch(/paid|payment|thank you for your purchase/i);
+});
+
+/* A paid AI Auto Trade order is not a Mastery one. */
+
+const PAID_SERVER: Order = {
+  ...ORDER,
+  id: "order-3",
+  planKey: "rented-vps",
+  amountSen: 10000,
+  paidAmountSen: 10000,
+  mt5Login: "000000",
+};
+
+test("a paid server rental is never sent the Mastery registration link", async () => {
+  // Both products land in the same callback. Sending this buyer to a
+  // membership page on another site gives them a link to something they
+  // did not buy and cannot use.
+  await notifyBuyer(PAID_SERVER);
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+  expect(message.html).not.toContain("masterysignal.com");
+  expect(message.html).toContain("000000");
+});
+
+test("the owner's notification for a rental names the account to connect", async () => {
+  await notifyOwner(PAID_SERVER);
+  const [message] = sendEmail.mock.calls[0] as [Record<string, string>];
+  expect(message.text).toContain("000000");
+  expect(message.text).not.toContain("Mastery Signal");
 });
