@@ -393,7 +393,7 @@ export function RecordChart({
       {/* The readings themselves. A chart is a picture of numbers, a picture
           is not readable by everyone, and find-in-page cannot search a path. */}
       <details className="record-table">
-        <summary>The readings</summary>
+        <summary>Performance logs</summary>
         <table>
           <thead>
             <tr>

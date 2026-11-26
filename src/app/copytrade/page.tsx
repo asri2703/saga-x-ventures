@@ -25,6 +25,7 @@ import {
   performance,
 } from "@/lib/record-outcomes";
 import { ProfitCalculator } from "@/components/profit-calculator";
+import { FollowReplay } from "@/components/follow-replay";
 import { RecordPanel } from "@/components/record-panel";
 import { RecordTabs } from "@/components/record-tabs";
 import { Container, Section } from "@/components/ui";
@@ -402,9 +403,8 @@ export default async function CopytradePage() {
               Trading performance
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">
-              Straight from our MT5 terminals, updated every hour. Every
-              figure here is the account&rsquo;s own &mdash; the bad days
-              included.
+              Still hesitating? Watch our trading performance &mdash; it is
+              already helping others grow.
             </p>
           </div>
 
@@ -485,8 +485,15 @@ export default async function CopytradePage() {
           calculator with nothing behind it is worse than no calculator.
       --------------------------------------------------------------- */}
       {spread && longest && longestPerf ? (
-        <Section id="calculator">
-          <Container>
+        <Section id="calculator" className="relative overflow-hidden">
+          {/* The same graph paper the hero is drawn on. The section was a
+              bare sheet of paper under a card, and a calculator reads as an
+              instrument when it sits on something ruled. Pinned inside a
+              `relative` parent with `overflow-hidden`, or it spreads over
+              the page and bleeds into the band below — the guard in
+              `copytrade-terms.test.ts` holds both. */}
+          <div aria-hidden className="hero-grid absolute inset-0" />
+          <Container className="relative">
             <div className="mx-auto max-w-xl text-center" data-reveal>
               <Eyebrow tone="quiet">Trading calculator</Eyebrow>
               <h2 className="display mt-3 text-4xl text-pine">
@@ -501,8 +508,7 @@ export default async function CopytradePage() {
             <div className="mt-10" data-reveal>
               <ProfitCalculator
                 outcomes={spread}
-                deepest={longestPerf.deepest}
-                recovery={longestPerf.recovery}
+                sharePct={copytrade.masterSharePct}
                 lots={longestLots}
               />
             </div>
@@ -511,7 +517,43 @@ export default async function CopytradePage() {
       ) : null}
 
       {/* ---------------------------------------------------------------
-          7. How to start.
+          7. The replay.
+
+          History in the reader's own money: a deposit, and the line it
+          would have traced through the record above — the two days it lost
+          a quarter of itself included, drawn as the cliffs they were.
+
+          Past tense throughout and the start date on screen. That is the
+          whole difference between evidence and a promise, and it is a
+          difference this component cannot enforce on its own: the copy
+          around it has to keep it.
+      --------------------------------------------------------------- */}
+      {longest && longest.days.length > 0 ? (
+        <Section tone="pine">
+          <Container>
+            <div className="mx-auto max-w-xl text-center">
+              <Eyebrow tone="onDark">See it your way</Eyebrow>
+              <h2 className="display mt-3 text-4xl text-paper">
+                What it would have done.
+              </h2>
+              <p className="mt-5 leading-relaxed text-paper/80">
+                Pick what you would have put in. The line is the record
+                above, in your money, from the day it started.
+              </p>
+            </div>
+
+            <div className="mt-10">
+              <FollowReplay
+                days={longest.days}
+                deposits={[500, 1000, 2000, 5000]}
+              />
+            </div>
+          </Container>
+        </Section>
+      ) : null}
+
+      {/* ---------------------------------------------------------------
+          8. How to start.
 
           The track, then the walkthrough under it. The order is the owner's
           and it is the right way round: the steps are what a reader came for

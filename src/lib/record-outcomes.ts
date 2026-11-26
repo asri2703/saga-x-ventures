@@ -245,14 +245,25 @@ export function lotsPerDayPer1000(
 export type Projection = {
   /** What the goal implies, at the middle of the spread. */
   deposit: number;
-  /** Dollars a day and a week, at the same rate. */
+  /** What the account makes — the figure the slider sets. */
+  gross: number;
+  /** The master's share of it, and what is left for the follower. */
+  fees: number;
+  net: number;
+  /**
+   * Dollars a day and a week, AFTER the share.
+   *
+   * Net rather than gross, so every dollar figure under the deposit is the
+   * same dollar: money the follower keeps. The share settles monthly, so a
+   * net daily figure is an average rather than a payment — but the
+   * alternative is a panel where two money boxes mean one thing and two
+   * mean another, which is the confusion this whole change is removing.
+   */
   daily: number;
   weekly: number;
-  /** The middle stretch's return, as a ratio. */
+  /** The middle stretch's return, as a ratio. The account's own rate, before
+   *  the share — it is what the record above publishes. */
   monthly: number;
-  /** Deepest fall on record, as a ratio, and what it costs on this deposit. */
-  drawdown: number;
-  drawdownAmount: number;
   /** Lots this deposit would trade in a day, or null when unknown. */
   lots: number | null;
 };
@@ -282,22 +293,95 @@ export const MONTH = 21;
 export function project(
   goal: number,
   spread: Outcomes,
-  deepest: number,
+  sharePct: number,
   lots: number | null,
 ): Projection | null {
   const deposit = depositFor(goal, spread.median);
   if (deposit === null) return null;
 
-  const daily = Math.pow(1 + spread.median, 1 / spread.window) - 1;
-  const weekly = Math.pow(1 + daily, WEEK) - 1;
+  /* The share is the master's cut of the month's gain, declared once in
+     `commercial.ts` and read here rather than repeated. Without it the
+     panel reported what the ACCOUNT makes as though it were the follower's,
+     while the FAQ further down the same page said thirty percent of it is
+     not — two parts of one page disagreeing about money. */
+  const share = Math.min(Math.max(sharePct, 0), 100) / 100;
+  const fees = goal * share;
+  const net = goal - fees;
+
+  const dailyRate = Math.pow(1 + spread.median, 1 / spread.window) - 1;
+  const weeklyRate = Math.pow(1 + dailyRate, WEEK) - 1;
 
   return {
     deposit,
-    daily: deposit * daily,
-    weekly: deposit * weekly,
+    gross: goal,
+    fees,
+    net,
+    daily: deposit * dailyRate * (1 - share),
+    weekly: deposit * weeklyRate * (1 - share),
     monthly: spread.median,
-    drawdown: deepest,
-    drawdownAmount: deposit * deepest,
     lots: lots === null ? null : (deposit / 1000) * lots,
+  };
+}
+
+export type ReplayPoint = { day: string; balance: number };
+
+export type Replay = {
+  points: ReplayPoint[];
+  /** Where it started and where it ended. */
+  deposit: number;
+  final: number;
+  /** The single worst day, in this deposit's money. */
+  worstDay: { day: string; amount: number } | null;
+  bestDay: { day: string; amount: number } | null;
+  /** Days that lost money, and days in all. */
+  losingDays: number;
+  tradingDays: number;
+};
+
+/**
+ * The record replayed as if a given deposit had followed it from the start.
+ *
+ * This is history in the reader's own money, not a forecast: every point is
+ * a day that happened, scaled by the ratio between their deposit and the
+ * account's capital at the time. Nothing is invented and nothing is
+ * smoothed — the day this account lost a quarter of itself is in here, at
+ * its real date, because an account that only ever climbs reads as an
+ * advert and a reader can tell.
+ *
+ * It must be presented in the past tense and with its start date visible.
+ * "If you had started in July" is evidence; "you will get" is a promise,
+ * and this function cannot tell the difference — the page has to.
+ */
+export function replay(days: RecordDay[], deposit: number): Replay | null {
+  if (days.length === 0 || !(deposit > 0)) return null;
+
+  const returns = dailyReturns(days);
+  const points: ReplayPoint[] = [];
+  let balance = deposit;
+  let worstDay: Replay["worstDay"] = null;
+  let bestDay: Replay["bestDay"] = null;
+  let losingDays = 0;
+
+  for (let i = 0; i < returns.length; i++) {
+    const move = balance * returns[i];
+    if (returns[i] < 0) losingDays++;
+    if (worstDay === null || move < worstDay.amount) {
+      worstDay = { day: days[i].day, amount: move };
+    }
+    if (bestDay === null || move > bestDay.amount) {
+      bestDay = { day: days[i].day, amount: move };
+    }
+    balance = Math.max(balance + move, 0);
+    points.push({ day: days[i].day, balance });
+  }
+
+  return {
+    points,
+    deposit,
+    final: balance,
+    worstDay,
+    bestDay,
+    losingDays,
+    tradingDays: returns.length,
   };
 }

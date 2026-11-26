@@ -56,11 +56,12 @@ export default function HomePage() {
                 you already trade.
               </p>
 
+              {/* One call, not two. The second was a ghost link to /about —
+                  a route out of the page at the moment the reader has just
+                  arrived, competing with the only action the hero is for.
+                  /about is still reachable from the nav and the footer. */}
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <ActionLink href="#fork">Find where you fit</ActionLink>
-                <ActionLink href="/about" tone="ghost">
-                  How I got here
-                </ActionLink>
               </div>
             </div>
 
