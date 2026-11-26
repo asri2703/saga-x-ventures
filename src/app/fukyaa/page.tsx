@@ -318,13 +318,19 @@ export default async function FukyaaPage() {
       <Section id="record" tone="pine" pad="pt-12 pb-16 sm:pb-24">
         <Container>
           <div className="mx-auto max-w-xl text-center" data-reveal>
-            <Eyebrow tone="onDark">Performance</Eyebrow>
+            <Eyebrow tone="onDark">Trading performance</Eyebrow>
             <h2 className="display mt-3 text-4xl text-paper">
-              What the robot has done.
+              Fukyaa AI trading results.
             </h2>
+            {/* His sentence, with one word corrected: he wrote that results
+                are updated daily, and they are read every hour. Saying daily
+                would also be contradicted a few lines below by the live
+                "Updated <time>" stamp, which is the one claim on this page
+                a reader can check in one glance. "Losing days included"
+                stays: it is the owner's own rule about this section. */}
             <p className="mt-5 leading-relaxed text-paper/80">
-              My own accounts, read from MT5 every hour. Losing days
-              included. Past results do not predict future ones.
+              See how the AI manages a live trading account. Read from MT5
+              every hour, losing days included.
             </p>
           </div>
 
