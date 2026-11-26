@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/fukyaa" },
   title: "AI Auto Trade",
   description:
-    "An expert advisor places the trades on a rented server that stays on. Deposit the smaller amount and rent the server monthly, or deposit more and the server is included.",
+    "A robot places the trades on a rented server that stays on. Deposit the smaller amount and rent the server monthly, or deposit more and the server is included.",
 };
 
 /**
@@ -50,8 +50,7 @@ export const metadata: Metadata = {
  * client pays whether the month went well or badly. The risk is no longer
  * shared, and that is the question a reader has even when they would not
  * put it in those words. So the rent is stated as a year of rent as well as
- * a month of it — twelve months of the smaller package against nothing on
- * the larger one — and the section that explains what is being rented also
+ * a month of it, and the section that explains what is being rented also
  * says what is not.
  *
  * Stating the yearly figure argues for the larger deposit, which is what
@@ -61,6 +60,14 @@ export const metadata: Metadata = {
  *
  * The picture is a server sending data, not a balance climbing. See
  * `server-feed.tsx` for why that is not a stylistic preference.
+ *
+ * ON LENGTH. The first build of this page said all of the above in full
+ * paragraphs and the owner's verdict was that nobody would read them. He is
+ * right, and the cut is not a loss: every fact survived, including the
+ * uncomfortable ones. What went was the second clause of each sentence.
+ * "Expert advisor" became "robot" throughout for the same reason — it is
+ * the word he uses and it is four syllables shorter. The fine print keeps
+ * the long form, because that one is read by people looking for exactly it.
  */
 
 /* --------------------------------------------------------------- *
@@ -76,10 +83,9 @@ function sharedSteps(depositUsd: number): RentStep[] {
       key: "account",
       title: "Open a cent account",
       short: "Open",
-      body: "Cent accounts use smaller contract sizes, so the expert advisor can size each position finely. Open it through the link below so the account is attributed to this site.",
+      body: "Cent accounts trade in smaller sizes, so the robot can size positions finely.",
       points: [
         "Keep the MT5 login number and password",
-        "They are what logs you into MetaTrader 5",
         "This is the account you deposit into",
       ],
       href: "/go/broker-cent",
@@ -89,22 +95,18 @@ function sharedSteps(depositUsd: number): RentStep[] {
       key: "verify",
       title: "Verify it",
       short: "Verify",
-      body: "The broker checks a valid document before the account can take money. Nothing here can be done until this clears, and it is not instant.",
-      points: [
-        "Identity card",
-        "Passport",
-        "Another document issued by your country",
-      ],
+      body: "The broker checks a document before the account can take money. Not instant.",
+      points: ["Identity card", "Passport", "Or another government document"],
     },
     {
       key: "deposit",
       title: "Fund it",
       short: "Deposit",
-      body: `At least ${formatUsd(depositUsd)}. The money stays in your own account under your own name — it is what the expert advisor trades with, not a payment to me.`,
+      body: `At least ${formatUsd(depositUsd)}. It stays in your own account — what the robot trades with, not a payment to me.`,
       points: [
-        "Deposited and withdrawn through the broker, not through this site",
-        "More capital means larger positions, up and down alike",
-        "I never hold or move your funds",
+        "Deposit and withdraw through the broker",
+        "More capital means bigger positions, up and down alike",
+        "I never hold your funds",
       ],
     },
   ];
@@ -147,19 +149,19 @@ export default async function FukyaaPage() {
   const rentedFinish: RentFinish = {
     title: "Rent the server",
     short: "Get AI Auto Trade",
-    body: `The expert advisor runs on a server rather than on your own machine, so it keeps trading when your laptop is shut. ${formatMyr(fukyaa.vpsMonthlyMyr)} buys one month. There is no standing payment: when the month is up it stops, and you are sent a reminder before it does.`,
+    body: `${formatMyr(fukyaa.vpsMonthlyMyr)} buys one month. Nothing recurring: when it runs out it stops, and you get a reminder before it does.`,
     cta: "Arrange the server",
     href: "/go/whatsapp?m=fukyaa",
-    note: "The registration link and the account connection are sent by email once the month is paid.",
+    note: "The registration link comes by email once the month is paid.",
   };
 
   const includedFinish: RentFinish = {
     title: "Register for auto trade",
     short: "Get AI Auto Trade",
-    body: "Nothing monthly on this package, so there is nothing to pay for here. Register, and your trading account is connected to the server afterwards.",
+    body: "Nothing to pay here. Register, and your account is connected after.",
     cta: "Register",
     href: "/go/fukyaa-register",
-    note: "You are emailed once the account is connected. That part is done by hand, not instantly.",
+    note: "Connected by hand, not instantly. You get an email when it is done.",
   };
 
   return (
@@ -179,20 +181,17 @@ export default async function FukyaaPage() {
 
               <div className="mt-7 space-y-5 text-lg leading-relaxed text-pine-soft">
                 <p>
-                  Some people told me straight that they were never going to
-                  learn to read a chart. A course would have wasted their
-                  money.
+                  Some people told me straight: they are never going to learn
+                  to read a chart.
                 </p>
                 <p>
-                  An expert advisor places the trades instead, on a machine
-                  that stays awake. You fund your own account and leave it
-                  alone.
+                  A robot places the trades instead, on a server that stays
+                  awake. You fund your own account and leave it alone.
                 </p>
                 <p>
-                  If you would rather follow a person than an algorithm, that
-                  is <TextLink href="/copytrade">Copytrade</TextLink>. Same
-                  account type, and you pay out of the profit rather than
-                  monthly.
+                  Rather follow a person? That is{" "}
+                  <TextLink href="/copytrade">Copytrade</TextLink> — paid out
+                  of the profit, not monthly.
                 </p>
               </div>
             </div>
@@ -221,10 +220,8 @@ export default async function FukyaaPage() {
                 A machine that never sleeps.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
-                A server with the expert advisor on it, logged into your
-                account, awake when you are not. It opens, manages and closes
-                positions on its own settings, with no decision from you and
-                none from me.
+                A server running the robot on your account, awake when you are
+                not. No decision from you, none from me.
               </p>
             </div>
 
@@ -234,10 +231,8 @@ export default async function FukyaaPage() {
                 An outcome.
               </h2>
               <p className="mt-5 leading-relaxed text-paper/80">
-                The rent is due whether the month went well or badly. It is
-                not a share of anything, so a flat month and a good one cost
-                the same. Copytrade is the other arrangement: a share of the
-                month&rsquo;s profit, and nothing in a month without one.
+                Rent is due whether the month gained or lost. A flat month
+                costs the same as a good one.
               </p>
             </div>
           </div>
@@ -257,12 +252,11 @@ export default async function FukyaaPage() {
           <div className="max-w-2xl" data-reveal>
             <Eyebrow tone="quiet">What it costs</Eyebrow>
             <h2 className="display mt-3 text-4xl text-pine">
-              Two numbers, and only one of them is a payment.
+              Only one of these is a payment.
             </h2>
             <p className="mt-4 leading-relaxed text-pine-soft">
-              The deposit goes into your own trading account and stays yours
-              — you can withdraw it. The server rent is the only money that
-              comes to me, and only on the smaller package.
+              The deposit stays in your own account and you can withdraw it.
+              Only the server rent comes to me.
             </p>
           </div>
 
@@ -276,8 +270,8 @@ export default async function FukyaaPage() {
                 </p>
                 <p className="mt-3 flex-1 leading-relaxed text-pine-soft">
                   {plan.vpsMonthlyMyr === null
-                    ? "The server is included. Nothing monthly, ever."
-                    : "A smaller deposit, with the server rented month by month."}
+                    ? "Server included. Nothing monthly."
+                    : "Smaller deposit. Server rented month by month."}
                 </p>
                 <p
                   className={`mt-6 rounded-[var(--radius-float)] px-4 py-3 text-sm font-semibold text-pine ${plan.vpsMonthlyMyr === null ? "bg-sage" : "bg-blush"}`}
@@ -310,7 +304,7 @@ export default async function FukyaaPage() {
               <dl className="mt-5 grid gap-5 sm:grid-cols-2">
                 <div>
                   <dt className="text-sm font-semibold text-pine-faint">
-                    {rented.name}, twelve months of server
+                    {rented.name}, a year of server
                   </dt>
                   <dd className="display tnum mt-1 text-3xl text-pine">
                     {formatMyr(rentYearMyr)}
@@ -318,7 +312,7 @@ export default async function FukyaaPage() {
                 </div>
                 <div>
                   <dt className="text-sm font-semibold text-pine-faint">
-                    {included.name}, twelve months of server
+                    {included.name}, a year of server
                   </dt>
                   <dd className="display tnum mt-1 text-3xl text-pine">
                     {formatMyr(0)}
@@ -326,10 +320,7 @@ export default async function FukyaaPage() {
                 </div>
               </dl>
               <p className="mt-5 leading-relaxed text-pine-soft">
-                That is the trade: a larger deposit, which stays your money,
-                against a year of rent, which does not. Whether it is worth
-                it depends on whether you were going to fund the account that
-                far anyway.
+                A bigger deposit stays your money. A year of rent does not.
               </p>
             </Panel>
           </div>
@@ -352,9 +343,8 @@ export default async function FukyaaPage() {
               This is what it has done.
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">
-              These accounts run the same expert advisor you would be renting
-              the server for. Read from their MT5 terminals, hourly, losing
-              days and all. Past results do not predict future ones.
+              Same robot, our own accounts. Read from MT5 hourly, losing days
+              and all. Past results do not predict future ones.
             </p>
           </div>
 
@@ -436,8 +426,7 @@ export default async function FukyaaPage() {
               {included.name} — {formatUsd(included.depositUsd)}, no rent
             </h2>
             <p className="mt-3 leading-relaxed text-pine-soft">
-              Fund the account this far and the server comes with it. Four
-              steps, in the order the broker requires them.
+              Fund it this far and the server comes with it.
             </p>
           </div>
           <div className="mt-10 max-w-3xl" data-reveal>
@@ -457,10 +446,8 @@ export default async function FukyaaPage() {
               {rented.name} — {formatUsd(rented.depositUsd)}, plus the server
             </h2>
             <p className="mt-3 leading-relaxed text-pine-soft">
-              Start smaller, or keep the broker you already use, and rent the
-              server monthly instead. Any broker that allows an expert advisor
-              will do; the one I link to is a recommendation, not a
-              requirement.
+              Start smaller and rent the server monthly. Any broker that
+              allows a robot will do.
             </p>
           </div>
           <div className="mt-10 max-w-3xl" data-reveal>
@@ -480,7 +467,7 @@ export default async function FukyaaPage() {
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="display text-3xl text-paper">
-              Not sure which package fits what you have to work with?
+              Not sure which package fits?
             </h2>
             <p className="mt-5 leading-relaxed text-paper/80">
               Ask me before you pay or deposit anything.
@@ -494,6 +481,9 @@ export default async function FukyaaPage() {
         </Container>
       </Section>
 
+      {/* The one block deliberately left in full. It is read by people
+          looking for exactly it, and shortening a risk warning to save a
+          line is the one cut that costs something. */}
       <Section pad="py-14">
         <Container>
           <p className="max-w-2xl rounded-[var(--radius-panel)] bg-paper-sunk px-7 py-6 text-sm leading-relaxed text-pine-soft">

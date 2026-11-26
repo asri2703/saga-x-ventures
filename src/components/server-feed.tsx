@@ -135,9 +135,9 @@ export function ServerFeed() {
       </svg>
 
       <figcaption className="feed-caption">
-        A rented server keeps the expert advisor on the market when your own
-        machine is off. {formatMyr(fukyaa.vpsMonthlyMyr)} a month, or included
-        with the larger deposit.
+        The server stays on when your laptop does not.{" "}
+        {formatMyr(fukyaa.vpsMonthlyMyr)} a month, or included with the larger
+        deposit.
       </figcaption>
     </figure>
   );
