@@ -6,6 +6,7 @@ import {
   summarise,
   toPoints,
 } from "@/lib/record";
+import { performance as performanceOf } from "@/lib/record-outcomes";
 import { RecordCalendar } from "@/components/record-calendar";
 import { RecordChart } from "@/components/record-chart";
 import { RecordLive } from "@/components/record-live";
@@ -37,20 +38,32 @@ export function RecordPanel({
 }) {
   const divisor = divisorFor(account.unit);
   const summary = summarise(days);
-  const months = calendarMonths(days, 3, today);
+  const perf = performanceOf(days);
+  /* The whole record, not the last three months. The calendar shows one
+     month at a time behind a picker now, so its height no longer grows with
+     the record and there is nothing to be gained by withholding the rest. */
+  const months = calendarMonths(days, 24, today);
 
   return (
     <div>
-      <div className="text-center">
-        {lastAt ? <RecordLive at={lastAt} /> : null}
-        <p className="mx-auto mt-3 max-w-md text-sm text-paper/70">
-          {account.note}
-        </p>
-      </div>
+      {/* The per-account note was here. It went with the badges — see
+          `record-accounts.ts`. What it said that still matters ("updated
+          every hour") is in the chart's own note, which a screenshot of the
+          card carries and a caption above it would not. */}
+      {lastAt ? (
+        <div className="text-center">
+          <RecordLive at={lastAt} />
+        </div>
+      ) : null}
 
       {summary ? (
         <div className="record mt-6">
-          <RecordStats summary={summary} funding={funding} divisor={divisor} />
+          <RecordStats
+            summary={summary}
+            funding={funding}
+            divisor={divisor}
+            performance={perf}
+          />
         </div>
       ) : null}
 

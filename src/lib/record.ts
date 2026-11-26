@@ -174,6 +174,27 @@ export async function recordFunding(login: number): Promise<RecordFunding> {
   return fundingOf((data ?? []).map((row) => num(row.profit)));
 }
 
+/**
+ * The volume this account has traded, from the `account_lots` view.
+ *
+ * A view rather than a query over the deals: the longest account holds
+ * nearly 200,000 of them and PostgREST caps a response at 1,000 rows, so
+ * the sum is made in the database. See `0004_account_lots.sql` for why only
+ * opening deals count.
+ */
+export async function recordLots(login: number): Promise<number> {
+  if (!canRead()) return 0;
+
+  const { data, error } = await serviceClient()
+    .from("account_lots")
+    .select("lots")
+    .eq("login", login)
+    .maybeSingle();
+
+  if (error) throw new Error(`record: ${error.message}`);
+  return num(data?.lots);
+}
+
 /** Split balance operations into deposits and withdrawals. */
 export function fundingOf(amounts: number[]): RecordFunding {
   let deposited = 0;
