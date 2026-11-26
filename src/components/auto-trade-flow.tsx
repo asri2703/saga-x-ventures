@@ -2,6 +2,10 @@
 
 import { type ReactNode, useRef, useState } from "react";
 import { Check } from "lucide-react";
+import {
+  FukyaaCheckout,
+  type CheckoutPackage,
+} from "@/components/fukyaa-checkout";
 
 /**
  * The package rows and the steps, sharing one choice.
@@ -43,6 +47,15 @@ export type FlowPackage = {
     body: string;
     cta: string;
     href: string;
+    /**
+     * The checkout this package ends in, or null to use `href` instead.
+     *
+     * The page decides. Whether a payment can be taken at all is a server
+     * question — it reads the Billplz credentials — so this arrives already
+     * answered rather than being asked here, and when the answer is no the
+     * last step is the arrangement that still works.
+     */
+    pay?: CheckoutPackage | null;
   };
 };
 
@@ -73,6 +86,8 @@ export function AutoTradeFlow({
   const [chosen, setChosen] = useState(packages[0].key);
   const [at, setAt] = useState(0);
   const [done, setDone] = useState<Set<string>>(new Set());
+  /** The package whose checkout is open, or null. */
+  const [paying, setPaying] = useState<CheckoutPackage | null>(null);
   const start = useRef<HTMLDivElement>(null);
 
   const pack = packages.find((p) => p.key === chosen) ?? packages[0];
@@ -232,14 +247,24 @@ export function AutoTradeFlow({
 
                     {unlocked ? (
                       <div className="flow-actions">
-                        <a
-                          href={pack.finish.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn--accent inline-flex items-center justify-center rounded-full px-7 py-3.5 text-base font-semibold"
-                        >
-                          {pack.finish.cta}
-                        </a>
+                        {pack.finish.pay ? (
+                          <button
+                            type="button"
+                            onClick={() => setPaying(pack.finish.pay ?? null)}
+                            className="btn btn--accent inline-flex items-center justify-center rounded-full px-7 py-3.5 text-base font-semibold"
+                          >
+                            {pack.finish.cta}
+                          </button>
+                        ) : (
+                          <a
+                            href={pack.finish.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn--accent inline-flex items-center justify-center rounded-full px-7 py-3.5 text-base font-semibold"
+                          >
+                            {pack.finish.cta}
+                          </a>
+                        )}
                       </div>
                     ) : (
                       /* Not a greyed-out button, which reads as broken.
@@ -291,6 +316,10 @@ export function AutoTradeFlow({
           </div>
         </div>
       </section>
+
+      {paying ? (
+        <FukyaaCheckout pack={paying} onClose={() => setPaying(null)} />
+      ) : null}
     </>
   );
 }

@@ -38,6 +38,7 @@ const ORDER: Order = {
   billplzBillId: "bill-1",
   buyerName: "Aminah",
   buyerEmail: "aminah@example.com",
+  mt5Login: null,
   buyerPhone: "0123456789",
   paidAt: "2026-11-24T02:00:00Z",
   linkSentAt: null,

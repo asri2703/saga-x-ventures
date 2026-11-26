@@ -442,6 +442,83 @@
   border-color: var(--color-ruby);
 }
 
+/* Back, beside the forward button. Quiet: it is the way out of a step, not
+   an action anybody came here to take. */
+.checkout-back {
+  border: 0;
+  background: none;
+  padding: 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(242, 233, 216, 0.75);
+  cursor: pointer;
+}
+
+.checkout-back:hover {
+  color: var(--color-paper);
+}
+
+/* ---------------------------------------------------------------------------
+   The step rail in the AI Auto Trade checkout.
+
+   Three dots and three words, saying which step is open and how many are
+   left. It is a list because it is one, and the whole rail carries the
+   "Step 2 of 3" label: three dots announced one by one tell a screen reader
+   nothing a progress bar should say once.
+--------------------------------------------------------------------------- */
+.step-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+}
+
+.step-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-pine-faint);
+}
+
+/* The rule between one step and the next, drawn by the item rather than by
+   an element of its own. */
+.step-rail-item + .step-rail-item::before {
+  content: "";
+  width: 0.75rem;
+  height: 1px;
+  background: rgba(22, 58, 48, 0.2);
+}
+
+.step-rail-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: rgba(22, 58, 48, 0.2);
+}
+
+.step-rail-item[data-state="done"] .step-rail-dot {
+  background: var(--color-pine);
+}
+
+.step-rail-item[data-state="now"] {
+  color: var(--color-pine);
+}
+
+.step-rail-item[data-state="now"] .step-rail-dot {
+  background: var(--color-ruby);
+}
+
+/* The two steps that are not open keep their dot and lose their word on a
+   narrow card, where three labels and two rules do not fit across. */
+@media (max-width: 26rem) {
+  .step-rail-item[data-state="later"] .step-rail-label,
+  .step-rail-item[data-state="done"] .step-rail-label {
+    display: none;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    The product switch
    ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-import type { MasteryPlan } from "@/lib/commercial";
+import type { Sellable } from "@/lib/commercial";
 import { serviceClient } from "@/lib/supabase";
 
 /**
@@ -31,6 +31,7 @@ type Row = {
   buyer_name: string;
   buyer_email: string;
   buyer_phone: string;
+  mt5_login: string | null;
   paid_at: string | null;
   link_sent_at: string | null;
   notified_at: string | null;
@@ -43,11 +44,12 @@ export type Order = {
   planKey: string;
   amountSen: number;
   paidAmountSen: number | null;
-  status: "pending" | "paid" | "failed";
+  status: "pending" | "paid" | "failed" | "registered";
   billplzBillId: string | null;
   buyerName: string;
   buyerEmail: string;
   buyerPhone: string;
+  mt5Login: string | null;
   paidAt: string | null;
   linkSentAt: string | null;
   notifiedAt: string | null;
@@ -66,6 +68,7 @@ export function toOrder(row: Row): Order {
     buyerName: row.buyer_name,
     buyerEmail: row.buyer_email,
     buyerPhone: row.buyer_phone,
+    mt5Login: row.mt5_login,
     paidAt: row.paid_at,
     linkSentAt: row.link_sent_at,
     notifiedAt: row.notified_at,
@@ -86,22 +89,41 @@ function unwrap<T>(result: { data: T; error: unknown }): T {
   return result.data;
 }
 
+/**
+ * The row before anything else happens.
+ *
+ * `status` is the caller's, because the two products reach this point for
+ * different reasons: a payment is 'pending' until Billplz says otherwise,
+ * and a package with nothing to pay is 'registered' the moment it is asked
+ * for. A free registration left 'pending' would sit in the owner's list
+ * beside people who walked away from a payment page.
+ */
 export async function createPendingOrder(input: {
-  planKey: MasteryPlan["key"];
+  product?: Sellable["product"];
+  planKey: string;
   amountSen: number;
   buyerName: string;
   buyerEmail: string;
   buyerPhone: string;
+  /** The account to connect, on the products that run one. */
+  mt5Login?: string | null;
+  status?: Order["status"];
 }): Promise<Order> {
   const row = unwrap(
     await serviceClient()
       .from(TABLE)
       .insert({
+        /* Omitted rather than defaulted here: the column's own default is
+           'mastery-signal', and two declarations of one default are two
+           things to keep in agreement. */
+        ...(input.product ? { product: input.product } : {}),
         plan_key: input.planKey,
         amount_sen: input.amountSen,
         buyer_name: input.buyerName,
         buyer_email: input.buyerEmail,
         buyer_phone: input.buyerPhone,
+        ...(input.mt5Login ? { mt5_login: input.mt5Login } : {}),
+        ...(input.status ? { status: input.status } : {}),
       })
       .select()
       .maybeSingle(),

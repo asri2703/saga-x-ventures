@@ -217,7 +217,7 @@ export type FukyaaPlan = {
 export const fukyaaPlans: FukyaaPlan[] = [
   {
     key: "rented-vps",
-    name: "Basic",
+    name: "Standard",
     depositUsd: 500,
     vpsMonthlyMyr: fukyaa.vpsMonthlyMyr,
     gainSharePct: null,
@@ -226,7 +226,7 @@ export const fukyaaPlans: FukyaaPlan[] = [
   },
   {
     key: "included-vps",
-    name: "Server Included",
+    name: "Premium",
     depositUsd: 1000,
     vpsMonthlyMyr: null,
     gainSharePct: null,
@@ -243,6 +243,67 @@ export const fukyaaPlans: FukyaaPlan[] = [
     recommended: false,
   },
 ];
+
+/* ------------------------------------------------------------------ *
+ * What the checkout may sell
+ * ------------------------------------------------------------------ */
+
+/**
+ * One key, resolved to money.
+ *
+ * The browser sends a key and never a price; this is where the price comes
+ * from, for both products, so the figure a buyer was shown and the figure
+ * they are charged cannot drift apart. It is also the list of what may be
+ * bought at all: a key that is not here is not for sale, whatever a request
+ * body says.
+ *
+ * `amountSen` of zero is a real answer, not a missing one. The package that
+ * includes the server has nothing to pay, and it still has to be registered
+ * — somebody has to tell me which account to connect — so it ends in a row
+ * with no bill rather than at a payment page for nothing.
+ *
+ * Copytrade is deliberately absent. It is settled from the gain, so there is
+ * no moment here at which money changes hands.
+ */
+export type Sellable = {
+  key: string;
+  /** Which product's row this becomes. */
+  product: "mastery-signal" | "fukyaa";
+  /** What the bill is called, for Billplz and for the buyer's statement. */
+  label: string;
+  amountSen: number;
+  /** Whether the trading account has to be named before this can proceed. */
+  needsMt5Login: boolean;
+};
+
+export function sellableFor(key: string): Sellable | null {
+  const term = masteryPlans.find((plan) => plan.key === key);
+  if (term) {
+    return {
+      key: term.key,
+      product: "mastery-signal",
+      label: `Mastery Signal — ${term.name}`,
+      amountSen: masteryPlanTotalMyr(term) * 100,
+      needsMt5Login: false,
+    };
+  }
+
+  const pack = fukyaaPlans.find((plan) => plan.key === key);
+  if (pack && pack.key !== "copytrade") {
+    return {
+      key: pack.key,
+      product: "fukyaa",
+      label: `AI Auto Trade — ${pack.name}`,
+      /* One month. The rent is not a subscription: a payment buys a month,
+         and the next one is the same step again, which is what the owner
+         asked for and what the reminder email exists to prompt. */
+      amountSen: (pack.vpsMonthlyMyr ?? 0) * 100,
+      needsMt5Login: true,
+    };
+  }
+
+  return null;
+}
 
 /* ------------------------------------------------------------------ *
  * Money, written out

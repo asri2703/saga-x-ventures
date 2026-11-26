@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { checkoutConfig } from "@/lib/checkout/config";
 import { fukyaa, fukyaaPlans, formatMyr, formatUsd } from "@/lib/commercial";
 import {
   lastReportAt,
@@ -133,6 +134,12 @@ export default async function FukyaaPage() {
   const included = fukyaaPlans.find((plan) => plan.key === "included-vps")!;
   const rent = formatMyr(fukyaa.vpsMonthlyMyr);
 
+  /* Whether money can actually be taken, decided here because deciding it
+     needs the Billplz and Supabase keys. A deployment without them keeps
+     the arrangement that already works — a message — rather than offering a
+     payment it cannot start. */
+  const canCheckout = Boolean(checkoutConfig());
+
   /* The larger deposit first: the owner would rather people took it, and
      over a year it is also the cheaper of the two.
 
@@ -152,6 +159,9 @@ export default async function FukyaaPage() {
         body: "No rent to pay. Register, and I connect your account to the server. You get an email when it is running.",
         cta: "Register",
         href: "/go/fukyaa-register",
+        pay: canCheckout
+          ? { key: included.key, name: included.name, price: null }
+          : null,
       },
     },
     {
@@ -164,9 +174,12 @@ export default async function FukyaaPage() {
       year: formatMyr(fukyaa.vpsMonthlyMyr * 12),
       finish: {
         title: "Rent the server",
-        body: `${rent} pays for one month. Your registration link comes by email, and so does a reminder before the month ends.`,
-        cta: "Rent the server",
+        body: `${rent} pays for one month. Pay after your deposit has landed: the server has nothing to trade until it has, and nothing is taken from you before then.`,
+        cta: `Pay ${rent}`,
         href: "/go/whatsapp?m=server",
+        pay: canCheckout
+          ? { key: rented.key, name: rented.name, price: rent }
+          : null,
       },
     },
   ];

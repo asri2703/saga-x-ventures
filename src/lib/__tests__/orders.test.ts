@@ -54,6 +54,7 @@ const ROW = {
   buyer_name: "Aminah",
   buyer_email: "aminah@example.com",
   buyer_phone: "0123456789",
+  mt5_login: null,
   paid_at: null,
   link_sent_at: null,
   notified_at: null,
@@ -75,6 +76,7 @@ test("snake_case columns map to camelCase fields", () => {
   expect(order.paidAmountSen).toBe(9900);
   expect(order.billplzBillId).toBeNull();
   expect(order.buyerPhone).toBe("0123456789");
+  expect(toOrder({ ...ROW, mt5_login: "000000" }).mt5Login).toBe("000000");
   expect(order.linkSentAt).toBe("x");
   expect(order.accessGrantedAt).toBeNull();
 });

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { verifySignature } from "@/lib/billplz";
 import { checkoutConfig } from "@/lib/checkout/config";
 import { findOrderByBillId } from "@/lib/checkout/orders";
-import { formatMyr, masteryPlans } from "@/lib/commercial";
+import { formatMyr, masteryPlans, sellableFor } from "@/lib/commercial";
 import { outbound } from "@/lib/products";
 import { Container, Section } from "@/components/ui";
 import { ActionOut, Panel } from "@/components/shell";
@@ -41,6 +41,12 @@ export default async function CheckoutDonePage({
     return Array.isArray(value) ? value[0] : value;
   };
 
+  /* The free registration lands here too, with a flag and nothing else.
+     It is not a payment and there is no row to read: a browser that was
+     told "recorded" is the only thing this page confirms, which is why it
+     takes no id and shows no personal detail. */
+  const registered = one("registered") === "1";
+
   const billId = one("billplz[id]");
   const config = checkoutConfig();
 
@@ -72,11 +78,36 @@ export default async function CheckoutDonePage({
   const order = signed && billId ? await findOrderByBillId(billId) : null;
   const plan = masteryPlans.find((candidate) => candidate.key === order?.planKey);
 
+  /* Which product was paid for, read from the order rather than from the
+     URL. Both products end here, and what happens next is not the same:
+     Mastery hands over a registration link to another site, and AI Auto
+     Trade hands over nothing — the account is connected by me, by hand, and
+     the buyer's next event is an email saying the server is running. A page
+     that offered the Mastery link to a Fukyaa buyer would be sending them
+     somewhere that has nothing of theirs. */
+  const sold = order ? sellableFor(order.planKey) : null;
+  const isFukyaa = sold?.product === "fukyaa";
+
   return (
     <Section pad="pt-16 pb-20 sm:pt-24 sm:pb-28">
       <Container>
         <Panel className="mx-auto max-w-xl" reveal={false}>
-          {order?.status === "paid" ? (
+          {registered ? (
+            <>
+              <h1 className="display text-3xl text-pine">
+                That is recorded
+              </h1>
+              <p className="mt-4 leading-relaxed text-pine-soft">
+                Nothing to pay on this package &mdash; the server comes with
+                the deposit. I connect your account to it by hand, and you
+                get an email the moment it is running.
+              </p>
+              <p className="mt-4 leading-relaxed text-pine-soft">
+                If your deposit has not landed at the broker yet, finish that
+                first. The server has nothing to trade until it does.
+              </p>
+            </>
+          ) : order?.status === "paid" ? (
             <>
               <h1 className="display text-3xl text-pine">Payment received</h1>
               <p className="mt-4 leading-relaxed text-pine-soft">
@@ -84,24 +115,43 @@ export default async function CheckoutDonePage({
                 <span className="tnum font-semibold text-pine">
                   {formatMyr((order.paidAmountSen ?? order.amountSen) / 100)}
                 </span>{" "}
-                for Mastery Signal &mdash; {plan?.name ?? order.planKey}.
-              </p>
-              <p className="mt-4 leading-relaxed text-pine-soft">
-                The registration link is in your email. It is also here,
-                in case that takes its time.
+                for {sold?.label ?? `Mastery Signal — ${plan?.name ?? order.planKey}`}.
               </p>
 
-              <div className="mt-7">
-                <ActionOut href={REGISTER_URL} tone="ink">
-                  Open the registration page
-                </ActionOut>
-              </div>
+              {isFukyaa ? (
+                <>
+                  <p className="mt-4 leading-relaxed text-pine-soft">
+                    Your account is connected to the server by hand, and you
+                    get an email the moment it is running. Nothing else is
+                    needed from you.
+                  </p>
+                  <p className="mt-6 rounded-[var(--radius-float)] bg-sage px-4 py-3 text-sm leading-relaxed text-pine">
+                    This pays for one month. A reminder reaches{" "}
+                    <strong>{order.buyerEmail}</strong> before it ends, and
+                    renewing is this same step again &mdash; nothing recurs on
+                    its own.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-4 leading-relaxed text-pine-soft">
+                    The registration link is in your email. It is also here,
+                    in case that takes its time.
+                  </p>
 
-              <p className="mt-6 rounded-[var(--radius-float)] bg-sage px-4 py-3 text-sm leading-relaxed text-pine">
-                Register with <strong>{order.buyerEmail}</strong> &mdash; the
-                same email you paid with. That is how your payment is found.
-                Approval is by hand, so it is not instant.
-              </p>
+                  <div className="mt-7">
+                    <ActionOut href={REGISTER_URL} tone="ink">
+                      Open the registration page
+                    </ActionOut>
+                  </div>
+
+                  <p className="mt-6 rounded-[var(--radius-float)] bg-sage px-4 py-3 text-sm leading-relaxed text-pine">
+                    Register with <strong>{order.buyerEmail}</strong> &mdash;
+                    the same email you paid with. That is how your payment is
+                    found. Approval is by hand, so it is not instant.
+                  </p>
+                </>
+              )}
             </>
           ) : order?.status === "pending" ? (
             <>
