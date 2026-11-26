@@ -62,25 +62,20 @@ export function FollowReplay({
   const frame = useRef<number | null>(null);
   const ids = useId();
 
-  /* Reset when the deposit changes: the line is the same shape but the
-     money on it is not, and leaving a half-played line would be a figure
-     from the previous deposit. */
-  useEffect(() => {
-    setAt((replay?.points.length ?? 1) - 1);
-    setPlaying(false);
-  }, [replay?.points.length, deposit]);
+  /* No reset when the deposit changes, and that is not an oversight: the
+     record is the same length whatever was put into it, so `at` stays
+     valid and the line simply rescales under the cursor. An effect that
+     reset it would set state during render for nothing. */
 
+  /* Only the animation lives in an effect, and it sets state from inside
+     `requestAnimationFrame` rather than during the effect itself. Whether
+     to animate at all is decided in the handler below, where the reader's
+     click is — a reduced-motion check here would be a synchronous setState
+     in an effect, which is the cascade the lint rule is named for. */
   useEffect(() => {
     if (!playing) return;
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
     const total = replay?.points.length ?? 0;
-    if (reduced || total === 0) {
-      setAt(Math.max(0, total - 1));
-      setPlaying(false);
-      return;
-    }
+    if (total === 0) return;
 
     const started = performance.now();
     const RUN = 5200; // the whole record in about five seconds
@@ -147,6 +142,15 @@ export function FollowReplay({
           type="button"
           className="replay-play"
           onClick={() => {
+            /* Reduced motion is answered here rather than in the effect:
+               somebody who has asked for less movement gets the finished
+               line, not a rewind they never see run. */
+            if (
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ) {
+              setAt(points.length - 1);
+              return;
+            }
             setAt(0);
             setPlaying(true);
           }}
