@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import type { Order } from "@/lib/checkout/orders";
 import { formatMyr, masteryPlans, sellableFor } from "@/lib/commercial";
 import { outbound } from "@/lib/products";
+import { site } from "@/lib/site";
 
 /**
  * Who gets told what, when money arrives.
@@ -93,19 +94,18 @@ export async function notifyBuyer(order: Order): Promise<void> {
       from: process.env.RESEND_FROM ?? "",
       to: order.buyerEmail,
       replyTo: process.env.RESEND_REPLY_TO ?? "",
-      subject: `Your ${label(order)} is paid for`,
+      subject: `${label(order)} — you are set`,
       html: `
         <p>Hi ${escape(order.buyerName)},</p>
-        <p>Your payment for <strong>${escape(label(order))}</strong>
-           (${sen(order.paidAmountSen ?? order.amountSen)}) has gone through.
-           Thank you.</p>
-        <p>This is the account I will connect to the server:</p>
-        <p>MT5 account: <strong>${escape(order.mt5Login ?? "not given")}</strong></p>
-        <p>I set it up by hand and email you when it is running. If the
-           number above is not right, reply to this email before then and I
-           will correct it.</p>
-        <p>This pays for one month. A reminder reaches you before it ends,
-           and nothing renews on its own.</p>
+        <p>${sen(order.paidAmountSen ?? order.amountSen)} received. That is
+           the server for a month.</p>
+        <p>This is the account I will put on it:</p>
+        <p><strong>MT5 ${escape(order.mt5Login ?? "not given")}</strong></p>
+        <p>If that number is wrong, reply to this email now. I set the server
+           up from it.</p>
+        <p>You will hear from me when it is running. Nothing renews by
+           itself — I email you before the month is out.</p>
+        <p>${escape(site.founder.name)}</p>
       `.trim(),
     });
     return;
@@ -249,12 +249,13 @@ export async function notifyRegistration(order: Order): Promise<void> {
     `${order.buyerEmail}`,
     `${order.buyerPhone}`,
     "",
-    `Package:     ${label}`,
-    `MT5 account: ${account}`,
-    `Order:       ${order.id}`,
+    `${label}`,
+    `MT5 ${account}`,
+    "Nothing owed.",
     "",
-    "Nothing is owed on this package. Connect the account to the server and",
-    "tell them when it is running.",
+    "Put the account on the server, then tell them it is running.",
+    "",
+    `Order ${order.id}`,
   ].join("\n");
 
   const subject = `Registered: ${order.buyerName} — ${label}`;
@@ -277,19 +278,17 @@ ${text}`);
     from: process.env.RESEND_FROM ?? "",
     to: order.buyerEmail,
     replyTo: process.env.RESEND_REPLY_TO ?? "",
-    subject: `Your ${label} registration`,
+    subject: `Registration received — ${label}`,
     html: `
       <p>Hi ${escape(order.buyerName)},</p>
-      <p>Your registration for <strong>${escape(label)}</strong> is with me.
-         There is nothing to settle on this package.</p>
-      <p>This is what I have:</p>
-      <ul>
-        <li>MT5 account: <strong>${escape(account)}</strong></li>
-        <li>Phone: ${escape(order.buyerPhone)}</li>
-      </ul>
-      <p>I connect that account to the server by hand and email you when it
-         is running. If the account number above is not right, reply to this
-         email and I will correct it before anything is set up.</p>
+      <p>Got it. Nothing is owed on this one — the server comes with your
+         deposit.</p>
+      <p>This is the account I will put on the server:</p>
+      <p><strong>MT5 ${escape(account)}</strong></p>
+      <p>If that number is wrong, reply to this email now. I set the server
+         up from it.</p>
+      <p>You will hear from me when it is running.</p>
+      <p>${escape(site.founder.name)}</p>
     `.trim(),
   });
 }
