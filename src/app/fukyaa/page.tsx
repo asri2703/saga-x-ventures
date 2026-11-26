@@ -36,7 +36,7 @@ import {
 } from "@/components/why-grid";
 import { Container, Section } from "@/components/ui";
 import {
-  ActionLink,
+  ActionSweep,
   ActionOut,
   Eyebrow,
   Scallop,
@@ -245,8 +245,9 @@ export default async function FukyaaPage() {
               money. Let the AI handle your account instead.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-              <ActionLink href="#start">Subscribe AI Now</ActionLink>
-              <TextLink href="#record">See its record</TextLink>
+              {/* One action. The record is a section away, and a hero that
+                  offers two doors points at neither. */}
+              <ActionSweep href="#start">Subscribe AI Now</ActionSweep>
             </div>
           </div>
 

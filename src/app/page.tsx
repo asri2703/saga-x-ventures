@@ -14,6 +14,7 @@ import { BuildShowcase } from "@/components/build-showcase";
 import { ConnectDiagram } from "@/components/connect-diagram";
 import {
   ActionLink,
+  ActionSweep,
   ActionOut,
   Eyebrow,
   FloatCard,
@@ -61,7 +62,7 @@ export default function HomePage() {
                   arrived, competing with the only action the hero is for.
                   /about is still reachable from the nav and the footer. */}
               <div className="mt-10 flex flex-wrap items-center gap-4">
-                <ActionLink href="#fork">Find where you fit</ActionLink>
+                <ActionSweep href="#fork">Find where you fit</ActionSweep>
               </div>
             </div>
 

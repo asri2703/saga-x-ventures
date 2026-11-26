@@ -2478,6 +2478,117 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   The hero action.
+
+   From Uiverse.io by cssbuttons-io - https://uiverse.io/cssbuttons-io/massive-mayfly-74
+   MIT License, Copyright (c) cssbuttons-io (cssbuttons.io)
+
+   A dark disc with an arrow, which grows across the whole pill on hover while
+   the label turns to paper. Adapted in three ways and otherwise left alone:
+
+   - It is a link, not a <button>, so the class is on the anchor and the
+     generic `button { ... }` reset the original carried is dropped — this
+     site's anchors are not styled like that one's.
+   - The original is a fixed 12rem with the label absolutely centred. These
+     labels are the owner's and run longer than "Learn More", so the width is
+     a floor and the label sits in a grid cell it can widen. The centring and
+     the 1.85rem lean towards the disc are kept.
+   - The palette is this site's: pine for the disc, paper for the label on it.
+
+   `.sweep`, not `.learn-more`: the names in the original are generic enough
+   to collide with something already here.
+--------------------------------------------------------------------------- */
+.sweep {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 12rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.5rem 0.75rem 3.1rem;
+  border-radius: 9999px;
+  /* The disc is the only background. A pill behind it would make the growth
+     a fill rather than a thing moving across. */
+  background: transparent;
+}
+
+.sweep-circle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
+  width: 3rem;
+  border-radius: 1.625rem;
+  background: var(--color-pine);
+  transition: width 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+}
+
+/* The arrow: a bar with a chevron on its end, both built from borders so the
+   shaft can appear on hover without a second element arriving. */
+.sweep-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.9375rem;
+  margin: auto;
+  width: 1.125rem;
+  height: 0.125rem;
+  background: none;
+  transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+}
+
+.sweep-arrow::before {
+  content: "";
+  position: absolute;
+  top: -0.29rem;
+  right: 0.0625rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-top: 0.125rem solid var(--color-paper);
+  border-right: 0.125rem solid var(--color-paper);
+  transform: rotate(45deg);
+}
+
+.sweep-text {
+  position: relative;
+  /* Over the disc once it has grown. */
+  z-index: 1;
+  margin-left: 1.85rem;
+  color: var(--color-pine);
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: color 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+}
+
+.sweep:hover .sweep-circle,
+.sweep:focus-visible .sweep-circle {
+  width: 100%;
+}
+
+.sweep:hover .sweep-arrow,
+.sweep:focus-visible .sweep-arrow {
+  background: var(--color-paper);
+  transform: translate(1rem, 0);
+}
+
+.sweep:hover .sweep-text,
+.sweep:focus-visible .sweep-text {
+  color: var(--color-paper);
+}
+
+/* The growth is the animation; the colours are the information. */
+@media (prefers-reduced-motion: reduce) {
+  .sweep-circle,
+  .sweep-arrow,
+  .sweep-text {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    The calculator
    ---------------------------------------------------------------------------
    One panel. The question sits on a pine block at the top, the six figures
