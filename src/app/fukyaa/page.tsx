@@ -411,11 +411,11 @@ export default async function FukyaaPage() {
             <div className="mx-auto max-w-xl text-center" data-reveal>
               <Eyebrow tone="quiet">Calculator</Eyebrow>
               <h2 className="display mt-3 text-4xl text-pine">
-                What would it take?
+                How much do you need to start?
               </h2>
               <p className="mt-5 leading-relaxed text-pine-soft">
-                Set what you want a month. This works out the deposit behind
-                it, from the record above.
+                Enter the monthly amount you are aiming for. This estimates a
+                starting deposit from the account&rsquo;s past performance.
               </p>
             </div>
 
