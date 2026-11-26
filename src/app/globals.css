@@ -326,6 +326,17 @@
   background: var(--glass-line);
 }
 
+/* The step's own name, set as a heading rather than as another small-caps
+   label: it is the one sentence on the card that says what this screen is
+   for, and three tracked-out labels in a column make none of them the
+   title. */
+.checkout-step-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-pine);
+}
+
 .checkout-label {
   font-size: 0.625rem;
   font-weight: 700;

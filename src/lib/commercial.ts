@@ -226,7 +226,7 @@ export const fukyaaPlans: FukyaaPlan[] = [
   },
   {
     key: "included-vps",
-    name: "Premium",
+    name: "Server Included",
     depositUsd: 1000,
     vpsMonthlyMyr: null,
     gainSharePct: null,

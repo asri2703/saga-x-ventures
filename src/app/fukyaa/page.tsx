@@ -73,10 +73,10 @@ export const metadata: Metadata = {
 const STEPS: CheckoutStep[] = [
   {
     key: "account",
-    title: "Open a cent account",
-    body: "The robot trades on a cent account. Keep the MT5 login and password you are given.",
+    title: "Open your trading account",
+    body: "Open a cent account using the link below. Once it is ready, keep your MT5 login details handy for the next steps.",
     href: "/go/broker-cent",
-    cta: "Open the account",
+    cta: "Open a cent account",
   },
   {
     key: "verify",
@@ -170,6 +170,7 @@ export default async function FukyaaPage() {
             key: included.key,
             name: included.name,
             price: null,
+            deposit: formatUsd(included.depositUsd),
             steps: stepsFor(formatUsd(included.depositUsd)),
           }
         : null,
@@ -192,6 +193,7 @@ export default async function FukyaaPage() {
             key: rented.key,
             name: rented.name,
             price: rent,
+            deposit: formatUsd(rented.depositUsd),
             steps: stepsFor(formatUsd(rented.depositUsd)),
           }
         : null,

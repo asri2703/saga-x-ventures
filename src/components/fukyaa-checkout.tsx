@@ -41,6 +41,8 @@ export type CheckoutPackage = {
   name: string;
   /** The rent, formatted, or null when there is nothing to pay. */
   price: string | null;
+  /** The deposit, formatted. Shown, never charged: it goes to the broker. */
+  deposit: string;
   /** What to do at the broker first, in order. */
   steps: CheckoutStep[];
 };
@@ -189,9 +191,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
         className="checkout-card"
       >
         <div className="checkout-title">
-          <span id="fukyaa-checkout-heading">
-            AI Auto Trade &mdash; {pack.name}
-          </span>
+          <span id="fukyaa-checkout-heading">Fukyaa &middot; {pack.name}</span>
           <button
             type="button"
             onClick={onClose}
@@ -210,7 +210,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
             <span style={{ transform: `scaleX(${(step + 1) / steps.length})` }} />
           </div>
           <p className="checkout-prog-text" aria-live="polite">
-            Step {step + 1} of {steps.length} &middot; {steps[step]}
+            Step {step + 1} of {steps.length}
           </p>
         </div>
 
@@ -224,7 +224,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
         >
           {brokerStep ? (
             <div>
-              <p className="checkout-label">{brokerStep.title}</p>
+              <h3 className="checkout-step-title">{brokerStep.title}</h3>
               <p className="mt-2 leading-relaxed text-pine-soft">
                 {brokerStep.body}
               </p>
@@ -244,7 +244,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
             </div>
           ) : own === 0 ? (
             <div>
-              <p className="checkout-label">Your details</p>
+              <h3 className="checkout-step-title">Your details</h3>
               <div className="mt-2 grid gap-2">
                 <input
                   ref={first}
@@ -294,7 +294,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
             </div>
           ) : own === 1 ? (
             <div>
-              <p className="checkout-label">Your MT5 account</p>
+              <h3 className="checkout-step-title">Your MT5 account</h3>
               <div className="mt-2 grid gap-2">
                 <input
                   ref={first}
@@ -318,7 +318,7 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
             </div>
           ) : (
             <div>
-              <p className="checkout-label">What happens next</p>
+              <h3 className="checkout-step-title">What happens next</h3>
               <p className="mt-2 leading-relaxed text-pine-soft">
                 {free
                   ? "Nothing to pay: the server comes with this deposit. I connect your account to it by hand and email you when it is running."
@@ -337,14 +337,19 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
 
           <hr className="checkout-rule" />
 
+          {/* The three figures that decide this purchase, in the order they
+              are asked about. The deposit is here and is NOT charged here:
+              it goes to the buyer's own broker account, and a checkout that
+              showed one figure and took another would be the worst kind of
+              surprise. */}
           <div className="checkout-figures">
             <span className="text-pine-faint">Package</span>
             <span className="font-semibold">{pack.name}</span>
-            <span className="text-pine-faint">
-              {free ? "Server" : "Server rent"}
-            </span>
+            <span className="text-pine-faint">Deposit</span>
+            <span className="tnum font-semibold">{pack.deposit}</span>
+            <span className="text-pine-faint">Monthly server fee</span>
             <span className="tnum font-semibold">
-              {pack.price ?? "Included"}
+              {pack.price ?? "None"}
             </span>
           </div>
 
@@ -364,8 +369,8 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
           ) : null}
 
           <p className="text-xs leading-relaxed text-pine-faint">
-            Your details are used to set the server up and to reach you about
-            it.{" "}
+            We&rsquo;ll use your contact details to help set up Fukyaa and
+            send you updates.{" "}
             <a href="/privacy" className="underline">
               Privacy notice
             </a>
@@ -374,9 +379,10 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
 
           <div className="checkout-footer -mx-4 -mb-4 mt-1">
             {step === 0 ? (
-              <span className="checkout-price tnum">
-                {pack.price ?? "Included"}
-              </span>
+              /* The rent, on the package that has one. "Included" set at
+                 the size of a price is a price, and this package does not
+                 have one; the figures above already say so in words. */
+              <span className="checkout-price tnum">{pack.price ?? ""}</span>
             ) : (
               <button
                 type="button"
