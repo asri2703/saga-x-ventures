@@ -94,17 +94,18 @@ export async function notifyBuyer(order: Order): Promise<void> {
       from: process.env.RESEND_FROM ?? "",
       to: order.buyerEmail,
       replyTo: process.env.RESEND_REPLY_TO ?? "",
-      subject: `${label(order)} — you are set`,
+      subject: `Payment received — ${label(order)}`,
       html: `
         <p>Hi ${escape(order.buyerName)},</p>
-        <p>${sen(order.paidAmountSen ?? order.amountSen)} received. That is
-           the server for a month.</p>
-        <p>This is the account I will put on it:</p>
-        <p><strong>MT5 ${escape(order.mt5Login ?? "not given")}</strong></p>
-        <p>If that number is wrong, reply to this email now. I set the server
-           up from it.</p>
-        <p>You will hear from me when it is running. Nothing renews by
-           itself — I email you before the month is out.</p>
+        <p>I&rsquo;ve received your payment of
+           ${sen(order.paidAmountSen ?? order.amountSen)}. That covers one
+           month of the server.</p>
+        <p>I&rsquo;ll set up Fukyaa on this MT5 account:</p>
+        <p><strong>${escape(order.mt5Login ?? "not given")}</strong></p>
+        <p>If the account number is wrong, reply to this email so I can
+           correct it. I&rsquo;ll email you again once Fukyaa is running.</p>
+        <p>Nothing renews by itself. I&rsquo;ll remind you before the month
+           is out.</p>
         <p>${escape(site.founder.name)}</p>
       `.trim(),
     });
@@ -281,13 +282,12 @@ ${text}`);
     subject: `Registration received — ${label}`,
     html: `
       <p>Hi ${escape(order.buyerName)},</p>
-      <p>Got it. Nothing is owed on this one — the server comes with your
-         deposit.</p>
-      <p>This is the account I will put on the server:</p>
-      <p><strong>MT5 ${escape(account)}</strong></p>
-      <p>If that number is wrong, reply to this email now. I set the server
-         up from it.</p>
-      <p>You will hear from me when it is running.</p>
+      <p>I&rsquo;ve received your details. Your server is included with this
+         package, so there&rsquo;s no monthly server fee.</p>
+      <p>I&rsquo;ll set up Fukyaa on this MT5 account:</p>
+      <p><strong>${escape(account)}</strong></p>
+      <p>If the account number is wrong, reply to this email so I can correct
+         it. I&rsquo;ll email you again once Fukyaa is running.</p>
       <p>${escape(site.founder.name)}</p>
     `.trim(),
   });
