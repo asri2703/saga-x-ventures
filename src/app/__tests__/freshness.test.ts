@@ -185,7 +185,7 @@ test("the walk still finds a clock read in a real file", () => {
   expect(clockReachableFrom(file)).not.toBeNull();
 });
 
-test("only /copytrade reaches a clock read among prerendered pages", () => {
+test("only the record pages reach a clock read among prerendered pages", () => {
   // The other half of the same fact, stated so that it fails loudly when it
   // changes. A static page that starts reading the clock will fail here
   // first, and the guard above will then tell whoever added it what to
@@ -193,13 +193,18 @@ test("only /copytrade reaches a clock read among prerendered pages", () => {
   //
   // /copytrade joined on 26 November 2026: its "updated 12 min ago" mark
   // (`record-live.tsx`) reads the clock in the browser, and the page reads
-  // the account feed, so it regenerates hourly. It is listed by name so the
-  // next page to start reading the clock still fails here first.
+  // the account feed, so it regenerates hourly.
+  //
+  // /fukyaa joined the same day and for the same reason — it publishes the
+  // same accounts' record, because they run the EA it rents the server for.
+  // Both are listed by name rather than matched by a pattern, so the next
+  // page to start reading the clock still fails here first.
   const reading = pageFiles().filter(
     (file) => clockReachableFrom(file) && !isDynamic(read(file)),
   );
-  expect(reading.map((f) => path.basename(path.dirname(f)))).toEqual([
+  expect(reading.map((f) => path.basename(path.dirname(f))).sort()).toEqual([
     "copytrade",
+    "fukyaa",
   ]);
   for (const file of reading) {
     expect(revalidateWindow(read(file)), file).not.toBeNull();

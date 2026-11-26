@@ -2916,3 +2916,515 @@ html.lenis {
 .replay-facts--down {
   color: var(--color-ruby) !important;
 }
+
+/* ---------------------------------------------------------------------------
+   The server feed on /fukyaa.
+
+   A rack, three rails and an MT5 terminal, on a dark pane over the cream
+   paper. The pane is not decoration: the packets are neon, and neon on
+   #f2e9d8 is close to invisible.
+
+   Every moving part moves on `transform` or `opacity` only, and the whole
+   set of animations lives inside `prefers-reduced-motion: no-preference`.
+   Without it the drawing is still complete — lights lit, packets spaced
+   along their rails, rows filled — which is why the static state is the
+   one authored in the markup and the animation is the addition.
+
+   What is deliberately absent: any figure that changes. A number climbing
+   on its own is a performance claim, and a claim made by motion is the one
+   kind nobody reads the small print under.
+--------------------------------------------------------------------------- */
+.feed {
+  border-radius: var(--radius-panel);
+  background: var(--color-pine-deep);
+  border: 1px solid rgba(255, 253, 248, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 20px 44px -20px rgba(16, 42, 35, 0.5);
+  padding: 1.5rem 1.25rem 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .feed {
+    padding: 2rem 1.75rem 1.5rem;
+  }
+}
+
+.feed-plot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- the rack ---- */
+.feed-rack {
+  fill: rgba(255, 253, 248, 0.05);
+  stroke: rgba(255, 253, 248, 0.16);
+  stroke-width: 1;
+}
+
+.feed-slot {
+  fill: rgba(255, 253, 248, 0.07);
+  stroke: rgba(255, 253, 248, 0.13);
+  stroke-width: 1;
+}
+
+.feed-vent {
+  stroke: rgba(242, 233, 216, 0.22);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.feed-light {
+  fill: var(--color-neon);
+}
+
+/* ---- the rails ---- */
+.feed-rail {
+  stroke: rgba(255, 253, 248, 0.14);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 5;
+  stroke-linecap: round;
+}
+
+.feed-packet {
+  fill: var(--color-neon);
+}
+
+/* The rail that answers. Sand rather than neon, so the two directions are
+   told apart by colour and not only by which way they travel — which a
+   reduced-motion visitor cannot see at all. */
+.feed-packet--back {
+  fill: var(--color-sand);
+}
+
+/* ---- the terminal ---- */
+.feed-term {
+  fill: rgba(255, 253, 248, 0.05);
+  stroke: rgba(255, 253, 248, 0.16);
+  stroke-width: 1;
+}
+
+.feed-term-bar {
+  fill: rgba(255, 253, 248, 0.08);
+}
+
+.feed-term-dot {
+  fill: rgba(242, 233, 216, 0.3);
+}
+
+.feed-row {
+  fill: rgba(242, 233, 216, 0.18);
+}
+
+.feed-row--live {
+  fill: rgba(78, 242, 163, 0.5);
+}
+
+.feed-caption {
+  margin-block-start: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: rgba(242, 233, 216, 0.6);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The lights breathe rather than flash. `opacity` only. */
+  .feed-light {
+    animation: feed-blink 2.7s steps(1, end) infinite;
+  }
+
+  /* The packets run the rail and restart. `translateX` on an SVG element is
+     a transform in user units, which is why the distance is written in the
+     viewBox's numbers and not in pixels. */
+  .feed-packet {
+    animation: feed-run 3.3s linear infinite;
+  }
+
+  .feed-packet--back {
+    animation-name: feed-run-back;
+  }
+
+  /* The live half of each row fills and clears, so the terminal looks like
+     it is receiving rather than holding a frozen list. Transform on the
+     x-axis with the origin at the left edge: a width animation would lay
+     the row out again on every frame. */
+  .feed-row--live {
+    transform-origin: left center;
+    animation: feed-fill 2.7s var(--ease-out-ui) infinite;
+  }
+}
+
+@keyframes feed-blink {
+  0%,
+  62% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+/* 196 user units is the rail: x1 104 to x2 300. The packet starts parked at
+   its authored cx and is carried the full length, so three packets with
+   staggered delays keep the rail populated without any of them being drawn
+   outside it. */
+@keyframes feed-run {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(196px);
+    opacity: 0;
+  }
+}
+
+@keyframes feed-run-back {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-196px);
+    opacity: 0;
+  }
+}
+
+@keyframes feed-fill {
+  0% {
+    transform: scaleX(0.15);
+    opacity: 0.35;
+  }
+  45% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  80% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(0.15);
+    opacity: 0.35;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The rental steps on /fukyaa.
+
+   One step at a time, a bar across the top, and a card that holds the
+   instruction. The markers double as navigation, so a reader who wants step
+   three does not walk through two to reach it.
+
+   The fill is scaled, not widened, and the markers change on background and
+   border rather than on size: a marker that grows when it becomes current
+   moves the four beside it, and the row reflows every time the reader
+   presses Next.
+--------------------------------------------------------------------------- */
+.rent {
+  border-radius: var(--radius-panel);
+  background: var(--color-paper-raised);
+  border: 1px solid var(--color-rule);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 18px 40px -20px rgba(22, 58, 48, 0.28);
+  padding: 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .rent {
+    padding: 1.75rem;
+  }
+}
+
+/* ---- the bar ---- */
+.rent-bar-track {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--color-paper-sunk);
+  overflow: hidden;
+}
+
+.rent-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-pine);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rent-bar-fill {
+    transition: transform 0.4s var(--ease-out-ui);
+  }
+}
+
+.rent-bar-read {
+  margin-block-start: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-pine-faint);
+}
+
+/* ---- the markers ----
+   A scrolling row on a phone rather than four cramped columns: the labels
+   are words, and words squeezed into 70px wrap to three lines each. The
+   row scrolls sideways INSIDE its own box, which is not the page scrolling
+   sideways — `overflow-x: auto` on a child cannot push the page wider. */
+.rent-dots {
+  display: flex;
+  gap: 0.5rem;
+  margin-block-start: 1.25rem;
+  padding-block-end: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rent-dots::-webkit-scrollbar {
+  display: none;
+}
+
+.rent-dots > li {
+  flex: 0 0 auto;
+}
+
+.rent-dot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper);
+  padding: 0.4375rem 0.875rem 0.4375rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-pine-soft);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.rent-dot:hover {
+  border-color: var(--color-rule-strong);
+}
+
+.rent-dot[data-at] {
+  background: var(--color-pine);
+  border-color: var(--color-pine);
+  color: var(--color-paper);
+}
+
+.rent-dot-n {
+  display: grid;
+  place-items: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  background: var(--color-paper-sunk);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--color-pine);
+}
+
+.rent-dot[data-at] .rent-dot-n {
+  background: rgba(255, 253, 248, 0.22);
+  color: var(--color-paper);
+}
+
+/* Ticked but not current: the green belongs to the tick, so it reads from
+   across the card without the label changing colour. */
+.rent-dot[data-done] .rent-dot-n {
+  background: var(--color-sage);
+  color: var(--color-pine);
+}
+
+.rent-dot[data-done][data-at] .rent-dot-n {
+  background: var(--color-neon);
+  color: var(--color-pine);
+}
+
+.rent-dot-label {
+  white-space: nowrap;
+}
+
+/* ---- the card ---- */
+.rent-card {
+  margin-block-start: 1.25rem;
+  border-radius: var(--radius-float);
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
+  padding: 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .rent-card {
+    padding: 1.75rem;
+  }
+}
+
+.rent-points {
+  margin-block-start: 1.125rem;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+.rent-points > li {
+  position: relative;
+  padding-inline-start: 1.125rem;
+}
+
+.rent-points > li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.5rem;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--color-rule-strong);
+}
+
+.rent-actions {
+  margin-block-start: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+/* ---- the tick ---- */
+.rent-tick {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-rule-strong);
+  background: transparent;
+  padding: 0.6875rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-pine);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.rent-tick:hover {
+  background: var(--color-paper-sunk);
+}
+
+.rent-tick[aria-pressed="true"] {
+  border-color: var(--color-pine);
+  background: var(--color-sage);
+}
+
+.rent-tick-box {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.3125rem;
+  border: 1.5px solid var(--color-rule-strong);
+  background: var(--color-paper-raised);
+  color: var(--color-pine);
+}
+
+.rent-tick[aria-pressed="true"] .rent-tick-box {
+  border-color: var(--color-pine);
+  background: var(--color-neon);
+}
+
+/* ---- the lock ---- */
+.rent-locked {
+  margin-block-start: 1.5rem;
+  display: grid;
+  gap: 0.875rem;
+  border-radius: var(--radius-float);
+  background: var(--color-blush);
+  border: 1px solid rgba(200, 31, 48, 0.2);
+  padding: 1.125rem 1.25rem;
+}
+
+.rent-locked > ul {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.rent-locked > ul button {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-pine);
+  text-decoration: underline;
+  text-decoration-color: var(--color-ruby);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: start;
+}
+
+/* ---- back and next ---- */
+.rent-nav {
+  margin-block-start: 1.75rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid var(--color-rule);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.rent-move {
+  border-radius: 999px;
+  border: 1px solid var(--color-rule-strong);
+  background: transparent;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-pine);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    opacity 0.2s;
+}
+
+.rent-move:hover:not(:disabled) {
+  background: var(--color-paper-sunk);
+}
+
+.rent-move:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.rent-move--on {
+  background: var(--color-pine);
+  border-color: var(--color-pine);
+  color: var(--color-paper);
+}
+
+.rent-move--on:hover:not(:disabled) {
+  background: var(--color-pine-deep);
+}

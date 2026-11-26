@@ -161,7 +161,7 @@ export const products: Product[] = [
   },
   {
     key: "fukyaa",
-    name: "Fukyaa AI Auto Trade",
+    name: "AI Auto Trade",
     forWho: "I don't know how to trade.",
     summary:
       "An expert advisor places the trades. You fund the account and leave it running.",
