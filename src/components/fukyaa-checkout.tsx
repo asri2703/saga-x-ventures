@@ -292,7 +292,8 @@ export function FukyaaCheckout({ pack, onClose }: Props) {
                 <p className="mt-3 text-xs leading-relaxed text-pine-faint">
                   One month, not a subscription. Nothing renews on its own:
                   a reminder reaches you before it ends and renewing is this
-                  same step again.
+                  same step again. The rent is the same in a losing month as
+                  in a good one &mdash; it buys the server, not a result.
                 </p>
               )}
             </div>

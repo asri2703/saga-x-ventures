@@ -74,7 +74,7 @@ export function AutoTradeFlow({
   steps,
   heading,
   aside = null,
-  note,
+  note = null,
   between = null,
 }: {
   packages: FlowPackage[];
@@ -82,8 +82,8 @@ export function AutoTradeFlow({
   heading: ReactNode;
   /** The other way in, beside the heading: the route that is not a package. */
   aside?: ReactNode;
-  /** The line under the rows. */
-  note: ReactNode;
+  /** The line under the cards, when there is one. */
+  note?: ReactNode;
   /** What the page shows between the rows and the steps, if anything. */
   between?: ReactNode;
 }) {
@@ -163,7 +163,7 @@ export function AutoTradeFlow({
             ))}
           </div>
 
-          <p className="plan-note">{note}</p>
+          {note ? <p className="plan-note">{note}</p> : null}
         </div>
       </section>
 

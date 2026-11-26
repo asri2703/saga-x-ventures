@@ -35,7 +35,6 @@ import {
   ActionOut,
   Eyebrow,
   Scallop,
-  TextLink,
 } from "@/components/shell";
 
 /* The record is read from the feed at render, as /copytrade reads it. */
@@ -520,27 +519,6 @@ export default async function FukyaaPage() {
               server monthly or have it included.
             </p>
           </div>
-        }
-        aside={
-          /* The third way in, which is not a package and does not belong in
-             a row with two that are: it is paid out of the gain rather than
-             up front, and it lives on its own page. */
-          <div className="plan-aside" data-reveal>
-            <p className="plan-aside-title">Rather not pay monthly</p>
-            <p className="plan-aside-body">
-              Copytrade has no server to rent. It follows the same robot on
-              your own account, and what it costs is settled out of the
-              result instead.
-            </p>
-            <TextLink href="/copytrade">See Copytrade</TextLink>
-          </div>
-        }
-        note={
-          <>
-            Rent is due every month, in a losing month too &mdash; over a
-            year that is {formatMyr(fukyaa.vpsMonthlyMyr * 12)} against{" "}
-            {formatMyr(0)} on the larger deposit.
-          </>
         }
       />
 
