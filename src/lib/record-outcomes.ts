@@ -322,3 +322,66 @@ export function project(
     lots: lots === null ? null : (deposit / 1000) * lots,
   };
 }
+
+export type ReplayPoint = { day: string; balance: number };
+
+export type Replay = {
+  points: ReplayPoint[];
+  /** Where it started and where it ended. */
+  deposit: number;
+  final: number;
+  /** The single worst day, in this deposit's money. */
+  worstDay: { day: string; amount: number } | null;
+  bestDay: { day: string; amount: number } | null;
+  /** Days that lost money, and days in all. */
+  losingDays: number;
+  tradingDays: number;
+};
+
+/**
+ * The record replayed as if a given deposit had followed it from the start.
+ *
+ * This is history in the reader's own money, not a forecast: every point is
+ * a day that happened, scaled by the ratio between their deposit and the
+ * account's capital at the time. Nothing is invented and nothing is
+ * smoothed — the day this account lost a quarter of itself is in here, at
+ * its real date, because an account that only ever climbs reads as an
+ * advert and a reader can tell.
+ *
+ * It must be presented in the past tense and with its start date visible.
+ * "If you had started in July" is evidence; "you will get" is a promise,
+ * and this function cannot tell the difference — the page has to.
+ */
+export function replay(days: RecordDay[], deposit: number): Replay | null {
+  if (days.length === 0 || !(deposit > 0)) return null;
+
+  const returns = dailyReturns(days);
+  const points: ReplayPoint[] = [];
+  let balance = deposit;
+  let worstDay: Replay["worstDay"] = null;
+  let bestDay: Replay["bestDay"] = null;
+  let losingDays = 0;
+
+  for (let i = 0; i < returns.length; i++) {
+    const move = balance * returns[i];
+    if (returns[i] < 0) losingDays++;
+    if (worstDay === null || move < worstDay.amount) {
+      worstDay = { day: days[i].day, amount: move };
+    }
+    if (bestDay === null || move > bestDay.amount) {
+      bestDay = { day: days[i].day, amount: move };
+    }
+    balance = Math.max(balance + move, 0);
+    points.push({ day: days[i].day, balance });
+  }
+
+  return {
+    points,
+    deposit,
+    final: balance,
+    worstDay,
+    bestDay,
+    losingDays,
+    tradingDays: returns.length,
+  };
+}
