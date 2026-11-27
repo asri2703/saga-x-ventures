@@ -242,6 +242,17 @@ test("only listed instruments with a known direction are kept, five at most", ()
   expect(parseAssets("XAUUSD")).toEqual([]);
 });
 
+test("a reply cut off by max_tokens keeps every verdict that finished", () => {
+  const cut =
+    'Here: [{"i":1,"relevant":true,"impact":"high","direction":"bullish","summary":"A \\"quoted\\" {brace}.","category":"geopolitics","image_query":"x","assets":[{"symbol":"USDJPY","direction":"down"}]},' +
+    '{"i":2,"relevant":false},{"i":3,"relevant":true,"impact":"medium","summ';
+  const v = parseVerdicts(cut, 3);
+  expect(v[0]?.summary).toBe('A "quoted" {brace}.');
+  expect(v[0]?.assets).toEqual([{ symbol: "USDJPY", direction: "down" }]);
+  expect(v[1]?.relevant).toBe(false);
+  expect(v[2]).toBeUndefined();
+});
+
 test("a verdict carries its instruments", () => {
   const v = parseVerdicts(
     `[{"i":1,"relevant":true,"impact":"high","direction":"bullish","summary":"BoJ hikes.","category":"central-banks","image_query":"central bank","assets":[{"symbol":"USDJPY","direction":"down"}]}]`,

@@ -13,7 +13,9 @@ import type { Headline } from "./sources";
  */
 
 export const DEFAULT_MODEL = "claude-haiku-5-5";
-export const BATCH_SIZE = 25;
+// Fifteen keeps a batch's reply (a summary and up to five instruments each)
+// well inside max_tokens; a cut-off reply loses only its unfinished tail.
+export const BATCH_SIZE = 15;
 
 export type Verdict = {
   relevant: boolean;
@@ -112,23 +114,51 @@ const IMPACTS = new Set(["high", "medium", "low"]);
 const DIRECTIONS = new Set(["bullish", "bearish", "neutral"]);
 
 /**
+ * The complete top-level objects in a JSON array, even when the array was
+ * cut off (a reply that hit max_tokens): every object that closed is kept.
+ */
+export function completeObjects(text: string): unknown[] {
+  const start = text.indexOf("[");
+  if (start < 0) return [];
+  const out: unknown[] = [];
+  let depth = 0;
+  let from = -1;
+  let inString = false;
+  for (let i = start + 1; i < text.length; i++) {
+    const c = text[i];
+    if (inString) {
+      if (c === "\\") i += 1;
+      else if (c === '"') inString = false;
+      continue;
+    }
+    if (c === '"') inString = true;
+    else if (c === "{") {
+      if (depth === 0) from = i;
+      depth += 1;
+    } else if (c === "}") {
+      depth -= 1;
+      if (depth === 0 && from >= 0) {
+        try {
+          out.push(JSON.parse(text.slice(from, i + 1)));
+        } catch {
+          // A malformed object is skipped; its headline waits for the next run.
+        }
+        from = -1;
+      }
+    } else if (c === "]" && depth === 0) break;
+  }
+  return out;
+}
+
+/**
  * Turns the model's text into one verdict per headline position. A position
  * the model skipped or garbled comes back undefined, and the caller leaves
  * that headline for the next run.
  */
 export function parseVerdicts(text: string, count: number): (Verdict | undefined)[] {
   const out: (Verdict | undefined)[] = new Array(count).fill(undefined);
-  const start = text.indexOf("[");
-  const end = text.lastIndexOf("]");
-  if (start < 0 || end <= start) return out;
-
-  let rows: unknown;
-  try {
-    rows = JSON.parse(text.slice(start, end + 1));
-  } catch {
-    return out;
-  }
-  if (!Array.isArray(rows)) return out;
+  const rows = completeObjects(text);
+  if (rows.length === 0) return out;
 
   for (const row of rows as Record<string, unknown>[]) {
     const i = typeof row?.i === "number" ? row.i - 1 : -1;
@@ -191,7 +221,7 @@ export async function classifyBatch(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 4000,
+      max_tokens: 8000,
       system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: buildUserMessage(batch) }],
     }),
