@@ -151,3 +151,54 @@ export async function readBreakdown(since: Date): Promise<{
   }
   return { impact, direction };
 }
+
+/**
+ * Relevant stories stored before sections and photos existed (no category),
+ * as headlines the classifier can be asked about again.
+ */
+export async function readUncategorised(
+  since: Date,
+  limit: number,
+): Promise<{ id: string; headline: Headline }[]> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("id, url, headline, source, outlet, published_at")
+    .eq("relevant", true)
+    .is("category", null)
+    .gte("published_at", since.toISOString())
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    headline: {
+      url: r.url as string,
+      headline: r.headline as string,
+      source: r.source as Headline["source"],
+      outlet: (r.outlet as string) ?? "",
+      publishedAt: new Date(r.published_at as string),
+    },
+  }));
+}
+
+/**
+ * Fills in section and photo on a stored story. Impact, direction and the
+ * summary members may already have read are left as they were.
+ */
+export async function updateSectionAndPhoto(
+  id: string,
+  verdict: Verdict,
+  image: StoryImage | null,
+): Promise<void> {
+  const { error } = await serviceClient()
+    .from("terminal_news")
+    .update({
+      category: verdict.category,
+      image_query: verdict.imageQuery,
+      image_url: image?.url ?? null,
+      image_credit: image?.credit ?? null,
+      image_link: image?.link ?? null,
+    })
+    .eq("id", id);
+  if (error) throw error;
+}
