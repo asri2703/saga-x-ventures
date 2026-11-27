@@ -219,7 +219,7 @@ test("the brief prompt lists existing stories by number", () => {
  * Forex.
  * ------------------------------------------------------------------ */
 
-test("only listed instruments with a known direction are kept, four at most", () => {
+test("only listed instruments with a known direction are kept, five at most", () => {
   expect(
     parseAssets([
       { symbol: "XAUUSD", direction: "up" },
@@ -229,13 +229,15 @@ test("only listed instruments with a known direction are kept, four at most", ()
       { symbol: "XAUUSD", direction: "down" }, // a repeat
       { symbol: "GBPUSD", direction: "unclear" },
       { symbol: "AUDUSD", direction: "up" },
-      { symbol: "NZDUSD", direction: "up" }, // the fifth
+      { symbol: "NZDUSD", direction: "up" },
+      { symbol: "USDCAD", direction: "down" }, // the sixth
     ]),
   ).toEqual([
     { symbol: "XAUUSD", direction: "up" },
     { symbol: "EURUSD", direction: "down" },
     { symbol: "GBPUSD", direction: "unclear" },
     { symbol: "AUDUSD", direction: "up" },
+    { symbol: "NZDUSD", direction: "up" },
   ]);
   expect(parseAssets("XAUUSD")).toEqual([]);
 });
