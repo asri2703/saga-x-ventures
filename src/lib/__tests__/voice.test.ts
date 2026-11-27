@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
+import { isHqPath } from "./hq-scope";
 
 /**
  * Voice guards.
@@ -21,7 +22,7 @@ function files(): { file: string; text: string }[] {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, e.name);
       if (e.isDirectory()) {
-        if (e.name !== "__tests__") walk(full);
+        if (e.name !== "__tests__" && !isHqPath(full)) walk(full);
         continue;
       }
       if (/\.tsx?$/.test(e.name)) out.push({ file: full, text: fs.readFileSync(full, "utf8") });

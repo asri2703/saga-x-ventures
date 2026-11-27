@@ -9,7 +9,7 @@ import { expect, test } from "vitest";
  * Each reason needs two files: the picture and the thumbnail that picks it.
  */
 
-const PAGE = fs.readFileSync("src/app/copytrade/page.tsx", "utf8");
+const PAGE = fs.readFileSync("src/app/(site)/copytrade/page.tsx", "utf8");
 const COMPONENT = fs.readFileSync("src/components/reason-showcase.tsx", "utf8");
 
 const images = [...PAGE.matchAll(/image:\s*"([^"]+)"/g)].map((m) => m[1]);

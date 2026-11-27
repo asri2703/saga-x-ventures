@@ -26,7 +26,7 @@ const SOURCE = fs.readFileSync("src/lib/record.ts", "utf8");
 // page only chooses which accounts to hand it.
 const PANEL = fs.readFileSync("src/components/record-panel.tsx", "utf8");
 const FLAT = PANEL.replace(/\s+/g, " ");
-const PAGE = fs.readFileSync("src/app/copytrade/page.tsx", "utf8");
+const PAGE = fs.readFileSync("src/app/(site)/copytrade/page.tsx", "utf8");
 
 test("the guards are reading the right files", () => {
   expect(SOURCE).toContain("export async function recordDays");

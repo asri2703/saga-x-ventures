@@ -12,7 +12,7 @@ import { coachingClasses, classList } from "@/lib/coaching";
  */
 
 const HOME = fs.readFileSync(
-  path.join(process.cwd(), "src", "app", "page.tsx"),
+  path.join(process.cwd(), "src", "app", "(site)", "page.tsx"),
   "utf8",
 );
 

@@ -18,7 +18,7 @@ import { expect, test } from "vitest";
  * somebody tidying copy who does not know why it is there.
  */
 
-const SOURCE = fs.readFileSync("src/app/copytrade/page.tsx", "utf8");
+const SOURCE = fs.readFileSync("src/app/(site)/copytrade/page.tsx", "utf8");
 const FLAT = SOURCE.replace(/\s+/g, " ");
 
 test("the page names the provider a visitor will actually see", () => {

@@ -11,7 +11,7 @@ import { expect, test } from "vitest";
 
 const SOURCE = fs
   .readFileSync(
-    path.join(process.cwd(), "src", "app", "checkout", "done", "page.tsx"),
+    path.join(process.cwd(), "src", "app", "(site)", "checkout", "done", "page.tsx"),
     "utf8",
   )
   .replace(/\/\*[\s\S]*?\*\//g, "")

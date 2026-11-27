@@ -18,11 +18,11 @@ const retiredServicePaths = [
 /**
  * apps.sagaxventures.com is where internal tools are previewed, starting with
  * Mastery Terminal. The subdomain is served by this same deployment: a request
- * to apps.<host>/terminal is answered by /apps/terminal. `apps.localhost`
+ * to apps.<host>/terminal is answered by /apps/terminal, and the root by /apps. `apps.localhost`
  * does the same on a laptop (http://apps.localhost:3000), because browsers
  * resolve every *.localhost name to the machine itself.
  *
- * Only named paths are rewritten, so assets under /_next and the API keep
+ * Framework assets under /_next and the API are left alone, so they keep
  * resolving as they do on the main domain.
  */
 const APPS_HOST = "apps\\.(sagaxventures\\.com|localhost)";
@@ -34,12 +34,14 @@ const nextConfig: NextConfig = {
         {
           source: "/",
           has: [{ type: "host", value: APPS_HOST }],
-          destination: "/apps/terminal",
+          destination: "/apps",
         },
         {
-          source: "/terminal",
+          // Everything except framework assets, API routes, the icon and
+          // paths that already carry the /apps prefix.
+          source: "/:path((?!_next|api|apps|icon|favicon).+)",
           has: [{ type: "host", value: APPS_HOST }],
-          destination: "/apps/terminal",
+          destination: "/apps/:path",
         },
       ],
       afterFiles: [],
