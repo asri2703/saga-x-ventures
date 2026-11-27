@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buildUserMessage, parseVerdicts } from "@/lib/terminal/classify";
+import { buildUserMessage, parseAssets, parseVerdicts } from "@/lib/terminal/classify";
 import { parseUnsplashSearch } from "@/lib/terminal/images";
 import { buildBriefMessage, parseBriefReply } from "@/lib/terminal/brief";
 import {
@@ -111,6 +111,7 @@ test("verdicts map back to their headline and bad rows are dropped", () => {
     category: "geopolitics",
     // Punctuation is stripped: the query goes into a search URL.
     imageQuery: "oil tanker strait",
+    assets: [],
   });
   expect(v[1]).toEqual({
     relevant: false,
@@ -119,6 +120,7 @@ test("verdicts map back to their headline and bad rows are dropped", () => {
     summary: null,
     category: null,
     imageQuery: null,
+    assets: [],
   });
   // A section we do not have is dropped, not guessed; the story is kept.
   expect(v[3]?.category).toBeNull();
@@ -205,10 +207,49 @@ test("a brief needs every section, or it waits for the next run", () => {
 
 test("the brief prompt lists existing stories by number", () => {
   const msg = buildBriefMessage(
-    { headline: "New", outlet: "BBC", publishedAt: "2026-11-27T05:00:00Z", snippet: null, impact: "high", direction: "bullish" },
+    { headline: "New", outlet: "BBC", publishedAt: "2026-11-27T05:00:00Z", snippet: null, impact: "high", direction: "bullish", assets: "XAUUSD up" },
     candidates,
   );
   expect(msg).toContain("1. Drone strike in Kuwait");
   expect(msg).toContain("2. Fed holds rates");
   expect(msg).toContain("Teaser: (none)");
+});
+
+/* ------------------------------------------------------------------ *
+ * Forex.
+ * ------------------------------------------------------------------ */
+
+test("only listed instruments with a known direction are kept, four at most", () => {
+  expect(
+    parseAssets([
+      { symbol: "XAUUSD", direction: "up" },
+      { symbol: "eurusd", direction: "down" }, // case is forgiven
+      { symbol: "BTCUSD", direction: "up" }, // not ours
+      { symbol: "USDJPY", direction: "sideways" }, // not a direction
+      { symbol: "XAUUSD", direction: "down" }, // a repeat
+      { symbol: "GBPUSD", direction: "unclear" },
+      { symbol: "AUDUSD", direction: "up" },
+      { symbol: "NZDUSD", direction: "up" }, // the fifth
+    ]),
+  ).toEqual([
+    { symbol: "XAUUSD", direction: "up" },
+    { symbol: "EURUSD", direction: "down" },
+    { symbol: "GBPUSD", direction: "unclear" },
+    { symbol: "AUDUSD", direction: "up" },
+  ]);
+  expect(parseAssets("XAUUSD")).toEqual([]);
+});
+
+test("a verdict carries its instruments", () => {
+  const v = parseVerdicts(
+    `[{"i":1,"relevant":true,"impact":"high","direction":"bullish","summary":"BoJ hikes.","category":"central-banks","image_query":"central bank","assets":[{"symbol":"USDJPY","direction":"down"}]}]`,
+    1,
+  );
+  expect(v[0]?.category).toBe("central-banks");
+  expect(v[0]?.assets).toEqual([{ symbol: "USDJPY", direction: "down" }]);
+});
+
+test("RDF feeds that date items with dc:date are read", () => {
+  const xml = `<item rdf:about="x"><title>BoJ statement</title><link>https://boj/a</link><dc:date>2026-11-27T14:00:00+09:00</dc:date></item>`;
+  expect(parseRss(xml, "rss", "Bank of Japan")[0].publishedAt.toISOString()).toBe("2026-11-27T05:00:00.000Z");
 });

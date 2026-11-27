@@ -1,4 +1,5 @@
 import { authorised } from "@/lib/record-feed";
+import { ASSETS, CATEGORIES, type Asset, type Category } from "@/lib/terminal/classify";
 import { readFeed } from "@/lib/terminal/store";
 
 /**
@@ -11,7 +12,9 @@ import { readFeed } from "@/lib/terminal/store";
  *   Authorization: Bearer $TERMINAL_FEED_KEY
  *
  * `hours` 1–168 (default 24), `min` low | medium | high (default low),
- * `limit` 1–200 (default 50). Newest first.
+ * `limit` 1–200 (default 50), optional `asset` (XAUUSD, EURUSD ...) and
+ * `category` (a section slug). Newest first. Each item carries its brief,
+ * its instrument moves and every outlet that carried it.
  */
 
 export const dynamic = "force-dynamic";
@@ -39,12 +42,18 @@ export async function GET(request: Request): Promise<Response> {
   const limit = clampInt(params.get("limit"), 50, 1, 200);
   const minParam = params.get("min");
   const minImpact: Impact = IMPACTS.includes(minParam as Impact) ? (minParam as Impact) : "low";
+  const assetParam = params.get("asset");
+  const asset = (ASSETS as readonly string[]).includes(assetParam ?? "") ? (assetParam as Asset) : null;
+  const categoryParam = params.get("category") ?? "";
+  const category = categoryParam in CATEGORIES ? (categoryParam as Category) : null;
 
   try {
     const items = await readFeed({
       since: new Date(Date.now() - hours * 60 * 60 * 1000),
       minImpact,
       limit,
+      asset,
+      category,
     });
     return Response.json(
       { items, generated_at: new Date().toISOString() },

@@ -126,3 +126,43 @@ stored, relevant or not, so the same story is never paid for twice.
 The headline, the outlet, a link to the original, and our own two-sentence
 summary. Article text is never fetched or stored. The summary is not trading
 advice, and the prompt tells the model not to give any.
+
+## Forex
+
+Stories are screened for gold **and** the major pairs. Each relevant story
+carries `assets`: up to four of XAUUSD, DXY, EURUSD, GBPUSD, USDJPY, USDCHF,
+AUDUSD, USDCAD, NZDUSD, each `up`, `down` or `unclear` for the quoted pair.
+The wire and `/api/terminal/feed` filter by `?asset=EURUSD`.
+
+Feeds added for FX: FXStreet, investingLive, and the ECB, Bank of England
+and Bank of Japan press feeds. Sections added: Politics & Elections, Other
+Central Banks, Global Data & China.
+
+## Macro data (`/apps/macro`)
+
+US series taken straight from their publishers, all public domain:
+
+| Series | Publisher |
+|---|---|
+| Fed funds (upper target), effective fed funds | New York Fed markets API |
+| CPI, core CPI (YoY), unemployment, nonfarm payrolls (monthly change), average hourly earnings (YoY) | BLS API |
+| 2-year, 10-year, 10-year real yield | US Treasury daily yield curves |
+
+Stored in `macro_points` (migration `0011`). `/api/macro/refresh` runs twice
+a day from `vercel.json` (13:45 and 22:15 UTC). After the first deploy, fill
+the history once:
+
+```bash
+curl -H "Authorization: Bearer $TERMINAL_INGEST_SECRET" "https://sagaxventures.com/api/macro/refresh?backfill=1"
+```
+
+`BLS_API_KEY` (free, bls.gov/developers) is optional: without it BLS allows
+25 requests a day and ten years per request, which the two daily refreshes
+stay well inside.
+
+FRED and Trading Economics are deliberately not used: their terms restrict
+commercial display, and their forecasts are their own.
+
+China's figures are not in Macro data yet: China's statistics bureau has no
+documented public API. China's releases reach the wire as news in the
+Global Data & China section.

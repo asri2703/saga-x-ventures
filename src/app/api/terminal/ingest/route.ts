@@ -137,6 +137,7 @@ export async function GET(request: Request): Promise<Response> {
           snippet: story.snippet,
           impact: story.impact,
           direction: story.direction,
+          assets: (story.assets ?? []).map((a) => `${a.symbol} ${a.direction}`).join(", "),
         },
         published.filter((p) => p.id !== story.id),
         apiKey,
