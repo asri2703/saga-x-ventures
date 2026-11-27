@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
+import { isHqPath } from "./hq-scope";
 import {
   products,
   retailProducts,
@@ -55,7 +56,10 @@ test("every outbound link on a page goes through /go", () => {
       withFileTypes: true,
     })
     .filter((e) => e.isFile() && /\.tsx$/.test(e.name))
-    .map((e) => path.join(e.parentPath, e.name));
+    .map((e) => path.join(e.parentPath, e.name))
+    // HQ is internal: its outbound links (news sources, photo credits) are
+    // not marketing clicks and are not counted through /go.
+    .filter((file) => !isHqPath(file));
 
   expect(pages.length).toBeGreaterThan(5);
   for (const file of pages) {

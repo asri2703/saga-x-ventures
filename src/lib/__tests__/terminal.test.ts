@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { buildUserMessage, parseVerdicts } from "@/lib/terminal/classify";
 import { parseUnsplashSearch } from "@/lib/terminal/images";
+import { buildBriefMessage, parseBriefReply } from "@/lib/terminal/brief";
 import {
   dedupe,
   gdeltUrl,
@@ -157,4 +158,57 @@ test("an Unsplash result becomes a sized, credited, hotlinked photo", () => {
   expect(photo?.downloadLocation).toBe("https://api.unsplash.com/photos/1/download");
   expect(parseUnsplashSearch({ results: [] })).toBeNull();
   expect(parseUnsplashSearch({ errors: ["bad key"] })).toBeNull();
+});
+
+/* ------------------------------------------------------------------ *
+ * The brief.
+ * ------------------------------------------------------------------ */
+
+test("an RSS teaser is kept as plain text, tags and entities removed", () => {
+  const xml = `<item><title>Fed holds</title><link>https://f/a</link><pubDate>Wed, 18 Nov 2026 19:00:00 GMT</pubDate><description>&lt;p&gt;Rates  unchanged &amp; steady&lt;/p&gt;</description></item>`;
+  expect(parseRss(xml, "rss", "x")[0].snippet).toBe("Rates unchanged & steady");
+  const bare = `<item><title>A</title><link>https://f/b</link><pubDate>Wed, 18 Nov 2026 19:00:00 GMT</pubDate></item>`;
+  expect(parseRss(bare, "rss", "x")[0].snippet).toBeUndefined();
+});
+
+const candidates = [
+  { id: "11111111-1111-1111-1111-111111111111", headline: "Drone strike in Kuwait" },
+  { id: "22222222-2222-2222-2222-222222222222", headline: "Fed holds rates" },
+];
+
+test("a duplicate answer files the headline under the story it names", () => {
+  expect(parseBriefReply('{"same_as": 2}', candidates)).toEqual({
+    kind: "duplicate",
+    parentId: "22222222-2222-2222-2222-222222222222",
+  });
+  // A number outside the list is not trusted.
+  expect(parseBriefReply('{"same_as": 9}', candidates)).toEqual({ kind: "unusable" });
+});
+
+test("a brief needs every section, or it waits for the next run", () => {
+  const full = {
+    title: "Kuwait strike widens Gulf risk",
+    what_happened: "A drone struck Kuwait.",
+    why_it_matters: "It widens the conflict.",
+    gold_impact: "Supportive for gold as a haven.",
+    what_to_watch: "Whether shipping is disrupted.",
+  };
+  const ok = parseBriefReply(`Sure: ${JSON.stringify({ same_as: null, brief: full })}`, candidates);
+  expect(ok).toEqual({ kind: "brief", brief: full });
+
+  const missing = { ...full, what_to_watch: "" };
+  expect(parseBriefReply(JSON.stringify({ same_as: null, brief: missing }), candidates)).toEqual({
+    kind: "unusable",
+  });
+  expect(parseBriefReply("not json", candidates)).toEqual({ kind: "unusable" });
+});
+
+test("the brief prompt lists existing stories by number", () => {
+  const msg = buildBriefMessage(
+    { headline: "New", outlet: "BBC", publishedAt: "2026-11-27T05:00:00Z", snippet: null, impact: "high", direction: "bullish" },
+    candidates,
+  );
+  expect(msg).toContain("1. Drone strike in Kuwait");
+  expect(msg).toContain("2. Fed holds rates");
+  expect(msg).toContain("Teaser: (none)");
 });

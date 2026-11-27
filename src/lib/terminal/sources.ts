@@ -15,6 +15,11 @@ export type Headline = {
   source: "gdelt" | "rss" | "finnhub";
   outlet: string;
   publishedAt: Date;
+  /**
+   * The outlet's own one or two line teaser, when its feed gives one. Used
+   * only as context for the brief Claude writes; never shown to members.
+   */
+  snippet?: string;
 };
 
 /** How far back one run looks. A missed run is covered by the next. */
@@ -97,6 +102,11 @@ function decodeEntities(text: string): string {
     .trim();
 }
 
+/** Feeds put HTML in descriptions; keep the words only. */
+function stripTags(text: string): string {
+  return text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function tag(block: string, name: string): string {
   const m = new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, "i").exec(block);
   return m ? decodeEntities(m[1]) : "";
@@ -110,7 +120,8 @@ export function parseRss(xml: string, source: Headline["source"], outlet: string
     const url = tag(block, "link");
     const when = new Date(tag(block, "pubDate"));
     if (!headline || !url || Number.isNaN(when.getTime())) continue;
-    out.push({ url, headline, source, outlet, publishedAt: when });
+    const snippet = stripTags(tag(block, "description")).slice(0, 400);
+    out.push({ url, headline, source, outlet, publishedAt: when, ...(snippet ? { snippet } : {}) });
   }
   return out;
 }
@@ -132,6 +143,9 @@ export function parseFinnhub(body: unknown): Headline[] {
       headline,
       source: "finnhub",
       outlet: typeof n.source === "string" ? n.source : "",
+      ...(typeof n.summary === "string" && n.summary.trim()
+        ? { snippet: n.summary.trim().slice(0, 400) }
+        : {}),
       publishedAt: new Date(seconds * 1000),
     });
   }
