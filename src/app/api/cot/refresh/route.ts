@@ -1,6 +1,8 @@
 import { authorised } from "@/lib/record-feed";
 import { fetchCot } from "@/lib/cot/fetch";
-import { saveCot } from "@/lib/cot/store";
+import { latestCotDate, readCotLatest, saveCot } from "@/lib/cot/store";
+import { cotAlert } from "@/lib/alerts/compose";
+import { alertQuietly } from "@/lib/alerts/push";
 
 /**
  * Pulls Commitments of Traders positioning from the CFTC into HQ.
@@ -32,10 +34,14 @@ export async function GET(request: Request): Promise<Response> {
   const since = backfill ? "2010-01-01" : new Date(Date.now() - 56 * 86_400_000).toISOString().slice(0, 10);
 
   try {
+    const before = await latestCotDate("gold");
     const rows = await fetchCot(since);
     await saveCot(rows);
     const latest = rows.reduce((max, r) => (r.report_date > max ? r.report_date : max), "");
-    return Response.json({ ok: true, backfill, since, rows: rows.length, latest });
+    // A new week landed: tell subscribers once (the sender refuses repeats).
+    const fresh = Boolean(before) && latest > before;
+    if (fresh) await alertQuietly(cotAlert(await readCotLatest(new Date())));
+    return Response.json({ ok: true, backfill, since, rows: rows.length, latest, alerted: fresh });
   } catch (error) {
     console.error("cot refresh failed", error);
     return Response.json({ ok: false, error: String(error).slice(0, 300) }, { status: 502 });

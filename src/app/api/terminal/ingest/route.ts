@@ -1,4 +1,6 @@
 import { authorised } from "@/lib/record-feed";
+import { newsAlert } from "@/lib/alerts/compose";
+import { alertQuietly } from "@/lib/alerts/push";
 import { BATCH_SIZE, classifyBatch, DEFAULT_MODEL, type Verdict } from "@/lib/terminal/classify";
 import { dedupe, fetchHeadlines, LOOKBACK_MINUTES, type Headline } from "@/lib/terminal/sources";
 import { findImage, type StoryImage } from "@/lib/terminal/images";
@@ -35,6 +37,8 @@ const MAX_PER_RUN = 75;
 const MAX_IMAGE_SEARCHES = 4;
 /** Briefs per run. A backlog clears over a few runs instead of one long one. */
 const MAX_BRIEFS_PER_RUN = 6;
+/** A high-impact story is pushed only if it was published this recently. */
+const ALERT_WINDOW_MS = 3 * 60 * 60 * 1000;
 
 export async function GET(request: Request): Promise<Response> {
   // Its own secret when set, so the scheduler that calls this (Supabase
@@ -150,6 +154,10 @@ export async function GET(request: Request): Promise<Response> {
         await saveBrief(story.id, result.brief, briefModel);
         published.unshift({ id: story.id, headline: result.brief.title });
         briefs += 1;
+        // Push only what is high impact and still news (a backlog brief for
+        // a story from yesterday stays on the wire, quietly).
+        const fresh = Date.now() - Date.parse(story.published_at) < ALERT_WINDOW_MS;
+        if (story.impact === "high" && fresh) await alertQuietly(newsAlert(story, result.brief));
       }
     }
   } catch (error) {
