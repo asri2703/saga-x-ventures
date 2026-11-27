@@ -23,7 +23,10 @@ export const maxDuration = 120;
 const MAX_PER_RUN = 75;
 
 export async function GET(request: Request): Promise<Response> {
-  const secret = process.env.CRON_SECRET;
+  // Its own secret when set, so the scheduler that calls this (Supabase
+  // pg_cron while the site is on Vercel Hobby) never holds the secret that
+  // also triggers client emails in /api/reminders.
+  const secret = process.env.TERMINAL_INGEST_SECRET || process.env.CRON_SECRET;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!secret || !apiKey) {
     return Response.json({ error: "Terminal ingest is not configured" }, { status: 503 });
