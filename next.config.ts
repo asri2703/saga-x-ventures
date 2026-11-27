@@ -37,6 +37,17 @@ const nextConfig: NextConfig = {
         destination: "https://www.masterysignal.com/",
         permanent: true,
       },
+      /* /about is gone. Who Asri is was never a page's worth on its own —
+         it is the dark band on the homepage, which a reader reaches by
+         scrolling rather than by leaving. The URL sat in the nav and the
+         footer of every page for months, so links to it exist in messages
+         and in whatever a crawler already saw. Permanent, so the standing
+         it had moves to the homepage rather than being dropped. */
+      {
+        source: "/about",
+        destination: "/",
+        permanent: true,
+      },
     ];
   },
 };

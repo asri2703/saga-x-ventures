@@ -8,7 +8,6 @@ import { Scallop } from "@/components/shell";
 const siteLinks = [
   { href: "/events", label: "Events" },
   { href: "/blog", label: "Writing" },
-  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy" },
 ];

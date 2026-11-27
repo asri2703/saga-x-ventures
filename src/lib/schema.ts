@@ -49,7 +49,7 @@ export const personSchema = {
   "@id": PERSON_ID,
   name: site.founder.name,
   jobTitle: site.founder.role,
-  url: `${site.url}/about`,
+  url: site.url,
   image: `${site.url}${site.founder.photo}`,
   worksFor: { "@id": ORG_ID },
   award: `${site.founder.award.title}, ${site.founder.award.body} ${site.founder.award.year}`,
