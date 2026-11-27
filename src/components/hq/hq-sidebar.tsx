@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ChartLine,
   KeyRound,
   LayoutDashboard,
   Newspaper,
@@ -38,6 +39,7 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { name: "Overview", href: "", icon: LayoutDashboard },
       { name: "News wire", href: "/terminal", icon: Newspaper },
+      { name: "Macro data", href: "/macro", icon: ChartLine },
       { name: "Sources", href: "/sources", icon: Radio, soon: true },
     ],
   },
@@ -73,7 +75,8 @@ export function HqSidebar({ base }: { base: string }) {
               <SidebarMenu>
                 {group.items.map((item) => {
                   const href = `${base}${item.href}` || "/";
-                  const active = here === href;
+                  // A section stays lit on its own sub-pages (a story, a series).
+                  const active = here === href || (item.href !== "" && here.startsWith(`${href}/`));
                   return (
                     <SidebarMenuItem key={item.name}>
                       {item.soon ? (

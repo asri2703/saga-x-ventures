@@ -29,11 +29,13 @@ export type BriefInput = {
   snippet: string | null;
   impact: string;
   direction: string;
+  /** The screen's instrument moves, e.g. "XAUUSD up, USDJPY down". */
+  assets: string;
 };
 
 export type Candidate = { id: string; headline: string };
 
-export const BRIEF_PROMPT = `You write short briefs for gold (XAUUSD) traders on Mastery Signal, in plain English.
+export const BRIEF_PROMPT = `You write short briefs for gold (XAUUSD) and forex traders on Mastery Signal, in plain English. Gold comes first.
 
 You get one NEW headline, sometimes with the outlet's teaser, plus a numbered list of EXISTING stories already published today.
 
@@ -45,14 +47,14 @@ Step 2. Otherwise write a brief and answer:
   "title": "a clear headline in your own words, under 90 characters",
   "what_happened": "two or three sentences of fact",
   "why_it_matters": "two or three sentences on why it matters for markets",
-  "gold_impact": "two sentences on the likely effect on gold, its direction and how strong",
+  "gold_impact": "two or three sentences on the likely effect on gold and on any major pairs the screen named, with direction and how strong",
   "what_to_watch": "one or two sentences on what would confirm or change the picture"
 }}
 
 Rules:
 - Use only facts in the headline and teaser. Never invent numbers, names, quotes or events.
 - Where the headline is thin, say less rather than guess.
-- Explain the mechanism (risk, rates, the dollar, oil, safe-haven demand), not a forecast.
+- Explain the mechanism (risk, rates, rate differentials, the dollar, oil, safe-haven demand), not a forecast.
 - No trading instructions: no buy, sell, entry, stop or target.
 - Do not copy the outlet's sentences; write your own.
 - Reply with the JSON object only.`;
@@ -68,7 +70,7 @@ export function buildBriefMessage(input: BriefInput, candidates: Candidate[]): s
     "NEW HEADLINE:",
     `${input.headline} (${input.outlet}, ${input.publishedAt})`,
     input.snippet ? `Teaser: ${input.snippet}` : "Teaser: (none)",
-    `Screen said: ${input.impact} impact, ${input.direction} for gold.`,
+    `Screen said: ${input.impact} impact, ${input.direction} for gold. Moves: ${input.assets || "none named"}.`,
   ].join("\n");
 }
 

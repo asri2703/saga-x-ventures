@@ -89,6 +89,13 @@ export const RSS_FEEDS: { url: string; outlet: string }[] = [
   { url: "https://www.aljazeera.com/xml/rss/all.xml", outlet: "Al Jazeera" },
   { url: "https://www.cnbc.com/id/100727362/device/rss/rss.html", outlet: "CNBC World" },
   { url: "https://www.cnbc.com/id/20910258/device/rss/rss.html", outlet: "CNBC Economy" },
+  // Forex desks: currency and commodity moves as they happen.
+  { url: "https://www.fxstreet.com/rss/news", outlet: "FXStreet" },
+  { url: "https://investinglive.com/feed/", outlet: "investingLive" },
+  // The other central banks behind the major pairs, from their own sites.
+  { url: "https://www.ecb.europa.eu/rss/press.html", outlet: "ECB" },
+  { url: "https://www.bankofengland.co.uk/rss/news", outlet: "Bank of England" },
+  { url: "https://www.boj.or.jp/en/rss/whatsnew.xml", outlet: "Bank of Japan" },
 ];
 
 function decodeEntities(text: string): string {
@@ -118,7 +125,9 @@ export function parseRss(xml: string, source: Headline["source"], outlet: string
     const block = m[1];
     const headline = tag(block, "title");
     const url = tag(block, "link");
-    const when = new Date(tag(block, "pubDate"));
+    // RSS 2.0 says pubDate; the RDF feeds some central banks publish say
+    // dc:date.
+    const when = new Date(tag(block, "pubDate") || tag(block, "dc:date"));
     if (!headline || !url || Number.isNaN(when.getTime())) continue;
     const snippet = stripTags(tag(block, "description")).slice(0, 400);
     out.push({ url, headline, source, outlet, publishedAt: when, ...(snippet ? { snippet } : {}) });
@@ -158,7 +167,7 @@ export function parseFinnhub(body: unknown): Headline[] {
 
 async function getJson(url: string, timeoutMs = 15_000): Promise<unknown> {
   const r = await fetch(url, {
-    headers: { "User-Agent": "saga-x-terminal" },
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; SagaXTerminal/1.0; +https://sagaxventures.com)" },
     signal: AbortSignal.timeout(timeoutMs),
     cache: "no-store",
   });
@@ -168,7 +177,7 @@ async function getJson(url: string, timeoutMs = 15_000): Promise<unknown> {
 
 async function getText(url: string): Promise<string> {
   const r = await fetch(url, {
-    headers: { "User-Agent": "saga-x-terminal" },
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; SagaXTerminal/1.0; +https://sagaxventures.com)" },
     signal: AbortSignal.timeout(15_000),
     cache: "no-store",
   });

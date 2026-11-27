@@ -1,5 +1,5 @@
 import { serviceClient } from "@/lib/supabase";
-import type { Category, Verdict } from "./classify";
+import type { Asset, AssetMove, Category, Verdict } from "./classify";
 import type { StoryImage } from "./images";
 import type { Brief } from "./brief";
 import { headlineKey, type Headline } from "./sources";
@@ -56,6 +56,7 @@ export async function storeVerdicts(
         image_credit: image?.credit ?? null,
         image_link: image?.link ?? null,
         snippet: h.snippet ?? null,
+        assets: v.assets,
         model,
       })),
       // A second run racing this one must not fail the batch over a row
@@ -79,6 +80,7 @@ export type FeedItem = {
   image_url: string | null;
   image_credit: string | null;
   image_link: string | null;
+  assets: AssetMove[];
   brief: Brief | null;
   /** Every outlet that carried the story: this row first, then the rest. */
   sources: StorySource[];
@@ -87,7 +89,7 @@ export type FeedItem = {
 export type StorySource = { outlet: string; url: string; headline: string };
 
 const FEED_COLUMNS =
-  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, brief";
+  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, assets, brief";
 
 type FeedRow = Omit<FeedItem, "sources">;
 
@@ -119,6 +121,8 @@ export async function readFeed(opts: {
   minImpact: keyof typeof IMPACT_RANK;
   limit: number;
   category?: Category | null;
+  /** Only stories tagged with this instrument. */
+  asset?: Asset | null;
 }): Promise<FeedItem[]> {
   const allowed = (Object.keys(IMPACT_RANK) as (keyof typeof IMPACT_RANK)[]).filter(
     (k) => IMPACT_RANK[k] >= IMPACT_RANK[opts.minImpact],
@@ -131,6 +135,7 @@ export async function readFeed(opts: {
     .gte("published_at", opts.since.toISOString())
     .in("impact", allowed);
   if (opts.category) query = query.eq("category", opts.category);
+  if (opts.asset) query = query.contains("assets", JSON.stringify([{ symbol: opts.asset }]));
   const { data, error } = await query
     .order("published_at", { ascending: false })
     .limit(opts.limit);
@@ -155,11 +160,20 @@ export async function readStory(id: string): Promise<FeedItem | null> {
 
 /** Medium and high stories still waiting for a brief, newest first. */
 export async function readPendingBriefs(limit: number): Promise<
-  { id: string; headline: string; outlet: string; published_at: string; snippet: string | null; impact: string; direction: string }[]
+  {
+    id: string;
+    headline: string;
+    outlet: string;
+    published_at: string;
+    snippet: string | null;
+    impact: string;
+    direction: string;
+    assets: AssetMove[] | null;
+  }[]
 > {
   const { data, error } = await serviceClient()
     .from("terminal_news")
-    .select("id, headline, outlet, published_at, snippet, impact, direction")
+    .select("id, headline, outlet, published_at, snippet, impact, direction, assets")
     .eq("relevant", true)
     .is("parent_id", null)
     .is("brief", null)
@@ -299,6 +313,7 @@ export async function updateSectionAndPhoto(
       image_url: image?.url ?? null,
       image_credit: image?.credit ?? null,
       image_link: image?.link ?? null,
+      assets: verdict.assets,
     })
     .eq("id", id);
   if (error) throw error;

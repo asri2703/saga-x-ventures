@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { CategoryBadge, DirectionBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
-import { StoryCover, storyTitle } from "@/components/hq/story-card";
+import { CategoryBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
+import { Moves, StoryCover, storyTitle } from "@/components/hq/story-card";
 import { hqBase } from "@/lib/hq";
 import { readStory } from "@/lib/terminal/store";
 
@@ -25,7 +25,7 @@ export async function generateMetadata(props: PageProps<"/apps/terminal/[id]">):
 const SECTIONS = [
   ["what_happened", "What happened"],
   ["why_it_matters", "Why it matters"],
-  ["gold_impact", "Gold impact"],
+  ["gold_impact", "Market impact"],
   ["what_to_watch", "What to watch"],
 ] as const;
 
@@ -47,7 +47,7 @@ export default async function StoryPage(props: PageProps<"/apps/terminal/[id]">)
         <div className="flex flex-wrap items-center gap-1.5">
           <CategoryBadge category={story.category} />
           <ImpactBadge impact={story.impact} />
-          <DirectionBadge direction={story.direction} />
+          <Moves item={story} />
         </div>
         <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{storyTitle(story)}</h1>
         <p className="text-sm text-muted-foreground">

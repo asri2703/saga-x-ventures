@@ -23,13 +23,18 @@ export type Verdict = {
   category: Category | null;
   /** Two to four generic words for a stock photo search. Never a person's name. */
   imageQuery: string | null;
+  /** The instruments the story moves, each with its likely direction. */
+  assets: AssetMove[];
 };
 
 /** The wire's sections. The slug is stored; the label is what members read. */
 export const CATEGORIES = {
   geopolitics: "Geopolitics & War",
+  politics: "Politics & Elections",
   fed: "Fed & Rates",
+  "central-banks": "Other Central Banks",
   "us-data": "US Data",
+  "global-data": "Global Data & China",
   trade: "Trade & Tariffs",
   energy: "Oil & Energy",
   dollar: "Dollar & Yields",
@@ -38,20 +43,55 @@ export const CATEGORIES = {
 } as const;
 export type Category = keyof typeof CATEGORIES;
 
-export const SYSTEM_PROMPT = `You screen news headlines for a gold (XAUUSD) trading service in Malaysia.
+/** Gold, the dollar index and the seven major pairs. Nothing else is tagged. */
+export const ASSETS = [
+  "XAUUSD",
+  "DXY",
+  "EURUSD",
+  "GBPUSD",
+  "USDJPY",
+  "USDCHF",
+  "AUDUSD",
+  "USDCAD",
+  "NZDUSD",
+] as const;
+export type Asset = (typeof ASSETS)[number];
+export type AssetMove = { symbol: Asset; direction: "up" | "down" | "unclear" };
+
+export const SYSTEM_PROMPT = `You screen news headlines for a gold and forex trading service in Malaysia. Gold (XAUUSD) comes first; the major currency pairs come second.
 
 For each numbered headline decide:
-- relevant: true only if the story can plausibly move the gold price within days. That includes US monetary policy and Fed speakers, US inflation, jobs and growth data, US tariffs and trade measures, the US dollar and Treasury yields, wars, military strikes and ceasefires, sanctions, threats to shipping lanes such as the Strait of Hormuz, oil supply shocks, central bank gold buying, and major financial stress. Celebrity, sport, local crime and company news without a macro angle are not relevant.
-- impact: "high" for events traders react to immediately (Fed rate decisions, CPI or NFP surprises, new tariffs, military escalation, a shipping lane closed), "medium" for developments that shift expectations, "low" for background.
-- direction for gold: "bullish" when it raises fear, cuts expected US rates or weakens the dollar; "bearish" when it eases tension, raises expected US rates or strengthens the dollar; "neutral" when it is unclear.
-- summary: two short sentences in plain English saying what happened and why it matters for gold. Use only facts in the headline. Do not invent figures. Do not give trading instructions.
-- category: exactly one of "geopolitics" (wars, strikes, sanctions, diplomacy), "fed" (Fed decisions and speakers, US rates), "us-data" (CPI, jobs, GDP, PCE and other US releases), "trade" (tariffs and trade measures), "energy" (oil, gas, OPEC, refineries, shipping lanes for oil), "dollar" (the US dollar, Treasury yields, US debt), "gold-demand" (central bank buying, ETF flows, physical demand), "market-stress" (bank failures, crashes, credit events).
-- image_query: two to four plain English words describing a generic news photo for the story, for a stock photo search, such as "oil refinery", "warship at sea", "shipping containers port", "federal reserve building". Never a person's name, a logo or a brand.
+- relevant: true only if the story can plausibly move gold, the US dollar or a major currency pair within days. That includes monetary policy and central bank speakers (Fed, ECB, BoE, BoJ, SNB, RBA, BoC, RBNZ, PBoC), inflation, jobs and growth data from the US, China, the eurozone, the UK, Japan, Australia and Canada, elections and government crises in major economies, tariffs and trade measures, Treasury yields and government debt, wars, military strikes and ceasefires, sanctions, threats to shipping lanes such as the Strait of Hormuz, oil supply shocks, central bank gold buying, and major financial stress. Celebrity, sport, local crime and company news without a macro angle are not relevant.
+- impact: "high" for events traders react to immediately (rate decisions, CPI or NFP surprises, new tariffs, military escalation, a shipping lane closed, an election result), "medium" for developments that shift expectations, "low" for background.
+- direction for gold: "bullish" when it raises fear, cuts expected US rates or weakens the dollar; "bearish" when it eases tension, raises expected US rates or strengthens the dollar; "neutral" when it is unclear or gold is not affected.
+- assets: the instruments the story is likely to move, from this list only: XAUUSD, DXY, EURUSD, GBPUSD, USDJPY, USDCHF, AUDUSD, USDCAD, NZDUSD. For each, "up" or "down" for the quoted pair (EURUSD up means the euro rises against the dollar), or "unclear". Include only the ones the story plausibly moves, at most four.
+- summary: two short sentences in plain English saying what happened and why it matters for these markets. Use only facts in the headline. Do not invent figures. Do not give trading instructions.
+- category: exactly one of "geopolitics" (wars, strikes, sanctions, diplomacy), "politics" (elections, government crises, budgets and fiscal fights in major economies), "fed" (Fed decisions and speakers, US rates), "central-banks" (any other central bank: ECB, BoE, BoJ, SNB, RBA, BoC, RBNZ, PBoC), "us-data" (CPI, jobs, GDP, PCE and other US releases), "global-data" (economic releases from China, the eurozone, the UK, Japan, Australia, Canada), "trade" (tariffs and trade measures), "energy" (oil, gas, OPEC, refineries, shipping lanes for oil), "dollar" (the US dollar, Treasury yields, US debt), "gold-demand" (central bank buying, ETF flows, physical demand), "market-stress" (bank failures, crashes, credit events).
+- image_query: two to four plain English words describing a generic news photo for the story, for a stock photo search, such as "oil refinery", "warship at sea", "ballot box voting", "central bank building". Never a person's name, a logo or a brand.
 
-For irrelevant headlines set impact, direction, summary, category and image_query to null.
+For irrelevant headlines set impact, direction, summary, category and image_query to null and assets to [].
 
 Reply with a JSON array only, one object per headline, in this shape:
-[{"i": 1, "relevant": true, "impact": "high", "direction": "bullish", "summary": "...", "category": "geopolitics", "image_query": "warship at sea"}]`;
+[{"i": 1, "relevant": true, "impact": "high", "direction": "bullish", "assets": [{"symbol": "XAUUSD", "direction": "up"}, {"symbol": "USDJPY", "direction": "down"}], "summary": "...", "category": "geopolitics", "image_query": "warship at sea"}]`;
+
+const ASSET_SET = new Set<string>(ASSETS);
+const MOVES = new Set(["up", "down", "unclear"]);
+
+/** Keeps listed symbols with a known direction, once each, at most four. */
+export function parseAssets(value: unknown): AssetMove[] {
+  if (!Array.isArray(value)) return [];
+  const out: AssetMove[] = [];
+  const seen = new Set<string>();
+  for (const item of value as Record<string, unknown>[]) {
+    const symbol = typeof item?.symbol === "string" ? item.symbol.toUpperCase() : "";
+    const direction = typeof item?.direction === "string" ? item.direction : "";
+    if (!ASSET_SET.has(symbol) || !MOVES.has(direction) || seen.has(symbol)) continue;
+    seen.add(symbol);
+    out.push({ symbol: symbol as Asset, direction: direction as AssetMove["direction"] });
+    if (out.length === 4) break;
+  }
+  return out;
+}
 
 export function buildUserMessage(batch: Headline[]): string {
   return batch
@@ -95,6 +135,7 @@ export function parseVerdicts(text: string, count: number): (Verdict | undefined
         summary: null,
         category: null,
         imageQuery: null,
+        assets: [],
       };
       continue;
     }
@@ -124,6 +165,7 @@ export function parseVerdicts(text: string, count: number): (Verdict | undefined
       summary,
       category,
       imageQuery,
+      assets: parseAssets(row.assets),
     };
   }
   return out;

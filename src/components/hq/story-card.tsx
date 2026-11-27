@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  Building2,
+  Globe,
+  Vote,
   ChartColumn,
   Coins,
   Container,
@@ -35,7 +38,41 @@ const SECTION_LOOK: Record<Category, { icon: LucideIcon; tint: string }> = {
   dollar: { icon: DollarSign, tint: "bg-[#d9e6d2]" },
   "gold-demand": { icon: Coins, tint: "bg-[#f0dcae]" },
   "market-stress": { icon: TrendingDown, tint: "bg-[#f3d6d9]" },
+  politics: { icon: Vote, tint: "bg-[#e4dcef]" },
+  "central-banks": { icon: Building2, tint: "bg-[#d5e2e6]" },
+  "global-data": { icon: Globe, tint: "bg-[#e2e7d3]" },
 };
+
+/** Instrument moves as compact chips: "EURUSD ▲". Gold first. */
+export function AssetChips({ item, className }: { item: FeedItem; className?: string }) {
+  const assets = [...(item.assets ?? [])].sort((a, b) =>
+    a.symbol === "XAUUSD" ? -1 : b.symbol === "XAUUSD" ? 1 : 0,
+  );
+  if (assets.length === 0) return null;
+  return (
+    <ul className={cn("flex flex-wrap gap-1", className)} aria-label="Likely moves">
+      {assets.map((a) => (
+        <li
+          key={a.symbol}
+          className={cn(
+            "rounded-md border px-1.5 py-0.5 font-mono text-[11px] font-medium",
+            a.direction === "up" && "border-transparent bg-[#cfe0d4]",
+            a.direction === "down" && "border-transparent bg-[#fbdcdf]",
+            a.direction === "unclear" && "border-border bg-muted text-muted-foreground",
+          )}
+        >
+          {a.symbol} {a.direction === "up" ? "▲" : a.direction === "down" ? "▼" : "•"}
+          <span className="sr-only">{a.direction === "unclear" ? " direction unclear" : ` ${a.direction}`}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The instruments a story moves; older stories without tags show gold's direction. */
+export function Moves({ item }: { item: FeedItem }) {
+  return item.assets?.length ? <AssetChips item={item} /> : <DirectionBadge direction={item.direction} />;
+}
 
 export function storyTitle(item: FeedItem): string {
   return item.brief?.title ?? item.headline;
@@ -109,7 +146,7 @@ export function StoryCard({ item, base, now }: { item: FeedItem; base: string; n
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center gap-1.5">
           <ImpactBadge impact={item.impact} />
-          <DirectionBadge direction={item.direction} />
+          <Moves item={item} />
         </div>
         <h3 className="line-clamp-3 font-semibold leading-snug group-hover:underline">{storyTitle(item)}</h3>
         {lede ? <p className="line-clamp-3 text-sm text-muted-foreground">{lede}</p> : null}
@@ -134,7 +171,7 @@ export function LeadStory({ item, base, now }: { item: FeedItem; base: string; n
         <div className="flex flex-wrap items-center gap-1.5">
           <CategoryBadge category={item.category} />
           <ImpactBadge impact={item.impact} />
-          <DirectionBadge direction={item.direction} />
+          <Moves item={item} />
         </div>
         <h2 className="text-xl font-semibold leading-snug tracking-tight group-hover:underline md:text-2xl">
           {storyTitle(item)}
@@ -142,7 +179,7 @@ export function LeadStory({ item, base, now }: { item: FeedItem; base: string; n
         {lede ? <p className="text-muted-foreground">{lede}</p> : null}
         {item.brief ? (
           <p className="text-sm">
-            <span className="font-medium">Gold impact: </span>
+            <span className="font-medium">Market impact: </span>
             <span className="text-muted-foreground">{item.brief.gold_impact}</span>
           </p>
         ) : null}
