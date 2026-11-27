@@ -1,7 +1,7 @@
 import { authorised } from "@/lib/record-feed";
 import { BATCH_SIZE, classifyBatch, DEFAULT_MODEL } from "@/lib/terminal/classify";
 import { findImage, type StoryImage } from "@/lib/terminal/images";
-import { readUncategorised, updateSectionAndPhoto } from "@/lib/terminal/store";
+import { readUncategorised, readUntagged, updateSectionAndPhoto, updateTags } from "@/lib/terminal/store";
 
 /**
  * One-off catch-up: give stories stored before sections and photos existed
@@ -34,6 +34,30 @@ export async function GET(request: Request): Promise<Response> {
 
   const model = process.env.TERMINAL_MODEL || DEFAULT_MODEL;
   const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+
+  // ?mode=tags: instrument tags for stories that have none (stored before
+  // tags existed, or tagged too sparingly). Photos and briefs stay as they are.
+  if (new URL(request.url).searchParams.get("mode") === "tags") {
+    const untagged = await readUntagged(new Date(Date.now() - 72 * 60 * 60 * 1000), MAX_STORIES).catch(() => []);
+    let tagged = 0;
+    const errors: string[] = [];
+    for (let i = 0; i < untagged.length; i += BATCH_SIZE) {
+      const batch = untagged.slice(i, i + BATCH_SIZE);
+      try {
+        const verdicts = await classifyBatch(batch.map((s) => s.headline), apiKey, model);
+        for (let j = 0; j < batch.length; j++) {
+          const v = verdicts[j];
+          if (!v?.relevant || v.assets.length === 0) continue;
+          await updateTags(batch[j].id, v, Boolean(batch[j].category));
+          tagged += 1;
+        }
+      } catch (error) {
+        errors.push(String(error).slice(0, 300));
+        break;
+      }
+    }
+    return Response.json({ ok: errors.length === 0, mode: "tags", waiting: untagged.length, tagged, failures: errors });
+  }
 
   let stories;
   try {

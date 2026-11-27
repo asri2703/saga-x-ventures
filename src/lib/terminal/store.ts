@@ -385,6 +385,43 @@ export async function readUncategorised(
   }));
 }
 
+/** Relevant stories on the wire with no instrument tags, as headlines to ask about again. */
+export async function readUntagged(
+  since: Date,
+  limit: number,
+): Promise<{ id: string; category: Category | null; headline: Headline }[]> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("id, url, headline, source, outlet, published_at, category")
+    .eq("relevant", true)
+    .is("parent_id", null)
+    .eq("assets", "[]")
+    .gte("published_at", since.toISOString())
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    category: (r.category as Category | null) ?? null,
+    headline: {
+      url: r.url as string,
+      headline: r.headline as string,
+      source: r.source as Headline["source"],
+      outlet: (r.outlet as string) ?? "",
+      publishedAt: new Date(r.published_at as string),
+    },
+  }));
+}
+
+/** Instrument tags, and a section when the story had none. Nothing else changes. */
+export async function updateTags(id: string, verdict: Verdict, hadCategory: boolean): Promise<void> {
+  const { error } = await serviceClient()
+    .from("terminal_news")
+    .update({ assets: verdict.assets, ...(hadCategory ? {} : { category: verdict.category }) })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 /**
  * Fills in section and photo on a stored story. Impact, direction and the
  * summary members may already have read are left as they were.

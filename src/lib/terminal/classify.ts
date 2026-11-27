@@ -64,7 +64,13 @@ For each numbered headline decide:
 - relevant: true only if the story can plausibly move gold, the US dollar or a major currency pair within days. That includes monetary policy and central bank speakers (Fed, ECB, BoE, BoJ, SNB, RBA, BoC, RBNZ, PBoC), inflation, jobs and growth data from the US, China, the eurozone, the UK, Japan, Australia and Canada, elections and government crises in major economies, tariffs and trade measures, Treasury yields and government debt, wars, military strikes and ceasefires, sanctions, threats to shipping lanes such as the Strait of Hormuz, oil supply shocks, central bank gold buying, and major financial stress. Celebrity, sport, local crime and company news without a macro angle are not relevant.
 - impact: "high" for events traders react to immediately (rate decisions, CPI or NFP surprises, new tariffs, military escalation, a shipping lane closed, an election result), "medium" for developments that shift expectations, "low" for background.
 - direction for gold: "bullish" when it raises fear, cuts expected US rates or weakens the dollar; "bearish" when it eases tension, raises expected US rates or strengthens the dollar; "neutral" when it is unclear or gold is not affected.
-- assets: the instruments the story is likely to move, from this list only: XAUUSD, DXY, EURUSD, GBPUSD, USDJPY, USDCHF, AUDUSD, USDCAD, NZDUSD. For each, "up" or "down" for the quoted pair (EURUSD up means the euro rises against the dollar), or "unclear". Include only the ones the story plausibly moves, at most four.
+- assets: the instruments the story is likely to move, from this list only: XAUUSD, DXY, EURUSD, GBPUSD, USDJPY, USDCHF, AUDUSD, USDCAD, NZDUSD. For each, "up" or "down" for the quoted pair (EURUSD up means the euro rises against the dollar), or "unclear". Every relevant story moves at least one; list up to five, the most affected first. How they usually move:
+  - Fear, war, strikes, risk-off: XAUUSD up, USDJPY down and USDCHF down (the yen and franc are havens), AUDUSD and NZDUSD down.
+  - Fed, US rates, US data, Treasury yields, US fiscal news: DXY and XAUUSD first, then EURUSD and USDJPY (USDJPY follows US yields).
+  - A named central bank or economy moves its own pair: ECB or eurozone EURUSD, BoE or UK GBPUSD, BoJ, Japan or the yen USDJPY, SNB or Switzerland USDCHF, RBA or Australia AUDUSD, BoC or Canada USDCAD, RBNZ or New Zealand NZDUSD.
+  - China, its growth, metals and tariffs on China: AUDUSD and NZDUSD.
+  - Oil and the Strait of Hormuz: USDCAD (oil up, USDCAD down) and XAUUSD.
+  - Tariffs and trade: DXY, the pairs of the countries named, and XAUUSD.
 - summary: two short sentences in plain English saying what happened and why it matters for these markets. Use only facts in the headline. Do not invent figures. Do not give trading instructions.
 - category: exactly one of "geopolitics" (wars, strikes, sanctions, diplomacy), "politics" (elections, government crises, budgets and fiscal fights in major economies), "fed" (Fed decisions and speakers, US rates), "central-banks" (any other central bank: ECB, BoE, BoJ, SNB, RBA, BoC, RBNZ, PBoC), "us-data" (CPI, jobs, GDP, PCE and other US releases), "global-data" (economic releases from China, the eurozone, the UK, Japan, Australia, Canada), "trade" (tariffs and trade measures), "energy" (oil, gas, OPEC, refineries, shipping lanes for oil), "dollar" (the US dollar, Treasury yields, US debt), "gold-demand" (central bank buying, ETF flows, physical demand), "market-stress" (bank failures, crashes, credit events).
 - image_query: two to four plain English words describing a generic news photo for the story, for a stock photo search, such as "oil refinery", "warship at sea", "ballot box voting", "central bank building". Never a person's name, a logo or a brand.
@@ -77,7 +83,7 @@ Reply with a JSON array only, one object per headline, in this shape:
 const ASSET_SET = new Set<string>(ASSETS);
 const MOVES = new Set(["up", "down", "unclear"]);
 
-/** Keeps listed symbols with a known direction, once each, at most four. */
+/** Keeps listed symbols with a known direction, once each, at most five. */
 export function parseAssets(value: unknown): AssetMove[] {
   if (!Array.isArray(value)) return [];
   const out: AssetMove[] = [];
@@ -88,7 +94,7 @@ export function parseAssets(value: unknown): AssetMove[] {
     if (!ASSET_SET.has(symbol) || !MOVES.has(direction) || seen.has(symbol)) continue;
     seen.add(symbol);
     out.push({ symbol: symbol as Asset, direction: direction as AssetMove["direction"] });
-    if (out.length === 4) break;
+    if (out.length === 5) break;
   }
   return out;
 }
