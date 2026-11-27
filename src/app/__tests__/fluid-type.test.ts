@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
+import { isHqPath } from "@/lib/__tests__/hq-scope";
 
 /**
  * Type scales with the viewport, in one continuous run.
@@ -40,7 +41,7 @@ function sources(): { file: string; text: string }[] {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name !== "__tests__") walk(full);
+        if (entry.name !== "__tests__" && !isHqPath(full)) walk(full);
         continue;
       }
       if (entry.name.endsWith(".tsx")) {

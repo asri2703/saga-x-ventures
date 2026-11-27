@@ -54,7 +54,7 @@ test("the former alias is still recorded, and nothing renders it unexplained", (
   expect(site.founder.award.alias).toBe("Zack King");
 
   const page = fs.readFileSync(
-    path.join(process.cwd(), "src", "app", "page.tsx"),
+    path.join(process.cwd(), "src", "app", "(site)", "page.tsx"),
     "utf8",
   );
   if (page.includes("award.alias")) {

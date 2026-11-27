@@ -116,3 +116,25 @@ export async function readStats(since: Date): Promise<{
     lastFetched: (last.data?.[0]?.fetched_at as string | undefined) ?? null,
   };
 }
+
+/** Relevant stories in a window, counted by impact and by direction. */
+export async function readBreakdown(since: Date): Promise<{
+  impact: Record<FeedItem["impact"], number>;
+  direction: Record<FeedItem["direction"], number>;
+}> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("impact, direction")
+    .eq("relevant", true)
+    .gte("published_at", since.toISOString())
+    .limit(5000);
+  if (error) throw error;
+
+  const impact = { high: 0, medium: 0, low: 0 };
+  const direction = { bullish: 0, bearish: 0, neutral: 0 };
+  for (const row of data ?? []) {
+    if (row.impact in impact) impact[row.impact as keyof typeof impact] += 1;
+    if (row.direction in direction) direction[row.direction as keyof typeof direction] += 1;
+  }
+  return { impact, direction };
+}

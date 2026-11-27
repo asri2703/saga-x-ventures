@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
+import { isHqPath } from "@/lib/__tests__/hq-scope";
 
 /**
  * Pages that read the clock must declare how often they are re-rendered.
@@ -96,7 +97,12 @@ function clockReachableFrom(entry: string): string | null {
  * reading the clock is fine precisely because it reads it again every time.
  */
 function isDynamic(text: string): boolean {
-  return /searchParams/.test(code(text));
+  const source = code(text);
+  // `force-dynamic` says the same thing out loud: render on every request.
+  return (
+    /searchParams/.test(source) ||
+    /export const dynamic\s*=\s*["']force-dynamic["']/.test(source)
+  );
 }
 
 function pageFiles(): string[] {
@@ -216,7 +222,14 @@ test("the dynamic exemption is used, and is not a blanket one", () => {
   // and an exemption everything uses is the rule switched off. /checkout/done
   // reads searchParams and reaches the clock through the orders repository;
   // the rest of the site does neither.
-  const dynamic = pageFiles().filter((file) => isDynamic(read(file)));
+  //
+  // The HQ dashboard under /apps is left out of this count: every page there
+  // is an internal, per-request view of live data, so all of them read
+  // searchParams or the clock by design. The guard above still applies to
+  // them; only this "nothing else is dynamic" check is about the public site.
+  const dynamic = pageFiles().filter(
+    (file) => isDynamic(read(file)) && !isHqPath(file),
+  );
   expect(dynamic.map((f) => path.basename(path.dirname(f)))).toEqual(["done"]);
   expect(clockReachableFrom(dynamic[0])).not.toBeNull();
 });

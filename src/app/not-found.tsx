@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container, Section } from "@/components/ui";
+import SiteLayout from "./(site)/layout";
 
 /**
  * Every mistyped URL, every stale inbound link and every retired blog slug
@@ -13,7 +14,11 @@ import { Container, Section } from "@/components/ui";
  * this page, and the only thing to do is leave it.
  */
 export default function NotFound() {
+  // The root not-found renders under the root layout only, which no longer
+  // carries the site's header and footer. It borrows the site layout so a
+  // lost visitor still has the nav.
   return (
+    <SiteLayout>
     <Section tone="pine" pad="py-28 sm:py-36">
       <Container>
         <div className="mx-auto max-w-2xl">
@@ -62,5 +67,6 @@ export default function NotFound() {
         </div>
       </Container>
     </Section>
+    </SiteLayout>
   );
 }

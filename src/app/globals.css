@@ -3453,3 +3453,64 @@ html.lenis {
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   HQ (apps.sagaxventures.com)
+   ---------------------------------------------------------------------------
+   The internal dashboard is built from shadcn components, which read a set
+   of semantic tokens (background, card, primary, sidebar ...). Those tokens
+   exist only inside `.hq`, so nothing on the public site can pick them up by
+   accident: a `bg-primary` outside the dashboard resolves to nothing.
+
+   The values are the site's own palette, not shadcn's greys. Paper is the
+   ground, pine is the ink and the primary action, sand is the hover. Ruby
+   stays reserved for destructive actions, as it is the site's one alarm.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-background: var(--hq-background);
+  --color-foreground: var(--hq-foreground);
+  --color-card: var(--hq-card);
+  --color-card-foreground: var(--hq-foreground);
+  --color-popover: var(--hq-card);
+  --color-popover-foreground: var(--hq-foreground);
+  --color-primary: var(--hq-primary);
+  --color-primary-foreground: var(--hq-primary-foreground);
+  --color-secondary: var(--hq-muted);
+  --color-secondary-foreground: var(--hq-foreground);
+  --color-muted: var(--hq-muted);
+  --color-muted-foreground: var(--hq-muted-foreground);
+  --color-accent: var(--hq-accent);
+  --color-accent-foreground: var(--hq-foreground);
+  --color-destructive: var(--hq-destructive);
+  --color-border: var(--hq-border);
+  --color-input: var(--hq-border);
+  --color-ring: var(--hq-ring);
+  --color-sidebar: var(--hq-sidebar);
+  --color-sidebar-foreground: var(--hq-foreground);
+  --color-sidebar-primary: var(--hq-primary);
+  --color-sidebar-primary-foreground: var(--hq-primary-foreground);
+  --color-sidebar-accent: var(--hq-accent);
+  --color-sidebar-accent-foreground: var(--hq-foreground);
+  --color-sidebar-border: var(--hq-border);
+  --color-sidebar-ring: var(--hq-ring);
+}
+
+.hq {
+  --hq-background: #faf4e8; /* paper-raised */
+  --hq-foreground: #163a30; /* pine */
+  --hq-card: #fffdf8;
+  --hq-muted: #f2e9d8; /* paper */
+  --hq-muted-foreground: #566e65; /* pine-faint */
+  --hq-accent: #f0dcae; /* sand */
+  --hq-primary: #163a30;
+  --hq-primary-foreground: #faf4e8;
+  --hq-destructive: #c81f30; /* ruby-deep */
+  --hq-border: #dcd0b8; /* rule */
+  --hq-ring: #3e5d53; /* pine-soft */
+  --hq-sidebar: #f2e9d8;
+  --radius: 0.75rem;
+
+  background: var(--hq-background);
+  color: var(--hq-foreground);
+}
