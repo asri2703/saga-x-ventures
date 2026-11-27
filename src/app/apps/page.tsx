@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ago } from "@/components/hq/story-badges";
 import { StoryCard } from "@/components/hq/story-card";
+import { CotOverviewBlock } from "@/components/hq/cot-blocks";
+import { nextRelease } from "@/lib/cot/schedule";
+import { readCotLatest } from "@/lib/cot/store";
 import { hqBase } from "@/lib/hq";
 import { readBreakdown, readFeed, readStats } from "@/lib/terminal/store";
 
@@ -20,12 +23,24 @@ async function load() {
   const now = Date.now();
   const day = new Date(now - 24 * 60 * 60 * 1000);
   try {
-    const [stats, breakdown, top] = await Promise.all([
+    const [stats, breakdown, top, cot] = await Promise.all([
       readStats(day),
       readBreakdown(day),
       readFeed({ since: day, minImpact: "medium", limit: 12 }),
+      readCotLatest(new Date(now)).catch((error) => {
+        console.error("hq overview: could not read COT", error);
+        return [];
+      }),
     ]);
-    return { ok: true as const, now, stats, breakdown, top: top.filter((t) => t.category).slice(0, 6) };
+    return {
+      ok: true as const,
+      now,
+      stats,
+      breakdown,
+      top: top.filter((t) => t.category).slice(0, 6),
+      cot,
+      next: nextRelease(new Date(now)),
+    };
   } catch (error) {
     console.error("hq overview: could not read", error);
     return { ok: false as const, reason: error instanceof Error ? error.message : String(error) };
@@ -54,7 +69,7 @@ export default async function Overview() {
     );
   }
 
-  const { stats, breakdown, top, now } = data;
+  const { stats, breakdown, top, now, cot, next } = data;
   const bias = biasLabel(breakdown.direction.bullish, breakdown.direction.bearish);
   const metrics = [
     { label: "Headlines seen", value: String(stats.seen), note: "All sources, 24h" },
@@ -84,6 +99,8 @@ export default async function Overview() {
           </Card>
         ))}
       </div>
+
+      <CotOverviewBlock views={cot} next={next} base={base} />
 
       <section className="flex flex-col gap-3">
         <div className="flex items-end justify-between gap-4">
