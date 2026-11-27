@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ago, CategoryBadge, DirectionBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
+import { ago } from "@/components/hq/story-badges";
+import { StoryCard } from "@/components/hq/story-card";
+import { hqBase } from "@/lib/hq";
 import { readBreakdown, readFeed, readStats } from "@/lib/terminal/store";
 
 /**
@@ -22,9 +23,9 @@ async function load() {
     const [stats, breakdown, top] = await Promise.all([
       readStats(day),
       readBreakdown(day),
-      readFeed({ since: day, minImpact: "medium", limit: 6 }),
+      readFeed({ since: day, minImpact: "medium", limit: 12 }),
     ]);
-    return { ok: true as const, now, stats, breakdown, top };
+    return { ok: true as const, now, stats, breakdown, top: top.filter((t) => t.category).slice(0, 6) };
   } catch (error) {
     console.error("hq overview: could not read", error);
     return { ok: false as const, reason: error instanceof Error ? error.message : String(error) };
@@ -40,9 +41,7 @@ function biasLabel(bullish: number, bearish: number): { value: string; note: str
 }
 
 export default async function Overview() {
-  const host = (await headers()).get("host") ?? "";
-  const base = host.startsWith("apps.") ? "" : "/apps";
-  const data = await load();
+  const [data, base] = await Promise.all([load(), hqBase()]);
 
   if (!data.ok) {
     return (
@@ -86,39 +85,32 @@ export default async function Overview() {
         ))}
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
+      <section className="flex flex-col gap-3">
+        <div className="flex items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle>Top stories</CardTitle>
-            <CardDescription>Medium and high impact, newest first</CardDescription>
+            <h2 className="font-semibold">Top stories</h2>
+            <p className="text-sm text-muted-foreground">Medium and high impact, newest first</p>
           </div>
           <Link href={`${base}/terminal`} className="text-sm font-medium underline-offset-4 hover:underline">
             Open the wire
           </Link>
-        </CardHeader>
-        <CardContent className="flex flex-col divide-y divide-border">
-          {top.length === 0 ? (
-            <p className="py-6 text-sm text-muted-foreground">Nothing above low impact in the last 24 hours.</p>
-          ) : (
-            top.map((item) => (
-              <article key={item.id} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <CategoryBadge category={item.category} />
-                  <ImpactBadge impact={item.impact} />
-                  <DirectionBadge direction={item.direction} />
-                  <span className="text-xs text-muted-foreground">
-                    {item.outlet} · {myt(item.published_at)} MYT · {ago(item.published_at, now)}
-                  </span>
-                </div>
-                <a href={item.url} target="_blank" rel="noopener noreferrer" className="font-medium leading-snug hover:underline">
-                  {item.headline}
-                </a>
-                {item.summary ? <p className="text-sm text-muted-foreground">{item.summary}</p> : null}
-              </article>
-            ))
-          )}
-        </CardContent>
-      </Card>
+        </div>
+        {top.length === 0 ? (
+          <Card>
+            <CardContent className="text-sm text-muted-foreground">
+              Nothing above low impact in the last 24 hours.
+            </CardContent>
+          </Card>
+        ) : (
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {top.map((item) => (
+              <li key={item.id}>
+                <StoryCard item={item} base={base} now={now} />
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   );
 }

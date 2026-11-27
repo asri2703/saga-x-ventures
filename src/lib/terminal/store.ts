@@ -1,6 +1,7 @@
 import { serviceClient } from "@/lib/supabase";
 import type { Category, Verdict } from "./classify";
 import type { StoryImage } from "./images";
+import type { Brief } from "./brief";
 import { headlineKey, type Headline } from "./sources";
 
 /**
@@ -54,6 +55,7 @@ export async function storeVerdicts(
         image_url: image?.url ?? null,
         image_credit: image?.credit ?? null,
         image_link: image?.link ?? null,
+        snippet: h.snippet ?? null,
         model,
       })),
       // A second run racing this one must not fail the batch over a row
@@ -77,7 +79,38 @@ export type FeedItem = {
   image_url: string | null;
   image_credit: string | null;
   image_link: string | null;
+  brief: Brief | null;
+  /** Every outlet that carried the story: this row first, then the rest. */
+  sources: StorySource[];
 };
+
+export type StorySource = { outlet: string; url: string; headline: string };
+
+const FEED_COLUMNS =
+  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, brief";
+
+type FeedRow = Omit<FeedItem, "sources">;
+
+/** Attaches each story's other outlets, filed under it as duplicates. */
+async function withSources(rows: FeedRow[]): Promise<FeedItem[]> {
+  if (rows.length === 0) return [];
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("parent_id, outlet, url, headline")
+    .in("parent_id", rows.map((r) => r.id))
+    .order("published_at", { ascending: true });
+  if (error) throw error;
+  const byParent = new Map<string, StorySource[]>();
+  for (const child of data ?? []) {
+    const list = byParent.get(child.parent_id as string) ?? [];
+    list.push({ outlet: child.outlet as string, url: child.url as string, headline: child.headline as string });
+    byParent.set(child.parent_id as string, list);
+  }
+  return rows.map((r) => ({
+    ...r,
+    sources: [{ outlet: r.outlet, url: r.url, headline: r.headline }, ...(byParent.get(r.id) ?? [])],
+  }));
+}
 
 const IMPACT_RANK = { low: 0, medium: 1, high: 2 } as const;
 
@@ -92,8 +125,9 @@ export async function readFeed(opts: {
   );
   let query = serviceClient()
     .from("terminal_news")
-    .select("id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link")
+    .select(FEED_COLUMNS)
     .eq("relevant", true)
+    .is("parent_id", null)
     .gte("published_at", opts.since.toISOString())
     .in("impact", allowed);
   if (opts.category) query = query.eq("category", opts.category);
@@ -101,7 +135,74 @@ export async function readFeed(opts: {
     .order("published_at", { ascending: false })
     .limit(opts.limit);
   if (error) throw error;
-  return (data ?? []) as FeedItem[];
+  return withSources((data ?? []) as FeedRow[]);
+}
+
+/** One story with all its sources, for its own page. Null when not found. */
+export async function readStory(id: string): Promise<FeedItem | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select(FEED_COLUMNS)
+    .eq("id", id)
+    .eq("relevant", true)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const [story] = await withSources([data as FeedRow]);
+  return story;
+}
+
+/** Medium and high stories still waiting for a brief, newest first. */
+export async function readPendingBriefs(limit: number): Promise<
+  { id: string; headline: string; outlet: string; published_at: string; snippet: string | null; impact: string; direction: string }[]
+> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("id, headline, outlet, published_at, snippet, impact, direction")
+    .eq("relevant", true)
+    .is("parent_id", null)
+    .is("brief", null)
+    .in("impact", ["high", "medium"])
+    .gte("published_at", new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString())
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as Awaited<ReturnType<typeof readPendingBriefs>>;
+}
+
+/** Stories already briefed in the last 36 hours, to check a new one against. */
+export async function readBriefedStories(): Promise<{ id: string; headline: string }[]> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("id, headline, brief")
+    .eq("relevant", true)
+    .is("parent_id", null)
+    .not("brief", "is", null)
+    .gte("published_at", new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString())
+    .order("published_at", { ascending: false })
+    .limit(40);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    headline: ((r.brief as Brief | null)?.title ?? (r.headline as string)),
+  }));
+}
+
+export async function saveBrief(id: string, brief: Brief, model: string): Promise<void> {
+  const { error } = await serviceClient()
+    .from("terminal_news")
+    .update({ brief, brief_model: model })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function fileUnder(id: string, parentId: string): Promise<void> {
+  const { error } = await serviceClient()
+    .from("terminal_news")
+    .update({ parent_id: parentId })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 /** How much the wire saw, for the preview page's header. */

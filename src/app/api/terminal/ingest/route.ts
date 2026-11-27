@@ -2,7 +2,15 @@ import { authorised } from "@/lib/record-feed";
 import { BATCH_SIZE, classifyBatch, DEFAULT_MODEL, type Verdict } from "@/lib/terminal/classify";
 import { dedupe, fetchHeadlines, LOOKBACK_MINUTES, type Headline } from "@/lib/terminal/sources";
 import { findImage, type StoryImage } from "@/lib/terminal/images";
-import { alreadyStored, storeVerdicts } from "@/lib/terminal/store";
+import { BRIEF_MODEL, writeBrief } from "@/lib/terminal/brief";
+import {
+  alreadyStored,
+  fileUnder,
+  readBriefedStories,
+  readPendingBriefs,
+  saveBrief,
+  storeVerdicts,
+} from "@/lib/terminal/store";
 
 /**
  * One run of the Mastery Terminal wire: fetch, drop what is already on file,
@@ -18,12 +26,15 @@ import { alreadyStored, storeVerdicts } from "@/lib/terminal/store";
  */
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+// Classification, photos and up to six briefs in one run. Pro allows 300s.
+export const maxDuration = 300;
 
 /** Hard ceiling per run. A burst of news costs at most this many headlines. */
 const MAX_PER_RUN = 75;
 /** Photo searches per run. Twelve runs an hour stay under Unsplash's 50. */
 const MAX_IMAGE_SEARCHES = 4;
+/** Briefs per run. A backlog clears over a few runs instead of one long one. */
+const MAX_BRIEFS_PER_RUN = 6;
 
 export async function GET(request: Request): Promise<Response> {
   // Its own secret when set, so the scheduler that calls this (Supabase
@@ -109,8 +120,46 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ error: "Could not store", sources: report }, { status: 500 });
   }
 
+  // The brief: medium and high stories, newest first, a few a run. Each one
+  // is either written up or filed under a story already on the wire.
+  const briefModel = process.env.TERMINAL_BRIEF_MODEL || BRIEF_MODEL;
+  let briefs = 0;
+  let merged = 0;
+  try {
+    const pending = await readPendingBriefs(MAX_BRIEFS_PER_RUN);
+    const published = pending.length ? await readBriefedStories() : [];
+    for (const story of pending) {
+      const result = await writeBrief(
+        {
+          headline: story.headline,
+          outlet: story.outlet,
+          publishedAt: story.published_at,
+          snippet: story.snippet,
+          impact: story.impact,
+          direction: story.direction,
+        },
+        published.filter((p) => p.id !== story.id),
+        apiKey,
+        briefModel,
+      );
+      if (result.kind === "duplicate") {
+        await fileUnder(story.id, result.parentId);
+        merged += 1;
+      } else if (result.kind === "brief") {
+        await saveBrief(story.id, result.brief, briefModel);
+        published.unshift({ id: story.id, headline: result.brief.title });
+        briefs += 1;
+      }
+    }
+  } catch (error) {
+    console.error("terminal ingest: brief failed", error);
+    failures.push(`brief: ${String(error).slice(0, 300)}`);
+  }
+
   return Response.json({
     ok: failures.length === 0,
+    briefs,
+    merged,
     sources: report,
     candidates: fresh.length,
     saved,
