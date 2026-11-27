@@ -104,7 +104,7 @@ Authorization: Bearer $TERMINAL_FEED_KEY
       "published_at": "2026-11-27T05:30:00+00:00",
       "impact": "high",
       "direction": "bullish",
-      "summary_ms": "Dua ayat dalam Bahasa Melayu."
+      "summary": "Two sentences in English: what happened and why it matters for gold."
     }
   ],
   "generated_at": "2026-11-27T05:31:02.000Z"

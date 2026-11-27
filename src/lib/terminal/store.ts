@@ -47,7 +47,7 @@ export async function storeVerdicts(
         relevant: v.relevant,
         impact: v.impact,
         direction: v.direction,
-        summary_ms: v.summaryMs,
+        summary: v.summary,
         model,
       })),
       // A second run racing this one must not fail the batch over a row
@@ -66,7 +66,7 @@ export type FeedItem = {
   published_at: string;
   impact: "high" | "medium" | "low";
   direction: "bullish" | "bearish" | "neutral";
-  summary_ms: string;
+  summary: string | null;
 };
 
 const IMPACT_RANK = { low: 0, medium: 1, high: 2 } as const;
@@ -81,7 +81,7 @@ export async function readFeed(opts: {
   );
   const { data, error } = await serviceClient()
     .from("terminal_news")
-    .select("id, headline, url, outlet, published_at, impact, direction, summary_ms")
+    .select("id, headline, url, outlet, published_at, impact, direction, summary")
     .eq("relevant", true)
     .gte("published_at", opts.since.toISOString())
     .in("impact", allowed)
@@ -89,4 +89,30 @@ export async function readFeed(opts: {
     .limit(opts.limit);
   if (error) throw error;
   return (data ?? []) as FeedItem[];
+}
+
+/** How much the wire saw, for the preview page's header. */
+export async function readStats(since: Date): Promise<{
+  seen: number;
+  relevant: number;
+  lastFetched: string | null;
+}> {
+  const db = serviceClient();
+  const [seen, relevant, last] = await Promise.all([
+    db.from("terminal_news").select("id", { count: "exact", head: true }).gte("fetched_at", since.toISOString()),
+    db
+      .from("terminal_news")
+      .select("id", { count: "exact", head: true })
+      .eq("relevant", true)
+      .gte("fetched_at", since.toISOString()),
+    db.from("terminal_news").select("fetched_at").order("fetched_at", { ascending: false }).limit(1),
+  ]);
+  if (seen.error) throw seen.error;
+  if (relevant.error) throw relevant.error;
+  if (last.error) throw last.error;
+  return {
+    seen: seen.count ?? 0,
+    relevant: relevant.count ?? 0,
+    lastFetched: (last.data?.[0]?.fetched_at as string | undefined) ?? null,
+  };
 }

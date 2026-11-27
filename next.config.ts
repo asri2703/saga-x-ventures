@@ -15,7 +15,37 @@ const retiredServicePaths = [
   "/services/system-development",
 ];
 
+/**
+ * apps.sagaxventures.com is where internal tools are previewed, starting with
+ * Mastery Terminal. The subdomain is served by this same deployment: a request
+ * to apps.<host>/terminal is answered by /apps/terminal. `apps.localhost`
+ * does the same on a laptop (http://apps.localhost:3000), because browsers
+ * resolve every *.localhost name to the machine itself.
+ *
+ * Only named paths are rewritten, so assets under /_next and the API keep
+ * resolving as they do on the main domain.
+ */
+const APPS_HOST = "apps\\.(sagaxventures\\.com|localhost)";
+
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/",
+          has: [{ type: "host", value: APPS_HOST }],
+          destination: "/apps/terminal",
+        },
+        {
+          source: "/terminal",
+          has: [{ type: "host", value: APPS_HOST }],
+          destination: "/apps/terminal",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   async redirects() {
     return [
       ...retiredServicePaths.map((source) => ({
