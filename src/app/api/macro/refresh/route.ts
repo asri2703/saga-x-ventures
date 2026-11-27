@@ -1,6 +1,9 @@
 import { authorised } from "@/lib/record-feed";
 import { fetchBls, fetchNyFed, fetchTreasury, type Point } from "@/lib/macro/fetchers";
-import { savePoints } from "@/lib/macro/store";
+import { latestTwo, savePoints } from "@/lib/macro/store";
+import { seriesBySlug } from "@/lib/macro/series";
+import { ALERT_SERIES, macroAlert } from "@/lib/alerts/compose";
+import { alertQuietly } from "@/lib/alerts/push";
 
 /**
  * Refreshes the economic series from their publishers.
@@ -63,6 +66,15 @@ export async function GET(request: Request): Promise<Response> {
     ],
   ];
 
+  // What was newest before this run, so only fresh readings are pushed.
+  const before = new Map<string, string>();
+  await Promise.all(
+    ALERT_SERIES.map(async (slug) => {
+      const [latest] = await latestTwo(slug).catch(() => []);
+      before.set(slug, latest?.date ?? "");
+    }),
+  );
+
   const report: { source: string; points: number; error?: string }[] = [];
   for (const [source, run] of jobs) {
     try {
@@ -75,5 +87,19 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
-  return Response.json({ ok: report.every((r) => !r.error), backfill, report });
+  const alerted: string[] = [];
+  if (!backfill) {
+    for (const slug of ALERT_SERIES) {
+      const def = seriesBySlug(slug);
+      const [latest, previous] = await latestTwo(slug).catch(() => []);
+      const was = before.get(slug);
+      if (!def || !latest || !was || latest.date <= was) continue;
+      // The Fed's target is daily; only a change in it is news.
+      if (slug === "fed-funds" && previous && previous.value === latest.value) continue;
+      await alertQuietly(macroAlert(def, latest, previous ?? null));
+      alerted.push(`${slug}:${latest.date}`);
+    }
+  }
+
+  return Response.json({ ok: report.every((r) => !r.error), backfill, report, alerted });
 }

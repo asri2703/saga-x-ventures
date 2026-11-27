@@ -13,6 +13,18 @@ export async function saveCot(rows: CotRow[]): Promise<number> {
   return rows.length;
 }
 
+/** The newest report date on file for a market, or "" when there is none. */
+export async function latestCotDate(market: string): Promise<string> {
+  const { data, error } = await serviceClient()
+    .from("cot_positions")
+    .select("report_date")
+    .eq("market", market)
+    .order("report_date", { ascending: false })
+    .limit(1);
+  if (error) throw error;
+  return (data?.[0]?.report_date as string | undefined) ?? "";
+}
+
 const COLUMNS = "market, report_date, open_interest, spec_long, spec_short, hedge_long, hedge_short";
 
 function toRow(r: Record<string, unknown>): CotRow {

@@ -34,6 +34,18 @@ export async function readSeries(series: string, since?: string): Promise<Obs[]>
   return out;
 }
 
+/** The two newest points of a series, newest first. */
+export async function latestTwo(series: string): Promise<Obs[]> {
+  const { data, error } = await serviceClient()
+    .from("macro_points")
+    .select("date, value")
+    .eq("series", series)
+    .order("date", { ascending: false })
+    .limit(2);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ date: r.date as string, value: Number(r.value) }));
+}
+
 export type SeriesStats = {
   actual: Obs;
   previous: Obs | null;

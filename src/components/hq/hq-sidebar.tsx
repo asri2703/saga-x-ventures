@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bell,
   ChartLine,
   KeyRound,
   LayoutDashboard,
@@ -42,6 +43,7 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
       { name: "News wire", href: "/terminal", icon: Newspaper },
       { name: "Macro data", href: "/macro", icon: ChartLine },
       { name: "Positioning (COT)", href: "/cot", icon: Scale },
+      { name: "Alerts", href: "/alerts", icon: Bell },
       { name: "Sources", href: "/sources", icon: Radio, soon: true },
     ],
   },
