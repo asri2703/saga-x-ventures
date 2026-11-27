@@ -19,7 +19,7 @@ create table if not exists terminal_news (
   -- two outlets lands on one row instead of two.
   headline_key  text          not null unique,
   headline      text          not null,
-  source        text          not null,            -- 'gdelt' | 'fed' | 'finnhub'
+  source        text          not null,            -- 'gdelt' | 'rss' | 'finnhub'
   outlet        text          not null default '', -- domain or publisher name
   published_at  timestamptz   not null,
   fetched_at    timestamptz   not null default now(),

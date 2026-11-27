@@ -12,7 +12,7 @@
 export type Headline = {
   url: string;
   headline: string;
-  source: "gdelt" | "fed" | "finnhub";
+  source: "gdelt" | "rss" | "finnhub";
   outlet: string;
   publishedAt: Date;
 };
@@ -70,11 +70,21 @@ export function parseGdelt(body: unknown): Headline[] {
 }
 
 /* ------------------------------------------------------------------ *
- * Federal Reserve press releases: FOMC statements, minutes, speeches.
- * Official RSS, no key.
+ * RSS: the Fed's own press releases, plus world and markets desks that
+ * cover wars, sanctions and tariffs as they break. No keys.
+ *
+ * GDELT alone is not enough: its free API allows one request every five
+ * seconds per IP, and Vercel's shared IPs are often over that, so it
+ * answers 429 or times out. These feeds carry the run when it does.
  * ------------------------------------------------------------------ */
 
-export const FED_RSS = "https://www.federalreserve.gov/feeds/press_all.xml";
+export const RSS_FEEDS: { url: string; outlet: string }[] = [
+  { url: "https://www.federalreserve.gov/feeds/press_all.xml", outlet: "federalreserve.gov" },
+  { url: "https://feeds.bbci.co.uk/news/world/rss.xml", outlet: "BBC World" },
+  { url: "https://www.aljazeera.com/xml/rss/all.xml", outlet: "Al Jazeera" },
+  { url: "https://www.cnbc.com/id/100727362/device/rss/rss.html", outlet: "CNBC World" },
+  { url: "https://www.cnbc.com/id/20910258/device/rss/rss.html", outlet: "CNBC Economy" },
+];
 
 function decodeEntities(text: string): string {
   return text
@@ -132,10 +142,10 @@ export function parseFinnhub(body: unknown): Headline[] {
  * Fetching.
  * ------------------------------------------------------------------ */
 
-async function getJson(url: string): Promise<unknown> {
+async function getJson(url: string, timeoutMs = 15_000): Promise<unknown> {
   const r = await fetch(url, {
     headers: { "User-Agent": "saga-x-terminal" },
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(timeoutMs),
     cache: "no-store",
   });
   if (!r.ok) throw new Error(`${url.split("?")[0]} answered ${r.status}`);
@@ -162,8 +172,14 @@ export async function fetchHeadlines(
   now = new Date(),
 ): Promise<{ headlines: Headline[]; report: SourceReport[] }> {
   const jobs: [string, () => Promise<Headline[]>][] = [
-    ["gdelt", async () => parseGdelt(await getJson(gdeltUrl()))],
-    ["fed", async () => parseRss(await getText(FED_RSS), "fed", "federalreserve.gov")],
+    // GDELT is slow even when it answers; give it longer than the rest.
+    ["gdelt", async () => parseGdelt(await getJson(gdeltUrl(), 40_000))],
+    ...RSS_FEEDS.map(
+      (feed): [string, () => Promise<Headline[]>] => [
+        feed.outlet,
+        async () => parseRss(await getText(feed.url), "rss", feed.outlet),
+      ],
+    ),
   ];
   const finnhubKey = process.env.FINNHUB_API_KEY;
   if (finnhubKey) {

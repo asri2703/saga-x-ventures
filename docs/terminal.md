@@ -6,7 +6,7 @@ result over one authenticated endpoint. Nothing here touches the shared
 signal HQ database.
 
 ```
-GDELT · Federal Reserve RSS · Finnhub (optional)
+GDELT · RSS (Fed, BBC World, Al Jazeera, CNBC) · Finnhub (optional)
         │  every 5 minutes
         ▼
 /api/terminal/ingest   fetch → drop what is on file → Claude → store
