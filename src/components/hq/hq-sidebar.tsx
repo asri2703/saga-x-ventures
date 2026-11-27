@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Newspaper,
   Radio,
+  Scale,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -40,6 +41,7 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
       { name: "Overview", href: "", icon: LayoutDashboard },
       { name: "News wire", href: "/terminal", icon: Newspaper },
       { name: "Macro data", href: "/macro", icon: ChartLine },
+      { name: "Positioning (COT)", href: "/cot", icon: Scale },
       { name: "Sources", href: "/sources", icon: Radio, soon: true },
     ],
   },

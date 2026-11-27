@@ -13,6 +13,14 @@
     {
       "path": "/api/macro/refresh",
       "schedule": "15 22 * * *"
+    },
+    {
+      "path": "/api/cot/refresh",
+      "schedule": "10 21 * * 1-5"
+    },
+    {
+      "path": "/api/cot/refresh",
+      "schedule": "40 1 * * 2-6"
     }
   ]
 }

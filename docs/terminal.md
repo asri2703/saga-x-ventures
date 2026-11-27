@@ -166,3 +166,13 @@ commercial display, and their forecasts are their own.
 China's figures are not in Macro data yet: China's statistics bureau has no
 documented public API. China's releases reach the wire as news in the
 Global Data & China section.
+
+## Positioning (COT)
+
+Weekly Commitments of Traders from the CFTC's public reporting API (US government data, no key). Gold uses the Disaggregated report (managed money against producers and merchants); the dollar index and the seven majors use Traders in Financial Futures (leveraged funds against dealers). Futures only.
+
+- Table: `cot_positions` (migration 0012).
+- Refresh: `GET /api/cot/refresh` (cron, weekdays 21:10 and 01:40 UTC); `?backfill=1` loads everything since 2010.
+- Release dates: `src/lib/cot/schedule.ts`. Add the CFTC's dates for each new year there (and the twice-weekly dates when the CFTC switches); past the list, HQ shows the next Friday as an estimate.
+- Feed for Mastery: `GET /api/terminal/cot?weeks=8` with `Bearer TERMINAL_FEED_KEY`, returning each market's net, weekly change, long share, pair bias, history and `next_release`.
+- HQ: an overview strip (`CotOverviewBlock`) and the Positioning section (`/cot`, `/cot/[slug]`). The blocks live in `src/components/hq/cot-blocks.tsx` so each can be moved or restyled on its own.
