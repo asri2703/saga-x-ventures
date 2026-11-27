@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { buildUserMessage, parseVerdicts } from "@/lib/terminal/classify";
+import { parseUnsplashSearch } from "@/lib/terminal/images";
 import {
   dedupe,
   gdeltUrl,
@@ -94,7 +95,7 @@ test("headlines are numbered from one in the prompt", () => {
 test("verdicts map back to their headline and bad rows are dropped", () => {
   const text = `Here you go:
   [
-    {"i": 1, "relevant": true, "impact": "high", "direction": "bullish", "summary": "Iran closed the Strait of Hormuz. Oil supply risk lifts demand for gold."},
+    {"i": 1, "relevant": true, "impact": "high", "direction": "bullish", "summary": "Iran closed the Strait of Hormuz. Oil supply risk lifts demand for gold.", "category": "geopolitics", "image_query": "oil tanker, strait"},
     {"i": 2, "relevant": false, "impact": null, "direction": null, "summary": null},
     {"i": 3, "relevant": true, "impact": "huge", "direction": "bullish", "summary": "x"},
     {"i": 4, "relevant": true, "impact": "low", "direction": "sideways", "summary": "Ringkasan."},
@@ -106,8 +107,20 @@ test("verdicts map back to their headline and bad rows are dropped", () => {
     impact: "high",
     direction: "bullish",
     summary: "Iran closed the Strait of Hormuz. Oil supply risk lifts demand for gold.",
+    category: "geopolitics",
+    // Punctuation is stripped: the query goes into a search URL.
+    imageQuery: "oil tanker strait",
   });
-  expect(v[1]).toEqual({ relevant: false, impact: null, direction: null, summary: null });
+  expect(v[1]).toEqual({
+    relevant: false,
+    impact: null,
+    direction: null,
+    summary: null,
+    category: null,
+    imageQuery: null,
+  });
+  // A section we do not have is dropped, not guessed; the story is kept.
+  expect(v[3]?.category).toBeNull();
   // An impact we do not know is a skipped row, asked again next run.
   expect(v[2]).toBeUndefined();
   // An unknown direction falls back to neutral rather than losing the story.
@@ -118,4 +131,30 @@ test("verdicts map back to their headline and bad rows are dropped", () => {
 test("a reply that is not JSON skips the whole batch", () => {
   expect(parseVerdicts("Sorry, I cannot help with that.", 3)).toEqual([undefined, undefined, undefined]);
   expect(parseVerdicts("[not json]", 2)).toEqual([undefined, undefined]);
+});
+
+/* ------------------------------------------------------------------ *
+ * Photos.
+ * ------------------------------------------------------------------ */
+
+test("an Unsplash result becomes a sized, credited, hotlinked photo", () => {
+  const photo = parseUnsplashSearch({
+    results: [
+      // Not hosted on Unsplash's image CDN: skipped.
+      { urls: { raw: "https://evil.example/x.jpg" }, user: { name: "A", links: { html: "https://unsplash.com/@a" } } },
+      {
+        urls: { raw: "https://images.unsplash.com/photo-1?ixid=abc" },
+        user: { name: "Jane Doe", links: { html: "https://unsplash.com/@jane" } },
+        links: { download_location: "https://api.unsplash.com/photos/1/download" },
+      },
+    ],
+  });
+  expect(photo?.url).toBe(
+    "https://images.unsplash.com/photo-1?ixid=abc&w=1200&h=675&fit=crop&auto=format&q=75",
+  );
+  expect(photo?.credit).toBe("Jane Doe");
+  expect(photo?.link).toBe("https://unsplash.com/@jane?utm_source=saga_x_hq&utm_medium=referral");
+  expect(photo?.downloadLocation).toBe("https://api.unsplash.com/photos/1/download");
+  expect(parseUnsplashSearch({ results: [] })).toBeNull();
+  expect(parseUnsplashSearch({ errors: ["bad key"] })).toBeNull();
 });

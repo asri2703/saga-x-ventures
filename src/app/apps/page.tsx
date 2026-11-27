@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ago, DirectionBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
+import { ago, CategoryBadge, DirectionBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
 import { readBreakdown, readFeed, readStats } from "@/lib/terminal/store";
 
 /**
@@ -103,6 +103,7 @@ export default async function Overview() {
             top.map((item) => (
               <article key={item.id} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0">
                 <div className="flex flex-wrap items-center gap-2">
+                  <CategoryBadge category={item.category} />
                   <ImpactBadge impact={item.impact} />
                   <DirectionBadge direction={item.direction} />
                   <span className="text-xs text-muted-foreground">

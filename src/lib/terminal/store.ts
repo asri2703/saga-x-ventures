@@ -1,5 +1,6 @@
 import { serviceClient } from "@/lib/supabase";
-import type { Verdict } from "./classify";
+import type { Category, Verdict } from "./classify";
+import type { StoryImage } from "./images";
 import { headlineKey, type Headline } from "./sources";
 
 /**
@@ -30,14 +31,14 @@ export async function alreadyStored(headlines: Headline[]): Promise<Set<string>>
 }
 
 export async function storeVerdicts(
-  rows: { headline: Headline; verdict: Verdict }[],
+  rows: { headline: Headline; verdict: Verdict; image?: StoryImage | null }[],
   model: string,
 ): Promise<number> {
   if (rows.length === 0) return 0;
   const { error, count } = await serviceClient()
     .from("terminal_news")
     .upsert(
-      rows.map(({ headline: h, verdict: v }) => ({
+      rows.map(({ headline: h, verdict: v, image }) => ({
         url: h.url,
         headline_key: headlineKey(h.headline),
         headline: h.headline.slice(0, 500),
@@ -48,6 +49,11 @@ export async function storeVerdicts(
         impact: v.impact,
         direction: v.direction,
         summary: v.summary,
+        category: v.category,
+        image_query: v.imageQuery,
+        image_url: image?.url ?? null,
+        image_credit: image?.credit ?? null,
+        image_link: image?.link ?? null,
         model,
       })),
       // A second run racing this one must not fail the batch over a row
@@ -67,6 +73,10 @@ export type FeedItem = {
   impact: "high" | "medium" | "low";
   direction: "bullish" | "bearish" | "neutral";
   summary: string | null;
+  category: Category | null;
+  image_url: string | null;
+  image_credit: string | null;
+  image_link: string | null;
 };
 
 const IMPACT_RANK = { low: 0, medium: 1, high: 2 } as const;
@@ -75,16 +85,19 @@ export async function readFeed(opts: {
   since: Date;
   minImpact: keyof typeof IMPACT_RANK;
   limit: number;
+  category?: Category | null;
 }): Promise<FeedItem[]> {
   const allowed = (Object.keys(IMPACT_RANK) as (keyof typeof IMPACT_RANK)[]).filter(
     (k) => IMPACT_RANK[k] >= IMPACT_RANK[opts.minImpact],
   );
-  const { data, error } = await serviceClient()
+  let query = serviceClient()
     .from("terminal_news")
-    .select("id, headline, url, outlet, published_at, impact, direction, summary")
+    .select("id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link")
     .eq("relevant", true)
     .gte("published_at", opts.since.toISOString())
-    .in("impact", allowed)
+    .in("impact", allowed);
+  if (opts.category) query = query.eq("category", opts.category);
+  const { data, error } = await query
     .order("published_at", { ascending: false })
     .limit(opts.limit);
   if (error) throw error;

@@ -1,6 +1,7 @@
 import { authorised } from "@/lib/record-feed";
 import { BATCH_SIZE, classifyBatch, DEFAULT_MODEL, type Verdict } from "@/lib/terminal/classify";
 import { dedupe, fetchHeadlines, LOOKBACK_MINUTES, type Headline } from "@/lib/terminal/sources";
+import { findImage, type StoryImage } from "@/lib/terminal/images";
 import { alreadyStored, storeVerdicts } from "@/lib/terminal/store";
 
 /**
@@ -21,6 +22,8 @@ export const maxDuration = 120;
 
 /** Hard ceiling per run. A burst of news costs at most this many headlines. */
 const MAX_PER_RUN = 75;
+/** Photo searches per run. Twelve runs an hour stay under Unsplash's 50. */
+const MAX_IMAGE_SEARCHES = 4;
 
 export async function GET(request: Request): Promise<Response> {
   // Its own secret when set, so the scheduler that calls this (Supabase
@@ -73,9 +76,34 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
+  // A photo for relevant medium and high stories, when an Unsplash key is set.
+  // Capped per run: the free tier allows 50 searches an hour, and the
+  // schedule runs twelve times an hour. One search per distinct query.
+  const imaged: { headline: Headline; verdict: Verdict; image?: StoryImage | null }[] = classified;
+  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+  let images = 0;
+  if (unsplashKey) {
+    const byQuery = new Map<string, StoryImage | null>();
+    for (const row of imaged) {
+      const v = row.verdict;
+      if (!v.relevant || v.impact === "low" || !v.imageQuery) continue;
+      if (!byQuery.has(v.imageQuery)) {
+        if (byQuery.size >= MAX_IMAGE_SEARCHES) continue;
+        try {
+          byQuery.set(v.imageQuery, await findImage(v.imageQuery, unsplashKey));
+        } catch (error) {
+          console.error("terminal ingest: image search failed", error);
+          byQuery.set(v.imageQuery, null);
+        }
+      }
+      row.image = byQuery.get(v.imageQuery) ?? null;
+      if (row.image) images += 1;
+    }
+  }
+
   let saved = 0;
   try {
-    saved = await storeVerdicts(classified, model);
+    saved = await storeVerdicts(imaged, model);
   } catch (error) {
     console.error("terminal ingest: could not store", error);
     return Response.json({ error: "Could not store", sources: report }, { status: 500 });
@@ -87,6 +115,7 @@ export async function GET(request: Request): Promise<Response> {
     candidates: fresh.length,
     saved,
     relevant: classified.filter((c) => c.verdict.relevant).length,
+    images,
     failures,
   });
 }
