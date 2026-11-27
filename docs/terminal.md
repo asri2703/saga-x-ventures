@@ -1,0 +1,96 @@
+# Mastery Terminal — the news wire
+
+Saga X is the hub. It pulls news, asks Claude which stories matter to gold,
+and stores the answer in Saga X's own Supabase. Mastery Signal reads the
+result over one authenticated endpoint. Nothing here touches the shared
+signal HQ database.
+
+```
+GDELT · Federal Reserve RSS · Finnhub (optional)
+        │  every 5 minutes
+        ▼
+/api/terminal/ingest   fetch → drop what is on file → Claude → store
+        │
+        ▼
+terminal_news (Saga X Supabase)
+        │
+        ▼
+/api/terminal/feed     ← Mastery Signal's server, cached
+```
+
+## Setup
+
+1. Run `supabase/migrations/0007_terminal_news.sql` in Saga X's Supabase
+   project (SQL editor).
+2. In Vercel → saga-x-ventures → Environment Variables, for Production and
+   Preview:
+   - `ANTHROPIC_API_KEY` (Claude Console → API keys)
+   - `CRON_SECRET` if it is not already set (`openssl rand -hex 32`)
+   - `TERMINAL_FEED_KEY` (`openssl rand -hex 32`, a different value)
+   - optional: `FINNHUB_API_KEY`, `TERMINAL_MODEL`
+3. Schedule the run. On Vercel Pro, add to `vercel.json`:
+
+   ```json
+   { "path": "/api/terminal/ingest", "schedule": "*/5 * * * *" }
+   ```
+
+   It is not in `vercel.json` yet on purpose. The Hobby plan only allows a
+   daily cron, and a deployment that asks for more is refused, which would
+   take the whole site's deploy down with it.
+
+## Checking a run by hand
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" https://sagaxventures.com/api/terminal/ingest
+```
+
+The answer lists each source with its count or its error, how many headlines
+were new, how many were stored, and how many were relevant. A `failures`
+entry that mentions a spend limit means the Console's monthly cap was reached.
+
+## Reading the feed (for Mastery Signal)
+
+```
+GET /api/terminal/feed?hours=24&min=medium&limit=50
+Authorization: Bearer $TERMINAL_FEED_KEY
+```
+
+| Param | Values | Default |
+|---|---|---|
+| `hours` | 1–168 | 24 |
+| `min` | `low`, `medium`, `high` | `low` |
+| `limit` | 1–200 | 50 |
+
+```json
+{
+  "items": [
+    {
+      "id": "…",
+      "headline": "…",
+      "url": "https://…",
+      "outlet": "reuters.com",
+      "published_at": "2026-11-27T05:30:00+00:00",
+      "impact": "high",
+      "direction": "bullish",
+      "summary_ms": "Dua ayat dalam Bahasa Melayu."
+    }
+  ],
+  "generated_at": "2026-11-27T05:31:02.000Z"
+}
+```
+
+Call it from a Mastery server route, never from the browser: the key would be
+visible to every member. Cache the answer for a minute so the member count
+never multiplies the calls.
+
+## Cost
+
+Claude Haiku 5.5 classifies up to 25 headlines per request. A busy day of
+around 300 headlines is roughly USD 2–3 a month. Every headline seen is
+stored, relevant or not, so the same story is never paid for twice.
+
+## What members see, and what they don't
+
+The headline, the outlet, a link to the original, and our own two-sentence
+summary. Article text is never fetched or stored. The summary is not trading
+advice, and the prompt tells the model not to give any.
