@@ -176,3 +176,12 @@ Weekly Commitments of Traders from the CFTC's public reporting API (US governmen
 - Release dates: `src/lib/cot/schedule.ts`. Add the CFTC's dates for each new year there (and the twice-weekly dates when the CFTC switches); past the list, HQ shows the next Friday as an estimate.
 - Feed for Mastery: `GET /api/terminal/cot?weeks=8` with `Bearer TERMINAL_FEED_KEY`, returning each market's net, weekly change, long share, pair bias, history and `next_release`.
 - HQ: an overview strip (`CotOverviewBlock`) and the Positioning section (`/cot`, `/cot/[slug]`). The blocks live in `src/components/hq/cot-blocks.tsx` so each can be moved or restyled on its own.
+
+## Alerts (Web Push)
+
+VAPID web push, no third-party service. Tables: `push_subscriptions` and `alert_log` (migration 0013). Env: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, optional `MASTERY_ALERT_URL`.
+
+- What is sent: a high-impact story once its brief is written (published within 3 hours); each new COT report; a new CPI, core CPI, jobs, unemployment or wages reading, or a change in the Fed's target. `alert_log` keys each alert by kind and ref, so a job that runs twice alerts once.
+- HQ: the Alerts page turns push on for the browser (service worker `/hq-sw.js`), picks topics, sends a test to that browser only, and lists what was sent.
+- Mastery: its server forwards a member's browser subscription to `POST /api/terminal/push` (`Bearer TERMINAL_FEED_KEY`; `GET` returns the public key, `DELETE` removes). The member's browser needs a service worker on masterysignal.com that shows the notification; a tap opens `MASTERY_ALERT_URL?alert=<kind>:<ref>`.
+- iPhone and iPad receive web push only for a site added to the home screen (iOS 16.4+). The App Store and Play Store apps need APNs and FCM instead.

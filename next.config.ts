@@ -42,9 +42,9 @@ const nextConfig: NextConfig = {
           destination: "/apps",
         },
         {
-          // Everything except framework assets, API routes, the icon and
-          // paths that already carry the /apps prefix.
-          source: "/:path((?!_next|api|apps|icon|favicon).+)",
+          // Everything except framework assets, API routes, the icon, the
+          // alerts service worker and paths that already carry /apps.
+          source: "/:path((?!_next|api|apps|icon|favicon|hq-sw\\.js).+)",
           has: [{ type: "host", value: APPS_HOST }],
           destination: "/apps/:path",
         },
