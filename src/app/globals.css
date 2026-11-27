@@ -326,6 +326,17 @@
   background: var(--glass-line);
 }
 
+/* The step's own name, set as a heading rather than as another small-caps
+   label: it is the one sentence on the card that says what this screen is
+   for, and three tracked-out labels in a column make none of them the
+   title. */
+.checkout-step-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-pine);
+}
+
 .checkout-label {
   font-size: 0.625rem;
   font-weight: 700;
@@ -441,6 +452,23 @@
 .checkout-term-pick {
   border-color: var(--color-ruby);
 }
+
+/* Back, beside the forward button. Quiet: it is the way out of a step, not
+   an action anybody came here to take. */
+.checkout-back {
+  border: 0;
+  background: none;
+  padding: 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(242, 233, 216, 0.75);
+  cursor: pointer;
+}
+
+.checkout-back:hover {
+  color: var(--color-paper);
+}
+
 
 /* ---------------------------------------------------------------------------
    The product switch
@@ -2478,6 +2506,117 @@ html.lenis {
 }
 
 /* ---------------------------------------------------------------------------
+   The hero action.
+
+   From Uiverse.io by cssbuttons-io - https://uiverse.io/cssbuttons-io/massive-mayfly-74
+   MIT License, Copyright (c) cssbuttons-io (cssbuttons.io)
+
+   A dark disc with an arrow, which grows across the whole pill on hover while
+   the label turns to paper. Adapted in three ways and otherwise left alone:
+
+   - It is a link, not a <button>, so the class is on the anchor and the
+     generic `button { ... }` reset the original carried is dropped — this
+     site's anchors are not styled like that one's.
+   - The original is a fixed 12rem with the label absolutely centred. These
+     labels are the owner's and run longer than "Learn More", so the width is
+     a floor and the label sits in a grid cell it can widen. The centring and
+     the 1.85rem lean towards the disc are kept.
+   - The palette is this site's: pine for the disc, paper for the label on it.
+
+   `.sweep`, not `.learn-more`: the names in the original are generic enough
+   to collide with something already here.
+--------------------------------------------------------------------------- */
+.sweep {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 12rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.5rem 0.75rem 3.1rem;
+  border-radius: 9999px;
+  /* The disc is the only background. A pill behind it would make the growth
+     a fill rather than a thing moving across. */
+  background: transparent;
+}
+
+.sweep-circle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
+  width: 3rem;
+  border-radius: 1.625rem;
+  background: var(--color-pine);
+  transition: width 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+}
+
+/* The arrow: a bar with a chevron on its end, both built from borders so the
+   shaft can appear on hover without a second element arriving. */
+.sweep-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.9375rem;
+  margin: auto;
+  width: 1.125rem;
+  height: 0.125rem;
+  background: none;
+  transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+}
+
+.sweep-arrow::before {
+  content: "";
+  position: absolute;
+  top: -0.29rem;
+  right: 0.0625rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-top: 0.125rem solid var(--color-paper);
+  border-right: 0.125rem solid var(--color-paper);
+  transform: rotate(45deg);
+}
+
+.sweep-text {
+  position: relative;
+  /* Over the disc once it has grown. */
+  z-index: 1;
+  margin-left: 1.85rem;
+  color: var(--color-pine);
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: color 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+}
+
+.sweep:hover .sweep-circle,
+.sweep:focus-visible .sweep-circle {
+  width: 100%;
+}
+
+.sweep:hover .sweep-arrow,
+.sweep:focus-visible .sweep-arrow {
+  background: var(--color-paper);
+  transform: translate(1rem, 0);
+}
+
+.sweep:hover .sweep-text,
+.sweep:focus-visible .sweep-text {
+  color: var(--color-paper);
+}
+
+/* The growth is the animation; the colours are the information. */
+@media (prefers-reduced-motion: reduce) {
+  .sweep-circle,
+  .sweep-arrow,
+  .sweep-text {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    The calculator
    ---------------------------------------------------------------------------
    One panel. The question sits on a pine block at the top, the six figures
@@ -2915,4 +3054,402 @@ html.lenis {
 
 .replay-facts--down {
   color: var(--color-ruby) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   The plan cards on /fukyaa.
+
+   The arrangement of watermelon's `pricing-3`: a heading with a second route
+   beside it, then two cards, each split down the middle — the figure and its
+   button on one side, what you get on the other. The block's code is shadcn
+   and react-icons over `bg-card` and `text-muted-foreground`; what is kept
+   is the shape, in this site's colours, with the tick that the steps below
+   already use.
+
+   The recommended card is marked by a ring and a tab, as the original marks
+   its popular one. Which card that is stays a question for the data, not for
+   this file.
+--------------------------------------------------------------------------- */
+.plan-head {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+
+.plan-aside {
+  max-width: 26rem;
+}
+
+.plan-aside-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-pine-faint);
+}
+
+.plan-aside-body {
+  margin-block: 0.75rem 1rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+.plan-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-block-start: 3rem;
+}
+
+.plan {
+  position: relative;
+  display: grid;
+  gap: 1.75rem;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-paper-raised);
+  padding: 1.75rem 1.5rem;
+}
+
+/* The one being recommended, and the one the steps below are currently
+   following. They are different things: the first is the owner's advice and
+   is true before anybody touches the page, the second answers "which card
+   did I press". */
+.plan[data-pick] {
+  border-color: var(--color-pine);
+  box-shadow: 0 0 0 1px var(--color-pine);
+}
+
+.plan[data-chosen] {
+  background: var(--color-sage);
+}
+
+.plan-flag {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.5rem;
+  border-radius: 0.4rem;
+  background: var(--color-pine);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-paper);
+}
+
+.plan-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.plan-name {
+  border-radius: 9999px;
+  border: 1px solid var(--color-rule-strong);
+  padding: 0.2rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-pine-soft);
+}
+
+.plan-price {
+  margin-block-start: 1rem;
+  font-size: 2.5rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-pine);
+}
+
+.plan-blurb {
+  margin-block: 0.75rem 1.5rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+.plan-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Pushed to the foot of its half so two cards of different heights still
+     line their buttons up. */
+  margin-block-start: auto;
+  border-radius: 9999px;
+  padding: 0.85rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-go:active {
+  transform: scale(0.97);
+}
+
+.plan-list {
+  display: grid;
+  gap: 0.875rem;
+  border-block-start: 1px solid var(--color-rule);
+  padding-block-start: 1.5rem;
+}
+
+.plan-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.5;
+  color: var(--color-pine);
+}
+
+.plan-check {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-block-start: 0.15rem;
+  color: var(--color-ruby);
+}
+
+.plan-note {
+  margin-block-start: 1.75rem;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+@media (min-width: 64rem) {
+  .plan-head {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 3rem;
+  }
+
+  .plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  /* The split the original makes at its own `sm`: figure and button on the
+     left, the list on the right, with a rule between them. */
+  .plan {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem;
+    padding: 2.25rem 2rem;
+  }
+
+  .plan-list {
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--color-rule);
+    padding-block-start: 0;
+    padding-inline-start: 2rem;
+    align-content: center;
+  }
+}
+/* ---------------------------------------------------------------------------
+   The checkout's progress line.
+
+   Six steps is too many for a rail of dots and words across a dialog, so it
+   is a bar and a sentence. The sentence is what a screen reader needs in any
+   case, and it is polite rather than assertive: it changes when the reader
+   presses Next, which they already know they did.
+--------------------------------------------------------------------------- */
+.checkout-prog {
+  padding: 0.85rem 1rem 0;
+}
+
+.checkout-prog-bar {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--color-paper-sunk);
+  overflow: hidden;
+}
+
+.checkout-prog-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-ruby);
+  transform-origin: left center;
+  transition: transform 260ms var(--ease-out-ui);
+}
+
+.checkout-prog-text {
+  margin-block-start: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-pine-faint);
+}
+
+/* The broker's own page, opened from inside the dialog. An outline rather
+   than a filled button: the filled one at the foot is the way forward, and
+   two solid buttons in one card ask which is the real one. */
+.checkout-out {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-block-start: 1rem;
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkout-prog-bar span {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Why use AI Auto Trade, on /fukyaa.
+
+   The arrangement of watermelon's `feature-2`: words on the left, a recessed
+   panel on the right holding a drawing that changes with the open reason.
+   The original is shadcn and Radix on `bg-background` and
+   `text-muted-foreground`; those are another project's tokens, so what is
+   kept is the shape and the recess, in this site's colours.
+
+   The drawing rules below are older than this block — they drew the reasons
+   grid that stood here — and are unchanged, which is why the lines in the
+   panel weigh the same as every other diagram on the page.
+--------------------------------------------------------------------------- */
+.whyai {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+/* The pill above the heading: a dot and a word, the one place on this page
+   where a label gets a background of its own. */
+.whyai-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-paper-sunk);
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-pine-soft);
+}
+
+.whyai-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-ruby);
+}
+
+.whyai-list {
+  margin-block-start: 2rem;
+  /* Hairlines, like the package rows further down, rather than four cards. */
+  border-block-start: 1px solid var(--color-paper-sunk);
+}
+
+.whyai-item {
+  border-block-end: 1px solid var(--color-paper-sunk);
+}
+
+.whyai-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  text-align: start;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-pine);
+  cursor: pointer;
+}
+
+.whyai-item[data-open="false"] .whyai-trigger {
+  color: var(--color-pine-soft);
+}
+
+/* The chevron, built from one corner of a box so no icon file is needed. */
+.whyai-chevron {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  rotate: 45deg;
+  translate: 0 -0.125rem;
+  transition: rotate 200ms var(--ease-out-ui);
+}
+
+.whyai-item[data-open="true"] .whyai-chevron {
+  rotate: 225deg;
+  translate: 0 0.125rem;
+}
+
+.whyai-body {
+  padding-block-end: 1.25rem;
+  max-width: 32rem;
+  line-height: 1.6;
+  color: var(--color-pine-soft);
+}
+
+/* The drawing travels with the words until the panel is beside them. */
+.whyai-inline-art {
+  overflow: hidden;
+  margin-block-start: 1.25rem;
+  border-radius: var(--radius-panel);
+}
+
+.whyai-panel {
+  display: none;
+  border-radius: var(--radius-panel);
+  /* Sunk rather than raised: the original's panel is a recess the cards sit
+     inside, and an inner shadow is what says so without a border. */
+  background: var(--color-paper-band);
+  box-shadow: inset 0 1px 4px rgba(22, 58, 48, 0.12);
+  padding: 2.5rem;
+}
+
+/* The picture sits in the recess like a photograph in a frame: clipped to
+   the radius, with no padding of its own, so the panel's inset edge is the
+   only border it needs. */
+.whyai-stage {
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  box-shadow: 0 1px 2px rgba(22, 58, 48, 0.06), 0 16px 36px rgba(22, 58, 48, 0.08);
+}
+
+.whyai-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Keyed on the open reason, so this runs when the drawing is replaced and
+     at no other time. It answers a press, which is the only motion this
+     section has. */
+  .whyai-stage {
+    animation: whyai-in 220ms var(--ease-out-ui);
+  }
+}
+
+@keyframes whyai-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (min-width: 64rem) {
+  .whyai {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  .whyai-panel {
+    display: block;
+  }
+
+  .whyai-inline-art {
+    display: none;
+  }
 }

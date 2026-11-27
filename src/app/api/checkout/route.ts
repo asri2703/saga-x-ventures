@@ -1,7 +1,12 @@
 import { createBill } from "@/lib/billplz";
 import { checkoutConfig } from "@/lib/checkout/config";
-import { attachBillId, createPendingOrder } from "@/lib/checkout/orders";
-import { masteryPlanTotalMyr, masteryPlans } from "@/lib/commercial";
+import {
+  attachBillId,
+  createPendingOrder,
+  markNotified,
+} from "@/lib/checkout/orders";
+import { notifyInvoice, notifyRegistration } from "@/lib/notify";
+import { sellableFor } from "@/lib/commercial";
 
 /**
  * Turn a plan key into a Billplz bill.
@@ -86,16 +91,23 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Expected JSON" }, { status: 400 });
   }
 
-  const { planKey, name, email, phone } = (body ?? {}) as Record<string, unknown>;
+  const { planKey, name, email, phone, mt5Login } = (body ?? {}) as Record<
+    string,
+    unknown
+  >;
 
-  const plan = masteryPlans.find((candidate) => candidate.key === planKey);
-  if (!plan) {
+  /* The one list of what may be bought, and the only place the price comes
+     from. A key that is not on it is not for sale, whatever this body
+     says. */
+  const sold = typeof planKey === "string" ? sellableFor(planKey) : null;
+  if (!sold) {
     return Response.json({ error: "Unknown package" }, { status: 400 });
   }
 
   const buyerName = typeof name === "string" ? name.trim() : "";
   const buyerEmail = typeof email === "string" ? email.trim() : "";
   const buyerPhone = typeof phone === "string" ? phone.trim() : "";
+  const buyerLogin = typeof mt5Login === "string" ? mt5Login.trim() : "";
 
   // Deliberately shallow. The address has to be deliverable, which only
   // sending can prove; what this rejects is the typo that is obvious from
@@ -107,7 +119,18 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Please check your details" }, { status: 400 });
   }
 
-  const amountSen = masteryPlanTotalMyr(plan) * 100;
+  /* An MT5 login is digits and nothing else. It is the instruction for which
+     account to connect, so a typo here is a server running against somebody
+     else's number or against nothing at all; the length is left wide because
+     brokers number accounts differently. */
+  if (sold.needsMt5Login && !/^\d{4,12}$/.test(buyerLogin)) {
+    return Response.json(
+      { error: "Please check your MT5 account number" },
+      { status: 400 },
+    );
+  }
+
+  const amountSen = sold.amountSen;
 
   /* The row before the bill.
      A row with no bill is a person who opened the dialog and got no further,
@@ -116,11 +139,16 @@ export async function POST(request: Request): Promise<Response> {
   let order;
   try {
     order = await createPendingOrder({
-      planKey: plan.key,
+      product: sold.product,
+      planKey: sold.key,
       amountSen,
       buyerName,
       buyerEmail,
       buyerPhone,
+      mt5Login: sold.needsMt5Login ? buyerLogin : null,
+      /* Nothing to pay is not a payment waiting to happen. The row is the
+         request itself, and it is complete the moment it is written. */
+      status: amountSen === 0 ? "registered" : "pending",
     });
   } catch (error) {
     // The dialog reads `error` and offers WhatsApp. An unhandled throw here
@@ -132,6 +160,39 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  /* A package with nothing to pay stops here, and it is a different errand
+     from the one below.
+     Billplz cannot raise a bill for zero, and there is nothing to raise one
+     for: the owner has the name, the email, the phone and the account
+     number, which is everything connecting the server needs. So the thing
+     that happens instead of a payment is the two emails — the owner gets
+     the instruction, the client gets a copy of what was sent, which is also
+     their chance to catch a wrong digit in the account number before
+     anything is wired up.
+
+     A send that fails does not fail the registration. The row is written,
+     and `notified_at` stays null, which is the owner's own list of the ones
+     that never reached him. Telling the client "that did not work" would be
+     false — it did, and only the telling of it did not. */
+  if (amountSen === 0) {
+    try {
+      await notifyRegistration(order);
+      await markNotified(order.id);
+    } catch (error) {
+      console.error("checkout: the registration emails did not go out", {
+        order: order.id,
+        error,
+      });
+    }
+
+    /* The order id stays out of the URL. A row id in a link is a key to a
+       row holding a name, an email address and an account number, and links
+       live in history, in referrers and on shared screens. The page this
+       goes to reads nothing and confirms only what the browser already
+       knows: the request was recorded. */
+    return Response.json({ url: "/checkout/done?registered=1" });
+  }
+
   let bill;
   try {
     bill = await createBill({
@@ -141,7 +202,7 @@ export async function POST(request: Request): Promise<Response> {
       name: buyerName,
       email: buyerEmail,
       amountSen,
-      description: `Mastery Signal — ${plan.name}`,
+      description: sold.label,
       reference1: order.id,
       callbackUrl: `${config.siteUrl}/api/checkout/callback`,
       redirectUrl: `${config.siteUrl}/checkout/done`,
@@ -174,6 +235,23 @@ export async function POST(request: Request): Promise<Response> {
       { error: "Could not start the payment" },
       { status: 503 },
     );
+  }
+
+  /* The invoice, before the browser leaves for Billplz.
+     The payment page is a tab, and a tab is closed by a phone call. Without
+     this, somebody who steps away from it has no figure, no reference and no
+     way back to the bill — and a company that has to approve the
+     spend has nothing to approve.
+
+     Its failure cannot fail the checkout: the bill exists and is payable,
+     and refusing the sale now would be refusing it over an email. */
+  try {
+    await notifyInvoice(order, bill.url);
+  } catch (error) {
+    console.error("checkout: the invoice did not go out", {
+      order: order.id,
+      error,
+    });
   }
 
   return Response.json({ url: bill.url });

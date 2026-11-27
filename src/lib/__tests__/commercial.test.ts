@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import {
   copytrade,
   fukyaa,
@@ -10,6 +10,8 @@ import {
   masteryPlanSavingMyr,
   fukyaaPlans,
   formatMyr,
+  sellableFor,
+  rentalMonthEnds,
 } from "@/lib/commercial";
 import { formatPrice } from "@/lib/coaching";
 
@@ -60,9 +62,16 @@ test("the dated deposit model is gone, not merely unused", () => {
   expect(live).not.toMatch(/depositPromoUsd|depositStandardUsd/);
 });
 
-test("the server rental is the only recurring Fukyaa figure", () => {
+test("the server rental is the only money figure in `fukyaa`", () => {
   expect(fukyaa.vpsMonthlyMyr).toBeGreaterThan(0);
-  expect(Object.keys(fukyaa)).toEqual(["vpsMonthlyMyr"]);
+  /* Narrowed from "exactly one key" when the rental month arrived: lengths
+     of time belong here, prices do not. What this guards is the promo that
+     was deleted in November — three money fields that the page then had to
+     explain — and a second price appearing here is how that comes back. */
+  const money = Object.keys(fukyaa).filter((key) =>
+    /myr|usd|price|fee|cost/i.test(key),
+  );
+  expect(money).toEqual(["vpsMonthlyMyr"]);
 });
 
 test("the two automated packages are the cheaper deposit and the dearer", () => {
@@ -141,3 +150,62 @@ test("a Fukyaa package charges monthly or shares the gain, never both", () => {
 });
 
 
+
+/* ------------------------------------------------------------------ *
+ * What the checkout may sell
+ * ------------------------------------------------------------------ */
+
+describe("sellableFor", () => {
+  test("a Mastery term resolves to the whole term's price", () => {
+    const year = masteryPlans.find((plan) => plan.key === "year")!;
+    const sellable = sellableFor("year");
+
+    expect(sellable).not.toBeNull();
+    expect(sellable!.product).toBe("mastery-signal");
+    expect(sellable!.amountSen).toBe(masteryPlanTotalMyr(year) * 100);
+    expect(sellable!.needsMt5Login).toBe(false);
+  });
+
+  test("the rented-server package costs one month of rent", () => {
+    const sellable = sellableFor("rented-vps");
+
+    expect(sellable).not.toBeNull();
+    expect(sellable!.product).toBe("fukyaa");
+    expect(sellable!.amountSen).toBe(fukyaa.vpsMonthlyMyr * 100);
+    // The account it runs on has to be named, or nobody knows what to
+    // connect to the server.
+    expect(sellable!.needsMt5Login).toBe(true);
+  });
+
+  test("the package that includes the server has nothing to pay", () => {
+    const sellable = sellableFor("included-vps");
+
+    expect(sellable).not.toBeNull();
+    expect(sellable!.amountSen).toBe(0);
+    expect(sellable!.needsMt5Login).toBe(true);
+  });
+
+  test("copytrade is not sold here: it is settled from the gain", () => {
+    expect(sellableFor("copytrade")).toBeNull();
+  });
+
+  test("an unknown key sells nothing", () => {
+    expect(sellableFor("year-and-a-half")).toBeNull();
+    expect(sellableFor("")).toBeNull();
+  });
+});
+
+describe("the rental month", () => {
+  test("a payment buys exactly one month from the day it settles", () => {
+    const paidAt = new Date("2026-11-27T03:00:00Z");
+    expect(rentalMonthEnds(paidAt).toISOString()).toBe(
+      new Date("2026-12-27T03:00:00Z").toISOString(),
+    );
+  });
+
+  test("the reminder goes out before the month is out, not after", () => {
+    // A reminder that arrives the day the server stops is not a reminder.
+    expect(fukyaa.remindDaysBefore).toBeGreaterThan(0);
+    expect(fukyaa.remindDaysBefore).toBeLessThan(fukyaa.monthDays);
+  });
+});

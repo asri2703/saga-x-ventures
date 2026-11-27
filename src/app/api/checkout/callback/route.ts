@@ -6,7 +6,9 @@ import {
   markLinkSent,
   markNotified,
   markPaid,
+  startRentalMonth,
 } from "@/lib/checkout/orders";
+import { rentalMonthEnds, sellableFor } from "@/lib/commercial";
 import { notifyBuyer, notifyOwner } from "@/lib/notify";
 
 /**
@@ -99,7 +101,29 @@ export async function POST(request: Request): Promise<Response> {
 
     // Null means this callback was a retry and the first one already did
     // the work. Everything below sends something, so it happens once.
-    if (paid) await tell(paid);
+    if (paid) {
+      /* The month starts now, not at checkout: a bill nobody paid must not
+         reserve one. Only the rental has a month — a Mastery order has no
+         server to switch off — and a failure here must not fail the
+         callback, because the money has already moved. What it costs is a
+         reminder that never goes out, and that is visible: a paid row with
+         no `paid_until`. */
+      if (sellableFor(paid.planKey)?.product === "fukyaa") {
+        try {
+          await startRentalMonth(
+            paid.id,
+            rentalMonthEnds(paid.paidAt ? new Date(paid.paidAt) : new Date()),
+          );
+        } catch (error) {
+          console.error("checkout callback: could not start the rental month", {
+            order: paid.id,
+            error,
+          });
+        }
+      }
+
+      await tell(paid);
+    }
 
     return new Response(null, { status: 200 });
   } catch (error) {

@@ -36,7 +36,7 @@ import { RecordChart } from "@/components/record-chart";
 import { StepTrack } from "@/components/step-track";
 import { VideoEmbed } from "@/components/video-embed";
 import {
-  ActionLink,
+  ActionSweep,
   ActionOut,
   Eyebrow,
   Scallop,
@@ -258,7 +258,7 @@ export default async function CopytradePage() {
                     questions before they had one, and a hero that offers two
                     doors points at neither. The questions are still a section
                     away, down the page, where a reader arrives with one. */}
-                <ActionLink href="#steps">Join us now</ActionLink>
+                <ActionSweep href="#steps">Join us now</ActionSweep>
               </div>
             </div>
 

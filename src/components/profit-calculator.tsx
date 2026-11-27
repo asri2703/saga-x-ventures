@@ -71,16 +71,42 @@ const pct = (ratio: number) => {
   return `${ratio < 0 ? "−" : "+"}${body}`;
 };
 
+/**
+ * What the buyer pays, when it is not a share of the gain.
+ *
+ * Copytrade's fee is a percentage, so it belongs in the dollar arithmetic
+ * and `project` subtracts it. A rental's is a flat monthly charge in
+ * ringgit, and the site has no exchange rate — deliberately, because a rate
+ * typed into a file is wrong the week after. So it is never subtracted from
+ * the dollar figures; it is stated beside them.
+ *
+ * Which of the two figures applies is decided by the deposit the slider
+ * produced, because that is what decides it in real life: past the larger
+ * package's deposit the server comes free. The calculator therefore argues
+ * for the larger deposit out of arithmetic rather than out of copy.
+ */
+export type RentNote = {
+  /** The deposit at or above which the server is included. */
+  includedFrom: number;
+  /** The monthly rent below that, formatted with its currency. */
+  monthly: string;
+  /** What is shown at or above it. */
+  included: string;
+};
+
 export function ProfitCalculator({
   outcomes,
   sharePct,
   lots,
+  rent = null,
 }: {
   outcomes: Outcomes;
-  /** The master's share of the month's gain, as a percentage. */
+  /** The master's share of the month's gain, as a percentage. Zero on a rental. */
   sharePct: number;
   /** Lots a day per $1,000 of capital, or null when it cannot be read. */
   lots: number | null;
+  /** Set on a rental, where the fee is flat and in another currency. */
+  rent?: RentNote | null;
 }) {
   const [goal, setGoal] = useState(300);
   const fieldId = useId();
@@ -90,8 +116,11 @@ export function ProfitCalculator({
   return (
     <div className="calc">
       <div className="calc-ask">
+        {/* "Gross" only means something where a share is taken out of it.
+            On a rental nothing is, so the word would be answering a
+            question the panel never asks. */}
         <p className="calc-label">
-          Gross profit you want a month
+          {rent ? "Profit you want a month" : "Gross profit you want a month"}
         </p>
 
         <p className="calc-goal tnum">
@@ -143,15 +172,33 @@ export function ProfitCalculator({
 
             {/* The split, first, because it is what the slider's figure
                 actually turns into. The slider sets what the ACCOUNT makes;
-                these two say whose it is. */}
+                these two say whose it is.
+
+                On a rental there is no split — the fee is flat and in
+                another currency — so "Nett return" would be the slider's
+                own figure repeated. The pair becomes the month's return and
+                what the server costs at that deposit. */}
             <div className="calc-box calc-box--keep">
-              <dt>Nett return</dt>
-              <dd className="tnum">{money(result.net)}</dd>
+              <dt>{rent ? "Monthly return" : "Nett return"}</dt>
+              <dd className="tnum">{money(rent ? result.gross : result.net)}</dd>
             </div>
 
             <div className="calc-box">
-              <dt>Fees ({sharePct}%)</dt>
-              <dd className="tnum">{money(result.fees)}</dd>
+              <dt>{rent ? "Server rent" : `Fees (${sharePct}%)`}</dt>
+              <dd className="tnum">
+                {rent
+                  ? result.deposit >= rent.includedFrom
+                    ? rent.included
+                    : rent.monthly
+                  : money(result.fees)}
+              </dd>
+              {rent ? (
+                <p className="calc-box-sub">
+                  {result.deposit >= rent.includedFrom
+                    ? "at this deposit"
+                    : "every month, win or lose"}
+                </p>
+              ) : null}
             </div>
 
             <div className="calc-box">

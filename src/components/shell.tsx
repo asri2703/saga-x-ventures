@@ -61,6 +61,42 @@ export function ActionLink({
   );
 }
 
+/**
+ * The hero action.
+ *
+ * From Uiverse.io by cssbuttons-io - https://uiverse.io/cssbuttons-io/massive-mayfly-74
+ * MIT License, Copyright (c) cssbuttons-io (cssbuttons.io)
+ *
+ * A disc with an arrow that grows across the whole pill on hover. It is the
+ * one action in a hero and nowhere else: a page gets one of these, at the
+ * top, and everything below it stays an `ActionLink`. The look lives in
+ * globals.css under `.sweep`, where the adaptation is written down.
+ *
+ * The label is set in capitals by the stylesheet, not by the caller, so the
+ * words stay readable in the source and in the page's own voice.
+ */
+export function ActionSweep({
+  href,
+  children,
+  className = "",
+  prefetch,
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+  prefetch?: false;
+}) {
+  return (
+    <Link href={href} prefetch={prefetch} className={`sweep ${className}`}>
+      {/* Decorative: the label beside it already says where this goes. */}
+      <span className="sweep-circle" aria-hidden>
+        <span className="sweep-arrow" />
+      </span>
+      <span className="sweep-text">{children}</span>
+    </Link>
+  );
+}
+
 /** An action that leaves the site. Always through `/go/<key>`. */
 export function ActionOut({
   href,
