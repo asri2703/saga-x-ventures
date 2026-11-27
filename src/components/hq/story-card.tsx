@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  BadgeCheck,
+  CircleDashed,
+  ShieldCheck,
+  Zap,
   Building2,
   Globe,
   Vote,
@@ -15,6 +19,8 @@ import {
   TrendingDown,
   type LucideIcon,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { isBreaking, standing, wasUpdated } from "@/lib/terminal/breaking";
 import { CATEGORIES, type Category } from "@/lib/terminal/classify";
 import type { FeedItem } from "@/lib/terminal/store";
 import { cn } from "@/lib/utils";
@@ -130,7 +136,56 @@ function SourcesLine({ item, now }: { item: FeedItem; now: number }) {
     <p className="text-xs text-muted-foreground">
       {item.outlet || "Unknown outlet"}
       {others > 0 ? ` + ${others} more` : ""} · {ago(item.published_at, now)}
+      {wasUpdated(item) ? ` · updated ${ago(item.last_update_at, now)}` : ""}
     </p>
+  );
+}
+
+/** "Breaking" while a high-impact story is under half an hour old. */
+export function BreakingBadge({ item, now }: { item: FeedItem; now: number }) {
+  if (!isBreaking(item, now)) return null;
+  return (
+    <Badge className="rounded-full border-transparent bg-[#c24d5a] text-white">
+      <Zap aria-hidden /> Breaking
+    </Badge>
+  );
+}
+
+/** Who stands behind the story: an official publisher, several outlets, or one. */
+export function StandingBadge({ item }: { item: FeedItem }) {
+  const s = standing(item);
+  const Icon = s.kind === "official" ? ShieldCheck : s.kind === "confirmed" ? BadgeCheck : CircleDashed;
+  return (
+    <Badge
+      className={cn(
+        "rounded-full",
+        s.kind === "official" && "border-transparent bg-[#cfe0d4] text-foreground",
+        s.kind === "confirmed" && "border-transparent bg-accent text-foreground",
+        s.kind === "single" && "border-border bg-muted text-muted-foreground",
+      )}
+    >
+      <Icon aria-hidden /> {s.label}
+    </Badge>
+  );
+}
+
+/** A strip for the newest breaking story, above the wire and the overview. */
+export function BreakingBanner({ items, base, now }: { items: FeedItem[]; base: string; now: number }) {
+  const item = items.find((i) => isBreaking(i, now));
+  if (!item) return null;
+  return (
+    <Link
+      href={`${base}/terminal/${item.id}`}
+      className="group flex items-center gap-3 rounded-xl border border-[#c24d5a]/40 bg-[#fbdcdf] px-4 py-3"
+    >
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#c24d5a] px-2.5 py-1 text-xs font-semibold text-white">
+        <Zap className="size-3.5" aria-hidden /> Breaking
+      </span>
+      <span className="line-clamp-2 flex-1 font-medium group-hover:underline">{storyTitle(item)}</span>
+      <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
+        {standing(item).label} · {ago(item.published_at, now)}
+      </span>
+    </Link>
   );
 }
 
@@ -145,7 +200,9 @@ export function StoryCard({ item, base, now }: { item: FeedItem; base: string; n
       <StoryCover item={item} className="rounded-none" />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center gap-1.5">
+          <BreakingBadge item={item} now={now} />
           <ImpactBadge impact={item.impact} />
+          <StandingBadge item={item} />
           <Moves item={item} />
         </div>
         <h3 className="line-clamp-3 font-semibold leading-snug group-hover:underline">{storyTitle(item)}</h3>
@@ -169,8 +226,10 @@ export function LeadStory({ item, base, now }: { item: FeedItem; base: string; n
       <StoryCover item={item} priority className="rounded-none md:aspect-auto md:h-full" />
       <div className="flex flex-col gap-3 p-5 md:p-6">
         <div className="flex flex-wrap items-center gap-1.5">
+          <BreakingBadge item={item} now={now} />
           <CategoryBadge category={item.category} />
           <ImpactBadge impact={item.impact} />
+          <StandingBadge item={item} />
           <Moves item={item} />
         </div>
         <h2 className="text-xl font-semibold leading-snug tracking-tight group-hover:underline md:text-2xl">

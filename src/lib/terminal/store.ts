@@ -31,12 +31,14 @@ export async function alreadyStored(headlines: Headline[]): Promise<Set<string>>
   return seen;
 }
 
+/** Stores verdicts; returns the new rows' ids by URL (rows already on file are skipped). */
 export async function storeVerdicts(
   rows: { headline: Headline; verdict: Verdict; image?: StoryImage | null }[],
   model: string,
-): Promise<number> {
-  if (rows.length === 0) return 0;
-  const { error, count } = await serviceClient()
+): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+  if (rows.length === 0) return ids;
+  const { data, error } = await serviceClient()
     .from("terminal_news")
     .upsert(
       rows.map(({ headline: h, verdict: v, image }) => ({
@@ -57,14 +59,71 @@ export async function storeVerdicts(
         image_link: image?.link ?? null,
         snippet: h.snippet ?? null,
         assets: v.assets,
+        official: Boolean(h.official),
+        last_update_at: h.publishedAt.toISOString(),
         model,
       })),
       // A second run racing this one must not fail the batch over a row
       // it also saw.
-      { onConflict: "url", ignoreDuplicates: true, count: "exact" },
-    );
+      { onConflict: "url", ignoreDuplicates: true },
+    )
+    .select("id, url");
   if (error) throw error;
-  return count ?? rows.length;
+  for (const r of data ?? []) ids.set(r.url as string, r.id as string);
+  return ids;
+}
+
+/**
+ * Takes a named lock for a while; false when another run holds it. One
+ * conditional update, so two runs racing for it cannot both win.
+ */
+export async function takeLock(name: string, seconds: number): Promise<boolean> {
+  const now = new Date();
+  const { data, error } = await serviceClient()
+    .from("terminal_locks")
+    .update({ locked_until: new Date(now.getTime() + seconds * 1000).toISOString() })
+    .eq("name", name)
+    .lt("locked_until", now.toISOString())
+    .select("name");
+  if (error) throw error;
+  return (data ?? []).length > 0;
+}
+
+export async function releaseLock(name: string): Promise<void> {
+  await serviceClient().from("terminal_locks").update({ locked_until: "epoch" }).eq("name", name);
+}
+
+/** High-impact stories on the wire since `since`, to keep one event to one push. */
+export async function readRecentHigh(since: Date): Promise<{ id: string; headline: string }[]> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("id, headline, brief")
+    .eq("relevant", true)
+    .eq("impact", "high")
+    .gte("published_at", since.toISOString())
+    .limit(200);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    headline: `${r.headline as string} ${((r.brief as Brief | null)?.title ?? "")}`.trim(),
+  }));
+}
+
+/** Single-outlet high-impact stories from the last 90 minutes: worth a corroboration search. */
+export async function readUnconfirmed(limit: number): Promise<{ id: string; headline: string }[]> {
+  const { data, error } = await serviceClient()
+    .from("terminal_news")
+    .select("id, headline")
+    .eq("relevant", true)
+    .eq("impact", "high")
+    .is("parent_id", null)
+    .eq("source_count", 1)
+    .eq("official", false)
+    .gte("published_at", new Date(Date.now() - 90 * 60 * 1000).toISOString())
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as { id: string; headline: string }[];
 }
 
 export type FeedItem = {
@@ -82,6 +141,12 @@ export type FeedItem = {
   image_link: string | null;
   assets: AssetMove[];
   brief: Brief | null;
+  /** When the story last changed: first seen, or another outlet filed under it. */
+  last_update_at: string;
+  /** Outlets carrying the story, this one included. */
+  source_count: number;
+  /** From, or confirmed by, an official publisher. */
+  official: boolean;
   /** Every outlet that carried the story: this row first, then the rest. */
   sources: StorySource[];
 };
@@ -89,7 +154,7 @@ export type FeedItem = {
 export type StorySource = { outlet: string; url: string; headline: string };
 
 const FEED_COLUMNS =
-  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, assets, brief";
+  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, assets, brief, last_update_at, source_count, official";
 
 type FeedRow = Omit<FeedItem, "sources">;
 
@@ -132,12 +197,13 @@ export async function readFeed(opts: {
     .select(FEED_COLUMNS)
     .eq("relevant", true)
     .is("parent_id", null)
-    .gte("published_at", opts.since.toISOString())
+    // Latest activity, so a story another outlet just confirmed rises again.
+    .gte("last_update_at", opts.since.toISOString())
     .in("impact", allowed);
   if (opts.category) query = query.eq("category", opts.category);
   if (opts.asset) query = query.contains("assets", JSON.stringify([{ symbol: opts.asset }]));
   const { data, error } = await query
-    .order("published_at", { ascending: false })
+    .order("last_update_at", { ascending: false })
     .limit(opts.limit);
   if (error) throw error;
   return withSources((data ?? []) as FeedRow[]);
@@ -211,12 +277,35 @@ export async function saveBrief(id: string, brief: Brief, model: string): Promis
   if (error) throw error;
 }
 
-export async function fileUnder(id: string, parentId: string): Promise<void> {
-  const { error } = await serviceClient()
-    .from("terminal_news")
-    .update({ parent_id: parentId })
-    .eq("id", id);
+/**
+ * Files a story under the one it repeats, and lifts that story: newest
+ * activity now, a fresh count of distinct outlets, and official if either
+ * was. Returns the parent's new state, for a "confirmed" decision.
+ */
+export async function fileUnder(
+  id: string,
+  parentId: string,
+): Promise<{ sourceCount: number; official: boolean; becameOfficial: boolean } | null> {
+  const db = serviceClient();
+  const { error } = await db.from("terminal_news").update({ parent_id: parentId }).eq("id", id);
   if (error) throw error;
+
+  const [parent, children] = await Promise.all([
+    db.from("terminal_news").select("outlet, official").eq("id", parentId).maybeSingle(),
+    db.from("terminal_news").select("outlet, official").eq("parent_id", parentId),
+  ]);
+  if (parent.error) throw parent.error;
+  if (children.error) throw children.error;
+  if (!parent.data) return null;
+  const all = [parent.data, ...(children.data ?? [])];
+  const sourceCount = new Set(all.map((r) => String(r.outlet ?? "").toLowerCase())).size;
+  const official = all.some((r) => r.official);
+  const { error: bump } = await db
+    .from("terminal_news")
+    .update({ last_update_at: new Date().toISOString(), source_count: sourceCount, official })
+    .eq("id", parentId);
+  if (bump) throw bump;
+  return { sourceCount, official, becameOfficial: official && !parent.data.official };
 }
 
 /** How much the wire saw, for the preview page's header. */

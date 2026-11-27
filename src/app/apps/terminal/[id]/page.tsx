@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { CategoryBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
-import { Moves, StoryCover, storyTitle } from "@/components/hq/story-card";
+import { Moves, StandingBadge, StoryCover, storyTitle } from "@/components/hq/story-card";
+import { wasUpdated } from "@/lib/terminal/breaking";
 import { hqBase } from "@/lib/hq";
 import { readStory } from "@/lib/terminal/store";
 
@@ -47,12 +48,14 @@ export default async function StoryPage(props: PageProps<"/apps/terminal/[id]">)
         <div className="flex flex-wrap items-center gap-1.5">
           <CategoryBadge category={story.category} />
           <ImpactBadge impact={story.impact} />
+          <StandingBadge item={story} />
           <Moves item={story} />
         </div>
         <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{storyTitle(story)}</h1>
         <p className="text-sm text-muted-foreground">
           {myt(story.published_at)} MYT · {story.sources.length}{" "}
           {story.sources.length === 1 ? "source" : "sources"}
+          {wasUpdated(story) ? ` · updated ${myt(story.last_update_at)} MYT` : ""}
         </p>
       </header>
 

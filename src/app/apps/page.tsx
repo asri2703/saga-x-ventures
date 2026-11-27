@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ago } from "@/components/hq/story-badges";
-import { StoryCard } from "@/components/hq/story-card";
+import { BreakingBanner, StoryCard } from "@/components/hq/story-card";
 import { CotOverviewBlock } from "@/components/hq/cot-blocks";
 import { nextRelease } from "@/lib/cot/schedule";
 import { readCotLatest } from "@/lib/cot/store";
@@ -99,6 +99,8 @@ export default async function Overview() {
           </Card>
         ))}
       </div>
+
+      <BreakingBanner items={top} base={base} now={now} />
 
       <CotOverviewBlock views={cot} next={next} base={base} />
 

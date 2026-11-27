@@ -35,6 +35,37 @@ export function newsAlert(story: { id: string; direction: string }, brief: { tit
   };
 }
 
+/**
+ * Breaking: pushed as soon as the classifier calls a fresh story high
+ * impact, in our own words, with who reported it. The brief comes later and
+ * does not push again (same kind and ref).
+ */
+export function breakingAlert(
+  story: { id: string; direction: string; outlet: string; official: boolean },
+  summary: string,
+): Alert {
+  const lean = DIRECTION[story.direction];
+  const who = story.official ? `Official: ${story.outlet}` : `Reported by ${story.outlet || "one outlet"}`;
+  return {
+    kind: "news",
+    ref: story.id,
+    title: lean ? `Breaking · ${lean}` : "Breaking",
+    body: clip(`${summary} (${who})`, 180),
+    path: `/terminal/${story.id}`,
+  };
+}
+
+/** A story an official publisher has now confirmed. */
+export function officialAlert(story: { id: string; title: string }, outlet: string): Alert {
+  return {
+    kind: "news",
+    ref: `${story.id}:official`,
+    title: `Confirmed officially · ${outlet}`,
+    body: clip(story.title, 180),
+    path: `/terminal/${story.id}`,
+  };
+}
+
 function signed(n: number): string {
   return `${n > 0 ? "+" : n < 0 ? "-" : ""}${Math.abs(n).toLocaleString("en-US")}`;
 }
