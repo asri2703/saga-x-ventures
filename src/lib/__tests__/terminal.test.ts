@@ -47,7 +47,7 @@ test("RSS items are read, CDATA and entities included", () => {
     <item><title>Fed &amp; Treasury</title><link>https://www.federalreserve.gov/b.htm</link><pubDate>Thu, 19 Nov 2026 14:00:00 GMT</pubDate></item>
     <item><title>No date</title><link>https://www.federalreserve.gov/c.htm</link></item>
   </channel></rss>`;
-  const rows = parseRss(xml, "fed", "federalreserve.gov");
+  const rows = parseRss(xml, "rss", "federalreserve.gov");
   expect(rows.map((r) => r.headline)).toEqual(["FOMC statement", "Fed & Treasury"]);
   expect(rows[0].publishedAt.toISOString()).toBe("2026-11-18T19:00:00.000Z");
 });
