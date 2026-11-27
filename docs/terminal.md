@@ -28,7 +28,39 @@ terminal_news (Saga X Supabase)
    - `CRON_SECRET` if it is not already set (`openssl rand -hex 32`)
    - `TERMINAL_FEED_KEY` (`openssl rand -hex 32`, a different value)
    - optional: `FINNHUB_API_KEY`, `TERMINAL_MODEL`
-3. Schedule the run. On Vercel Pro, add to `vercel.json`:
+3. Schedule the run.
+
+   **On Vercel Hobby (current):** Supabase calls the route. Set
+   `TERMINAL_INGEST_SECRET` in Vercel (`openssl rand -hex 32`), then run this
+   in Saga X's Supabase SQL editor with the same value in place of `SECRET`:
+
+   ```sql
+   create extension if not exists pg_cron;
+   create extension if not exists pg_net;
+
+   select vault.create_secret('SECRET', 'terminal_ingest_secret');
+
+   select cron.schedule(
+     'terminal-ingest',
+     '*/5 * * * *',
+     $$
+     select net.http_get(
+       url := 'https://sagaxventures.com/api/terminal/ingest',
+       headers := jsonb_build_object(
+         'Authorization',
+         'Bearer ' || (select decrypted_secret from vault.decrypted_secrets
+                       where name = 'terminal_ingest_secret')
+       ),
+       timeout_milliseconds := 120000
+     );
+     $$
+   );
+   ```
+
+   Stop it with `select cron.unschedule('terminal-ingest');`. Recent runs and
+   their HTTP status are in `net._http_response`.
+
+   **On Vercel Pro:** drop the Supabase job and add to `vercel.json`:
 
    ```json
    { "path": "/api/terminal/ingest", "schedule": "*/5 * * * *" }
