@@ -185,3 +185,12 @@ VAPID web push, no third-party service. Tables: `push_subscriptions` and `alert_
 - HQ: the Alerts page turns push on for the browser (service worker `/hq-sw.js`), picks topics, sends a test to that browser only, and lists what was sent.
 - Mastery: its server forwards a member's browser subscription to `POST /api/terminal/push` (`Bearer TERMINAL_FEED_KEY`; `GET` returns the public key, `DELETE` removes). The member's browser needs a service worker on masterysignal.com that shows the notification; a tap opens `MASTERY_ALERT_URL?alert=<kind>:<ref>`.
 - iPhone and iPad receive web push only for a site added to the home screen (iOS 16.4+). The App Store and Play Store apps need APNs and FCM instead.
+
+## Breaking news, official sources and corroboration
+
+- Schedule: the wire runs every 2 minutes (pg_cron). A lock row (`terminal_locks`, migration 0014) keeps runs from overlapping.
+- GDELT is asked once per 15-minute slot (`isGdeltSlot`), not every run, to stay under its one-request-per-5-seconds limit; a 429 is retried once after 6 s.
+- Official publishers (`official: true` in `RSS_FEEDS`): Fed, ECB, BoE, BoJ, SNB, Bank of Canada, RBA, RBNZ, White House (news and presidential actions), US State Department. They are classified first in each run. USTR, Treasury and OPEC have no usable public feed (checked Nov 2026).
+- Breaking: a fresh (under 30 min) high-impact story is pushed right after classification, in the classifier's own words with who reported it, unless the same event was on the wire in the last 3 hours (`sameEvent`). At most 2 per run. The brief that follows does not push again.
+- Standing on every story: Official source, Confirmed · N sources, or Reported by <outlet>. In the GDELT slot, up to 2 single-outlet high-impact stories from the last 90 minutes are searched for other outlets' reports; the brief step files matches under the story, which then rises (`last_update_at`) with a fresh `source_count`. If an official publisher confirms a high-impact story, a "Confirmed officially" push goes out once.
+- The feed API adds `breaking` and `standing` to each item.

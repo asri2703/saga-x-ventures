@@ -1,6 +1,7 @@
 import { authorised } from "@/lib/record-feed";
 import { ASSETS, CATEGORIES, type Asset, type Category } from "@/lib/terminal/classify";
 import { readFeed } from "@/lib/terminal/store";
+import { isBreaking, standing } from "@/lib/terminal/breaking";
 
 /**
  * The Mastery Terminal wire, for Mastery Signal's server to read.
@@ -55,8 +56,12 @@ export async function GET(request: Request): Promise<Response> {
       asset,
       category,
     });
+    const now = Date.now();
     return Response.json(
-      { items, generated_at: new Date().toISOString() },
+      {
+        items: items.map((item) => ({ ...item, breaking: isBreaking(item, now), standing: standing(item).kind })),
+        generated_at: new Date(now).toISOString(),
+      },
       { headers: { "Cache-Control": "private, max-age=60" } },
     );
   } catch (error) {

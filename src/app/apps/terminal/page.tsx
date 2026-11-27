@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
-import { LeadStory, StoryCard } from "@/components/hq/story-card";
+import { BreakingBanner, LeadStory, StoryCard } from "@/components/hq/story-card";
 import { hqBase } from "@/lib/hq";
 import { ASSETS, CATEGORIES, type Asset, type Category } from "@/lib/terminal/classify";
 import { readFeed, type FeedItem } from "@/lib/terminal/store";
@@ -130,6 +130,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
         </Card>
       ) : (
         <>
+          <BreakingBanner items={data.items} base={base} now={data.now} />
           <LeadStory item={lead} base={base} now={data.now} />
           {rest.length > 0 ? (
             <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
