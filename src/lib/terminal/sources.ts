@@ -170,10 +170,11 @@ export type SourceReport = { source: string; count: number; error?: string };
  */
 export async function fetchHeadlines(
   now = new Date(),
+  lookbackMinutes = LOOKBACK_MINUTES,
 ): Promise<{ headlines: Headline[]; report: SourceReport[] }> {
   const jobs: [string, () => Promise<Headline[]>][] = [
     // GDELT is slow even when it answers; give it longer than the rest.
-    ["gdelt", async () => parseGdelt(await getJson(gdeltUrl(), 40_000))],
+    ["gdelt", async () => parseGdelt(await getJson(gdeltUrl(lookbackMinutes), 40_000))],
     ...RSS_FEEDS.map(
       (feed): [string, () => Promise<Headline[]>] => [
         feed.outlet,
@@ -195,7 +196,7 @@ export async function fetchHeadlines(
   }
 
   const settled = await Promise.allSettled(jobs.map(([, run]) => run()));
-  const since = now.getTime() - LOOKBACK_MINUTES * 60_000;
+  const since = now.getTime() - lookbackMinutes * 60_000;
   const headlines: Headline[] = [];
   const report: SourceReport[] = [];
 

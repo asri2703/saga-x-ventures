@@ -1,6 +1,6 @@
 import { authorised } from "@/lib/record-feed";
 import { BATCH_SIZE, classifyBatch, DEFAULT_MODEL, type Verdict } from "@/lib/terminal/classify";
-import { dedupe, fetchHeadlines, type Headline } from "@/lib/terminal/sources";
+import { dedupe, fetchHeadlines, LOOKBACK_MINUTES, type Headline } from "@/lib/terminal/sources";
 import { alreadyStored, storeVerdicts } from "@/lib/terminal/store";
 
 /**
@@ -36,7 +36,11 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const model = process.env.TERMINAL_MODEL || DEFAULT_MODEL;
-  const { headlines, report } = await fetchHeadlines();
+  // `?lookback=` (minutes, 15 to 1440) is for a manual backfill, such as the
+  // first run or after the schedule was down. The scheduler never sends it.
+  const asked = Number.parseInt(new URL(request.url).searchParams.get("lookback") ?? "", 10);
+  const lookback = Number.isFinite(asked) ? Math.min(1440, Math.max(15, asked)) : LOOKBACK_MINUTES;
+  const { headlines, report } = await fetchHeadlines(new Date(), lookback);
 
   let fresh: Headline[];
   try {
