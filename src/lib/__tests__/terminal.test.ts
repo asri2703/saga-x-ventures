@@ -94,20 +94,20 @@ test("headlines are numbered from one in the prompt", () => {
 test("verdicts map back to their headline and bad rows are dropped", () => {
   const text = `Here you go:
   [
-    {"i": 1, "relevant": true, "impact": "high", "direction": "bullish", "summary_ms": "Iran menutup Selat Hormuz. Risiko bekalan minyak menaikkan permintaan emas."},
-    {"i": 2, "relevant": false, "impact": null, "direction": null, "summary_ms": null},
-    {"i": 3, "relevant": true, "impact": "huge", "direction": "bullish", "summary_ms": "x"},
-    {"i": 4, "relevant": true, "impact": "low", "direction": "sideways", "summary_ms": "Ringkasan."},
-    {"i": 9, "relevant": true, "impact": "high", "direction": "bullish", "summary_ms": "Out of range."}
+    {"i": 1, "relevant": true, "impact": "high", "direction": "bullish", "summary": "Iran closed the Strait of Hormuz. Oil supply risk lifts demand for gold."},
+    {"i": 2, "relevant": false, "impact": null, "direction": null, "summary": null},
+    {"i": 3, "relevant": true, "impact": "huge", "direction": "bullish", "summary": "x"},
+    {"i": 4, "relevant": true, "impact": "low", "direction": "sideways", "summary": "Ringkasan."},
+    {"i": 9, "relevant": true, "impact": "high", "direction": "bullish", "summary": "Out of range."}
   ]`;
   const v = parseVerdicts(text, 5);
   expect(v[0]).toEqual({
     relevant: true,
     impact: "high",
     direction: "bullish",
-    summaryMs: "Iran menutup Selat Hormuz. Risiko bekalan minyak menaikkan permintaan emas.",
+    summary: "Iran closed the Strait of Hormuz. Oil supply risk lifts demand for gold.",
   });
-  expect(v[1]).toEqual({ relevant: false, impact: null, direction: null, summaryMs: null });
+  expect(v[1]).toEqual({ relevant: false, impact: null, direction: null, summary: null });
   // An impact we do not know is a skipped row, asked again next run.
   expect(v[2]).toBeUndefined();
   // An unknown direction falls back to neutral rather than losing the story.

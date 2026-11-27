@@ -27,7 +27,7 @@ create table if not exists terminal_news (
   relevant      boolean       not null default false,
   impact        text          check (impact in ('high', 'medium', 'low')),
   direction     text          check (direction in ('bullish', 'bearish', 'neutral')),
-  -- Two sentences in Bahasa Melayu, written by the model, shown to members.
+  -- Two sentences, written by the model, shown to members. (English since 0008.)
   summary_ms    text,
   model         text
 );
