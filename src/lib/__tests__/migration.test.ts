@@ -128,7 +128,6 @@ test("every page declares a canonical URL", async () => {
   };
 
   const pages: [string, Promise<unknown>][] = [
-    ["/about", import("@/app/about/page")],
     ["/copytrade", import("@/app/copytrade/page")],
     ["/fukyaa", import("@/app/fukyaa/page")],
     ["/coaching", import("@/app/coaching/page")],
@@ -163,4 +162,16 @@ test("the drawn path is normalised so the reveal cannot silently truncate", () =
     /pathLength=\{?["{]?1000/,
   );
   expect(chart).toMatch(/--draw-length[^\d]*1000/);
+});
+
+test("nothing in the site links to the retired About page", () => {
+  // The page is gone and /about now redirects to the homepage. A link left
+  // behind still works, but it sends a reader through a redirect to a page
+  // they were already one scroll away from — and it is how a deleted page
+  // quietly comes back when someone restores it to make the link resolve.
+  for (const { file, text } of sourceFiles()) {
+    expect(text, `${file} still links to /about`).not.toMatch(
+      /["'`]\/about["'`]/,
+    );
+  }
 });

@@ -57,10 +57,9 @@ export default function HomePage() {
                 you already trade.
               </p>
 
-              {/* One call, not two. The second was a ghost link to /about —
-                  a route out of the page at the moment the reader has just
-                  arrived, competing with the only action the hero is for.
-                  /about is still reachable from the nav and the footer. */}
+              {/* One call, not two: a second link here is a route out of the
+                  page at the moment the reader has just arrived, competing
+                  with the only action the hero is for. */}
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <ActionSweep href="#fork">Find where you fit</ActionSweep>
               </div>
@@ -169,12 +168,6 @@ export default function HomePage() {
                   entries, and manage trading accounts for clients.
                 </p>
               </SectionHeading>
-
-              <div className="mt-9">
-                <ActionLink href="/about" tone="onDark">
-                  More about me
-                </ActionLink>
-              </div>
             </div>
 
             {/* The three roles, stacked rather than laid out as a third card

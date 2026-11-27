@@ -19,7 +19,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/coaching", priority: 0.9 },
     { path: "/events", priority: 0.8 },
     { path: "/blog", priority: 0.7 },
-    { path: "/about", priority: 0.7 },
     { path: "/contact", priority: 0.6 },
     { path: "/privacy", priority: 0.2 },
   ];

@@ -17,7 +17,6 @@ test("the sitemap lists the trading pages", () => {
       "/coaching",
       "/events",
       "/blog",
-      "/about",
       "/contact",
       "/privacy",
     ]),
@@ -51,5 +50,24 @@ test("the retired Mastery page redirects rather than 404s", async () => {
   const rule = rules.find((r) => r.source === "/mastery-signal");
   expect(rule).toBeDefined();
   expect(rule!.destination).toBe("https://www.masterysignal.com/");
+  expect(rule!.permanent).toBe(true);
+});
+
+test("the retired About page is not offered to a crawler", () => {
+  // The page is gone: who Asri is now lives on the homepage's dark band
+  // rather than on a page of its own. A sitemap that still lists it is
+  // what produces Search Console's "Submitted URL not found (404)".
+  expect(paths()).not.toContain("/about");
+});
+
+test("the retired About page redirects rather than 404s", async () => {
+  // It was in the nav and the footer of every page for months, so links
+  // to it exist in messages and in whatever a crawler already saw.
+  // Permanent, so any standing the URL had moves to the homepage.
+  const { default: config } = await import("../../../next.config");
+  const rules = await config.redirects!();
+  const rule = rules.find((r) => r.source === "/about");
+  expect(rule).toBeDefined();
+  expect(rule!.destination).toBe("/");
   expect(rule!.permanent).toBe(true);
 });
