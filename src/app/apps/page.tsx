@@ -8,6 +8,9 @@ import { CotOverviewBlock } from "@/components/hq/cot-blocks";
 import { ComingUp } from "@/components/hq/macro-blocks";
 import { PageHead, SectionHead } from "@/components/hq/page-head";
 import { TrendIcon } from "@/components/hq/trend-icon";
+import { MarketDirection, type DirectionRow } from "@/components/hq/market-direction";
+import { ASSETS } from "@/lib/terminal/classify";
+import { leansByWindow, PLAIN_NAME } from "@/lib/terminal/direction";
 import { upcoming } from "@/lib/macro/calendar";
 import { nextRelease } from "@/lib/cot/schedule";
 import { readCotLatest } from "@/lib/cot/store";
@@ -28,7 +31,8 @@ async function load() {
   const now = Date.now();
   const day = new Date(now - 24 * 60 * 60 * 1000);
   try {
-    const [stats, breakdown, top, cot] = await Promise.all([
+    const week = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const [stats, breakdown, top, cot, recent] = await Promise.all([
       readStats(day),
       readBreakdown(day),
       readFeed({ since: day, minImpact: "medium", limit: 16 }),
@@ -36,7 +40,21 @@ async function load() {
         console.error("hq overview: could not read COT", error);
         return [];
       }),
+      // A week of stories for the direction card's three windows.
+      readFeed({ since: week, minImpact: "medium", limit: 600 }),
     ]);
+    const leans = leansByWindow(recent, ASSETS, now);
+    const direction: DirectionRow[] = ASSETS.map((symbol) => {
+      const view = cot.find((v) => v.market.symbol === symbol);
+      return {
+        symbol,
+        name: PLAIN_NAME[symbol] ?? symbol,
+        leans: leans[symbol],
+        cot: view
+          ? { slug: view.market.slug, history: view.history.map((h) => h.value * view.market.pairSign), bias: view.pairBias }
+          : null,
+      };
+    });
     return {
       ok: true as const,
       now,
@@ -44,6 +62,7 @@ async function load() {
       breakdown,
       top: top.filter((t) => t.category).slice(0, 9),
       cot,
+      direction,
       next: nextRelease(new Date(now)),
     };
   } catch (error) {
@@ -85,7 +104,10 @@ export default async function Overview() {
     );
   }
 
-  const { stats, breakdown, top, now, cot, next } = data;
+  const { stats, breakdown, top, now, cot, next, direction } = data;
+  const today = new Date(now)
+    .toLocaleDateString("en-GB", { timeZone: "Asia/Kuala_Lumpur", day: "numeric", month: "short" })
+    .toUpperCase();
   const bias = biasLabel(breakdown.direction.bullish, breakdown.direction.bearish);
   const metrics = [
     { label: "Headlines seen", value: String(stats.seen), note: "All sources, 24h" },
@@ -100,6 +122,8 @@ export default async function Overview() {
         title="Overview"
         dek={`Mastery Terminal, last 24 hours. Last run ${stats.lastFetched ? ago(stats.lastFetched, now) : "never"}.`}
       />
+
+      <MarketDirection rows={direction} base={base} today={today} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((m) => (
