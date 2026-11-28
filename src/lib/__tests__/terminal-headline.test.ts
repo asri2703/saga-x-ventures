@@ -17,6 +17,15 @@ describe("headlineSymbol", () => {
     const item = { assets: tags("EURUSD"), category: "politics" };
     expect(headlineSymbol(item, "Divisions deepen in the EU after a tense budget summit")).toBe("EURUSD");
   });
+  it("ties a big euro-area economy's politics to EURUSD", () => {
+    const item = { assets: tags("EURUSD"), category: "politics" };
+    expect(headlineSymbol(item, "Far-right gains in Spain point to a possible political shift")).toBe("EURUSD");
+    expect(headlineSymbol(item, "German coalition talks collapse")).toBe("EURUSD");
+  });
+  it("names a euro-area country without moving a story the euro is not tagged on", () => {
+    const item = { assets: tags("XAUUSD", "DXY"), category: "geopolitics" };
+    expect(headlineSymbol(item, "Italians killed in Kuwait: why is Iran denying it?")).toBeNull();
+  });
   it("keeps US data and Fed stories on their first tag", () => {
     const item = { assets: tags("DXY", "XAUUSD"), category: "us-data" };
     expect(headlineSymbol(item, "October US advance goods trade balance -149.5B")).toBe("DXY");

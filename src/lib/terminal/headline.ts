@@ -15,7 +15,9 @@ type Tagged = { assets?: { symbol: string }[] | null; category?: string | null }
 const NAMES: Record<string, RegExp> = {
   XAUUSD: /\b(gold|bullion|precious metals?|xau)\b/i,
   DXY: /\b(dollar|greenback|dxy|fed|fomc|powell|treasur(y|ies)|payrolls|nfp|cpi|pce|inflation)\b/i,
-  EURUSD: /\b(euro|eurozone|euro area|ecb|lagarde|eu|european union)\b/i,
+  // The big euro-area economies count too: their politics moves the euro.
+  EURUSD:
+    /\b(euro|eurozone|euro area|ecb|lagarde|eu|european union|germany|german|france|french|italy|italian|spain|spanish|netherlands|dutch)\b/i,
   GBPUSD: /\b(pound|sterling|boe|bank of england|uk|britain|british)\b/i,
   USDJPY: /\b(yen|boj|bank of japan|japan|japanese)\b/i,
   USDCHF: /\b(swiss franc|franc|snb|swiss national bank)\b/i,
