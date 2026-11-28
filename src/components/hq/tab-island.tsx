@@ -44,17 +44,18 @@ export function TabIsland({ base }: { base: string }) {
         {TABS.map((t) => {
           const active = isActive(t.href);
           return (
-            <li key={t.name} className="min-w-fit flex-1">
+            <li key={t.name} className="flex-1">
               <Link
                 href={`${base}${t.href}` || "/"}
                 aria-current={active ? "page" : undefined}
+                title={t.name}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium whitespace-nowrap tracking-tight px-1.5 transition-colors",
+                  "flex items-center justify-center rounded-xl py-3 transition-colors",
                   active ? "bg-[#f0dcae] text-[#163a30]" : "text-[#faf4e8]/75 active:bg-white/10",
                 )}
               >
-                <t.icon className="size-5" aria-hidden />
-                {t.name}
+                <t.icon className="size-6" aria-hidden />
+                <span className="sr-only">{t.name}</span>
               </Link>
             </li>
           );
@@ -63,12 +64,13 @@ export function TabIsland({ base }: { base: string }) {
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
-                "flex w-full flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-[#f0dcae]",
+                "flex w-full items-center justify-center rounded-xl py-3 outline-none focus-visible:ring-2 focus-visible:ring-[#f0dcae]",
                 moreActive ? "bg-[#f0dcae] text-[#163a30]" : "text-[#faf4e8]/75",
               )}
+              title="Settings"
             >
-              <Settings className="size-5" aria-hidden />
-              Settings
+              <Settings className="size-6" aria-hidden />
+              <span className="sr-only">Settings</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="end" sideOffset={10} className="hq w-56">
               <DropdownMenuLabel>Settings</DropdownMenuLabel>
