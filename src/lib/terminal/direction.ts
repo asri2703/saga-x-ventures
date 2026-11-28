@@ -56,7 +56,7 @@ export function leansByWindow(stories: Story[], symbols: readonly string[], now:
 /** TradingView's symbol for each instrument: OANDA's spot quotes, ICE's dollar index. */
 export const CHART_SYMBOL: Record<string, string> = {
   XAUUSD: "OANDA:XAUUSD",
-  DXY: "TVC:DXY",
+  DXY: "CAPITALCOM:DXY",
   EURUSD: "OANDA:EURUSD",
   GBPUSD: "OANDA:GBPUSD",
   USDJPY: "OANDA:USDJPY",

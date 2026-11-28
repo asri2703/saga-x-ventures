@@ -5,6 +5,7 @@ import { AlertsBell, type BellAlert } from "@/components/hq/alerts-bell";
 import { HqSidebar } from "@/components/hq/hq-sidebar";
 import { TabIsland } from "@/components/hq/tab-island";
 import { ThemeSwitch } from "@/components/hq/theme-switch";
+import { MarketTape } from "@/components/hq/market-tape";
 import { isAdmin } from "@/lib/hq-admin";
 import { THEME_COOKIE, themeOf } from "@/lib/hq-theme";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -64,6 +65,7 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
                 <AlertsBell alerts={alerts} base={base} />
               </div>
             </header>
+            <MarketTape />
             <div className="min-w-0 flex-1 p-4 pb-28 sm:p-6 sm:pb-28 md:pb-8 lg:p-8">{children}</div>
           </SidebarInset>
         </SidebarProvider>

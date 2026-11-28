@@ -3581,6 +3581,13 @@ html[data-hq-theme="dark"] .hq {
   color-scheme: dark;
 }
 
+/* TradingView widgets are iframes with a light page inside. Under the dark
+   mode's color-scheme the browser paints such an iframe white; keeping the
+   container on the normal scheme lets their transparent background show. */
+.hq .tradingview-widget-container {
+  color-scheme: normal;
+}
+
 /* From Uiverse.io by vinodjangid07 - https://uiverse.io/vinodjangid07/moody-rabbit-65
    MIT License, Copyright (c) vinodjangid07 (Vinod Jangid)
    The light/dark switch in HQ's header (theme-switch.tsx). Classes are
