@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ago } from "@/components/hq/story-badges";
 import { BreakingBanner, StoryCard } from "@/components/hq/story-card";
 import { CotOverviewBlock } from "@/components/hq/cot-blocks";
+import { ComingUp } from "@/components/hq/macro-blocks";
+import { PageHead, SectionHead } from "@/components/hq/page-head";
+import { upcoming } from "@/lib/macro/calendar";
 import { nextRelease } from "@/lib/cot/schedule";
 import { readCotLatest } from "@/lib/cot/store";
 import { hqBase } from "@/lib/hq";
@@ -79,18 +81,15 @@ export default async function Overview() {
   ];
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-        <p className="text-sm text-muted-foreground">
-          Mastery Terminal, last 24 hours. Last run{" "}
-          {stats.lastFetched ? ago(stats.lastFetched, now) : "never"}.
-        </p>
-      </div>
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-8">
+      <PageHead
+        title="Overview"
+        dek={`Mastery Terminal, last 24 hours. Last run ${stats.lastFetched ? ago(stats.lastFetched, now) : "never"}.`}
+      />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((m) => (
-          <Card key={m.label} className="gap-2 py-5">
+          <Card key={m.label} className="gap-2 border-border py-5 shadow-none">
             <CardHeader className="px-5">
               <CardDescription>{m.label}</CardDescription>
               <CardTitle className="text-3xl font-semibold tabular-nums">{m.value}</CardTitle>
@@ -102,18 +101,15 @@ export default async function Overview() {
 
       <BreakingBanner items={top} base={base} now={now} />
 
+      <section className="flex flex-col gap-3">
+        <SectionHead title="Coming up" href={`${base}/macro`} linkLabel="Macro data" />
+        <ComingUp events={upcoming(new Date(now), 14).slice(0, 3)} base={base} />
+      </section>
+
       <CotOverviewBlock views={cot} next={next} base={base} />
 
       <section className="flex flex-col gap-3">
-        <div className="flex items-end justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="font-semibold">Top stories</h2>
-            <p className="text-sm text-muted-foreground">Medium and high impact, newest first</p>
-          </div>
-          <Link href={`${base}/terminal`} className="text-sm font-medium underline-offset-4 hover:underline">
-            Open the wire
-          </Link>
-        </div>
+        <SectionHead title="Top stories" href={`${base}/terminal`} linkLabel="Open the wire" />
         {top.length === 0 ? (
           <Card>
             <CardContent className="text-sm text-muted-foreground">

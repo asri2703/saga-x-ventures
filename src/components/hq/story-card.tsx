@@ -21,7 +21,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { isBreaking, standing, wasUpdated } from "@/lib/terminal/breaking";
-import { CATEGORIES, type Category } from "@/lib/terminal/classify";
+import type { Category } from "@/lib/terminal/classify";
+import { creditLine } from "@/lib/terminal/images";
+import { findPlace } from "@/lib/terminal/places";
+import { groupOf } from "@/lib/terminal/sections";
 import type { FeedItem } from "@/lib/terminal/store";
 import { cn } from "@/lib/utils";
 import { ago, CategoryBadge, DirectionBadge, ImpactBadge, myt } from "./story-badges";
@@ -29,10 +32,11 @@ import { ago, CategoryBadge, DirectionBadge, ImpactBadge, myt } from "./story-ba
 /**
  * One card shape for every story, with or without a photo.
  *
- * The cover is always 16:9. A story with an Unsplash photo shows the photo;
- * one without gets its section's tile (tint, icon and name) in the same
- * frame, so a grid of mixed stories still lines up and nothing reads as
- * missing.
+ * The cover is always 16:9. A story with a library photo (Unsplash, Pexels
+ * or Wikimedia Commons) shows it with its credit. A geopolitics, energy or
+ * trade story about a known place gets a map of it. Anything else gets a
+ * type card: its section and the market move it caused, so a grid of mixed
+ * stories still lines up and nothing reads as missing.
  */
 
 const SECTION_LOOK: Record<Category, { icon: LucideIcon; tint: string }> = {
@@ -50,11 +54,13 @@ const SECTION_LOOK: Record<Category, { icon: LucideIcon; tint: string }> = {
 };
 
 /** Instrument moves as compact chips: "EURUSD ▲". Gold first. */
-export function AssetChips({ item, className }: { item: FeedItem; className?: string }) {
-  const assets = [...(item.assets ?? [])].sort((a, b) =>
+export function AssetChips({ item, className, limit }: { item: FeedItem; className?: string; limit?: number }) {
+  const all = [...(item.assets ?? [])].sort((a, b) =>
     a.symbol === "XAUUSD" ? -1 : b.symbol === "XAUUSD" ? 1 : 0,
   );
-  if (assets.length === 0) return null;
+  if (all.length === 0) return null;
+  const assets = limit ? all.slice(0, limit) : all;
+  const hidden = all.length - assets.length;
   return (
     <ul className={cn("flex flex-wrap gap-1", className)} aria-label="Likely moves">
       {assets.map((a) => (
@@ -71,6 +77,12 @@ export function AssetChips({ item, className }: { item: FeedItem; className?: st
           <span className="sr-only">{a.direction === "unclear" ? " direction unclear" : ` ${a.direction}`}</span>
         </li>
       ))}
+      {hidden > 0 ? (
+        <li className="px-1 py-0.5 font-mono text-[11px] text-muted-foreground">
+          +{hidden}
+          <span className="sr-only"> more</span>
+        </li>
+      ) : null}
     </ul>
   );
 }
@@ -88,6 +100,12 @@ export function storyLede(item: FeedItem): string | null {
   return item.brief?.what_happened ?? item.summary;
 }
 
+/**
+ * The cover, in order of what we have: a licensed photo; a locator map when
+ * the story names a place the gazetteer knows (Hormuz, the Red Sea, Kyiv);
+ * otherwise a type card that sets the story's own title on its section's
+ * tint, with the pairs it moves.
+ */
 export function StoryCover({
   item,
   priority,
@@ -99,33 +117,63 @@ export function StoryCover({
 }) {
   const look = item.category ? SECTION_LOOK[item.category] : null;
   const Icon = look?.icon ?? Newspaper;
-  return (
-    <div className={cn("relative aspect-[16/9] w-full overflow-hidden rounded-lg", look?.tint ?? "bg-muted", className)}>
-      {item.image_url ? (
-        <Image
-          src={item.image_url}
-          alt=""
-          fill
-          priority={priority}
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          className="object-cover"
-        />
-      ) : null}
-      {item.image_url && item.image_credit ? (
-        // Plain text here: the card is itself a link. The story page carries
-        // the linked credit Unsplash asks for.
-        <span className="absolute right-1.5 bottom-1.5 rounded bg-black/55 px-1.5 py-0.5 text-[10px] text-white">
-          {item.image_credit} / Unsplash
-        </span>
-      ) : null}
-      {item.image_url ? null : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-foreground/70">
-          <Icon className="size-8" strokeWidth={1.5} aria-hidden />
-          <span className="text-xs font-medium">
-            {item.category ? CATEGORIES[item.category] : "Markets"}
+  const group = groupOf(item.category);
+  const frame = cn("relative aspect-[16/9] w-full overflow-hidden rounded-lg", className);
+
+  if (item.image_url) {
+    return (
+      <div className={cn(frame, "bg-muted")}>
+        <Image src={item.image_url} alt="" fill priority={priority} sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+        {item.image_credit ? (
+          // Plain text here: the card is itself a link. The story page
+          // carries the linked credit each library asks for.
+          <span className="absolute right-1.5 bottom-1.5 max-w-[90%] truncate rounded bg-black/55 px-1.5 py-0.5 text-[10px] text-white">
+            {creditLine(item.image_credit, item.image_source)}
           </span>
-        </div>
-      )}
+        ) : null}
+      </div>
+    );
+  }
+
+  const place = findPlace(`${item.headline} ${item.brief?.title ?? ""}`);
+  if (place && (item.category === "geopolitics" || item.category === "energy" || item.category === "trade")) {
+    return (
+      <div className={cn(frame, "bg-[#e2e8e0]")}>
+        <Image src={`/api/hq/map/${place.slug}`} alt={`Map of ${place.name}`} fill unoptimized priority={priority} className="object-cover" />
+      </div>
+    );
+  }
+
+  // The type card leads with the move, not the headline (the card prints
+  // that below): gold first, then the other pairs the story moves.
+  const moves = [...(item.assets ?? [])].sort((a, b) => (a.symbol === "XAUUSD" ? -1 : b.symbol === "XAUUSD" ? 1 : 0));
+  const lead = moves[0];
+  const arrow = (d: string) => (d === "up" ? "▲" : d === "down" ? "▼" : "•");
+  return (
+    <div className={cn(frame, look?.tint ?? "bg-muted")} aria-hidden>
+      <Icon className="absolute -right-4 -bottom-6 size-40 text-foreground/[0.07]" strokeWidth={1.25} />
+      <div className="absolute inset-0 flex flex-col justify-between p-4">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/70">
+          <Icon className="size-3.5" /> {group?.label ?? "Markets"}
+        </span>
+        {lead ? (
+          <div className="flex flex-col gap-2">
+            <span className="font-mono text-3xl font-semibold tracking-tight text-foreground/85 sm:text-4xl">
+              {lead.symbol} {arrow(lead.direction)}
+            </span>
+            {moves.length > 1 ? (
+              <span className="font-mono text-xs text-foreground/65">
+                {moves
+                  .slice(1)
+                  .map((m) => `${m.symbol} ${arrow(m.direction)}`)
+                  .join("   ")}
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <span className="text-2xl font-semibold tracking-tight text-foreground/80">{group?.label ?? "Markets"}</span>
+        )}
+      </div>
     </div>
   );
 }
@@ -181,7 +229,7 @@ export function BreakingBanner({ items, base, now }: { items: FeedItem[]; base: 
       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#c24d5a] px-2.5 py-1 text-xs font-semibold text-white">
         <Zap className="size-3.5" aria-hidden /> Breaking
       </span>
-      <span className="line-clamp-2 flex-1 font-medium group-hover:underline">{storyTitle(item)}</span>
+      <span className="line-clamp-2 flex-1 font-news text-[17px] font-semibold group-hover:underline">{storyTitle(item)}</span>
       <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
         {standing(item).label} · {ago(item.published_at, now)}
       </span>
@@ -205,7 +253,7 @@ export function StoryCard({ item, base, now }: { item: FeedItem; base: string; n
           <StandingBadge item={item} />
           <Moves item={item} />
         </div>
-        <h3 className="line-clamp-3 font-semibold leading-snug group-hover:underline">{storyTitle(item)}</h3>
+        <h3 className="line-clamp-3 font-news text-lg font-semibold leading-snug group-hover:underline">{storyTitle(item)}</h3>
         {lede ? <p className="line-clamp-3 text-sm text-muted-foreground">{lede}</p> : null}
         <div className="mt-auto pt-2">
           <SourcesLine item={item} now={now} />
@@ -232,7 +280,7 @@ export function LeadStory({ item, base, now }: { item: FeedItem; base: string; n
           <StandingBadge item={item} />
           <Moves item={item} />
         </div>
-        <h2 className="text-xl font-semibold leading-snug tracking-tight group-hover:underline md:text-2xl">
+        <h2 className="font-news text-2xl font-semibold leading-tight tracking-tight group-hover:underline md:text-3xl">
           {storyTitle(item)}
         </h2>
         {lede ? <p className="text-muted-foreground">{lede}</p> : null}

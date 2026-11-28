@@ -78,7 +78,7 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
 
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{market.name}</h1>
+          <h1 className="font-news text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">{market.name}</h1>
           {view ? <BiasBadge view={view} /> : null}
         </div>
         {view ? (

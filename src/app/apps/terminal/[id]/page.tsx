@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { CategoryBadge, ImpactBadge, myt } from "@/components/hq/story-badges";
+import { CategoryBadge, ImpactBadge, myt, PhotoCredit } from "@/components/hq/story-badges";
 import { Moves, StandingBadge, StoryCover, storyTitle } from "@/components/hq/story-card";
 import { wasUpdated } from "@/lib/terminal/breaking";
 import { hqBase } from "@/lib/hq";
@@ -51,7 +51,7 @@ export default async function StoryPage(props: PageProps<"/apps/terminal/[id]">)
           <StandingBadge item={story} />
           <Moves item={story} />
         </div>
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{storyTitle(story)}</h1>
+        <h1 className="font-news text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{storyTitle(story)}</h1>
         <p className="text-sm text-muted-foreground">
           {myt(story.published_at)} MYT · {story.sources.length}{" "}
           {story.sources.length === 1 ? "source" : "sources"}
@@ -61,23 +61,9 @@ export default async function StoryPage(props: PageProps<"/apps/terminal/[id]">)
 
       <figure className="flex flex-col gap-1.5">
         <StoryCover item={story} priority />
-        {story.image_url && story.image_credit ? (
-          <figcaption className="text-xs text-muted-foreground">
-            Photo:{" "}
-            <a href={story.image_link ?? "#"} target="_blank" rel="noopener noreferrer" className="underline">
-              {story.image_credit}
-            </a>{" "}
-            on{" "}
-            <a
-              href="https://unsplash.com/?utm_source=saga_x_hq&utm_medium=referral"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              Unsplash
-            </a>
-            . Illustrative, not from the event.
-          </figcaption>
+        <PhotoCredit item={story} className="text-xs" />
+        {story.image_url ? (
+          <p className="text-xs text-muted-foreground">Illustrative, not from the event.</p>
         ) : null}
       </figure>
 

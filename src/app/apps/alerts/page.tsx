@@ -32,7 +32,7 @@ export default async function AlertsPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Alerts</h1>
+        <h1 className="font-news text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">Alerts</h1>
         <p className="text-sm text-muted-foreground">
           Push notifications for high-impact news, each COT release and new US data, sent straight to the
           browser with no third-party service.

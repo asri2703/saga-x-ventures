@@ -28,10 +28,15 @@ const retiredServicePaths = [
 const APPS_HOST = "apps\\.(sagaxventures\\.com|localhost)";
 
 const nextConfig: NextConfig = {
-  /* Mastery Terminal's story photos are hotlinked from Unsplash, as its API
-     guidelines require. Nothing else is loaded from another origin. */
+  /* Mastery Terminal's story photos are hotlinked from the libraries that
+     supply them (Unsplash, Pexels, Wikimedia Commons), as their terms ask.
+     Nothing else is loaded from another origin. */
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "images.pexels.com" },
+      { protocol: "https", hostname: "upload.wikimedia.org" },
+    ],
   },
   async rewrites() {
     return {
