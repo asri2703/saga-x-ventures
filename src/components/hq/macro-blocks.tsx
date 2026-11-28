@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, Landmark, Briefcase, ShoppingCart } from "lucide-react";
+import { Briefcase, CalendarClock, Factory, Landmark, Receipt, ShoppingCart, TrendingUp } from "lucide-react";
 import { Countdown } from "@/components/hq/cot-countdown";
 import type { EventKind, NextEvent } from "@/lib/macro/calendar";
 import type { Estimate, RateLean, Tone } from "@/lib/macro/expect";
@@ -12,10 +12,24 @@ import { cn } from "@/lib/utils";
  * Times show in Malaysia time; the publishers' schedules are New York time.
  */
 
-const EVENT_ICON: Record<EventKind, typeof Landmark> = { fomc: Landmark, cpi: ShoppingCart, jobs: Briefcase };
+const EVENT_ICON: Record<EventKind, typeof Landmark> = {
+  fomc: Landmark,
+  cpi: ShoppingCart,
+  jobs: Briefcase,
+  ppi: Factory,
+  gdp: TrendingUp,
+  pce: Receipt,
+};
 
 /** Where each event's detail lives. */
-export const EVENT_SERIES: Record<EventKind, string> = { fomc: "fed-funds", cpi: "cpi-mom", jobs: "nfp" };
+export const EVENT_SERIES: Record<EventKind, string> = {
+  fomc: "fed-funds",
+  cpi: "cpi-mom",
+  jobs: "nfp",
+  ppi: "ppi-mom",
+  gdp: "gdp",
+  pce: "core-pce-yoy",
+};
 
 export function eventTime(at: Date): string {
   return at.toLocaleString("en-GB", {
@@ -90,7 +104,7 @@ export function ExpectPanel({
           <span className="text-sm text-muted-foreground">Not on the published schedule yet</span>
         )}
       </div>
-      <div className="flex flex-col gap-1 border-b border-border bg-[#f0dcae]/35 p-4 sm:border-r sm:border-b-0">
+      <div className="flex flex-col gap-1 border-b border-border bg-highlight/50 p-4 sm:border-r sm:border-b-0">
         <span className="text-xs text-muted-foreground">
           Saga estimate{estimate ? `, ${formatDate(estimate.period, "Monthly")}` : ""}
         </span>
@@ -130,8 +144,8 @@ export function ExpectPanel({
 }
 
 const TONE_STYLE: Record<Tone["label"], string> = {
-  Hawkish: "bg-[#fbdcdf] text-[#8a1a26]",
-  Dovish: "bg-[#cfe0d4] text-[#163a30]",
+  Hawkish: "bg-down-soft text-down",
+  Dovish: "bg-up-soft text-up",
   Mixed: "bg-muted text-foreground",
   Quiet: "bg-muted text-muted-foreground",
 };

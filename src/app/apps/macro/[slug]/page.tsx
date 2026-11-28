@@ -3,22 +3,23 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { LineChart } from "@/components/hq/line-chart";
-import { StoryCard } from "@/components/hq/story-card";
+import { MoreStories } from "@/components/hq/wire-blocks";
+import { RELATED, relatedStories } from "@/lib/macro/related";
 import { hqBase } from "@/lib/hq";
 import { seriesBySlug } from "@/lib/macro/series";
 import { readSeries, stats, type Obs } from "@/lib/macro/store";
 import { nextEventFor } from "@/lib/macro/calendar";
-import { estimateFor, rateLean, shiftMonth, toneOf, unpublishedYoy } from "@/lib/macro/expect";
-import { ExpectPanel, FedLeanPanel } from "@/components/hq/macro-blocks";
+import { estimateFor, rateLean, shiftMonth, toneOf, unpublishedYoy, YOY_INDEX } from "@/lib/macro/expect";
+import { eventTime, ExpectPanel, FedLeanPanel } from "@/components/hq/macro-blocks";
 import { SectionHead } from "@/components/hq/page-head";
-import type { Category } from "@/lib/terminal/classify";
 import { readFeed } from "@/lib/terminal/store";
 import { formatDate, formatValue } from "@/lib/macro/format";
+import { NEEDS } from "@/lib/macro/needs";
 
 /**
  * One economic series: its history as a chart, the stats a trader looks for
  * first (actual, previous, highest, lowest), where it comes from, and the
- * wire's latest stories in the matching section.
+ * wire's stories about it (matched by its own words, related.ts).
  */
 
 export const dynamic = "force-dynamic";
@@ -26,27 +27,23 @@ export const dynamic = "force-dynamic";
 const RANGES = { "1y": 365, "5y": 5 * 365, "10y": 10 * 365, max: 0 } as const;
 type Range = keyof typeof RANGES;
 
-/** Other series an estimate or the Fed panel needs, by the page's series. */
-const NEEDS: Record<string, string[]> = {
-  "cpi-yoy": ["cpi-mom", "cpi-index"],
-  "core-cpi-yoy": ["core-cpi-mom", "core-cpi-index"],
-  "fed-funds": ["us2y"],
-  effr: ["fed-funds", "us2y"],
-};
-
 const FED_TONE_DAYS = 14;
+/** How far back the related stories reach, and how many show at most. */
+const RELATED_DAYS = 30;
+const RELATED_LIMIT = 15;
 
-/** The series, what its estimate needs, and the wire's recent stories in its section. */
-async function load(slug: string, section: Category) {
+/** The series, what its estimate needs, and the wire's stories about it. */
+async function load(slug: string) {
   const now = Date.now();
   const since = new Date(now - 3 * 365 * 86_400_000).toISOString().slice(0, 10);
   const fed = slug === "fed-funds" || slug === "effr";
   const [all, extra, stories, fedStories] = await Promise.all([
     readSeries(slug),
     Promise.all((NEEDS[slug] ?? []).map(async (s) => [s, await readSeries(s, since).catch(() => [])] as const)),
-    readFeed({ since: new Date(now - 7 * 86_400_000), minImpact: "medium", limit: 6, category: section }).catch(
-      () => [],
-    ),
+    // Every section, then narrowed by the series' own words (related.ts).
+    readFeed({ since: new Date(now - RELATED_DAYS * 86_400_000), minImpact: "low", limit: 400 })
+      .then((items) => relatedStories(slug, items, RELATED_LIMIT))
+      .catch(() => []),
     fed
       ? readFeed({ since: new Date(now - FED_TONE_DAYS * 86_400_000), minImpact: "medium", limit: 100, category: "fed" }).catch(
           () => [],
@@ -59,7 +56,7 @@ async function load(slug: string, section: Category) {
 
 export async function generateMetadata(props: PageProps<"/apps/macro/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  return { title: seriesBySlug(slug)?.name ?? "Macro data" };
+  return { title: seriesBySlug(slug)?.name ?? "Economy" };
 }
 
 export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">) {
@@ -71,15 +68,16 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
   const asked = typeof params.range === "string" ? params.range : "";
   const range: Range = asked in RANGES ? (asked as Range) : "5y";
 
-  const [{ all, data, stories, fedStories, now }, base] = await Promise.all([load(def.slug, def.section), hqBase()]);
+  const [{ all, data, stories, fedStories, now }, base] = await Promise.all([load(def.slug), hqBase()]);
   const s = stats(all);
   const next = nextEventFor(def.slug, new Date(now));
   const estimate = estimateFor(def.slug, data);
   const isFed = def.slug === "fed-funds" || def.slug === "effr";
+  const topic = RELATED[def.slug]?.topic;
   const upper = (def.slug === "fed-funds" ? all : data["fed-funds"] ?? []).at(-1)?.value;
   const twoYear = data.us2y?.at(-1)?.value;
   const lean = isFed && upper !== undefined && twoYear !== undefined ? rateLean(upper, twoYear) : null;
-  const index = data["cpi-index"] ?? data["core-cpi-index"];
+  const index = YOY_INDEX[def.slug] ? data[YOY_INDEX[def.slug]] : undefined;
   const gap = index ? unpublishedYoy(all, index) : null;
   const cutoff = RANGES[range] ? new Date(now - RANGES[range] * 86_400_000).toISOString().slice(0, 10) : "";
   const shown = cutoff ? all.filter((p) => p.date >= cutoff) : all;
@@ -103,7 +101,7 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
         href={`${base}/macro`}
         className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" aria-hidden /> Macro data
+        <ArrowLeft className="size-4" aria-hidden /> Economy
       </Link>
 
       <header className="flex flex-col gap-2 border-b border-border pb-4">
@@ -117,8 +115,8 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
           </p>
         ) : null}
         {gap ? (
-          <p className="max-w-3xl rounded-lg border border-[#e0c98f] bg-[#f0dcae]/40 px-3 py-2 text-sm">
-            BLS did not publish a year-on-year figure for {formatDate(gap, "Monthly")}: it collected no prices in{" "}
+          <p className="max-w-3xl rounded-lg border border-highlight-border bg-highlight/50 px-3 py-2 text-sm">
+            BLS did not publish a YoY figure for {formatDate(gap, "Monthly")}: it collected no prices in{" "}
             {formatDate(shiftMonth(gap, -12), "Monthly")} because of the 2025 government shutdown, so there is no
             base to compare against. The monthly change for {formatDate(gap, "Monthly")} is published; see CPI month
             on month.
@@ -140,6 +138,20 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
             noEstimate={isFed ? "No number for a rate decision. See what bonds are pricing and the tone of Fed news above." : undefined}
             last={s ? { value: formatValue(s.actual.value, def), date: formatDate(s.actual.date, def.frequency) } : null}
           />
+        </section>
+      ) : null}
+
+      {topic ? (
+        <section className="flex flex-col gap-3">
+          <SectionHead title={`${topic.charAt(0).toUpperCase()}${topic.slice(1)} in the news`} note={`Stories about ${topic}, past ${RELATED_DAYS} days, newest first`} />
+          {stories.length ? (
+            <MoreStories items={stories} base={base} now={now} />
+          ) : (
+            <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+              No stories about {topic} on the wire in the past {RELATED_DAYS} days.
+              {next ? ` They usually pick up in the days before the next release, ${eventTime(next.at)} MYT.` : ""}
+            </p>
+          )}
         </section>
       ) : null}
 
@@ -195,18 +207,6 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
         Official source: {def.source} <ExternalLink className="size-3.5" aria-hidden />
       </a>
 
-      {stories.length ? (
-        <section className="flex flex-col gap-3">
-          <SectionHead title="In the news this week" note="Medium and high impact stories in this section" />
-          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {stories.map((item) => (
-              <li key={item.id}>
-                <StoryCard item={item} base={base} now={now} />
-              </li>
-            ))}
-          </ol>
-        </section>
-      ) : null}
     </div>
   );
 }

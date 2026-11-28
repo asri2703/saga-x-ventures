@@ -9,6 +9,11 @@ export function formatValue(value: number, def: Pick<SeriesDef, "suffix" | "deci
 }
 
 export function formatDate(date: string, frequency: SeriesDef["frequency"]): string {
+  if (frequency === "Quarterly") {
+    // Stored as the quarter's first day: "2026-07-01" is Q3 2026.
+    const [y, m] = date.split("-").map(Number);
+    return `Q${Math.floor((m - 1) / 3) + 1} ${y}`;
+  }
   return new Date(date).toLocaleDateString(
     "en-GB",
     frequency === "Daily"

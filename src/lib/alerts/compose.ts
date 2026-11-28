@@ -16,7 +16,10 @@ export type Topic = (typeof TOPICS)[number];
 
 export type Alert = { kind: Topic | "test"; ref: string; title: string; body: string; path: string };
 
-const DIRECTION: Record<string, string> = { bullish: "Bullish gold", bearish: "Bearish gold" };
+// Arrows, not "bullish"/"bearish": a notification cannot show an icon, so
+// the same up and down marks the screens use are sent as characters.
+const ARROW: Record<string, string> = { Bullish: "▲", Bearish: "▼", bullish: "▲", bearish: "▼" };
+const DIRECTION: Record<string, string> = { bullish: "Gold ▲", bearish: "Gold ▼" };
 
 function clip(text: string, max: number): string {
   const t = text.replace(/\s+/g, " ").trim();
@@ -77,7 +80,7 @@ export function cotAlert(views: CotView[]): Alert | null {
   const change = gold.change === null ? "" : ` (${signed(gold.change)} on the week)`;
   const others = views
     .filter((v) => v.market.slug !== "gold" && v.market.slug !== "dxy" && v.date === gold.date)
-    .map((v) => `${v.market.symbol} ${v.pairBias.toLowerCase()}`)
+    .map((v) => `${v.market.symbol} ${ARROW[v.pairBias] ?? "–"}`)
     .slice(0, 7)
     .join(", ");
   return {

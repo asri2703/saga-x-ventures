@@ -1,5 +1,5 @@
 import { authorised } from "@/lib/record-feed";
-import { fetchBls, fetchNyFed, fetchTreasury, type Point } from "@/lib/macro/fetchers";
+import { fetchBea, fetchBls, fetchNyFed, fetchTreasury, type Point } from "@/lib/macro/fetchers";
 import { latestTwo, savePoints } from "@/lib/macro/store";
 import { seriesBySlug } from "@/lib/macro/series";
 import { ALERT_SERIES, macroAlert } from "@/lib/alerts/compose";
@@ -65,6 +65,15 @@ export async function GET(request: Request): Promise<Response> {
         ),
     ],
   ];
+  // GDP and PCE need a (free) BEA UserID; without one they are skipped and
+  // the report says so. Three years cover year on year and revisions.
+  const beaKey = process.env.BEA_API_KEY || "";
+  if (beaKey) {
+    jobs.push([
+      "bea",
+      () => fetchBea(Array.from({ length: backfill ? 10 : 3 }, (_, i) => year - (backfill ? 9 : 2) + i), beaKey),
+    ]);
+  }
 
   // What was newest before this run, so only fresh readings are pushed.
   const before = new Map<string, string>();
@@ -86,6 +95,8 @@ export async function GET(request: Request): Promise<Response> {
       report.push({ source, points: 0, error: String(error).slice(0, 300) });
     }
   }
+
+  if (!beaKey) report.push({ source: "bea", points: 0, error: "skipped: BEA_API_KEY is not set" });
 
   const alerted: string[] = [];
   if (!backfill) {

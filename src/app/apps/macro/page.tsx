@@ -6,7 +6,7 @@ import { ComingUp, eventTime } from "@/components/hq/macro-blocks";
 import { PageHead, SectionHead } from "@/components/hq/page-head";
 import { hqBase } from "@/lib/hq";
 import { nextEventFor, upcoming } from "@/lib/macro/calendar";
-import { estimateFor, unpublishedYoy } from "@/lib/macro/expect";
+import { estimateFor, unpublishedYoy, YOY_INDEX } from "@/lib/macro/expect";
 import { formatDate, formatValue } from "@/lib/macro/format";
 import { SERIES, type SeriesDef } from "@/lib/macro/series";
 import { readSeries, stats, type Obs } from "@/lib/macro/store";
@@ -21,11 +21,29 @@ import { cn } from "@/lib/utils";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Macro data" };
+export const metadata: Metadata = { title: "Economy" };
 
 const GROUPS: { title: string; note: string; slugs: string[] }[] = [
-  { title: "Inflation", note: "Consumer prices, BLS", slugs: ["cpi-mom", "core-cpi-mom", "cpi-yoy", "core-cpi-yoy"] },
-  { title: "Jobs", note: "Employment Situation, BLS", slugs: ["nfp", "unemployment", "earnings-yoy"] },
+  {
+    title: "Consumer prices (CPI)",
+    note: "Bureau of Labor Statistics",
+    slugs: ["cpi-mom", "core-cpi-mom", "cpi-yoy", "core-cpi-yoy"],
+  },
+  {
+    title: "The Fed's inflation gauge (PCE)",
+    note: "Bureau of Economic Analysis",
+    slugs: ["pce-mom", "core-pce-mom", "pce-yoy", "core-pce-yoy"],
+  },
+  {
+    title: "Producer prices (PPI)",
+    note: "Bureau of Labor Statistics, final demand",
+    slugs: ["ppi-mom", "core-ppi-mom", "ppi-yoy", "core-ppi-yoy"],
+  },
+  {
+    title: "Growth and jobs",
+    note: "BEA and the Employment Situation, BLS",
+    slugs: ["gdp", "nfp", "unemployment", "earnings-yoy"],
+  },
   {
     title: "Fed and bond yields",
     note: "New York Fed and US Treasury, daily",
@@ -38,8 +56,7 @@ async function load() {
   // The CPI index levels are not shown, but the year-on-year estimates use them.
   const wanted = [
     ...SERIES.map((def) => ({ slug: def.slug, daily: def.frequency === "Daily" })),
-    { slug: "cpi-index", daily: false },
-    { slug: "core-cpi-index", daily: false },
+    ...Object.values(YOY_INDEX).map((slug) => ({ slug, daily: false })),
   ];
   const results = await Promise.all(
     wanted.map(async ({ slug, daily }) => {
@@ -74,9 +91,13 @@ function rowsFor(slugs: string[], data: Record<string, Obs[]>, now: number): Row
     const s = stats(points);
     const est = estimateFor(slug, data);
     const next = nextEventFor(slug, new Date(now));
-    const index = slug === "cpi-yoy" ? data["cpi-index"] : slug === "core-cpi-yoy" ? data["core-cpi-index"] : undefined;
+    const index = YOY_INDEX[slug] ? data[YOY_INDEX[slug]] : undefined;
     const gap = index ? unpublishedYoy(points, index) : null;
-    const dated = s ? formatDate(s.actual.date, def.frequency) : "Fills in on the next refresh";
+    const dated = s
+      ? formatDate(s.actual.date, def.frequency)
+      : def.source.includes("Economic Analysis")
+        ? "Waiting for the BEA connection"
+        : "Fills in on the next refresh";
     return [
       {
         def,
@@ -141,7 +162,7 @@ function DataTable({ rows, base }: { rows: Row[]; base: string }) {
               <th scope="col" className="px-4 py-2.5 font-medium">Indicator</th>
               <th scope="col" className="w-28 px-4 py-2.5 text-right font-medium">Latest</th>
               <th scope="col" className="w-28 px-4 py-2.5 text-right font-medium">Previous</th>
-              <th scope="col" className="w-36 bg-[#f0dcae]/35 px-4 py-2.5 text-right font-medium">Saga estimate</th>
+              <th scope="col" className="w-36 bg-highlight/50 px-4 py-2.5 text-right font-medium">Saga estimate</th>
               <th scope="col" className="w-44 px-4 py-2.5 font-medium">Next release (MYT)</th>
               <th scope="col" className="w-32 px-4 py-2.5 font-medium">
                 <span className="sr-only">Trend</span>
@@ -164,7 +185,7 @@ function DataTable({ rows, base }: { rows: Row[]; base: string }) {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{r.previous}</td>
-                <td className={cn("bg-[#f0dcae]/35 px-4 py-3 text-right font-medium tabular-nums")}>{r.estimate}</td>
+                <td className={cn("bg-highlight/50 px-4 py-3 text-right font-medium tabular-nums")}>{r.estimate}</td>
                 <td className="px-4 py-3 tabular-nums text-muted-foreground">{r.next}</td>
                 <td className="w-32 px-4 py-3">
                   <Sparkline points={r.points} className="h-8 w-24 text-primary" />
@@ -180,12 +201,12 @@ function DataTable({ rows, base }: { rows: Row[]; base: string }) {
 
 export default async function MacroIndex() {
   const [{ data, now }, base] = await Promise.all([load(), hqBase()]);
-  const soon = upcoming(new Date(now), 14).slice(0, 3);
+  const soon = upcoming(new Date(now), 21).slice(0, 6);
 
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-8">
       <PageHead
-        title="Macro data"
+        title="Economy"
         dek="The US numbers gold and the dollar trade on, straight from the New York Fed, the Bureau of Labor Statistics and the US Treasury."
       />
 

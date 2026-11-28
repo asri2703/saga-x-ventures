@@ -9,7 +9,7 @@ test("a news alert leads with impact and lean, and stays short", () => {
     { id: "abc", direction: "bullish" },
     { title: "Iran closes the Strait of Hormuz", what_happened: "x ".repeat(200) },
   );
-  expect(a).toMatchObject({ kind: "news", ref: "abc", title: "High impact · Bullish gold", path: "/terminal/abc" });
+  expect(a).toMatchObject({ kind: "news", ref: "abc", title: "High impact · Gold ▲", path: "/terminal/abc" });
   expect(a.body.startsWith("Iran closes the Strait of Hormuz.")).toBe(true);
   expect(a.body.length).toBeLessThanOrEqual(180);
   expect(newsAlert({ id: "b", direction: "neutral" }, { title: "T", what_happened: "W" }).title).toBe("High impact");
@@ -25,7 +25,7 @@ test("a COT alert is keyed by the report date and names each pair's lean", () =>
   ]);
   const a = cotAlert(views)!;
   expect(a).toMatchObject({ kind: "cot", ref: "2026-11-17", title: "COT out: funds net long gold", path: "/cot" });
-  expect(a.body).toBe("Managed money +100 contracts (-10 on the week). USDJPY bullish.");
+  expect(a.body).toBe("Managed money +100 contracts (-10 on the week). USDJPY ▲.");
   expect(cotAlert([])).toBeNull();
 });
 

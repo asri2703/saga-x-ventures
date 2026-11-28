@@ -53,7 +53,7 @@ test("official feeds mark their headlines official", () => {
 
 test("breaking and official alerts say who reported it", () => {
   const a = breakingAlert({ id: "s1", direction: "bullish", outlet: "Al Jazeera", official: false }, "Iran says it will break the US naval blockade.");
-  expect(a).toMatchObject({ kind: "news", ref: "s1", title: "Breaking · Bullish gold" });
+  expect(a).toMatchObject({ kind: "news", ref: "s1", title: "Breaking · Gold ▲" });
   expect(a.body).toBe("Iran says it will break the US naval blockade. (Reported by Al Jazeera)");
   const o = officialAlert({ id: "s1", title: "New tariffs on China" }, "White House");
   expect(o).toMatchObject({ ref: "s1:official", title: "Confirmed officially · White House" });

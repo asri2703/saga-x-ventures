@@ -202,3 +202,12 @@ VAPID web push, no third-party service. Tables: `push_subscriptions` and `alert_
 - Covers, in order: a library photo (Unsplash, then Pexels with `PEXELS_API_KEY`, then Wikimedia Commons, free licences and landscape only), each credited with author and library (Commons also shows the licence); for geopolitics, energy and trade stories about a known place (`places.ts`), a map at `/api/hq/map/<place>` drawn from Natural Earth (public domain) at build time; otherwise a type card with the section and the market move. Photos are illustrative and say so on the story page. No Google Images, agency photos or AI images.
 - Migration 0015 adds `image_source`.
 - Mobile: a bottom tab island (Overview, Wire, Macro, COT, More) and an alerts bell in the header with an unread count kept in the browser.
+
+## Macro data: PPI, PCE and GDP; related news; COT detail
+
+- PPI comes from BLS with the other BLS series (final demand WPSFD4/WPUFD4; core = less foods, energy and trade services, WPSFD49116/WPUFD49116). Month on month is seasonally adjusted, year on year unadjusted, as BLS quotes them.
+- GDP (Table 1.1.1, real growth at an annual rate) and the PCE price indexes (Table 2.8.4, headline and excluding food and energy) come from the BEA API, which needs a free UserID set as `BEA_API_KEY` (apps.bea.gov/api/signup). Without it the macro refresh skips BEA and reports why. PCE month on month and year on year are worked out from the index levels.
+- Release dates: BEA (GDP and Personal Income and Outlays share days) and BLS PPI schedules for Dec 2026 to Dec 2027 in `src/lib/macro/calendar.ts`.
+- Each indicator page shows wire stories about it from the last 30 days, matched by its own words (`src/lib/macro/related.ts`), not by section.
+- The COT detail page leads with a headline written from the numbers (`src/lib/cot/story.ts`), then how crowded the trade is (latest net within its range) and who holds what; the full table is folded under "Full numbers".
+- Directions show as animated arrows (`trend-icon.tsx`, `.trend3d` in globals.css) instead of "bullish"/"bearish"; still for readers who ask for reduced motion. Push notifications use ?/?.

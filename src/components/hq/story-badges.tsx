@@ -3,12 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { CATEGORIES } from "@/lib/terminal/classify";
 import { cn } from "@/lib/utils";
 import type { FeedItem } from "@/lib/terminal/store";
+import { TrendPill, trendOf } from "./trend-icon";
 
 /**
  * Impact and direction, drawn the same way on every HQ page.
  *
- * Colour carries the meaning only alongside the word: "High impact" and
- * "Bullish gold" are spelled out, so the badges still read in greyscale.
+ * Colour never carries the meaning alone: impact is spelled out, and the
+ * gold direction is an arrow whose shape reads in greyscale.
  */
 
 const IMPACT: Record<FeedItem["impact"], { label: string; className: string }> = {
@@ -17,20 +18,14 @@ const IMPACT: Record<FeedItem["impact"], { label: string; className: string }> =
   low: { label: "Low impact", className: "border-border bg-muted text-muted-foreground" },
 };
 
-const DIRECTION: Record<FeedItem["direction"], { label: string; className: string }> = {
-  bullish: { label: "Bullish gold", className: "border-transparent bg-[#cfe0d4] text-foreground" },
-  bearish: { label: "Bearish gold", className: "border-transparent bg-[#fbdcdf] text-foreground" },
-  neutral: { label: "Neutral", className: "border-border bg-muted text-muted-foreground" },
-};
-
 export function ImpactBadge({ impact }: { impact: FeedItem["impact"] }) {
   const style = IMPACT[impact] ?? IMPACT.low;
   return <Badge className={cn("rounded-full", style.className)}>{style.label}</Badge>;
 }
 
+/** Which way the story pushes gold, as an arrow: "↑ Gold". */
 export function DirectionBadge({ direction }: { direction: FeedItem["direction"] }) {
-  const style = DIRECTION[direction] ?? DIRECTION.neutral;
-  return <Badge className={cn("rounded-full", style.className)}>{style.label}</Badge>;
+  return <TrendPill trend={trendOf(direction)} subject="Gold" />;
 }
 
 export function myt(iso: string): string {
