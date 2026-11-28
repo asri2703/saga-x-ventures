@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ago } from "@/components/hq/story-badges";
 import { BreakingBanner } from "@/components/hq/story-card";
@@ -7,7 +6,6 @@ import { HeadlineGrid, KeepReading } from "@/components/hq/headline-grid";
 import { CotOverviewBlock } from "@/components/hq/cot-blocks";
 import { ComingUp } from "@/components/hq/macro-blocks";
 import { PageHead, SectionHead } from "@/components/hq/page-head";
-import { TrendIcon } from "@/components/hq/trend-icon";
 import { MarketDirection, type DirectionRow } from "@/components/hq/market-direction";
 import { ASSETS } from "@/lib/terminal/classify";
 import { leansByWindow, PLAIN_NAME } from "@/lib/terminal/direction";
@@ -71,25 +69,6 @@ async function load() {
   }
 }
 
-/** The day's lean of gold stories, as an arrow; "Mixed" when neither side leads. */
-function biasLabel(up: number, down: number): { value: ReactNode; note: string } {
-  const total = up + down;
-  if (total === 0) return { value: "Flat", note: "No directional stories yet" };
-  const lean = (up - down) / total;
-  const note = `${up} stories up, ${down} down`;
-  if (lean > -0.2 && lean < 0.2) return { value: "Mixed", note };
-  const trend = lean > 0 ? "up" : "down";
-  return {
-    value: (
-      <span className="inline-flex items-center gap-1.5">
-        <TrendIcon trend={trend} className="size-8" label={`gold ${trend}`} />
-        <span aria-hidden>Gold</span>
-      </span>
-    ),
-    note,
-  };
-}
-
 export default async function Overview() {
   const [data, base] = await Promise.all([load(), hqBase()]);
 
@@ -108,34 +87,15 @@ export default async function Overview() {
   const today = new Date(now)
     .toLocaleDateString("en-GB", { timeZone: "Asia/Kuala_Lumpur", day: "numeric", month: "short" })
     .toUpperCase();
-  const bias = biasLabel(breakdown.direction.bullish, breakdown.direction.bearish);
-  const metrics = [
-    { label: "Headlines seen", value: String(stats.seen), note: "All sources, 24h" },
-    { label: "Relevant to gold", value: String(stats.relevant), note: "Kept by the screen" },
-    { label: "High impact", value: String(breakdown.impact.high), note: `${breakdown.impact.medium} medium · ${breakdown.impact.low} low` },
-    { label: "News bias for gold", value: bias.value, note: bias.note },
-  ];
 
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-8">
       <PageHead
         title="Overview"
-        dek={`Mastery Terminal, last 24 hours. Last run ${stats.lastFetched ? ago(stats.lastFetched, now) : "never"}.`}
+        dek={`Last 24 hours: ${stats.seen} headlines read, ${stats.relevant} kept, ${breakdown.impact.high} high impact. Last run ${stats.lastFetched ? ago(stats.lastFetched, now) : "never"}.`}
       />
 
       <MarketDirection rows={direction} base={base} today={today} />
-
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {metrics.map((m) => (
-          <Card key={m.label} className="gap-2 border-border py-5 shadow-none">
-            <CardHeader className="px-5">
-              <CardDescription>{m.label}</CardDescription>
-              <CardTitle className="text-3xl font-semibold tabular-nums">{m.value}</CardTitle>
-            </CardHeader>
-            <CardContent className="px-5 text-xs text-muted-foreground">{m.note}</CardContent>
-          </Card>
-        ))}
-      </div>
 
       <BreakingBanner items={top} base={base} now={now} />
 
