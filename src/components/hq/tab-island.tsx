@@ -22,8 +22,13 @@ import { cn } from "@/lib/utils";
 
 type Tab = { name: string; href: string; icon: LucideIcon };
 
-// Same places and names as the sidebar, so the two never drift apart.
-const TABS: Tab[] = MAIN;
+// Same places and names as the sidebar, so the two never drift apart. On the
+// phone Overview, the home screen, sits in the middle under the thumb:
+// Feeds, Economy, Overview, Smart Money, then Settings at the far right.
+const PHONE_ORDER = ["/terminal", "/macro", "", "/cot"];
+const TABS: Tab[] = PHONE_ORDER.map((href) => MAIN.find((m) => m.href === href)).filter(
+  (t): t is (typeof MAIN)[number] => Boolean(t),
+);
 const MORE: (Tab & { soon?: boolean })[] = SETTINGS;
 
 export function TabIsland({ base }: { base: string }) {
