@@ -92,7 +92,7 @@ export function HqSidebar({ base }: { base: string }) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="gap-3 px-2 pb-4">
+      <SidebarFooter className="gap-3 px-4 pb-4 group-data-[collapsible=icon]:px-2">
         <SettingsAccordion items={SETTINGS} base={base} isActive={isActive} />
         <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
           Internal preview. Not linked from the public site.
