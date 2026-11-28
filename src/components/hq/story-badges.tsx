@@ -77,23 +77,39 @@ export function StoryPhoto({ item, className }: { item: FeedItem; className?: st
           className="object-cover"
         />
       </div>
-      {item.image_credit ? (
-        <figcaption className="text-[11px] text-muted-foreground">
-          Photo:{" "}
-          <a href={item.image_link ?? "#"} target="_blank" rel="noopener noreferrer" className="underline">
-            {item.image_credit}
-          </a>{" "}
-          on{" "}
-          <a
-            href="https://unsplash.com/?utm_source=saga_x_hq&utm_medium=referral"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            Unsplash
-          </a>
-        </figcaption>
-      ) : null}
+      <PhotoCredit item={item} className="text-[11px]" />
     </figure>
+  );
+}
+
+const LIBRARY: Record<string, { name: string; home: string }> = {
+  unsplash: { name: "Unsplash", home: "https://unsplash.com/?utm_source=saga_x_hq&utm_medium=referral" },
+  pexels: { name: "Pexels", home: "https://www.pexels.com/" },
+};
+
+/**
+ * The photo's credit as each library asks: the author linked to their page,
+ * and the library named. A Wikimedia credit already carries the author, the
+ * library and the licence, linked to the file's page.
+ */
+export function PhotoCredit({ item, className }: { item: FeedItem; className?: string }) {
+  if (!item.image_url || !item.image_credit) return null;
+  const library = LIBRARY[item.image_source ?? "unsplash"];
+  return (
+    <figcaption className={cn("text-muted-foreground", className)}>
+      Photo:{" "}
+      <a href={item.image_link ?? "#"} target="_blank" rel="noopener noreferrer" className="underline">
+        {item.image_credit}
+      </a>
+      {library ? (
+        <>
+          {" "}
+          on{" "}
+          <a href={library.home} target="_blank" rel="noopener noreferrer" className="underline">
+            {library.name}
+          </a>
+        </>
+      ) : null}
+    </figcaption>
   );
 }

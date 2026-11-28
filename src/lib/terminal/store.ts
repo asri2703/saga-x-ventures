@@ -57,6 +57,7 @@ export async function storeVerdicts(
         image_url: image?.url ?? null,
         image_credit: image?.credit ?? null,
         image_link: image?.link ?? null,
+        image_source: image?.source ?? null,
         snippet: h.snippet ?? null,
         assets: v.assets,
         official: Boolean(h.official),
@@ -139,6 +140,8 @@ export type FeedItem = {
   image_url: string | null;
   image_credit: string | null;
   image_link: string | null;
+  /** Which library the photo came from: unsplash, pexels or wikimedia. */
+  image_source: string | null;
   assets: AssetMove[];
   brief: Brief | null;
   /** When the story last changed: first seen, or another outlet filed under it. */
@@ -151,10 +154,10 @@ export type FeedItem = {
   sources: StorySource[];
 };
 
-export type StorySource = { outlet: string; url: string; headline: string };
+export type StorySource = { outlet: string; url: string; headline: string; published_at: string };
 
 const FEED_COLUMNS =
-  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, assets, brief, last_update_at, source_count, official";
+  "id, headline, url, outlet, published_at, impact, direction, summary, category, image_url, image_credit, image_link, image_source, assets, brief, last_update_at, source_count, official";
 
 type FeedRow = Omit<FeedItem, "sources">;
 
@@ -163,19 +166,27 @@ async function withSources(rows: FeedRow[]): Promise<FeedItem[]> {
   if (rows.length === 0) return [];
   const { data, error } = await serviceClient()
     .from("terminal_news")
-    .select("parent_id, outlet, url, headline")
+    .select("parent_id, outlet, url, headline, published_at")
     .in("parent_id", rows.map((r) => r.id))
     .order("published_at", { ascending: true });
   if (error) throw error;
   const byParent = new Map<string, StorySource[]>();
   for (const child of data ?? []) {
     const list = byParent.get(child.parent_id as string) ?? [];
-    list.push({ outlet: child.outlet as string, url: child.url as string, headline: child.headline as string });
+    list.push({
+      outlet: child.outlet as string,
+      url: child.url as string,
+      headline: child.headline as string,
+      published_at: child.published_at as string,
+    });
     byParent.set(child.parent_id as string, list);
   }
   return rows.map((r) => ({
     ...r,
-    sources: [{ outlet: r.outlet, url: r.url, headline: r.headline }, ...(byParent.get(r.id) ?? [])],
+    sources: [
+      { outlet: r.outlet, url: r.url, headline: r.headline, published_at: r.published_at },
+      ...(byParent.get(r.id) ?? []),
+    ],
   }));
 }
 
@@ -185,7 +196,8 @@ export async function readFeed(opts: {
   since: Date;
   minImpact: keyof typeof IMPACT_RANK;
   limit: number;
-  category?: Category | null;
+  /** One section, or any of several (a member-facing group). */
+  category?: Category | readonly Category[] | null;
   /** Only stories tagged with this instrument. */
   asset?: Asset | null;
 }): Promise<FeedItem[]> {
@@ -200,7 +212,8 @@ export async function readFeed(opts: {
     // Latest activity, so a story another outlet just confirmed rises again.
     .gte("last_update_at", opts.since.toISOString())
     .in("impact", allowed);
-  if (opts.category) query = query.eq("category", opts.category);
+  if (typeof opts.category === "string") query = query.eq("category", opts.category);
+  else if (opts.category?.length) query = query.in("category", [...opts.category]);
   if (opts.asset) query = query.contains("assets", JSON.stringify([{ symbol: opts.asset }]));
   const { data, error } = await query
     .order("last_update_at", { ascending: false })
@@ -439,6 +452,7 @@ export async function updateSectionAndPhoto(
       image_url: image?.url ?? null,
       image_credit: image?.credit ?? null,
       image_link: image?.link ?? null,
+      image_source: image?.source ?? null,
       assets: verdict.assets,
     })
     .eq("id", id);

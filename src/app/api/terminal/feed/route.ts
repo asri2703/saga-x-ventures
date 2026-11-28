@@ -2,6 +2,7 @@ import { authorised } from "@/lib/record-feed";
 import { ASSETS, CATEGORIES, type Asset, type Category } from "@/lib/terminal/classify";
 import { readFeed } from "@/lib/terminal/store";
 import { isBreaking, standing } from "@/lib/terminal/breaking";
+import { groupBySlug, groupOf } from "@/lib/terminal/sections";
 
 /**
  * The Mastery Terminal wire, for Mastery Signal's server to read.
@@ -13,8 +14,9 @@ import { isBreaking, standing } from "@/lib/terminal/breaking";
  *   Authorization: Bearer $TERMINAL_FEED_KEY
  *
  * `hours` 1–168 (default 24), `min` low | medium | high (default low),
- * `limit` 1–200 (default 50), optional `asset` (XAUUSD, EURUSD ...) and
- * `category` (a section slug). Newest first. Each item carries its brief,
+ * `limit` 1–200 (default 50), optional `asset` (XAUUSD, EURUSD ...),
+ * `section` (a member-facing group: war, central-banks, data ...) or
+ * `category` (one of the classifier's finer sections, such as fed). Newest first. Each item carries its brief,
  * its instrument moves and every outlet that carried it.
  */
 
@@ -46,7 +48,8 @@ export async function GET(request: Request): Promise<Response> {
   const assetParam = params.get("asset");
   const asset = (ASSETS as readonly string[]).includes(assetParam ?? "") ? (assetParam as Asset) : null;
   const categoryParam = params.get("category") ?? "";
-  const category = categoryParam in CATEGORIES ? (categoryParam as Category) : null;
+  const group = groupBySlug(params.get("section") ?? "");
+  const category = categoryParam in CATEGORIES ? (categoryParam as Category) : (group?.categories ?? null);
 
   try {
     const items = await readFeed({
@@ -59,7 +62,12 @@ export async function GET(request: Request): Promise<Response> {
     const now = Date.now();
     return Response.json(
       {
-        items: items.map((item) => ({ ...item, breaking: isBreaking(item, now), standing: standing(item).kind })),
+        items: items.map((item) => ({
+          ...item,
+          section: groupOf(item.category)?.slug ?? null,
+          breaking: isBreaking(item, now),
+          standing: standing(item).kind,
+        })),
         generated_at: new Date(now).toISOString(),
       },
       { headers: { "Cache-Control": "private, max-age=60" } },

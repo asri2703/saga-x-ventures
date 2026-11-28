@@ -74,7 +74,7 @@ export function LineChart({
         <g key={t}>
           <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} className="stroke-border" strokeWidth={1} />
           <text x={pad.l - 8} y={y(t) + 4} textAnchor="end" className="fill-muted-foreground text-[11px]">
-            {t.toFixed(decimals)}
+            {t.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
             {suffix}
           </text>
         </g>

@@ -1,6 +1,6 @@
 import { authorised } from "@/lib/record-feed";
 import { BATCH_SIZE, classifyBatch, DEFAULT_MODEL } from "@/lib/terminal/classify";
-import { findImage, type StoryImage } from "@/lib/terminal/images";
+import { findImage, imageKeys, type StoryImage } from "@/lib/terminal/images";
 import { readUncategorised, readUntagged, updateSectionAndPhoto, updateTags } from "@/lib/terminal/store";
 
 /**
@@ -33,7 +33,6 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const model = process.env.TERMINAL_MODEL || DEFAULT_MODEL;
-  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
 
   // ?mode=tags: instrument tags for stories that have none (stored before
   // tags existed, or tagged too sparingly). Photos and briefs stay as they are.
@@ -87,10 +86,10 @@ export async function GET(request: Request): Promise<Response> {
       if (!v?.relevant || !v.category) continue;
 
       let image: StoryImage | null = null;
-      if (unsplashKey && v.impact !== "low" && v.imageQuery) {
+      if (v.impact !== "low" && v.imageQuery) {
         if (!byQuery.has(v.imageQuery) && byQuery.size < MAX_IMAGE_SEARCHES) {
           try {
-            byQuery.set(v.imageQuery, await findImage(v.imageQuery, unsplashKey));
+            byQuery.set(v.imageQuery, await findImage(v.imageQuery, imageKeys()));
           } catch (error) {
             console.error("terminal reclassify: image search failed", error);
             byQuery.set(v.imageQuery, null);

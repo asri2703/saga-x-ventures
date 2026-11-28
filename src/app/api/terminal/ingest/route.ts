@@ -15,7 +15,7 @@ import {
   LOOKBACK_MINUTES,
   type Headline,
 } from "@/lib/terminal/sources";
-import { findImage, type StoryImage } from "@/lib/terminal/images";
+import { findImage, imageKeys, type StoryImage } from "@/lib/terminal/images";
 import { BRIEF_MODEL, writeBrief } from "@/lib/terminal/brief";
 import { BREAKING_MINUTES, sameEvent } from "@/lib/terminal/breaking";
 import {
@@ -166,16 +166,17 @@ async function run(request: Request, apiKey: string): Promise<Response> {
     }
   }
 
-  // A photo for relevant high and medium stories, when an Unsplash key is set.
-  // High first; capped per run to stay inside the free tier's hourly limit.
+  // A photo for relevant high and medium stories: Unsplash, then Pexels
+  // (when their keys are set), then Wikimedia Commons. High first; capped
+  // per run to stay inside the libraries' hourly limits.
   const imaged: {
     headline: Headline;
     verdict: Verdict;
     image?: StoryImage | null;
   }[] = classified;
-  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+  const keys = imageKeys();
   let images = 0;
-  if (unsplashKey) {
+  {
     const byQuery = new Map<string, StoryImage | null>();
     const order = [...imaged].sort(
       (a, b) =>
@@ -188,7 +189,7 @@ async function run(request: Request, apiKey: string): Promise<Response> {
       if (!byQuery.has(v.imageQuery)) {
         if (byQuery.size >= MAX_IMAGE_SEARCHES) continue;
         try {
-          byQuery.set(v.imageQuery, await findImage(v.imageQuery, unsplashKey));
+          byQuery.set(v.imageQuery, await findImage(v.imageQuery, keys));
         } catch (error) {
           console.error("terminal ingest: image search failed", error);
           byQuery.set(v.imageQuery, null);
