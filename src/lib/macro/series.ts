@@ -13,7 +13,9 @@ import type { Category } from "@/lib/terminal/classify";
  *  - US Treasury: daily par and real yield curves (home.treasury.gov).
  *
  * Values are stored as published, or derived in one stated way (year on
- * year, month on month change). Nothing is estimated or forecast.
+ * year, month on month change). Nothing stored here is estimated; the
+ * Saga estimates for the next release are worked out in expect.ts and
+ * labelled as ours on the page.
  */
 
 export type SeriesDef = {
@@ -82,6 +84,31 @@ export const SERIES: SeriesDef[] = [
     source: "U.S. Bureau of Labor Statistics",
     sourceUrl: "https://www.bls.gov/cpi/",
     about: "CPI without food and energy, the measure the Fed watches for underlying inflation.",
+    section: "us-data",
+  },
+  {
+    slug: "cpi-mom",
+    name: "CPI inflation (month on month)",
+    unit: "percent change from the month before, seasonally adjusted",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Labor Statistics",
+    sourceUrl: "https://www.bls.gov/cpi/",
+    about:
+      "The monthly change in consumer prices, adjusted for the usual seasonal swings. This is the CPI number headlines and traders react to first; a 0.1 point miss can move gold sharply.",
+    section: "us-data",
+  },
+  {
+    slug: "core-cpi-mom",
+    name: "Core CPI (month on month)",
+    unit: "percent change from the month before, seasonally adjusted",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Labor Statistics",
+    sourceUrl: "https://www.bls.gov/cpi/",
+    about: "The monthly change in prices without food and energy, the Fed's read on underlying inflation.",
     section: "us-data",
   },
   {

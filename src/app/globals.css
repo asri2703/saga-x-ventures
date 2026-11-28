@@ -3514,3 +3514,8 @@ html.lenis {
   background: var(--hq-background);
   color: var(--hq-foreground);
 }
+
+/* HQ headline face. The variable is set by next/font on the .hq wrapper. */
+@theme inline {
+  --font-news: var(--font-newsreader), Georgia, "Times New Roman", serif;
+}

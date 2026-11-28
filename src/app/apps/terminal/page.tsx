@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { BreakingBanner } from "@/components/hq/story-card";
+import { FilterMenu } from "@/components/hq/filter-menu";
+import { PageHead, SectionHead } from "@/components/hq/page-head";
 import { IssueThread, LatestList, MoreStories, QuietList } from "@/components/hq/wire-blocks";
 import { hqBase } from "@/lib/hq";
 import { ASSETS, CATEGORIES, type Asset, type Category } from "@/lib/terminal/classify";
@@ -63,23 +65,8 @@ function href(f: Filters, change: Partial<Filters>): string {
   return query ? `?${query}` : "?";
 }
 
-function chip(active: boolean): string {
-  return `shrink-0 rounded-full border px-3 py-1 text-sm whitespace-nowrap ${
-    active ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-card text-foreground/80 hover:border-foreground/30"
-  }`;
-}
-
 function pick<T extends string>(value: unknown, allowed: readonly T[]): T | null {
   return typeof value === "string" && (allowed as readonly string[]).includes(value) ? (value as T) : null;
-}
-
-function SectionHeading({ title, note }: { title: string; note: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3">
-      <h2 className="font-semibold">{title}</h2>
-      <p className="text-xs text-muted-foreground">{note}</p>
-    </div>
-  );
 }
 
 export default async function NewsWire(props: PageProps<"/apps/terminal">) {
@@ -94,35 +81,46 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
 
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">News wire</h1>
-        <p className="text-sm text-muted-foreground">
-          What can move gold and the major pairs, newest first. Times are Malaysia time.
-        </p>
-      </div>
+      <PageHead
+        title="News wire"
+        dek="What can move gold and the major pairs, newest first. Times are Malaysia time."
+        actions={
+          <>
+            <FilterMenu
+              label="Market"
+              options={[
+                { label: "All markets", href: href(f, { asset: null }), active: !f.asset },
+                ...ASSETS.map((symbol) => ({
+                  label: symbol,
+                  href: href(f, { asset: symbol }),
+                  active: symbol === f.asset,
+                  mono: true,
+                })),
+              ]}
+            />
+            <FilterMenu
+              label="Section"
+              options={[
+                { label: "All sections", href: href(f, { group: null, category: null }), active: !f.group && !f.category },
+                ...SECTION_GROUPS.map((g) => ({
+                  label: g.label,
+                  href: href(f, { group: g.slug, category: null }),
+                  active: g.slug === f.group,
+                })),
+              ]}
+            />
+          </>
+        }
+      />
 
-      <div className="flex min-w-0 flex-col gap-2">
-        <nav aria-label="Instrument" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-          <a href={href(f, { asset: null })} aria-current={!f.asset ? "page" : undefined} className={chip(!f.asset)}>
-            All markets
+      {data.ok && data.items.length === 0 && (f.asset || f.group || f.category) ? (
+        <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm">
+          No stories for this filter in the last 72 hours.{" "}
+          <a href="?" className="font-medium underline underline-offset-4">
+            Clear filters
           </a>
-          {ASSETS.map((symbol) => (
-            <a key={symbol} href={href(f, { asset: symbol })} aria-current={symbol === f.asset ? "page" : undefined} className={`${chip(symbol === f.asset)} font-mono`}>
-              {symbol}
-            </a>
-          ))}
-        </nav>
-        <nav aria-label="Section" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-          <a href={href(f, { group: null, category: null })} aria-current={!f.group && !f.category ? "page" : undefined} className={chip(!f.group && !f.category)}>
-            All sections
-          </a>
-          {SECTION_GROUPS.map((g) => (
-            <a key={g.slug} href={href(f, { group: g.slug, category: null })} aria-current={g.slug === f.group ? "page" : undefined} className={chip(g.slug === f.group)}>
-              {g.label}
-            </a>
-          ))}
-        </nav>
-      </div>
+        </p>
+      ) : null}
 
       {!data.ok || !wire ? (
         <Card className="border-destructive/40">
@@ -136,13 +134,13 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
           <BreakingBanner items={wire.breaking ? [wire.breaking] : []} base={base} now={data.now} />
 
           <section className="flex flex-col gap-3">
-            <SectionHeading title="Latest" note="New stories and updates, newest first" />
+            <SectionHead title="Latest" note="New stories and updates, newest first" />
             <LatestList entries={wire.latest} base={base} now={data.now} developing={wire.issues.map((i) => i.id)} />
           </section>
 
           {wire.issues.length ? (
             <section className="flex flex-col gap-3">
-              <SectionHeading title="Developing" note="High impact, still being reported" />
+              <SectionHead title="Developing" note="High impact, still being reported by several outlets" />
               <div className="grid gap-4 lg:grid-cols-2">
                 {wire.issues.map((item) => (
                   <IssueThread key={item.id} item={item} base={base} now={data.now} />
@@ -153,7 +151,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
 
           {wire.rest.medium.length ? (
             <section className="flex flex-col gap-3">
-              <SectionHeading title="More stories" note="Earlier medium and high impact" />
+              <SectionHead title="More stories" note="Earlier medium and high impact" />
               <MoreStories items={wire.rest.medium} base={base} now={data.now} />
             </section>
           ) : null}

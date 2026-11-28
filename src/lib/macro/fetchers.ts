@@ -40,6 +40,9 @@ export async function fetchNyFed(from: string, to: string): Promise<Point[]> {
 export const BLS_SERIES = {
   CUUR0000SA0: { slug: "cpi-yoy", derive: "yoy" },
   CUUR0000SA0L1E: { slug: "core-cpi-yoy", derive: "yoy" },
+  // Seasonally adjusted, for the month-on-month change the market quotes.
+  CUSR0000SA0: { slug: "cpi-mom", derive: "mom" },
+  CUSR0000SA0L1E: { slug: "core-cpi-mom", derive: "mom" },
   LNS14000000: { slug: "unemployment", derive: "level" },
   CES0000000001: { slug: "nfp", derive: "change" },
   CES0500000003: { slug: "earnings-yoy", derive: "yoy" },
@@ -87,6 +90,10 @@ export function deriveBls(raw: Map<string, Monthly>): Point[] {
       if (rule.derive === "change") {
         const prior = months.get(previousMonth(key, 1));
         derived = prior === undefined ? null : value - prior;
+      }
+      if (rule.derive === "mom") {
+        const prior = months.get(previousMonth(key, 1));
+        derived = prior ? ((value - prior) / prior) * 100 : null;
       }
       if (rule.derive === "yoy") {
         const prior = months.get(previousMonth(key, 12));

@@ -87,7 +87,7 @@ export function LatestList({
                 </span>
                 <span className="flex items-start gap-2">
                   <span className={cn("mt-2 size-1.5 shrink-0 rounded-full", IMPACT_DOT[e.item.impact])} aria-hidden />
-                  <span className="line-clamp-2 font-medium leading-snug group-hover:underline">
+                  <span className="line-clamp-2 font-news text-[17px] font-semibold leading-snug group-hover:underline">
                     {isUpdate ? e.update.headline : storyTitle(e.item)}
                   </span>
                 </span>
@@ -123,7 +123,7 @@ export function IssueThread({ item, base, now }: { item: FeedItem; base: string;
           <StandingBadge item={item} />
           <span className="text-xs text-muted-foreground">updated {ago(item.last_update_at, now)}</span>
         </div>
-        <Link href={`${base}/terminal/${item.id}`} className="text-lg leading-snug font-semibold hover:underline">
+        <Link href={`${base}/terminal/${item.id}`} className="font-news text-xl leading-snug font-semibold hover:underline">
           {storyTitle(item)}
         </Link>
         {item.brief?.gold_impact ? (
@@ -178,7 +178,7 @@ function StoryRow({ item, base, now }: { item: FeedItem; base: string; now: numb
             {groupOf(item.category)?.label ?? "Markets"} · {ago(item.last_update_at, now)}
           </span>
         </span>
-        <span className="line-clamp-3 font-medium leading-snug group-hover:underline">{storyTitle(item)}</span>
+        <span className="line-clamp-3 font-news text-[17px] font-semibold leading-snug group-hover:underline">{storyTitle(item)}</span>
         <AssetChips item={item} limit={2} />
       </span>
       {thumb ? (

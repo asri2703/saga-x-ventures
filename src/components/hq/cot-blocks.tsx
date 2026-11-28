@@ -5,6 +5,7 @@ import { Countdown } from "@/components/hq/cot-countdown";
 import type { NextRelease } from "@/lib/cot/schedule";
 import type { CotView } from "@/lib/cot/store";
 import { cn } from "@/lib/utils";
+import { SectionHead } from "./page-head";
 
 /**
  * COT building blocks, shared by the overview and the Positioning section.
@@ -179,19 +180,11 @@ export function CotOverviewBlock({ views, next, base }: { views: CotView[]; next
   const rest = views.filter((v) => v.market.slug !== "gold");
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="font-semibold">Positioning (COT)</h2>
-          <p className="text-sm text-muted-foreground">How the big speculators are placed, from the CFTC each week</p>
-        </div>
-        <Link href={`${base}/cot`} className="text-sm font-medium underline-offset-4 hover:underline">
-          Open positioning
-        </Link>
-      </div>
+      <SectionHead title="Positioning (COT)" href={`${base}/cot`} linkLabel="Open positioning" />
       <div className="grid items-start gap-4 lg:grid-cols-3">
         <NextReleaseCard next={next} />
         {gold ? (
-          <CotMarketCard view={gold} base={base} />
+          <CotMarketCard view={gold} base={base} className="h-auto" />
         ) : (
           <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
             No COT data yet. It fills in after the first refresh.

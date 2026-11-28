@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Newsreader } from "next/font/google";
 import { headers } from "next/headers";
 import { AlertsBell, type BellAlert } from "@/components/hq/alerts-bell";
 import { HqSidebar } from "@/components/hq/hq-sidebar";
@@ -16,6 +17,9 @@ import { pushConfigured, readAlertLog } from "@/lib/alerts/push";
  * Every page under it is an internal view of live data, rendered per
  * request and never indexed.
  */
+
+/** Headlines and page titles: a news serif, self-hosted by next/font (OFL). */
+const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "Saga X HQ", template: "%s | Saga X HQ" },
@@ -40,7 +44,7 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
   const alerts = await recentAlerts();
 
   return (
-    <div className="hq min-h-svh w-full">
+    <div className={`hq ${newsreader.variable} min-h-svh w-full`}>
       <TooltipProvider delayDuration={200}>
         <SidebarProvider>
           <HqSidebar base={base} />

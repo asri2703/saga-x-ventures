@@ -229,7 +229,7 @@ export function BreakingBanner({ items, base, now }: { items: FeedItem[]; base: 
       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#c24d5a] px-2.5 py-1 text-xs font-semibold text-white">
         <Zap className="size-3.5" aria-hidden /> Breaking
       </span>
-      <span className="line-clamp-2 flex-1 font-medium group-hover:underline">{storyTitle(item)}</span>
+      <span className="line-clamp-2 flex-1 font-news text-[17px] font-semibold group-hover:underline">{storyTitle(item)}</span>
       <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
         {standing(item).label} · {ago(item.published_at, now)}
       </span>
@@ -253,7 +253,7 @@ export function StoryCard({ item, base, now }: { item: FeedItem; base: string; n
           <StandingBadge item={item} />
           <Moves item={item} />
         </div>
-        <h3 className="line-clamp-3 font-semibold leading-snug group-hover:underline">{storyTitle(item)}</h3>
+        <h3 className="line-clamp-3 font-news text-lg font-semibold leading-snug group-hover:underline">{storyTitle(item)}</h3>
         {lede ? <p className="line-clamp-3 text-sm text-muted-foreground">{lede}</p> : null}
         <div className="mt-auto pt-2">
           <SourcesLine item={item} now={now} />
@@ -280,7 +280,7 @@ export function LeadStory({ item, base, now }: { item: FeedItem; base: string; n
           <StandingBadge item={item} />
           <Moves item={item} />
         </div>
-        <h2 className="text-xl font-semibold leading-snug tracking-tight group-hover:underline md:text-2xl">
+        <h2 className="font-news text-2xl font-semibold leading-tight tracking-tight group-hover:underline md:text-3xl">
           {storyTitle(item)}
         </h2>
         {lede ? <p className="text-muted-foreground">{lede}</p> : null}

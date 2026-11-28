@@ -51,7 +51,7 @@ export default async function StoryPage(props: PageProps<"/apps/terminal/[id]">)
           <StandingBadge item={story} />
           <Moves item={story} />
         </div>
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{storyTitle(story)}</h1>
+        <h1 className="font-news text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{storyTitle(story)}</h1>
         <p className="text-sm text-muted-foreground">
           {myt(story.published_at)} MYT · {story.sources.length}{" "}
           {story.sources.length === 1 ? "source" : "sources"}

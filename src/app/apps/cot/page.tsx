@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ExternalLink } from "lucide-react";
 import { CotMarketCard, NextReleaseCard } from "@/components/hq/cot-blocks";
+import { PageHead, SectionHead } from "@/components/hq/page-head";
 import { hqBase } from "@/lib/hq";
 import { COT_SOURCE_URL } from "@/lib/cot/markets";
 import { nextRelease } from "@/lib/cot/schedule";
@@ -27,15 +28,11 @@ export default async function CotIndex() {
   const [{ views, next, error }, base] = await Promise.all([load(), hqBase()]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Positioning (COT)</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Where the big speculators stand in gold and currency futures, from the CFTC&apos;s weekly
-          Commitments of Traders. Positions are taken on Tuesday and published later in the week. A
-          bias is the speculators&apos; lean on the pair as members trade it.
-        </p>
-      </div>
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
+      <PageHead
+        title="Positioning (COT)"
+        dek="Where the big speculators stand in gold and currency futures, from the CFTC's weekly Commitments of Traders. Positions are taken on Tuesday and published later in the week. A bias is the speculators' lean on the pair as members trade it."
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <NextReleaseCard next={next} />
@@ -65,6 +62,7 @@ export default async function CotIndex() {
         <p className="text-sm text-muted-foreground">No COT data yet. It fills in after the first refresh.</p>
       ) : null}
 
+      {views.length ? <SectionHead title="Markets" note="Latest report, net futures contracts" /> : null}
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {views.map((v) => (
           <li key={v.market.slug}>
