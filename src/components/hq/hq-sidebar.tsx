@@ -5,16 +5,14 @@ import { usePathname } from "next/navigation";
 import {
   Bell,
   ChartLine,
-  ChevronRight,
   KeyRound,
   LayoutDashboard,
   Newspaper,
   Radio,
   Scale,
-  Settings,
   type LucideIcon,
 } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { SettingsAccordion } from "./settings-accordion";
 import {
   Sidebar,
   SidebarContent,
@@ -26,11 +24,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
-  useSidebar,
 } from "@/components/ui/sidebar";
 
 type NavItem = { name: string; href: string; icon: LucideIcon; soon?: boolean };
@@ -60,13 +54,11 @@ export const SETTINGS: NavItem[] = [
 export function HqSidebar({ base }: { base: string }) {
   const pathname = usePathname();
   const here = pathname.replace(/\/$/, "") || "/";
-  const { state, setOpen } = useSidebar();
   const isActive = (path: string) => {
     const href = `${base}${path}` || "/";
     // A section stays lit on its own sub-pages (a story, a series).
     return here === href || (path !== "" && here.startsWith(`${href}/`));
   };
-  const inSettings = SETTINGS.some((s) => !s.soon && isActive(s.href));
 
   return (
     <Sidebar collapsible="icon">
@@ -101,46 +93,7 @@ export function HqSidebar({ base }: { base: string }) {
       </SidebarContent>
 
       <SidebarFooter className="gap-3 px-2 pb-4">
-        <SidebarMenu>
-          <Collapsible defaultOpen={inSettings} className="group/settings" asChild>
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton
-                  tooltip="Settings"
-                  isActive={inSettings && state === "collapsed"}
-                  // Folded to icons there is no room for the list, so open the sidebar first.
-                  onClick={() => (state === "collapsed" ? setOpen(true) : undefined)}
-                >
-                  <Settings />
-                  <span>Settings</span>
-                  <ChevronRight className="ml-auto transition-transform group-data-[state=open]/settings:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {SETTINGS.map((item) => (
-                    <SidebarMenuSubItem key={item.name}>
-                      {item.soon ? (
-                        <SidebarMenuSubButton aria-disabled className="pointer-events-none opacity-50">
-                          <item.icon />
-                          <span>{item.name}</span>
-                          <span className="ml-auto text-[11px]">Soon</span>
-                        </SidebarMenuSubButton>
-                      ) : (
-                        <SidebarMenuSubButton asChild isActive={isActive(item.href)}>
-                          <Link href={`${base}${item.href}`}>
-                            <item.icon />
-                            <span>{item.name}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      )}
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        </SidebarMenu>
+        <SettingsAccordion items={SETTINGS} base={base} isActive={isActive} />
         <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
           Internal preview. Not linked from the public site.
         </p>
