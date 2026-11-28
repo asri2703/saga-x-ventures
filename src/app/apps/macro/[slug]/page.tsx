@@ -67,7 +67,7 @@ async function load(slug: string) {
 
 export async function generateMetadata(props: PageProps<"/apps/macro/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  return { title: seriesBySlug(slug)?.name ?? "Macro data" };
+  return { title: seriesBySlug(slug)?.name ?? "Economy" };
 }
 
 export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">) {
@@ -112,7 +112,7 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
         href={`${base}/macro`}
         className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" aria-hidden /> Macro data
+        <ArrowLeft className="size-4" aria-hidden /> Economy
       </Link>
 
       <header className="flex flex-col gap-2 border-b border-border pb-4">

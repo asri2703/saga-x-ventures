@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Macro data" };
+export const metadata: Metadata = { title: "Economy" };
 
 const GROUPS: { title: string; note: string; slugs: string[] }[] = [
   {
@@ -206,7 +206,7 @@ export default async function MacroIndex() {
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-8">
       <PageHead
-        title="Macro data"
+        title="Economy"
         dek="The US numbers gold and the dollar trade on, straight from the New York Fed, the Bureau of Labor Statistics and the US Treasury."
       />
 

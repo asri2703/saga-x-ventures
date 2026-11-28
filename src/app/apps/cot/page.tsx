@@ -13,7 +13,7 @@ import { readCotLatest, type CotView } from "@/lib/cot/store";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Positioning (COT)" };
+export const metadata: Metadata = { title: "Smart Money" };
 
 async function load() {
   const now = new Date();
@@ -30,7 +30,7 @@ export default async function CotIndex() {
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
       <PageHead
-        title="Positioning (COT)"
+        title="Smart Money"
         dek="Where the big speculators stand in gold and currency futures, from the CFTC's weekly Commitments of Traders. Positions are taken on Tuesday and published later in the week. A bias is the speculators' lean on the pair as members trade it."
       />
 

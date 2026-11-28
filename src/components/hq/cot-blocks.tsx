@@ -170,7 +170,7 @@ export function CotOverviewBlock({ views, next, base }: { views: CotView[]; next
   const rest = views.filter((v) => v.market.slug !== "gold");
   return (
     <section className="flex flex-col gap-3">
-      <SectionHead title="Positioning (COT)" href={`${base}/cot`} linkLabel="Open positioning" />
+      <SectionHead title="Smart Money" href={`${base}/cot`} linkLabel="Open Smart Money" />
       <div className="grid items-start gap-4 lg:grid-cols-3">
         <NextReleaseCard next={next} />
         {gold ? (

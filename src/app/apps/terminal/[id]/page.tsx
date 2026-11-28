@@ -41,7 +41,7 @@ export default async function StoryPage(props: PageProps<"/apps/terminal/[id]">)
         href={`${base}/terminal`}
         className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" aria-hidden /> News wire
+        <ArrowLeft className="size-4" aria-hidden /> Feeds
       </Link>
 
       <header className="flex flex-col gap-3">

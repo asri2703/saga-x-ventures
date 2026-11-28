@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Bell,
   ChartLine,
+  ChevronRight,
   KeyRound,
   LayoutDashboard,
   Newspaper,
@@ -13,6 +14,7 @@ import {
   Settings,
   type LucideIcon,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -22,10 +24,13 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 type NavItem = { name: string; href: string; icon: LucideIcon; soon?: boolean };
@@ -34,31 +39,34 @@ type NavItem = { name: string; href: string; icon: LucideIcon; soon?: boolean };
  * `href` is the path under /apps. On apps.sagaxventures.com the host rewrite
  * serves it without the prefix, so `base` is "" there and "/apps" on the main
  * domain; the layout works that out from the request host.
+ *
+ * The four main places sit at the top. Everything that sets the terminal up
+ * rather than being read every day (alert choices, sources, API clients)
+ * folds under Settings at the very bottom. New alerts arrive on the bell.
  */
-const GROUPS: { label: string; items: NavItem[] }[] = [
-  {
-    label: "Mastery Terminal",
-    items: [
-      { name: "Overview", href: "", icon: LayoutDashboard },
-      { name: "News wire", href: "/terminal", icon: Newspaper },
-      { name: "Macro data", href: "/macro", icon: ChartLine },
-      { name: "Positioning (COT)", href: "/cot", icon: Scale },
-      { name: "Alerts", href: "/alerts", icon: Bell },
-      { name: "Sources", href: "/sources", icon: Radio, soon: true },
-    ],
-  },
-  {
-    label: "Platform",
-    items: [
-      { name: "API clients", href: "/clients", icon: KeyRound, soon: true },
-      { name: "Settings", href: "/settings", icon: Settings, soon: true },
-    ],
-  },
+export const MAIN: NavItem[] = [
+  { name: "Overview", href: "", icon: LayoutDashboard },
+  { name: "Feeds", href: "/terminal", icon: Newspaper },
+  { name: "Economy", href: "/macro", icon: ChartLine },
+  { name: "Smart Money", href: "/cot", icon: Scale },
+];
+
+export const SETTINGS: NavItem[] = [
+  { name: "Alerts", href: "/alerts", icon: Bell },
+  { name: "Sources", href: "/sources", icon: Radio, soon: true },
+  { name: "API clients", href: "/clients", icon: KeyRound, soon: true },
 ];
 
 export function HqSidebar({ base }: { base: string }) {
   const pathname = usePathname();
   const here = pathname.replace(/\/$/, "") || "/";
+  const { state, setOpen } = useSidebar();
+  const isActive = (path: string) => {
+    const href = `${base}${path}` || "/";
+    // A section stays lit on its own sub-pages (a story, a series).
+    return here === href || (path !== "" && here.startsWith(`${href}/`));
+  };
+  const inSettings = SETTINGS.some((s) => !s.soon && isActive(s.href));
 
   return (
     <Sidebar collapsible="icon">
@@ -66,48 +74,76 @@ export function HqSidebar({ base }: { base: string }) {
         <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
           SX
         </span>
-        <span className="truncate font-semibold group-data-[collapsible=icon]:hidden">
-          Saga X HQ
-        </span>
+        <span className="truncate font-semibold group-data-[collapsible=icon]:hidden">Saga X HQ</span>
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        {GROUPS.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const href = `${base}${item.href}` || "/";
-                  // A section stays lit on its own sub-pages (a story, a series).
-                  const active = here === href || (item.href !== "" && here.startsWith(`${href}/`));
-                  return (
-                    <SidebarMenuItem key={item.name}>
+        <SidebarGroup>
+          <SidebarGroupLabel>Mastery Terminal</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {MAIN.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton asChild isActive={active} tooltip={item.name}>
+                      <Link href={`${base}${item.href}` || "/"} aria-current={active ? "page" : undefined}>
+                        <item.icon />
+                        <span>{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="gap-3 px-2 pb-4">
+        <SidebarMenu>
+          <Collapsible defaultOpen={inSettings} className="group/settings" asChild>
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton
+                  tooltip="Settings"
+                  isActive={inSettings && state === "collapsed"}
+                  // Folded to icons there is no room for the list, so open the sidebar first.
+                  onClick={() => (state === "collapsed" ? setOpen(true) : undefined)}
+                >
+                  <Settings />
+                  <span>Settings</span>
+                  <ChevronRight className="ml-auto transition-transform group-data-[state=open]/settings:rotate-90" />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {SETTINGS.map((item) => (
+                    <SidebarMenuSubItem key={item.name}>
                       {item.soon ? (
-                        <SidebarMenuButton disabled tooltip={`${item.name} (soon)`}>
+                        <SidebarMenuSubButton aria-disabled className="pointer-events-none opacity-50">
                           <item.icon />
                           <span>{item.name}</span>
-                        </SidebarMenuButton>
+                          <span className="ml-auto text-[11px]">Soon</span>
+                        </SidebarMenuSubButton>
                       ) : (
-                        <SidebarMenuButton asChild isActive={active} tooltip={item.name}>
-                          <Link href={href} aria-current={active ? "page" : undefined}>
+                        <SidebarMenuSubButton asChild isActive={isActive(item.href)}>
+                          <Link href={`${base}${item.href}`}>
                             <item.icon />
                             <span>{item.name}</span>
                           </Link>
-                        </SidebarMenuButton>
+                        </SidebarMenuSubButton>
                       )}
-                      {item.soon ? <SidebarMenuBadge>Soon</SidebarMenuBadge> : null}
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
-
-      <SidebarFooter className="px-4 pb-4 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-        Internal preview. Not linked from the public site.
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
+        </SidebarMenu>
+        <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+          Internal preview. Not linked from the public site.
+        </p>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

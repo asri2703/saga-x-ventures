@@ -116,14 +116,14 @@ export default async function Overview() {
       <BreakingBanner items={top} base={base} now={now} />
 
       <section className="flex flex-col gap-3">
-        <SectionHead title="Coming up" href={`${base}/macro`} linkLabel="Macro data" />
+        <SectionHead title="Coming up" href={`${base}/macro`} linkLabel="Economy" />
         <ComingUp events={upcoming(new Date(now), 14).slice(0, 3)} base={base} />
       </section>
 
       <CotOverviewBlock views={cot} next={next} base={base} />
 
       <section className="flex flex-col gap-3">
-        <SectionHead title="Top stories" href={`${base}/terminal`} linkLabel="Open the wire" />
+        <SectionHead title="Top stories" href={`${base}/terminal`} linkLabel="Open Feeds" />
         {top.length === 0 ? (
           <Card>
             <CardContent className="text-sm text-muted-foreground">

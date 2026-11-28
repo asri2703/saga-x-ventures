@@ -22,7 +22,7 @@ type Range = keyof typeof RANGES;
 
 export async function generateMetadata(props: PageProps<"/apps/cot/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  return { title: cotMarket(slug)?.name ?? "Positioning (COT)" };
+  return { title: cotMarket(slug)?.name ?? "Smart Money" };
 }
 
 async function load(slug: string) {
@@ -89,7 +89,7 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
         href={`${base}/cot`}
         className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" aria-hidden /> Positioning (COT)
+        <ArrowLeft className="size-4" aria-hidden /> Smart Money
       </Link>
 
       <header className="flex flex-col gap-3 border-b border-border pb-5">

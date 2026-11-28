@@ -23,7 +23,7 @@ import { buildWire } from "@/lib/terminal/wire";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "News wire" };
+export const metadata: Metadata = { title: "Feeds" };
 
 type Filters = { group: GroupSlug | null; category: Category | null; asset: Asset | null };
 type Loaded = { ok: true; items: FeedItem[]; now: number } | { ok: false; reason: string };
@@ -82,7 +82,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
       <PageHead
-        title="News wire"
+        title="Feeds"
         dek="What can move gold and the major pairs, newest first. Times are Malaysia time."
         actions={
           <>

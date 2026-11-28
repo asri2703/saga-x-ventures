@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, ChartLine, Ellipsis, KeyRound, LayoutDashboard, Newspaper, Radio, Scale, Settings, type LucideIcon } from "lucide-react";
+import { Settings, type LucideIcon } from "lucide-react";
+import { MAIN, SETTINGS } from "./hq-sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,25 +16,15 @@ import { cn } from "@/lib/utils";
 
 /**
  * HQ's navigation on a phone: a floating bar at the foot of the screen with
- * the four places people go most, and More for the rest. The sidebar takes
+ * the four places people go most, and Settings for the rest. The sidebar takes
  * over from the md breakpoint up.
  */
 
 type Tab = { name: string; href: string; icon: LucideIcon };
 
-const TABS: Tab[] = [
-  { name: "Overview", href: "", icon: LayoutDashboard },
-  { name: "Wire", href: "/terminal", icon: Newspaper },
-  { name: "Macro", href: "/macro", icon: ChartLine },
-  { name: "COT", href: "/cot", icon: Scale },
-];
-
-const MORE: (Tab & { soon?: boolean })[] = [
-  { name: "Alert settings", href: "/alerts", icon: Bell },
-  { name: "Sources", href: "/sources", icon: Radio, soon: true },
-  { name: "API clients", href: "/clients", icon: KeyRound, soon: true },
-  { name: "Settings", href: "/settings", icon: Settings, soon: true },
-];
+// Same places and names as the sidebar, so the two never drift apart.
+const TABS: Tab[] = MAIN;
+const MORE: (Tab & { soon?: boolean })[] = SETTINGS;
 
 export function TabIsland({ base }: { base: string }) {
   const pathname = usePathname();
@@ -53,12 +44,12 @@ export function TabIsland({ base }: { base: string }) {
         {TABS.map((t) => {
           const active = isActive(t.href);
           return (
-            <li key={t.name} className="flex-1">
+            <li key={t.name} className="min-w-fit flex-1">
               <Link
                 href={`${base}${t.href}` || "/"}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium transition-colors",
+                  "flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium whitespace-nowrap tracking-tight px-1.5 transition-colors",
                   active ? "bg-[#f0dcae] text-[#163a30]" : "text-[#faf4e8]/75 active:bg-white/10",
                 )}
               >
@@ -76,11 +67,11 @@ export function TabIsland({ base }: { base: string }) {
                 moreActive ? "bg-[#f0dcae] text-[#163a30]" : "text-[#faf4e8]/75",
               )}
             >
-              <Ellipsis className="size-5" aria-hidden />
-              More
+              <Settings className="size-5" aria-hidden />
+              Settings
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="end" sideOffset={10} className="hq w-56">
-              <DropdownMenuLabel>More</DropdownMenuLabel>
+              <DropdownMenuLabel>Settings</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {MORE.map((m) =>
                 m.soon ? (
