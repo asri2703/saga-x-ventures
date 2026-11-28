@@ -3,7 +3,8 @@ import { ExternalLink } from "lucide-react";
 import type { FeedItem } from "@/lib/terminal/store";
 import { cn } from "@/lib/utils";
 import type { LatestEntry } from "@/lib/terminal/wire";
-import { leadSymbol, symbolTitle } from "@/lib/terminal/headline";
+import { headlineSymbol, symbolTitle } from "@/lib/terminal/headline";
+import { groupOf } from "@/lib/terminal/sections";
 import { HeadlineGrid } from "./headline-grid";
 import { InstrumentIcon } from "./instrument-icon";
 import { ago } from "./story-badges";
@@ -63,7 +64,8 @@ export function LatestList({
     <ol className="divide-y divide-border border-y border-border">
       {entries.map((e) => {
         const isUpdate = e.kind === "update";
-        const symbol = leadSymbol(e.item);
+        const line = isUpdate ? e.update.headline : storyTitle(e.item);
+        const symbol = headlineSymbol(e.item, `${line} ${e.item.headline}`);
         return (
           <li key={`${e.kind}-${e.item.id}`}>
             <Link
@@ -76,17 +78,18 @@ export function LatestList({
               </span>
               <span className="flex min-w-0 flex-col gap-1">
                 <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                  <InstrumentIcon symbol={symbol} />
+                  {symbol ? <InstrumentIcon symbol={symbol} /> : null}
                   {e.item.impact === "high" ? (
                     <span className="size-1.5 shrink-0 rounded-full bg-[#c81f30]" aria-label="High impact" />
                   ) : null}
                   {developing.includes(e.item.id) ? <DevelopingTag /> : null}
                   <span className="truncate">
+                    {symbol ? "" : `${groupOf(e.item.category)?.label ?? "Markets"} · `}
                     {isUpdate ? `Update · ${e.update.outlet}` : e.item.outlet}
                   </span>
                 </span>
                 <span className="line-clamp-2 text-[15px] leading-snug font-medium group-hover:underline">
-                  {symbolTitle(symbol, isUpdate ? e.update.headline : storyTitle(e.item))}
+                  {symbolTitle(symbol, line)}
                 </span>
                 {isUpdate ? (
                   <span className="hidden truncate text-xs text-muted-foreground sm:block">On: {storyTitle(e.item)}</span>
@@ -190,16 +193,20 @@ export function QuietList({ items, base, now }: { items: FeedItem[]; base: strin
         <span className="hidden group-open:inline">Hide background stories</span>
       </summary>
       <ul className="divide-y divide-border border-t border-border">
-        {items.map((item) => (
+        {items.map((item) => {
+          const title = storyTitle(item);
+          const symbol = headlineSymbol(item, `${title} ${item.headline}`);
+          return (
           <li key={item.id}>
             <Link href={`${base}/terminal/${item.id}`} className="flex items-baseline gap-3 px-4 py-2.5 text-sm hover:bg-muted/40">
               <span className="w-12 shrink-0 text-xs text-muted-foreground tabular-nums">{clock(item.published_at)}</span>
-              <InstrumentIcon symbol={leadSymbol(item)} className="self-center" />
-              <span className="line-clamp-1 flex-1">{symbolTitle(leadSymbol(item), storyTitle(item))}</span>
+              {symbol ? <InstrumentIcon symbol={symbol} className="self-center" /> : null}
+              <span className="line-clamp-1 flex-1">{symbolTitle(symbol, title)}</span>
               <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{ago(item.published_at, now)}</span>
             </Link>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </details>
   );

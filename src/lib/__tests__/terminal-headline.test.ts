@@ -1,21 +1,47 @@
 import { describe, expect, it } from "vitest";
-import { leadSymbol, symbolTitle } from "../terminal/headline";
+import { headlineSymbol, symbolTitle } from "../terminal/headline";
 import { marksFor } from "../../components/hq/instrument-icon";
 
-describe("leadSymbol", () => {
-  it("takes the first tagged instrument", () => {
-    expect(leadSymbol({ assets: [{ symbol: "USDJPY" }, { symbol: "XAUUSD" }] })).toBe("USDJPY");
+const tags = (...symbols: string[]) => symbols.map((symbol) => ({ symbol }));
+
+describe("headlineSymbol", () => {
+  it("leads with a tagged instrument the headline names", () => {
+    const item = { assets: tags("XAUUSD", "DXY"), category: "fed" };
+    expect(headlineSymbol(item, "Gold pares gains as Fed-hike risks linger")).toBe("XAUUSD");
   });
-  it("falls back to gold when nothing is tagged", () => {
-    expect(leadSymbol({ assets: [] })).toBe("XAUUSD");
-    expect(leadSymbol({ assets: null })).toBe("XAUUSD");
-    expect(leadSymbol({})).toBe("XAUUSD");
+  it("takes the named one even when it is not the first tag", () => {
+    const item = { assets: tags("XAUUSD", "USDJPY"), category: "central-banks" };
+    expect(headlineSymbol(item, "Yen slides as BoJ holds")).toBe("USDJPY");
+  });
+  it("ties euro-area politics to EURUSD", () => {
+    const item = { assets: tags("EURUSD"), category: "politics" };
+    expect(headlineSymbol(item, "Divisions deepen in the EU after a tense budget summit")).toBe("EURUSD");
+  });
+  it("keeps US data and Fed stories on their first tag", () => {
+    const item = { assets: tags("DXY", "XAUUSD"), category: "us-data" };
+    expect(headlineSymbol(item, "October US advance goods trade balance -149.5B")).toBe("DXY");
+  });
+  it("leaves a safe-haven tag off a war story that never names gold", () => {
+    const item = { assets: tags("XAUUSD", "USDJPY", "USDCHF"), category: "geopolitics" };
+    expect(headlineSymbol(item, "Israeli strike on Gaza clinic kills two staff")).toBeNull();
+  });
+  it("ignores an instrument named but not tagged", () => {
+    expect(headlineSymbol({ assets: tags("XAUUSD"), category: "geopolitics" }, "Italy says drone came from Japan")).toBeNull();
+    expect(headlineSymbol({ assets: [], category: "fed" }, "Fed holds")).toBeNull();
+    expect(headlineSymbol({}, "Gold rises")).toBeNull();
+  });
+  it("does not match a word inside another word", () => {
+    const item = { assets: tags("GBPUSD"), category: "politics" };
+    expect(headlineSymbol(item, "Ukraine rejects compromises")).toBeNull();
   });
 });
 
 describe("symbolTitle", () => {
   it("leads the headline with its symbol", () => {
     expect(symbolTitle("XAUUSD", " Gold reclaims $3,600 ")).toBe("XAUUSD: Gold reclaims $3,600");
+  });
+  it("leaves the headline alone without a symbol", () => {
+    expect(symbolTitle(null, " Kyiv offers a ceasefire ")).toBe("Kyiv offers a ceasefire");
   });
   it("does not repeat a symbol the title already starts with", () => {
     expect(symbolTitle("EURUSD", "EURUSD: Euro slips")).toBe("EURUSD: Euro slips");
