@@ -54,11 +54,13 @@ const SECTION_LOOK: Record<Category, { icon: LucideIcon; tint: string }> = {
 };
 
 /** Instrument moves as compact chips: "EURUSD ▲". Gold first. */
-export function AssetChips({ item, className }: { item: FeedItem; className?: string }) {
-  const assets = [...(item.assets ?? [])].sort((a, b) =>
+export function AssetChips({ item, className, limit }: { item: FeedItem; className?: string; limit?: number }) {
+  const all = [...(item.assets ?? [])].sort((a, b) =>
     a.symbol === "XAUUSD" ? -1 : b.symbol === "XAUUSD" ? 1 : 0,
   );
-  if (assets.length === 0) return null;
+  if (all.length === 0) return null;
+  const assets = limit ? all.slice(0, limit) : all;
+  const hidden = all.length - assets.length;
   return (
     <ul className={cn("flex flex-wrap gap-1", className)} aria-label="Likely moves">
       {assets.map((a) => (
@@ -75,6 +77,12 @@ export function AssetChips({ item, className }: { item: FeedItem; className?: st
           <span className="sr-only">{a.direction === "unclear" ? " direction unclear" : ` ${a.direction}`}</span>
         </li>
       ))}
+      {hidden > 0 ? (
+        <li className="px-1 py-0.5 font-mono text-[11px] text-muted-foreground">
+          +{hidden}
+          <span className="sr-only"> more</span>
+        </li>
+      ) : null}
     </ul>
   );
 }

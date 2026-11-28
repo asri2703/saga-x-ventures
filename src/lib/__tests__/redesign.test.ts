@@ -5,6 +5,7 @@ import { findPlace, placeBySlug, PLACES } from "@/lib/terminal/places";
 import { groupBySlug, groupOf, SECTION_GROUPS } from "@/lib/terminal/sections";
 import type { FeedItem } from "@/lib/terminal/store";
 import { buildWire, isIssue, latestUpdate, LATEST_COUNT } from "@/lib/terminal/wire";
+import { stamp } from "@/components/hq/wire-blocks";
 
 const NOW = Date.parse("2026-11-28T12:00:00Z");
 const minsAgo = (m: number) => new Date(NOW - m * 60_000).toISOString();
@@ -190,4 +191,25 @@ test("parseCommonsSearch keeps only free, landscape files, with author and licen
   expect(photo?.credit).toBe("Sam Lee / Wikimedia Commons, CC BY-SA 4.0");
   expect(photo?.source).toBe("wikimedia");
   expect(parseCommonsSearch({})).toBeNull();
+});
+
+test("a story shown as an update in latest does not repeat in more stories", () => {
+  const story = item({
+    id: "u",
+    published_at: minsAgo(400),
+    sources: [
+      { outlet: "A", url: "u1", headline: "h", published_at: minsAgo(400) },
+      { outlet: "B", url: "u2", headline: "h", published_at: minsAgo(20) },
+    ],
+  });
+  const wire = buildWire([story], NOW);
+  expect(wire.latest[0].kind).toBe("update");
+  expect(wire.rest.medium).toEqual([]);
+});
+
+test("stamp adds the day for anything before today, Malaysia time", () => {
+  // NOW is 20:00 in Kuala Lumpur.
+  expect(stamp(minsAgo(60), NOW)).toBe("19:00");
+  expect(stamp(minsAgo(24 * 60), NOW)).toBe("Yesterday 20:00");
+  expect(stamp(minsAgo(3 * 24 * 60), NOW)).toBe("Wed 20:00");
 });

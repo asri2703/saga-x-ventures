@@ -44,7 +44,7 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
       <TooltipProvider delayDuration={200}>
         <SidebarProvider>
           <HqSidebar base={base} />
-          <SidebarInset className="bg-background">
+          <SidebarInset className="min-w-0 bg-background">
             <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background/95 px-4 backdrop-blur">
               <SidebarTrigger className="hidden md:inline-flex" />
               <span className="grid size-7 place-items-center rounded-md bg-primary text-xs font-semibold text-primary-foreground md:hidden">
@@ -55,7 +55,7 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
                 <AlertsBell alerts={alerts} base={base} />
               </div>
             </header>
-            <div className="flex-1 p-4 pb-28 sm:p-6 sm:pb-28 md:pb-8 lg:p-8">{children}</div>
+            <div className="min-w-0 flex-1 p-4 pb-28 sm:p-6 sm:pb-28 md:pb-8 lg:p-8">{children}</div>
           </SidebarInset>
         </SidebarProvider>
         <TabIsland base={base} />

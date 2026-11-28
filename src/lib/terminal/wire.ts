@@ -11,8 +11,9 @@ import type { FeedItem, StorySource } from "./store";
  *               updated well after they broke), by their latest update;
  *  4. rest:     everything else, medium first, low tucked away.
  *
- * An issue can show up in latest as an update; the issue block keeps its
- * whole timeline. A story is never both a latest story and in rest.
+ * An issue can show up in latest as an update (labelled as developing);
+ * the issue block keeps its whole timeline. Anything in latest, breaking or
+ * issues never repeats in rest.
  */
 
 export const LATEST_COUNT = 8;
@@ -75,8 +76,9 @@ export function buildWire(items: FeedItem[], now: number): WireLayout {
     .sort((a, b) => Date.parse(b.last_update_at) - Date.parse(a.last_update_at))
     .slice(0, ISSUE_COUNT);
 
+  // A story shown anywhere above, as itself or as an update, is not repeated.
   const placed = new Set<string>([
-    ...latest.filter((e) => e.kind === "story").map((e) => e.item.id),
+    ...latest.map((e) => e.item.id),
     ...issues.map((i) => i.id),
     ...(breaking ? [breaking.id] : []),
   ]);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
-import { BreakingBanner, StoryCard } from "@/components/hq/story-card";
-import { IssueThread, LatestList, QuietList } from "@/components/hq/wire-blocks";
+import { BreakingBanner } from "@/components/hq/story-card";
+import { IssueThread, LatestList, MoreStories, QuietList } from "@/components/hq/wire-blocks";
 import { hqBase } from "@/lib/hq";
 import { ASSETS, CATEGORIES, type Asset, type Category } from "@/lib/terminal/classify";
 import { groupBySlug, SECTION_GROUPS, type GroupSlug } from "@/lib/terminal/sections";
@@ -93,7 +93,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
   const wire = data.ok ? buildWire(data.items, data.now) : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">News wire</h1>
         <p className="text-sm text-muted-foreground">
@@ -101,7 +101,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex min-w-0 flex-col gap-2">
         <nav aria-label="Instrument" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
           <a href={href(f, { asset: null })} aria-current={!f.asset ? "page" : undefined} className={chip(!f.asset)}>
             All markets
@@ -137,7 +137,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
 
           <section className="flex flex-col gap-3">
             <SectionHeading title="Latest" note="New stories and updates, newest first" />
-            <LatestList entries={wire.latest} base={base} now={data.now} />
+            <LatestList entries={wire.latest} base={base} now={data.now} developing={wire.issues.map((i) => i.id)} />
           </section>
 
           {wire.issues.length ? (
@@ -154,13 +154,7 @@ export default async function NewsWire(props: PageProps<"/apps/terminal">) {
           {wire.rest.medium.length ? (
             <section className="flex flex-col gap-3">
               <SectionHeading title="More stories" note="Earlier medium and high impact" />
-              <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {wire.rest.medium.map((item) => (
-                  <li key={item.id}>
-                    <StoryCard item={item} base={base} now={data.now} />
-                  </li>
-                ))}
-              </ol>
+              <MoreStories items={wire.rest.medium} base={base} now={data.now} />
             </section>
           ) : null}
 
