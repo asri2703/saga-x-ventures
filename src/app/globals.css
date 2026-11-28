@@ -3519,3 +3519,101 @@ html.lenis {
 @theme inline {
   --font-news: var(--font-newsreader), Georgia, "Times New Roman", serif;
 }
+
+/* ---------------------------------------------------------------------------
+   HQ trend arrows (trend-icon.tsx): solid arrows with depth, not line icons.
+   A darker copy sits behind, nudged down-right, as the arrow's side; the face
+   has a light-to-dark gradient and a soft shadow. Up arrows lift and down
+   arrows drop while they pulse, so the direction reads in motion too.
+   Transform and opacity only; still for readers who ask for less motion.
+--------------------------------------------------------------------------- */
+
+.trend3d {
+  --t-light: #8fd1a5;
+  --t-mid: #3f9a62;
+  --t-dark: #22603b;
+  --t-side: #173f28;
+  position: relative;
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 1.5px rgb(22 58 48 / 0.35));
+  animation: trend-lift 1.6s ease-in-out infinite;
+}
+
+.trend3d[data-trend="down"] {
+  --t-light: #f2a3ab;
+  --t-mid: #d0525f;
+  --t-dark: #9c2a37;
+  --t-side: #6a1822;
+  animation-name: trend-drop;
+}
+
+.trend3d::before,
+.trend3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0%, 100% 52%, 68% 52%, 68% 100%, 32% 100%, 32% 52%, 0% 52%);
+}
+
+.trend3d[data-trend="down"]::before,
+.trend3d[data-trend="down"]::after {
+  clip-path: polygon(50% 100%, 100% 48%, 68% 48%, 68% 0%, 32% 0%, 32% 48%, 0% 48%);
+}
+
+/* The side face: the extrusion that makes it read as solid. */
+.trend3d::before {
+  background: var(--t-side);
+  transform: translate(7%, 9%);
+}
+
+/* The front face, lit from the top left. */
+.trend3d::after {
+  background: linear-gradient(140deg, var(--t-light) 0%, var(--t-mid) 48%, var(--t-dark) 100%);
+}
+
+.trend3d[data-trend="flat"] {
+  animation: none;
+  filter: none;
+}
+
+.trend3d[data-trend="flat"]::before {
+  display: none;
+}
+
+.trend3d[data-trend="flat"]::after {
+  clip-path: inset(40% 10% 40% 10% round 2px);
+  background: var(--hq-muted-foreground, #566e65);
+}
+
+@keyframes trend-lift {
+  0%,
+  100% {
+    transform: translateY(8%);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10%);
+    opacity: 0.55;
+  }
+}
+
+@keyframes trend-drop {
+  0%,
+  100% {
+    transform: translateY(-8%);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(10%);
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trend3d {
+    animation: none;
+  }
+}

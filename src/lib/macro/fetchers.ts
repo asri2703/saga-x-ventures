@@ -61,6 +61,20 @@ export const BLS_SERIES: Record<string, readonly Rule[]> = {
   LNS14000000: [{ slug: "unemployment", derive: "level" }],
   CES0000000001: [{ slug: "nfp", derive: "change" }],
   CES0500000003: [{ slug: "earnings-yoy", derive: "yoy" }],
+  // Producer prices, final demand. Seasonally adjusted for the monthly
+  // change, unadjusted for year on year (as BLS quotes them); the
+  // unadjusted levels feed the year-on-year estimate.
+  WPSFD4: [{ slug: "ppi-mom", derive: "mom" }],
+  WPUFD4: [
+    { slug: "ppi-yoy", derive: "yoy" },
+    { slug: "ppi-index", derive: "level" },
+  ],
+  // Core: final demand less foods, energy and trade services.
+  WPSFD49116: [{ slug: "core-ppi-mom", derive: "mom" }],
+  WPUFD49116: [
+    { slug: "core-ppi-yoy", derive: "yoy" },
+    { slug: "core-ppi-index", derive: "level" },
+  ],
 };
 
 type Monthly = Map<string, number>; // "2026-10" → value
@@ -187,5 +201,106 @@ export async function fetchTreasury(years: number[]): Promise<Point[]> {
     out.push(...parseTreasuryCsv(await treasuryYear("daily_treasury_yield_curve", year), { "2 Yr": "us2y", "10 Yr": "us10y" }));
     out.push(...parseTreasuryCsv(await treasuryYear("daily_treasury_real_yield_curve", year), { "10 YR": "us10y-real" }));
   }
+  return out;
+}
+
+/* ------------------------------------------------------------------ *
+ * BEA: GDP growth and the PCE price indexes (the Fed's inflation gauge).
+ * Needs a free BEA UserID (apps.bea.gov/api/signup), set as BEA_API_KEY.
+ * ------------------------------------------------------------------ */
+
+type BeaRow = { SeriesCode?: string; LineDescription?: string; TimePeriod?: string; DataValue?: string };
+
+/** Which rows of which NIPA table become which of our series. */
+export const BEA_TABLES: {
+  table: string;
+  frequency: "Q" | "M";
+  rows: { slug: string; match: (r: BeaRow) => boolean }[];
+}[] = [
+  {
+    // Table 1.1.1: percent change in real GDP, at an annual rate.
+    table: "T10101",
+    frequency: "Q",
+    rows: [{ slug: "gdp", match: (r) => r.SeriesCode === "A191RL" || r.LineDescription === "Gross domestic product" }],
+  },
+  {
+    // Table 2.8.4: PCE price indexes, monthly, seasonally adjusted.
+    table: "T20804",
+    frequency: "M",
+    rows: [
+      { slug: "pce-index", match: (r) => r.LineDescription === "Personal consumption expenditures (PCE)" },
+      { slug: "core-pce-index", match: (r) => r.LineDescription === "PCE excluding food and energy" },
+    ],
+  },
+];
+
+/** "2026Q3" ? "2026-07-01", "2026M10" ? "2026-10-01". */
+export function beaPeriod(period: string): string | null {
+  const q = /^(\d{4})Q([1-4])$/.exec(period);
+  if (q) return `${q[1]}-${String((Number(q[2]) - 1) * 3 + 1).padStart(2, "0")}-01`;
+  const m = /^(\d{4})M(0[1-9]|1[0-2])$/.exec(period);
+  if (m) return `${m[1]}-${m[2]}-01`;
+  return null;
+}
+
+/** Reads one BEA GetData reply into our points for that table. */
+export function parseBea(body: unknown, table: (typeof BEA_TABLES)[number]): Point[] {
+  const api = (body as { BEAAPI?: { Results?: { Data?: unknown; Error?: unknown }; Error?: unknown } })?.BEAAPI;
+  const error = api?.Error ?? api?.Results?.Error;
+  if (error) throw new Error(`BEA: ${JSON.stringify(error).slice(0, 200)}`);
+  const data = api?.Results?.Data;
+  if (!Array.isArray(data)) return [];
+  const out: Point[] = [];
+  for (const r of data as BeaRow[]) {
+    const rule = table.rows.find((x) => x.match(r));
+    if (!rule) continue;
+    const date = beaPeriod(r.TimePeriod ?? "");
+    const value = Number.parseFloat((r.DataValue ?? "").replace(/,/g, ""));
+    if (!date || !Number.isFinite(value)) continue;
+    out.push({ series: rule.slug, date, value });
+  }
+  return out;
+}
+
+/** Month-on-month and year-on-year % from an index series (the PCE price indexes). */
+export function deriveFromIndex(points: Point[], index: string, mom: string, yoy: string): Point[] {
+  const byDate = new Map(points.filter((p) => p.series === index).map((p) => [p.date, p.value]));
+  const out: Point[] = [];
+  const shift = (date: string, back: number) => {
+    const [y, m] = date.split("-").map(Number);
+    const t = y * 12 + (m - 1) - back;
+    return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, "0")}-01`;
+  };
+  for (const [date, value] of byDate) {
+    const prev = byDate.get(shift(date, 1));
+    const year = byDate.get(shift(date, 12));
+    if (prev) out.push({ series: mom, date, value: Math.round(((value - prev) / prev) * 100 * 1000) / 1000 });
+    if (year) out.push({ series: yoy, date, value: Math.round(((value - year) / year) * 100 * 1000) / 1000 });
+  }
+  return out;
+}
+
+export async function fetchBea(years: number[], key: string): Promise<Point[]> {
+  const out: Point[] = [];
+  for (const table of BEA_TABLES) {
+    const params = new URLSearchParams({
+      UserID: key,
+      method: "GetData",
+      datasetname: "NIPA",
+      TableName: table.table,
+      Frequency: table.frequency,
+      Year: years.join(","),
+      ResultFormat: "JSON",
+    });
+    const r = await fetch(`https://apps.bea.gov/api/data/?${params}`, {
+      headers: { "User-Agent": UA },
+      signal: AbortSignal.timeout(30_000),
+      cache: "no-store",
+    });
+    if (!r.ok) throw new Error(`BEA answered ${r.status} for ${table.table}`);
+    out.push(...parseBea(await r.json(), table));
+  }
+  out.push(...deriveFromIndex(out, "pce-index", "pce-mom", "pce-yoy"));
+  out.push(...deriveFromIndex(out, "core-pce-index", "core-pce-mom", "core-pce-yoy"));
   return out;
 }

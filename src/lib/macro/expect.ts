@@ -49,14 +49,21 @@ function fmt(v: number, decimals: number, suffix: string): string {
 }
 
 /** The average of the last `n` readings, as the estimate for the month after. */
-export function trendEstimate(points: Obs[], n: number, decimals: number, suffix: string): Estimate | null {
+export function trendEstimate(
+  points: Obs[],
+  n: number,
+  decimals: number,
+  suffix: string,
+  /** Months between readings: 1 for monthly series, 3 for quarterly. */
+  step = 1,
+): Estimate | null {
   if (points.length < n) return null;
   const last = points.slice(-n);
   const value = round(avg(last.map((p) => p.value)), decimals);
   return {
     value,
-    period: shiftMonth(last[last.length - 1].date, 1),
-    method: `Average of the last ${n} months.`,
+    period: shiftMonth(last[last.length - 1].date, step),
+    method: `Average of the last ${n} ${step === 3 ? "quarters" : "months"}.`,
     working: last.map((p) => fmt(p.value, decimals, suffix)).join(" + ") + ` ÷ ${n}`,
   };
 }
@@ -105,13 +112,37 @@ export function unpublishedYoy(yoy: Obs[], index: Obs[]): string | null {
   return y && i && i > y ? i : null;
 }
 
+/** The (unlisted) index level behind each year-on-year series, for its estimate and gaps. */
+export const YOY_INDEX: Record<string, string> = {
+  "cpi-yoy": "cpi-index",
+  "core-cpi-yoy": "core-cpi-index",
+  "pce-yoy": "pce-index",
+  "core-pce-yoy": "core-pce-index",
+  "ppi-yoy": "ppi-index",
+  "core-ppi-yoy": "core-ppi-index",
+};
+
 /** Each series' estimate, given every series' history by slug. */
 export function estimateFor(slug: string, data: Record<string, Obs[] | undefined>): Estimate | null {
   const own = data[slug] ?? [];
   switch (slug) {
     case "cpi-mom":
     case "core-cpi-mom":
+    case "pce-mom":
+    case "core-pce-mom":
+    case "ppi-mom":
+    case "core-ppi-mom":
       return trendEstimate(own, 3, 1, "%");
+    case "pce-yoy":
+      return cpiYoyEstimate(data["pce-index"] ?? [], data["pce-mom"] ?? []);
+    case "core-pce-yoy":
+      return cpiYoyEstimate(data["core-pce-index"] ?? [], data["core-pce-mom"] ?? []);
+    case "ppi-yoy":
+      return cpiYoyEstimate(data["ppi-index"] ?? [], data["ppi-mom"] ?? []);
+    case "core-ppi-yoy":
+      return cpiYoyEstimate(data["core-ppi-index"] ?? [], data["core-ppi-mom"] ?? []);
+    case "gdp":
+      return trendEstimate(own, 4, 1, "%", 3);
     case "cpi-yoy":
       return cpiYoyEstimate(data["cpi-index"] ?? [], data["cpi-mom"] ?? []);
     case "core-cpi-yoy":

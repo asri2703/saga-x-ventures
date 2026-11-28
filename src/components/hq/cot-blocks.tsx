@@ -6,6 +6,7 @@ import type { NextRelease } from "@/lib/cot/schedule";
 import type { CotView } from "@/lib/cot/store";
 import { cn } from "@/lib/utils";
 import { SectionHead } from "./page-head";
+import { TrendIcon, TrendPill, trendOf } from "./trend-icon";
 
 /**
  * COT building blocks, shared by the overview and the Positioning section.
@@ -33,18 +34,9 @@ function when(at: Date, timeZone: string): string {
   });
 }
 
+/** The speculators' lean on the pair, as members trade it: "↑ XAUUSD". */
 export function BiasBadge({ view }: { view: CotView }) {
-  const style =
-    view.pairBias === "Bullish"
-      ? "bg-[#cfe0d4] text-foreground"
-      : view.pairBias === "Bearish"
-        ? "bg-[#fbdcdf] text-foreground"
-        : "bg-muted text-muted-foreground";
-  return (
-    <Badge className={cn("rounded-full border-transparent", style)}>
-      {view.pairBias} {view.market.symbol}
-    </Badge>
-  );
+  return <TrendPill trend={trendOf(view.pairBias)} subject={view.market.symbol} />;
 }
 
 /** Weekly net position as bars around a zero line. */
@@ -162,10 +154,8 @@ export function CotList({ views, base }: { views: CotView[]; base: string }) {
             >
               {v.change === null ? "-" : signed(v.change)}
             </span>
-            <span className="w-16 text-right">
-              <span className="text-xs" style={{ color: v.pairBias === "Bearish" ? DOWN : v.pairBias === "Bullish" ? UP : undefined }}>
-                {v.pairBias}
-              </span>
+            <span className="flex w-8 justify-end">
+              <TrendIcon trend={trendOf(v.pairBias)} label={`${v.market.symbol} ${trendOf(v.pairBias)}`} />
             </span>
           </Link>
         </li>

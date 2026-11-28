@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import { BiasBadge, signed } from "@/components/hq/cot-blocks";
+import { RangeGauge, rangeWords, TugOfWar } from "@/components/hq/cot-detail";
+import { cotHeadline, rangeSpot } from "@/lib/cot/story";
 import { LineChart } from "@/components/hq/line-chart";
 import { hqBase } from "@/lib/hq";
 import { COT_SOURCE_URL, cotMarket } from "@/lib/cot/markets";
@@ -45,12 +47,26 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
   const view = cotViews(all, 1)[0];
   const latest = all[all.length - 1];
 
-  let high = shown[0];
-  let low = shown[0];
-  for (const p of shown) {
-    if (p.value > high.value) high = p;
-    if (p.value < low.value) low = p;
-  }
+  const net = latest ? latest.spec_long - latest.spec_short : 0;
+  const spot = latest ? rangeSpot(shown, net) : null;
+  const high = spot?.high;
+  const low = spot?.low;
+  // "Gold (COMEX)" → "gold futures"; "Japanese yen (CME)" → "Japanese yen futures".
+  const subject = `${market.name.replace(/\s*\(.*\)$/, "").replace(/^(Gold|Euro)\b/, (m) => m.toLowerCase())} futures`;
+  const headline = latest
+    ? cotHeadline({ subject, net, change: view?.change ?? null, openInterest: latest.open_interest })
+    : null;
+  const facts: { label: string; value: string }[] = latest
+    ? [
+        { label: `${market.specLabel}, net`, value: signed(net) },
+        {
+          label: "Change on the week",
+          value: view?.change === null || !view ? "-" : signed(view.change),
+        },
+        { label: "Long share", value: view ? `${Math.round(view.longShare * 100)}%` : "-" },
+        { label: "Between low and high", value: spot ? `${Math.round(spot.position * 100)}%` : "-" },
+      ]
+    : [];
 
   const rows: [string, string][] = latest
     ? [
@@ -61,8 +77,8 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
         ["Change on the week", view?.change === null || !view ? "-" : signed(view.change)],
         [`${market.hedgeLabel}, net`, signed(latest.hedge_long - latest.hedge_short)],
         ["Open interest", latest.open_interest.toLocaleString("en-US")],
-        ...(high ? ([[`Highest net (${range})`, `${signed(high.value)} (${high.date})`]] as [string, string][]) : []),
-        ...(low ? ([[`Lowest net (${range})`, `${signed(low.value)} (${low.date})`]] as [string, string][]) : []),
+        ...(high ? ([[`Highest net, ${rangeWords(range)}`, `${signed(high.value)} (${high.date})`]] as [string, string][]) : []),
+        ...(low ? ([[`Lowest net, ${rangeWords(range)}`, `${signed(low.value)} (${low.date})`]] as [string, string][]) : []),
         ["Source", "CFTC Commitments of Traders, futures only"],
       ]
     : [];
@@ -76,20 +92,39 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
         <ArrowLeft className="size-4" aria-hidden /> Positioning (COT)
       </Link>
 
-      <header className="flex flex-col gap-2">
+      <header className="flex flex-col gap-3 border-b border-border pb-5">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-news text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">{market.name}</h1>
           {view ? <BiasBadge view={view} /> : null}
         </div>
-        {view ? (
-          <p className="text-3xl font-semibold tabular-nums">
-            {signed(view.net)}{" "}
-            <span className="text-sm font-normal text-muted-foreground">
-              {market.specLabel}, net contracts, {view.date}
-            </span>
+        {headline ? (
+          <p className="max-w-3xl font-news text-xl leading-snug text-foreground/90 sm:text-2xl">{headline}</p>
+        ) : null}
+        {latest ? (
+          <p className="text-xs text-muted-foreground">
+            Positions at {latest.report_date}, published by the CFTC. {market.specLabel} against{" "}
+            {market.hedgeLabel.toLowerCase()}.
           </p>
         ) : null}
       </header>
+
+      {facts.length ? (
+        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {facts.map((f) => (
+            <div key={f.label} className="flex flex-col gap-1 rounded-xl bg-muted/70 px-4 py-3">
+              <dt className="text-xs text-muted-foreground">{f.label}</dt>
+              <dd className="text-2xl font-semibold tabular-nums">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      {latest ? (
+        <div className="grid items-start gap-4 lg:grid-cols-2">
+          {spot ? <RangeGauge spot={spot} net={net} range={range} /> : null}
+          <TugOfWar specLabel={market.specLabel} hedgeLabel={market.hedgeLabel} row={latest} />
+        </div>
+      ) : null}
 
       <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:p-5">
         <nav aria-label="Range" className="flex w-fit gap-1 rounded-lg bg-muted p-1">
@@ -110,12 +145,16 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
       </section>
 
       {rows.length ? (
-        <section className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full text-sm">
+        <details className="group overflow-hidden rounded-xl border border-border bg-card">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium marker:hidden">
+            <span>Full numbers</span>
+            <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
+          <table className="w-full border-t border-border text-sm">
             <tbody className="divide-y divide-border">
               {rows.map(([k, v]) => (
                 <tr key={k}>
-                  <th scope="row" className="w-56 bg-muted/50 px-4 py-2.5 text-left font-medium">
+                  <th scope="row" className="w-40 bg-muted/50 px-4 py-2.5 text-left font-medium sm:w-56">
                     {k}
                   </th>
                   <td className="px-4 py-2.5 tabular-nums">{v}</td>
@@ -123,7 +162,7 @@ export default async function CotMarketPage(props: PageProps<"/apps/cot/[slug]">
               ))}
             </tbody>
           </table>
-        </section>
+        </details>
       ) : (
         <p className="text-sm text-muted-foreground">No data yet. It fills in after the first refresh.</p>
       )}

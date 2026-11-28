@@ -28,6 +28,7 @@ import { groupOf } from "@/lib/terminal/sections";
 import type { FeedItem } from "@/lib/terminal/store";
 import { cn } from "@/lib/utils";
 import { ago, CategoryBadge, DirectionBadge, ImpactBadge, myt } from "./story-badges";
+import { TrendIcon, trendOf } from "./trend-icon";
 
 /**
  * One card shape for every story, with or without a photo.
@@ -53,7 +54,7 @@ const SECTION_LOOK: Record<Category, { icon: LucideIcon; tint: string }> = {
   "global-data": { icon: Globe, tint: "bg-[#e2e7d3]" },
 };
 
-/** Instrument moves as compact chips: "EURUSD ▲". Gold first. */
+/** Instrument moves as compact chips, each with its animated arrow. Gold first. */
 export function AssetChips({ item, className, limit }: { item: FeedItem; className?: string; limit?: number }) {
   const all = [...(item.assets ?? [])].sort((a, b) =>
     a.symbol === "XAUUSD" ? -1 : b.symbol === "XAUUSD" ? 1 : 0,
@@ -67,14 +68,18 @@ export function AssetChips({ item, className, limit }: { item: FeedItem; classNa
         <li
           key={a.symbol}
           className={cn(
-            "rounded-md border px-1.5 py-0.5 font-mono text-[11px] font-medium",
+            "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[11px] font-medium",
             a.direction === "up" && "border-transparent bg-[#cfe0d4]",
             a.direction === "down" && "border-transparent bg-[#fbdcdf]",
             a.direction === "unclear" && "border-border bg-muted text-muted-foreground",
           )}
         >
-          {a.symbol} {a.direction === "up" ? "▲" : a.direction === "down" ? "▼" : "•"}
-          <span className="sr-only">{a.direction === "unclear" ? " direction unclear" : ` ${a.direction}`}</span>
+          {a.symbol}
+          <TrendIcon
+            trend={trendOf(a.direction)}
+            className="size-3"
+            label={a.direction === "unclear" ? "direction unclear" : a.direction}
+          />
         </li>
       ))}
       {hidden > 0 ? (
@@ -148,7 +153,6 @@ export function StoryCover({
   // that below): gold first, then the other pairs the story moves.
   const moves = [...(item.assets ?? [])].sort((a, b) => (a.symbol === "XAUUSD" ? -1 : b.symbol === "XAUUSD" ? 1 : 0));
   const lead = moves[0];
-  const arrow = (d: string) => (d === "up" ? "▲" : d === "down" ? "▼" : "•");
   return (
     <div className={cn(frame, look?.tint ?? "bg-muted")} aria-hidden>
       <Icon className="absolute -right-4 -bottom-6 size-40 text-foreground/[0.07]" strokeWidth={1.25} />
@@ -158,15 +162,18 @@ export function StoryCover({
         </span>
         {lead ? (
           <div className="flex flex-col gap-2">
-            <span className="font-mono text-3xl font-semibold tracking-tight text-foreground/85 sm:text-4xl">
-              {lead.symbol} {arrow(lead.direction)}
+            <span className="inline-flex items-center gap-2 font-mono text-3xl font-semibold tracking-tight text-foreground/85 sm:text-4xl">
+              {lead.symbol}
+              <TrendIcon trend={trendOf(lead.direction)} className="size-7 sm:size-8" />
             </span>
             {moves.length > 1 ? (
-              <span className="font-mono text-xs text-foreground/65">
-                {moves
-                  .slice(1)
-                  .map((m) => `${m.symbol} ${arrow(m.direction)}`)
-                  .join("   ")}
+              <span className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-foreground/65">
+                {moves.slice(1).map((m) => (
+                  <span key={m.symbol} className="inline-flex items-center gap-1">
+                    {m.symbol}
+                    <TrendIcon trend={trendOf(m.direction)} className="size-3" />
+                  </span>
+                ))}
               </span>
             ) : null}
           </div>

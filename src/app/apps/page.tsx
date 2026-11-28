@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ago } from "@/components/hq/story-badges";
 import { BreakingBanner, StoryCard } from "@/components/hq/story-card";
 import { CotOverviewBlock } from "@/components/hq/cot-blocks";
 import { ComingUp } from "@/components/hq/macro-blocks";
 import { PageHead, SectionHead } from "@/components/hq/page-head";
+import { TrendIcon } from "@/components/hq/trend-icon";
 import { upcoming } from "@/lib/macro/calendar";
 import { nextRelease } from "@/lib/cot/schedule";
 import { readCotLatest } from "@/lib/cot/store";
@@ -49,12 +51,23 @@ async function load() {
   }
 }
 
-function biasLabel(bullish: number, bearish: number): { value: string; note: string } {
-  const total = bullish + bearish;
+/** The day's lean of gold stories, as an arrow; "Mixed" when neither side leads. */
+function biasLabel(up: number, down: number): { value: ReactNode; note: string } {
+  const total = up + down;
   if (total === 0) return { value: "Flat", note: "No directional stories yet" };
-  const lean = (bullish - bearish) / total;
-  const value = lean > 0.2 ? "Bullish" : lean < -0.2 ? "Bearish" : "Mixed";
-  return { value, note: `${bullish} bullish · ${bearish} bearish` };
+  const lean = (up - down) / total;
+  const note = `${up} stories up, ${down} down`;
+  if (lean > -0.2 && lean < 0.2) return { value: "Mixed", note };
+  const trend = lean > 0 ? "up" : "down";
+  return {
+    value: (
+      <span className="inline-flex items-center gap-1.5">
+        <TrendIcon trend={trend} className="size-8" label={`gold ${trend}`} />
+        <span aria-hidden>Gold</span>
+      </span>
+    ),
+    note,
+  };
 }
 
 export default async function Overview() {

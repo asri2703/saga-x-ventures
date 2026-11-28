@@ -54,7 +54,7 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
               <span className="grid size-7 place-items-center rounded-md bg-primary text-xs font-semibold text-primary-foreground md:hidden">
                 SX
               </span>
-              <span className="text-sm font-medium text-foreground/80">Saga X HQ</span>
+              <span className="text-sm font-medium text-foreground/80">Terminal</span>
               <div className="ml-auto">
                 <AlertsBell alerts={alerts} base={base} />
               </div>

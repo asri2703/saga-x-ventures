@@ -13,7 +13,28 @@ import { newYorkOffset } from "@/lib/cot/schedule";
  * Extend these lists when the publishers post the next year.
  */
 
-export type EventKind = "fomc" | "cpi" | "jobs";
+export type EventKind = "fomc" | "cpi" | "jobs" | "ppi" | "gdp" | "pce";
+
+/**
+ * BEA puts out GDP and Personal Income and Outlays (PCE) on the same days
+ * (bea.gov/news/schedule, 2026 full schedule and 2027 schedule, checked
+ * 28 Nov 2026). BLS's PPI dates: bls.gov/schedule/news_release/ppi.htm.
+ */
+const BEA_DAYS = [
+  "2026-12-23",
+  "2027-01-28",
+  "2027-02-25",
+  "2027-03-31",
+  "2027-04-29",
+  "2027-05-27",
+  "2027-06-25",
+  "2027-07-29",
+  "2027-08-25",
+  "2027-09-30",
+  "2027-10-28",
+  "2027-11-24",
+  "2027-12-22",
+];
 
 export const EVENTS: Record<EventKind, { name: string; hour: number; minute: number; days: string[] }> = {
   fomc: {
@@ -72,6 +93,28 @@ export const EVENTS: Record<EventKind, { name: string; hour: number; minute: num
       "2027-12-03",
     ],
   },
+  ppi: {
+    name: "PPI report",
+    hour: 8,
+    minute: 30,
+    days: [
+      "2026-12-15",
+      "2027-01-14",
+      "2027-02-12",
+      "2027-03-12",
+      "2027-04-14",
+      "2027-05-13",
+      "2027-06-11",
+      "2027-07-15",
+      "2027-08-10",
+      "2027-09-10",
+      "2027-10-15",
+      "2027-11-12",
+      "2027-12-15",
+    ],
+  },
+  gdp: { name: "GDP estimate", hour: 8, minute: 30, days: BEA_DAYS },
+  pce: { name: "PCE inflation", hour: 8, minute: 30, days: BEA_DAYS },
 };
 
 /** Which scheduled event publishes each series. Daily market series have none. */
@@ -85,6 +128,15 @@ export const SERIES_EVENT: Record<string, EventKind> = {
   unemployment: "jobs",
   nfp: "jobs",
   "earnings-yoy": "jobs",
+  "ppi-mom": "ppi",
+  "ppi-yoy": "ppi",
+  "core-ppi-mom": "ppi",
+  "core-ppi-yoy": "ppi",
+  gdp: "gdp",
+  "pce-mom": "pce",
+  "pce-yoy": "pce",
+  "core-pce-mom": "pce",
+  "core-pce-yoy": "pce",
 };
 
 /** A New York wall-clock time on a New York date, as an instant. */

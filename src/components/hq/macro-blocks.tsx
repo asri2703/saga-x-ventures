@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, Landmark, Briefcase, ShoppingCart } from "lucide-react";
+import { Briefcase, CalendarClock, Factory, Landmark, Receipt, ShoppingCart, TrendingUp } from "lucide-react";
 import { Countdown } from "@/components/hq/cot-countdown";
 import type { EventKind, NextEvent } from "@/lib/macro/calendar";
 import type { Estimate, RateLean, Tone } from "@/lib/macro/expect";
@@ -12,10 +12,24 @@ import { cn } from "@/lib/utils";
  * Times show in Malaysia time; the publishers' schedules are New York time.
  */
 
-const EVENT_ICON: Record<EventKind, typeof Landmark> = { fomc: Landmark, cpi: ShoppingCart, jobs: Briefcase };
+const EVENT_ICON: Record<EventKind, typeof Landmark> = {
+  fomc: Landmark,
+  cpi: ShoppingCart,
+  jobs: Briefcase,
+  ppi: Factory,
+  gdp: TrendingUp,
+  pce: Receipt,
+};
 
 /** Where each event's detail lives. */
-export const EVENT_SERIES: Record<EventKind, string> = { fomc: "fed-funds", cpi: "cpi-mom", jobs: "nfp" };
+export const EVENT_SERIES: Record<EventKind, string> = {
+  fomc: "fed-funds",
+  cpi: "cpi-mom",
+  jobs: "nfp",
+  ppi: "ppi-mom",
+  gdp: "gdp",
+  pce: "core-pce-yoy",
+};
 
 export function eventTime(at: Date): string {
   return at.toLocaleString("en-GB", {

@@ -26,7 +26,7 @@ export type SeriesDef = {
   /** Suffix shown after a number: "%" or "K". */
   suffix: string;
   decimals: number;
-  frequency: "Daily" | "Monthly";
+  frequency: "Daily" | "Monthly" | "Quarterly";
   source: string;
   sourceUrl: string;
   /** One or two sentences on what it is and why gold and FX watch it. */
@@ -63,7 +63,7 @@ export const SERIES: SeriesDef[] = [
   },
   {
     slug: "cpi-yoy",
-    name: "CPI inflation (year on year)",
+    name: "CPI inflation (YoY)",
     unit: "percent change from a year earlier",
     suffix: "%",
     decimals: 1,
@@ -76,7 +76,7 @@ export const SERIES: SeriesDef[] = [
   },
   {
     slug: "core-cpi-yoy",
-    name: "Core CPI (year on year)",
+    name: "Core CPI (YoY)",
     unit: "percent change from a year earlier",
     suffix: "%",
     decimals: 1,
@@ -88,7 +88,7 @@ export const SERIES: SeriesDef[] = [
   },
   {
     slug: "cpi-mom",
-    name: "CPI inflation (month on month)",
+    name: "CPI inflation (MoM)",
     unit: "percent change from the month before, seasonally adjusted",
     suffix: "%",
     decimals: 1,
@@ -101,7 +101,7 @@ export const SERIES: SeriesDef[] = [
   },
   {
     slug: "core-cpi-mom",
-    name: "Core CPI (month on month)",
+    name: "Core CPI (MoM)",
     unit: "percent change from the month before, seasonally adjusted",
     suffix: "%",
     decimals: 1,
@@ -139,7 +139,7 @@ export const SERIES: SeriesDef[] = [
   },
   {
     slug: "earnings-yoy",
-    name: "Average hourly earnings (year on year)",
+    name: "Average hourly earnings (YoY)",
     unit: "percent change from a year earlier",
     suffix: "%",
     decimals: 1,
@@ -188,6 +188,119 @@ export const SERIES: SeriesDef[] = [
     about:
       "The 10-year yield after expected inflation. Historically one of gold's strongest drivers: gold tends to rise when real yields fall.",
     section: "dollar",
+  },
+  {
+    slug: "gdp",
+    name: "GDP growth (QoQ, annualized)",
+    unit: "percent change in real GDP from the quarter before, at an annual rate",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Quarterly",
+    source: "U.S. Bureau of Economic Analysis",
+    sourceUrl: "https://www.bea.gov/data/gdp/gross-domestic-product",
+    about:
+      "How fast the US economy grew, after inflation. Strong growth keeps the Fed firm and the dollar bid; a slump points to cuts, which tends to help gold.",
+    section: "us-data",
+  },
+  {
+    slug: "pce-mom",
+    name: "PCE inflation (MoM)",
+    unit: "percent change in the PCE price index from the month before, seasonally adjusted",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Economic Analysis",
+    sourceUrl: "https://www.bea.gov/data/personal-consumption-expenditures-price-index",
+    about:
+      "The monthly change in prices of everything households buy, from BEA's Personal Income and Outlays report.",
+    section: "us-data",
+  },
+  {
+    slug: "pce-yoy",
+    name: "PCE inflation (YoY)",
+    unit: "percent change in the PCE price index from a year earlier",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Economic Analysis",
+    sourceUrl: "https://www.bea.gov/data/personal-consumption-expenditures-price-index",
+    about:
+      "Headline PCE inflation. The Fed's 2% target is set in PCE, not CPI, so this is the measure its decisions answer to.",
+    section: "us-data",
+  },
+  {
+    slug: "core-pce-mom",
+    name: "Core PCE (MoM)",
+    unit: "percent change in PCE prices excluding food and energy from the month before",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Economic Analysis",
+    sourceUrl: "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+    about: "The monthly change in PCE prices without food and energy.",
+    section: "us-data",
+  },
+  {
+    slug: "core-pce-yoy",
+    name: "Core PCE (YoY)",
+    unit: "percent change in PCE prices excluding food and energy from a year earlier",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Economic Analysis",
+    sourceUrl: "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+    about:
+      "The Fed's preferred read on underlying inflation. Core PCE above 2% keeps rates higher for longer, which weighs on gold.",
+    section: "us-data",
+  },
+  {
+    slug: "ppi-mom",
+    name: "PPI (MoM)",
+    unit: "percent change in producer prices for final demand from the month before, seasonally adjusted",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Labor Statistics",
+    sourceUrl: "https://www.bls.gov/ppi/",
+    about:
+      "What US producers charge for their goods and services. It moves before consumer prices, so a hot PPI often hints at a hot CPI or PCE to come.",
+    section: "us-data",
+  },
+  {
+    slug: "ppi-yoy",
+    name: "PPI (YoY)",
+    unit: "percent change in producer prices for final demand from a year earlier",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Labor Statistics",
+    sourceUrl: "https://www.bls.gov/ppi/",
+    about: "Producer prices against the same month a year before.",
+    section: "us-data",
+  },
+  {
+    slug: "core-ppi-mom",
+    name: "Core PPI (MoM)",
+    unit: "percent change in final demand less foods, energy and trade services, seasonally adjusted",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Labor Statistics",
+    sourceUrl: "https://www.bls.gov/ppi/",
+    about: "Producer prices without food, energy and the margins of wholesalers and retailers.",
+    section: "us-data",
+  },
+  {
+    slug: "core-ppi-yoy",
+    name: "Core PPI (YoY)",
+    unit: "percent change in final demand less foods, energy and trade services from a year earlier",
+    suffix: "%",
+    decimals: 1,
+    frequency: "Monthly",
+    source: "U.S. Bureau of Labor Statistics",
+    sourceUrl: "https://www.bls.gov/ppi/",
+    about: "Underlying producer price inflation over the past year.",
+    section: "us-data",
   },
 ];
 
