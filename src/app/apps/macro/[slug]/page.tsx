@@ -115,7 +115,7 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
           </p>
         ) : null}
         {gap ? (
-          <p className="max-w-3xl rounded-lg border border-[#e0c98f] bg-[#f0dcae]/40 px-3 py-2 text-sm">
+          <p className="max-w-3xl rounded-lg border border-highlight-border bg-highlight/50 px-3 py-2 text-sm">
             BLS did not publish a YoY figure for {formatDate(gap, "Monthly")}: it collected no prices in{" "}
             {formatDate(shiftMonth(gap, -12), "Monthly")} because of the 2025 government shutdown, so there is no
             base to compare against. The monthly change for {formatDate(gap, "Monthly")} is published; see CPI month

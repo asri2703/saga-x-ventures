@@ -44,8 +44,10 @@ export const MAIN: NavItem[] = [
   { name: "Feeds", href: "/terminal", icon: Newspaper },
   { name: "Economy", href: "/macro", icon: ChartLine },
   { name: "Smart Money", href: "/cot", icon: Scale },
-  { name: "Insights", href: "/insights", icon: NotebookPen },
 ];
+
+/** Only for the signed-in admin: writing insights is not for every reader of HQ. */
+export const ADMIN_ITEMS: NavItem[] = [{ name: "Insights", href: "/insights", icon: NotebookPen }];
 
 export const SETTINGS: NavItem[] = [
   { name: "Alerts", href: "/alerts", icon: Bell },
@@ -53,7 +55,7 @@ export const SETTINGS: NavItem[] = [
   { name: "API clients", href: "/clients", icon: KeyRound, soon: true },
 ];
 
-export function HqSidebar({ base }: { base: string }) {
+export function HqSidebar({ base, admin = false }: { base: string; admin?: boolean }) {
   const pathname = usePathname();
   const here = pathname.replace(/\/$/, "") || "/";
   const isActive = (path: string) => {
@@ -76,7 +78,7 @@ export function HqSidebar({ base }: { base: string }) {
           <SidebarGroupLabel>Mastery Terminal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {MAIN.map((item) => {
+              {[...MAIN, ...(admin ? ADMIN_ITEMS : [])].map((item) => {
                 const active = isActive(item.href);
                 return (
                   <SidebarMenuItem key={item.name}>

@@ -22,7 +22,7 @@ export function HeadlineItem({ item, base, now }: { item: FeedItem; base: string
       <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
         {symbol ? <InstrumentIcon symbol={symbol} /> : null}
         {item.impact === "high" ? (
-          <span className="size-1.5 shrink-0 rounded-full bg-[#c81f30]" aria-label="High impact" />
+          <span className="size-1.5 shrink-0 rounded-full bg-down" aria-label="High impact" />
         ) : null}
         <span className="truncate">
           {symbol ? "" : `${groupOf(item.category)?.label ?? "Markets"} · `}
@@ -64,7 +64,7 @@ export function KeepReading({ href, label = "Keep reading" }: { href: string; la
   return (
     <Link
       href={href}
-      className="inline-flex w-fit items-center gap-0.5 text-sm font-semibold text-[#2f6fd6] hover:underline"
+      className="inline-flex w-fit items-center gap-0.5 text-sm font-semibold text-link hover:underline"
     >
       {label} <ChevronRight className="size-4" aria-hidden />
     </Link>

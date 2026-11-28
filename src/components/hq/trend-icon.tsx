@@ -35,7 +35,7 @@ export function TrendIcon({ trend, className, label }: { trend: Trend; className
 /** A pill with an arrow and what it applies to: "↑ XAUUSD", "↓ Gold". */
 export function TrendPill({ trend, subject, className }: { trend: Trend; subject: string; className?: string }) {
   const tint =
-    trend === "up" ? "bg-[#cfe0d4]" : trend === "down" ? "bg-[#fbdcdf]" : "bg-muted text-muted-foreground";
+    trend === "up" ? "bg-up-soft" : trend === "down" ? "bg-down-soft" : "bg-muted text-muted-foreground";
   return (
     <span
       className={cn(

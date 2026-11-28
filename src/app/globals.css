@@ -3462,9 +3462,14 @@ html.lenis {
    exist only inside `.hq`, so nothing on the public site can pick them up by
    accident: a `bg-primary` outside the dashboard resolves to nothing.
 
-   The values are the site's own palette, not shadcn's greys. Paper is the
-   ground, pine is the ink and the primary action, sand is the hover. Ruby
-   stays reserved for destructive actions, as it is the site's one alarm.
+   Mastery's palette: white and navy by day, deep navy by night. The
+   reader picks the mode with the switch in the header; it is kept in the
+   hq_theme cookie so the page is drawn in that mode from the first paint.
+   Dark applies to the .hq wrapper (.hq-dark, set on the server) and, once
+   the page runs, to portals too (html[data-hq-theme="dark"] .hq).
+   Beyond shadcn's set: up and down for market moves, link, highlight for
+   the selected thing, warn for drafts and developing stories, and dock for
+   the phone's tab bar.
 --------------------------------------------------------------------------- */
 
 @theme inline {
@@ -3494,25 +3499,143 @@ html.lenis {
   --color-sidebar-accent-foreground: var(--hq-foreground);
   --color-sidebar-border: var(--hq-border);
   --color-sidebar-ring: var(--hq-ring);
+  --color-up: var(--hq-up);
+  --color-up-soft: var(--hq-up-soft);
+  --color-down: var(--hq-down);
+  --color-down-soft: var(--hq-down-soft);
+  --color-link: var(--hq-link);
+  --color-highlight: var(--hq-highlight);
+  --color-highlight-foreground: var(--hq-highlight-foreground);
+  --color-highlight-border: var(--hq-highlight-border);
+  --color-warn-soft: var(--hq-warn-soft);
+  --color-warn-foreground: var(--hq-warn-foreground);
+  --color-dock: var(--hq-dock);
+  --color-dock-foreground: var(--hq-dock-foreground);
+  --color-dock-active: var(--hq-dock-active);
+  --color-dock-active-foreground: var(--hq-dock-active-foreground);
 }
 
 .hq {
-  --hq-background: #faf4e8; /* paper-raised */
-  --hq-foreground: #163a30; /* pine */
-  --hq-card: #fffdf8;
-  --hq-muted: #f2e9d8; /* paper */
-  --hq-muted-foreground: #566e65; /* pine-faint */
-  --hq-accent: #f0dcae; /* sand */
-  --hq-primary: #163a30;
-  --hq-primary-foreground: #faf4e8;
-  --hq-destructive: #c81f30; /* ruby-deep */
-  --hq-border: #dcd0b8; /* rule */
-  --hq-ring: #3e5d53; /* pine-soft */
-  --hq-sidebar: #f2e9d8;
+  /* Day: white and navy. */
+  --hq-background: #f5f7fb;
+  --hq-foreground: #0b1f3a;
+  --hq-card: #ffffff;
+  --hq-muted: #eef2f8;
+  --hq-muted-foreground: #5a6b85;
+  --hq-accent: #e6edf8;
+  --hq-primary: #0b2545;
+  --hq-primary-foreground: #ffffff;
+  --hq-destructive: #c8323b;
+  --hq-border: #dfe5ef;
+  --hq-ring: #2d5ba8;
+  --hq-sidebar: #ffffff;
+  --hq-up: #12805c;
+  --hq-up-soft: #ddf2ea;
+  --hq-down: #c8323b;
+  --hq-down-soft: #fbe3e5;
+  --hq-link: #1d5fd6;
+  --hq-highlight: #dce7f8;
+  --hq-highlight-foreground: #0b2545;
+  --hq-highlight-border: #b7cbee;
+  --hq-warn-soft: #fdf0d5;
+  --hq-warn-foreground: #7a5200;
+  --hq-dock: #0b2545;
+  --hq-dock-foreground: #e8eef8;
+  --hq-dock-active: #ffffff;
+  --hq-dock-active-foreground: #0b2545;
   --radius: 0.75rem;
 
   background: var(--hq-background);
   color: var(--hq-foreground);
+}
+
+/* Night: deep navy. */
+.hq.hq-dark,
+html[data-hq-theme="dark"] .hq {
+  --hq-background: #071426;
+  --hq-foreground: #e6edf7;
+  --hq-card: #0d1e36;
+  --hq-muted: #12263f;
+  --hq-muted-foreground: #8fa2bc;
+  --hq-accent: #16304f;
+  --hq-primary: #e6edf7;
+  --hq-primary-foreground: #0b2545;
+  --hq-destructive: #f0616d;
+  --hq-border: #1d3352;
+  --hq-ring: #6c9bea;
+  --hq-sidebar: #0a1a2f;
+  --hq-up: #34c38f;
+  --hq-up-soft: #0f3a2e;
+  --hq-down: #f0707b;
+  --hq-down-soft: #3d1a22;
+  --hq-link: #7fb0ff;
+  --hq-highlight: #1b3a63;
+  --hq-highlight-foreground: #e6edf7;
+  --hq-highlight-border: #2c5288;
+  --hq-warn-soft: #3a2e10;
+  --hq-warn-foreground: #f3c96b;
+  --hq-dock: #0d1e36;
+  --hq-dock-foreground: #c9d6e8;
+  --hq-dock-active: #e6edf7;
+  --hq-dock-active-foreground: #0b2545;
+  color-scheme: dark;
+}
+
+/* From Uiverse.io by vinodjangid07 - https://uiverse.io/vinodjangid07/moody-rabbit-65
+   MIT License, Copyright (c) vinodjangid07 (Vinod Jangid)
+   The light/dark switch in HQ's header (theme-switch.tsx). Classes are
+   prefixed so nothing else on the site can collide with them. */
+.hq-mode-input {
+  display: none;
+}
+
+.hq-mode-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 50px;
+  height: 30px;
+  background-color: rgb(82, 82, 82);
+  border-radius: 20px;
+  cursor: pointer;
+  transition-duration: 0.2s;
+}
+
+.hq-mode-switch::after {
+  content: "";
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  left: 5px;
+  background-color: transparent;
+  border-radius: 50%;
+  transition-duration: 0.2s;
+  box-shadow: 5px 2px 7px rgba(8, 8, 8, 0.26);
+  border: 5px solid white;
+}
+
+.hq-mode-input:checked + .hq-mode-switch::after {
+  transform: translateX(100%);
+  transition-duration: 0.2s;
+  background-color: white;
+}
+
+.hq-mode-input:checked + .hq-mode-switch {
+  background-color: rgb(148, 118, 255);
+  transition-duration: 0.2s;
+}
+
+.hq-mode-input:focus-visible + .hq-mode-switch {
+  outline: 2px solid var(--hq-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hq-mode-switch,
+  .hq-mode-switch::after {
+    transition-duration: 0s;
+  }
 }
 
 /* HQ headline face. The variable is set by next/font on the .hq wrapper. */

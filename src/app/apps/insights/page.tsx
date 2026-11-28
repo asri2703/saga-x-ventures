@@ -31,7 +31,22 @@ async function load(): Promise<{ ok: true; items: Insight[]; now: number } | { o
 }
 
 export default async function InsightsPage() {
-  const [data, base, admin] = await Promise.all([load(), hqBase(), isAdmin()]);
+  const admin = await isAdmin();
+  if (!admin) {
+    return (
+      <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-8">
+        <PageHead title="Insights" dek="For the HQ admin. Sign in to write, read drafts and publish." />
+        {adminConfigured() ? (
+          <SignInForm />
+        ) : (
+          <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+            Writing is off until HQ_ADMIN_KEY is set (at least 16 characters) in .env.local and on Vercel.
+          </p>
+        )}
+      </div>
+    );
+  }
+  const [data, base] = await Promise.all([load(), hqBase()]);
   const { now } = data;
 
   return (
@@ -43,11 +58,7 @@ export default async function InsightsPage() {
 
       <section className="flex flex-col gap-3">
         <SectionHead title="Write an insight" />
-        {!adminConfigured() ? (
-          <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
-            Writing is off until HQ_ADMIN_KEY is set (at least 16 characters) in .env.local and on Vercel.
-          </p>
-        ) : admin ? (
+        {(
           <>
             <Composer topics={TOPICS.map((t) => ({ slug: t.slug, name: t.name }))} />
             <form action={signOutAction}>
@@ -56,8 +67,6 @@ export default async function InsightsPage() {
               </button>
             </form>
           </>
-        ) : (
-          <SignInForm />
         )}
       </section>
 
@@ -82,8 +91,8 @@ export default async function InsightsPage() {
                       <span
                         className={
                           item.status === "published"
-                            ? "rounded bg-[#1f7a4d]/10 px-1.5 py-px font-semibold text-[#1f7a4d]"
-                            : "rounded bg-[#f0dcae] px-1.5 py-px font-semibold text-[#6b4f12]"
+                            ? "rounded bg-up-soft px-1.5 py-px font-semibold text-up"
+                            : "rounded bg-warn-soft px-1.5 py-px font-semibold text-warn-foreground"
                         }
                       >
                         {item.status === "published" ? "Published" : "Draft"}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { THEME_EVENT, type HqTheme } from "@/lib/hq-theme";
 
 /**
  * TradingView's free Mini Symbol Overview widget: a small price chart with
@@ -10,10 +11,21 @@ import { useEffect, useRef } from "react";
  */
 export function TradingViewMini({ symbol, range }: { symbol: string; range: string }) {
   const host = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState<HqTheme | null>(null);
+
+  // Read the mode from the HQ wrapper once mounted, then follow the switch.
+  useEffect(() => {
+    const dark = host.current?.closest(".hq-root")?.classList.contains("hq-dark");
+    setTheme(dark ? "dark" : "light");
+    const follow = (e: Event) => setTheme((e as CustomEvent<HqTheme>).detail);
+    window.addEventListener(THEME_EVENT, follow);
+    return () => window.removeEventListener(THEME_EVENT, follow);
+  }, []);
 
   useEffect(() => {
     const el = host.current;
-    if (!el) return;
+    if (!el || !theme) return;
+    const dark = theme === "dark";
     el.innerHTML = "";
     const widget = document.createElement("div");
     widget.className = "tradingview-widget-container__widget h-full";
@@ -28,19 +40,19 @@ export function TradingViewMini({ symbol, range }: { symbol: string; range: stri
       height: "100%",
       locale: "en",
       dateRange: range,
-      colorTheme: "light",
+      colorTheme: dark ? "dark" : "light",
       isTransparent: true,
       autosize: true,
       largeChartUrl: "",
-      trendLineColor: "rgba(22, 58, 48, 1)",
-      underLineColor: "rgba(22, 58, 48, 0.12)",
-      underLineBottomColor: "rgba(22, 58, 48, 0)",
+      trendLineColor: dark ? "rgba(127, 176, 255, 1)" : "rgba(11, 37, 69, 1)",
+      underLineColor: dark ? "rgba(127, 176, 255, 0.18)" : "rgba(11, 37, 69, 0.12)",
+      underLineBottomColor: dark ? "rgba(127, 176, 255, 0)" : "rgba(11, 37, 69, 0)",
     });
     el.appendChild(script);
     return () => {
       el.innerHTML = "";
     };
-  }, [symbol, range]);
+  }, [symbol, range, theme]);
 
   return (
     <div className="flex h-full flex-col">

@@ -24,8 +24,8 @@ export type DirectionRow = {
   cot: { slug: string; history: number[]; bias: "Bullish" | "Bearish" | "Flat" } | null;
 };
 
-const UP = "#1f7a4d";
-const DOWN = "#c81f30";
+const UP = "var(--hq-up)";
+const DOWN = "var(--hq-down)";
 
 function Sparkline({ data }: { data: number[] }) {
   if (data.length < 2) return <span className="block h-6 w-20" aria-hidden />;
@@ -62,8 +62,8 @@ function leanWords({ up, down }: Lean): string {
 }
 
 const FUNDS: Record<"Bullish" | "Bearish" | "Flat", { label: string; className: string }> = {
-  Bullish: { label: "Funds long", className: "border-[#1f7a4d]/30 bg-[#1f7a4d]/10 text-[#1f7a4d]" },
-  Bearish: { label: "Funds short", className: "border-[#c81f30]/30 bg-[#c81f30]/10 text-[#c81f30]" },
+  Bullish: { label: "Funds long", className: "border-up/30 bg-up-soft text-up" },
+  Bearish: { label: "Funds short", className: "border-down/30 bg-down-soft text-down" },
   Flat: { label: "Funds flat", className: "border-border bg-muted text-muted-foreground" },
 };
 
@@ -104,13 +104,13 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
                 onClick={() => setWin(w.id)}
                 className={cn(
                   "relative rounded-md px-2.5 py-1.5 transition-colors",
-                  win === w.id ? "text-[#163a30]" : "text-muted-foreground hover:text-foreground",
+                  win === w.id ? "text-highlight-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {win === w.id ? (
                   <motion.span
                     layoutId="direction-window"
-                    className="absolute inset-0 rounded-md border border-[#e3c98f] bg-[#f0dcae]"
+                    className="absolute inset-0 rounded-md border border-highlight-border bg-highlight"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 ) : null}
@@ -138,7 +138,7 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
             <div className="min-h-56 flex-1">
               <TradingViewMini symbol={CHART_SYMBOL[current.symbol] ?? current.symbol} range={span.chartRange} />
             </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold text-[#2f6fd6]">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold text-link">
               <Link href={`${base}/terminal?asset=${current.symbol}`} className="inline-flex items-center hover:underline">
                 {current.symbol} in Feeds <ChevronRight className="size-4" aria-hidden />
               </Link>
@@ -164,7 +164,7 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
                     aria-pressed={active}
                     className={cn(
                       "grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 text-left transition-colors sm:grid-cols-[minmax(0,1fr)_5rem_7.5rem_6rem] sm:px-5",
-                      active ? "bg-[#f0dcae]/45" : "hover:bg-muted/50",
+                      active ? "bg-highlight/60" : "hover:bg-muted/50",
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-2.5">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, type LucideIcon } from "lucide-react";
-import { MAIN, SETTINGS } from "./hq-sidebar";
+import { ADMIN_ITEMS, MAIN, SETTINGS } from "./hq-sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,9 +29,9 @@ const PHONE_ORDER = ["/terminal", "/macro", "", "/cot"];
 const TABS: Tab[] = PHONE_ORDER.map((href) => MAIN.find((m) => m.href === href)).filter(
   (t): t is (typeof MAIN)[number] => Boolean(t),
 );
-const MORE: (Tab & { soon?: boolean })[] = SETTINGS;
 
-export function TabIsland({ base }: { base: string }) {
+export function TabIsland({ base, admin = false }: { base: string; admin?: boolean }) {
+  const MORE: (Tab & { soon?: boolean })[] = admin ? [...ADMIN_ITEMS, ...SETTINGS] : SETTINGS;
   const pathname = usePathname();
   const here = pathname.replace(/\/$/, "") || "/";
   const isActive = (href: string) => {
@@ -45,7 +45,7 @@ export function TabIsland({ base }: { base: string }) {
       aria-label="HQ"
       className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden"
     >
-      <ul className="flex w-full max-w-md items-stretch justify-between gap-1 rounded-2xl border border-[#163a30]/10 bg-[#163a30] p-1.5 shadow-[0_8px_24px_rgba(22,58,48,0.25)]">
+      <ul className="flex w-full max-w-md items-stretch justify-between gap-1 rounded-2xl border border-border/60 bg-dock p-1.5 shadow-[0_8px_24px_rgba(11,37,69,0.28)]">
         {TABS.map((t) => {
           const active = isActive(t.href);
           return (
@@ -56,7 +56,7 @@ export function TabIsland({ base }: { base: string }) {
                 title={t.name}
                 className={cn(
                   "flex items-center justify-center rounded-xl py-3 transition-colors",
-                  active ? "bg-[#f0dcae] text-[#163a30]" : "text-[#faf4e8]/75 active:bg-white/10",
+                  active ? "bg-dock-active text-dock-active-foreground" : "text-dock-foreground/75 active:bg-white/10",
                 )}
               >
                 <t.icon className="size-6" aria-hidden />
@@ -69,8 +69,8 @@ export function TabIsland({ base }: { base: string }) {
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
-                "flex w-full items-center justify-center rounded-xl py-3 outline-none focus-visible:ring-2 focus-visible:ring-[#f0dcae]",
-                moreActive ? "bg-[#f0dcae] text-[#163a30]" : "text-[#faf4e8]/75",
+                "flex w-full items-center justify-center rounded-xl py-3 outline-none focus-visible:ring-2 focus-visible:ring-dock-active",
+                moreActive ? "bg-dock-active text-dock-active-foreground" : "text-dock-foreground/75",
               )}
               title="Settings"
             >

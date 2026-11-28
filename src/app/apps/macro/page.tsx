@@ -162,7 +162,7 @@ function DataTable({ rows, base }: { rows: Row[]; base: string }) {
               <th scope="col" className="px-4 py-2.5 font-medium">Indicator</th>
               <th scope="col" className="w-28 px-4 py-2.5 text-right font-medium">Latest</th>
               <th scope="col" className="w-28 px-4 py-2.5 text-right font-medium">Previous</th>
-              <th scope="col" className="w-36 bg-[#f0dcae]/35 px-4 py-2.5 text-right font-medium">Saga estimate</th>
+              <th scope="col" className="w-36 bg-highlight/50 px-4 py-2.5 text-right font-medium">Saga estimate</th>
               <th scope="col" className="w-44 px-4 py-2.5 font-medium">Next release (MYT)</th>
               <th scope="col" className="w-32 px-4 py-2.5 font-medium">
                 <span className="sr-only">Trend</span>
@@ -185,7 +185,7 @@ function DataTable({ rows, base }: { rows: Row[]; base: string }) {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{r.previous}</td>
-                <td className={cn("bg-[#f0dcae]/35 px-4 py-3 text-right font-medium tabular-nums")}>{r.estimate}</td>
+                <td className={cn("bg-highlight/50 px-4 py-3 text-right font-medium tabular-nums")}>{r.estimate}</td>
                 <td className="px-4 py-3 tabular-nums text-muted-foreground">{r.next}</td>
                 <td className="w-32 px-4 py-3">
                   <Sparkline points={r.points} className="h-8 w-24 text-primary" />

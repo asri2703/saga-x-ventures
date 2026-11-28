@@ -41,17 +41,17 @@ import { TrendIcon, trendOf } from "./trend-icon";
  */
 
 const SECTION_LOOK: Record<Category, { icon: LucideIcon; tint: string }> = {
-  geopolitics: { icon: Swords, tint: "bg-[#e9d9c8]" },
-  fed: { icon: Landmark, tint: "bg-[#d7e3dc]" },
-  "us-data": { icon: ChartColumn, tint: "bg-[#dfe4ea]" },
-  trade: { icon: Container, tint: "bg-[#efe1c4]" },
-  energy: { icon: Fuel, tint: "bg-[#ecd8cf]" },
-  dollar: { icon: DollarSign, tint: "bg-[#d9e6d2]" },
-  "gold-demand": { icon: Coins, tint: "bg-[#f0dcae]" },
-  "market-stress": { icon: TrendingDown, tint: "bg-[#f3d6d9]" },
-  politics: { icon: Vote, tint: "bg-[#e4dcef]" },
-  "central-banks": { icon: Building2, tint: "bg-[#d5e2e6]" },
-  "global-data": { icon: Globe, tint: "bg-[#e2e7d3]" },
+  geopolitics: { icon: Swords, tint: "bg-[#b4793f]/20" },
+  fed: { icon: Landmark, tint: "bg-[#2f7d5b]/20" },
+  "us-data": { icon: ChartColumn, tint: "bg-[#4a6a90]/20" },
+  trade: { icon: Container, tint: "bg-[#b8862e]/20" },
+  energy: { icon: Fuel, tint: "bg-[#b0583a]/20" },
+  dollar: { icon: DollarSign, tint: "bg-[#4f8a3c]/20" },
+  "gold-demand": { icon: Coins, tint: "bg-[#d4a537]/25" },
+  "market-stress": { icon: TrendingDown, tint: "bg-[#c8323b]/20" },
+  politics: { icon: Vote, tint: "bg-[#7656b0]/20" },
+  "central-banks": { icon: Building2, tint: "bg-[#2d6f86]/20" },
+  "global-data": { icon: Globe, tint: "bg-[#6f7f3a]/20" },
 };
 
 /** Instrument moves as compact chips, each with its animated arrow. Gold first. */
@@ -69,8 +69,8 @@ export function AssetChips({ item, className, limit }: { item: FeedItem; classNa
           key={a.symbol}
           className={cn(
             "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[11px] font-medium",
-            a.direction === "up" && "border-transparent bg-[#cfe0d4]",
-            a.direction === "down" && "border-transparent bg-[#fbdcdf]",
+            a.direction === "up" && "border-transparent bg-up-soft",
+            a.direction === "down" && "border-transparent bg-down-soft",
             a.direction === "unclear" && "border-border bg-muted text-muted-foreground",
           )}
         >
@@ -143,7 +143,7 @@ export function StoryCover({
   const place = findPlace(`${item.headline} ${item.brief?.title ?? ""}`);
   if (place && (item.category === "geopolitics" || item.category === "energy" || item.category === "trade")) {
     return (
-      <div className={cn(frame, "bg-[#e2e8e0]")}>
+      <div className={cn(frame, "bg-muted")}>
         <Image src={`/api/hq/map/${place.slug}`} alt={`Map of ${place.name}`} fill unoptimized priority={priority} className="object-cover" />
       </div>
     );
@@ -200,7 +200,7 @@ function SourcesLine({ item, now }: { item: FeedItem; now: number }) {
 export function BreakingBadge({ item, now }: { item: FeedItem; now: number }) {
   if (!isBreaking(item, now)) return null;
   return (
-    <Badge className="rounded-full border-transparent bg-[#c24d5a] text-white">
+    <Badge className="rounded-full border-transparent bg-down text-white">
       <Zap aria-hidden /> Breaking
     </Badge>
   );
@@ -214,7 +214,7 @@ export function StandingBadge({ item }: { item: FeedItem }) {
     <Badge
       className={cn(
         "rounded-full",
-        s.kind === "official" && "border-transparent bg-[#cfe0d4] text-foreground",
+        s.kind === "official" && "border-transparent bg-up-soft text-foreground",
         s.kind === "confirmed" && "border-transparent bg-accent text-foreground",
         s.kind === "single" && "border-border bg-muted text-muted-foreground",
       )}
@@ -231,9 +231,9 @@ export function BreakingBanner({ items, base, now }: { items: FeedItem[]; base: 
   return (
     <Link
       href={`${base}/terminal/${item.id}`}
-      className="group flex items-center gap-3 rounded-xl border border-[#c24d5a]/40 bg-[#fbdcdf] px-4 py-3"
+      className="group flex items-center gap-3 rounded-xl border border-down/40 bg-down-soft px-4 py-3"
     >
-      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#c24d5a] px-2.5 py-1 text-xs font-semibold text-white">
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-down px-2.5 py-1 text-xs font-semibold text-white">
         <Zap className="size-3.5" aria-hidden /> Breaking
       </span>
       <span className="line-clamp-2 flex-1 font-news text-[17px] font-semibold group-hover:underline">{storyTitle(item)}</span>

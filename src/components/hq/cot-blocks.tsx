@@ -16,8 +16,8 @@ import { TrendIcon, TrendPill, trendOf } from "./trend-icon";
  * the compact list, and the overview strip that puts them together.
  */
 
-const UP = "#3f7a55";
-const DOWN = "#c24d5a";
+const UP = "var(--hq-up)";
+const DOWN = "var(--hq-down)";
 
 export function signed(n: number): string {
   return `${n > 0 ? "+" : n < 0 ? "-" : ""}${Math.abs(n).toLocaleString("en-US")}`;

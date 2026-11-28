@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { AlertsBell, type BellAlert } from "@/components/hq/alerts-bell";
 import { HqSidebar } from "@/components/hq/hq-sidebar";
 import { TabIsland } from "@/components/hq/tab-island";
+import { ThemeSwitch } from "@/components/hq/theme-switch";
+import { isAdmin } from "@/lib/hq-admin";
+import { THEME_COOKIE, themeOf } from "@/lib/hq-theme";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { pushConfigured, readAlertLog } from "@/lib/alerts/push";
@@ -41,13 +44,14 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
   // links there are host-relative. On the main domain they keep the prefix.
   const host = (await headers()).get("host") ?? "";
   const base = host.startsWith("apps.") ? "" : "/apps";
-  const alerts = await recentAlerts();
+  const [alerts, jar, admin] = await Promise.all([recentAlerts(), cookies(), isAdmin()]);
+  const theme = themeOf(jar.get(THEME_COOKIE)?.value);
 
   return (
-    <div className={`hq ${newsreader.variable} min-h-svh w-full`}>
+    <div className={`hq hq-root ${theme === "dark" ? "hq-dark" : ""} ${newsreader.variable} min-h-svh w-full`}>
       <TooltipProvider delayDuration={200}>
         <SidebarProvider>
-          <HqSidebar base={base} />
+          <HqSidebar base={base} admin={admin} />
           <SidebarInset className="min-w-0 bg-background">
             <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background/95 px-4 backdrop-blur">
               <SidebarTrigger className="hidden md:inline-flex" />
@@ -55,14 +59,15 @@ export default async function HqLayout({ children }: LayoutProps<"/apps">) {
                 SX
               </span>
               <span className="text-sm font-medium text-foreground/80">Terminal</span>
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-3">
+                <ThemeSwitch initial={theme} />
                 <AlertsBell alerts={alerts} base={base} />
               </div>
             </header>
             <div className="min-w-0 flex-1 p-4 pb-28 sm:p-6 sm:pb-28 md:pb-8 lg:p-8">{children}</div>
           </SidebarInset>
         </SidebarProvider>
-        <TabIsland base={base} />
+        <TabIsland base={base} admin={admin} />
       </TooltipProvider>
     </div>
   );

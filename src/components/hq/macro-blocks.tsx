@@ -104,7 +104,7 @@ export function ExpectPanel({
           <span className="text-sm text-muted-foreground">Not on the published schedule yet</span>
         )}
       </div>
-      <div className="flex flex-col gap-1 border-b border-border bg-[#f0dcae]/35 p-4 sm:border-r sm:border-b-0">
+      <div className="flex flex-col gap-1 border-b border-border bg-highlight/50 p-4 sm:border-r sm:border-b-0">
         <span className="text-xs text-muted-foreground">
           Saga estimate{estimate ? `, ${formatDate(estimate.period, "Monthly")}` : ""}
         </span>
@@ -144,8 +144,8 @@ export function ExpectPanel({
 }
 
 const TONE_STYLE: Record<Tone["label"], string> = {
-  Hawkish: "bg-[#fbdcdf] text-[#8a1a26]",
-  Dovish: "bg-[#cfe0d4] text-[#163a30]",
+  Hawkish: "bg-down-soft text-down",
+  Dovish: "bg-up-soft text-up",
   Mixed: "bg-muted text-foreground",
   Quiet: "bg-muted text-muted-foreground",
 };

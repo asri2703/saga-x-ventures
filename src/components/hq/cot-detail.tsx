@@ -6,8 +6,8 @@ import { signed } from "./cot-blocks";
  * (is it crowded?), and the tug of war between the two sides.
  */
 
-const UP = "#3f7a55";
-const DOWN = "#c24d5a";
+const UP = "var(--hq-up)";
+const DOWN = "var(--hq-down)";
 
 function day(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -45,7 +45,7 @@ export function RangeGauge({ spot, net, range }: { spot: RangeSpot; net: number;
         </span>
         <div
           className="h-3 rounded-full"
-          style={{ background: `linear-gradient(90deg, ${DOWN}33 0%, #e9dfca 50%, ${UP}33 100%)` }}
+          style={{ background: `linear-gradient(90deg, color-mix(in srgb, ${DOWN} 20%, transparent) 0%, var(--hq-muted) 50%, color-mix(in srgb, ${UP} 20%, transparent) 100%)` }}
           role="img"
           aria-label={`Latest net ${signed(net)}, ${pct}% of the way from the ${range} low to the high`}
         />

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { EditForm } from "@/components/hq/insight-forms";
 import { TrendIcon } from "@/components/hq/trend-icon";
@@ -18,6 +18,7 @@ const CALL = { up: "Gold up", down: "Gold down", flat: "Gold sideways" } as cons
 
 export async function generateMetadata(props: PageProps<"/apps/insights/[id]">): Promise<Metadata> {
   const { id } = await props.params;
+  if (!(await isAdmin())) return { title: "Insight" };
   const item = await readInsight(id).catch(() => null);
   return { title: item?.title ?? "Insight" };
 }
@@ -35,7 +36,9 @@ function stamp(iso: string): string {
 
 export default async function InsightPage(props: PageProps<"/apps/insights/[id]">) {
   const { id } = await props.params;
-  const [item, base, admin] = await Promise.all([readInsight(id).catch(() => null), hqBase(), isAdmin()]);
+  const [base, admin] = await Promise.all([hqBase(), isAdmin()]);
+  if (!admin) redirect(`${base}/insights`);
+  const item = await readInsight(id).catch(() => null);
   if (!item) notFound();
   const published = item.status === "published";
 
@@ -53,8 +56,8 @@ export default async function InsightPage(props: PageProps<"/apps/insights/[id]"
           <span
             className={
               published
-                ? "rounded bg-[#1f7a4d]/10 px-2 py-0.5 text-xs font-semibold text-[#1f7a4d]"
-                : "rounded bg-[#f0dcae] px-2 py-0.5 text-xs font-semibold text-[#6b4f12]"
+                ? "rounded bg-up-soft px-2 py-0.5 text-xs font-semibold text-up"
+                : "rounded bg-warn-soft px-2 py-0.5 text-xs font-semibold text-warn-foreground"
             }
           >
             {published ? `Published ${item.published_at ? stamp(item.published_at) : ""}` : "Draft, only visible in HQ"}
@@ -67,7 +70,7 @@ export default async function InsightPage(props: PageProps<"/apps/insights/[id]"
               className={
                 published
                   ? "rounded-lg border border-border px-3 py-1.5 text-sm font-semibold"
-                  : "rounded-lg bg-[#163a30] px-3 py-1.5 text-sm font-semibold text-[#faf4e8]"
+                  : "rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
               }
             >
               {published ? "Unpublish" : "Publish"}
@@ -110,11 +113,11 @@ export default async function InsightPage(props: PageProps<"/apps/insights/[id]"
           ) : null}
           <EditForm id={item.id} title={item.title} body={item.body} />
           <details className="rounded-xl border border-border bg-card px-4 py-3 text-sm">
-            <summary className="cursor-pointer font-medium text-[#c81f30]">Delete this insight</summary>
+            <summary className="cursor-pointer font-medium text-down">Delete this insight</summary>
             <form action={deleteAction} className="mt-3 flex flex-wrap items-center gap-3">
               <input type="hidden" name="id" value={item.id} />
               <span className="text-muted-foreground">This removes it for good.</span>
-              <button type="submit" className="rounded-lg bg-[#c81f30] px-3 py-1.5 font-semibold text-white">
+              <button type="submit" className="rounded-lg bg-down px-3 py-1.5 font-semibold text-white">
                 Yes, delete it
               </button>
             </form>

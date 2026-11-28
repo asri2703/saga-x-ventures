@@ -11,7 +11,7 @@ import { TrendIcon } from "./trend-icon";
 const START: ActionState = { error: null };
 
 const field =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:border-[#163a30] focus-visible:ring-2 focus-visible:ring-[#163a30]/15";
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20";
 
 function Submit({ children, busy }: { children: React.ReactNode; busy: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -19,7 +19,7 @@ function Submit({ children, busy }: { children: React.ReactNode; busy: React.Rea
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex w-fit items-center gap-2 rounded-lg bg-[#163a30] px-4 py-2 text-sm font-semibold text-[#faf4e8] transition-opacity disabled:opacity-70"
+      className="inline-flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-70"
     >
       {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
       {pending ? busy : children}
@@ -29,7 +29,7 @@ function Submit({ children, busy }: { children: React.ReactNode; busy: React.Rea
 
 function FormError({ state }: { state: ActionState }) {
   return state.error ? (
-    <p role="alert" className="text-sm text-[#c81f30]">
+    <p role="alert" className="text-sm text-down">
       {state.error}
     </p>
   ) : null;
@@ -95,7 +95,7 @@ export function Composer({ topics }: { topics: { slug: string; name: string }[] 
               onClick={() => setCall(c.value)}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors",
-                call === c.value ? "border-[#e3c98f] bg-[#f0dcae] text-[#163a30]" : "border-border text-muted-foreground hover:text-foreground",
+                call === c.value ? "border-highlight-border bg-highlight text-highlight-foreground" : "border-border text-muted-foreground hover:text-foreground",
               )}
             >
               <TrendIcon trend={c.value} className="size-4" label={c.label} />

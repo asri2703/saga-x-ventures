@@ -37,7 +37,7 @@ export function stamp(iso: string, now: number): string {
 
 function DevelopingTag() {
   return (
-    <span className="rounded bg-[#f0dcae] px-1.5 py-px text-[11px] font-semibold text-[#6b4f12]">Developing</span>
+    <span className="rounded bg-warn-soft px-1.5 py-px text-[11px] font-semibold text-warn-foreground">Developing</span>
   );
 }
 
@@ -80,7 +80,7 @@ export function LatestList({
                 <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
                   {symbol ? <InstrumentIcon symbol={symbol} /> : null}
                   {e.item.impact === "high" ? (
-                    <span className="size-1.5 shrink-0 rounded-full bg-[#c81f30]" aria-label="High impact" />
+                    <span className="size-1.5 shrink-0 rounded-full bg-down" aria-label="High impact" />
                   ) : null}
                   {developing.includes(e.item.id) ? <DevelopingTag /> : null}
                   <span className="truncate">
@@ -126,13 +126,13 @@ export function IssueThread({ item, base, now }: { item: FeedItem; base: string;
         ) : null}
         <AssetChips item={item} limit={4} />
       </header>
-      <ol className="relative ml-1.5 flex flex-col gap-3 border-l-2 border-[#163a30]/15 pl-5">
+      <ol className="relative ml-1.5 flex flex-col gap-3 border-l-2 border-border pl-5">
         {shown.map((r, i) => (
           <li key={r.url} className="relative">
             <span
               className={cn(
                 "absolute top-1.5 -left-[27px] size-3 rounded-full border-2 border-card",
-                i === 0 ? "bg-[#163a30]" : "bg-[#cdbf9f]",
+                i === 0 ? "bg-primary" : "bg-muted-foreground/40",
               )}
               aria-hidden
             />
@@ -173,7 +173,7 @@ export function MoreStories({ items, base, now }: { items: FeedItem[]; base: str
       <HeadlineGrid items={shown} base={base} now={now} />
       {folded.length ? (
         <details className="group">
-          <summary className="w-fit cursor-pointer list-none text-sm font-semibold text-[#2f6fd6] marker:hidden hover:underline">
+          <summary className="w-fit cursor-pointer list-none text-sm font-semibold text-link marker:hidden hover:underline">
             <span className="group-open:hidden">Show {folded.length} more stories</span>
             <span className="hidden group-open:inline">Show fewer</span>
           </summary>
