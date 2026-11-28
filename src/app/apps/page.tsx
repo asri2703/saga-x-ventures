@@ -50,7 +50,7 @@ async function load() {
         name: PLAIN_NAME[symbol] ?? symbol,
         leans: leans[symbol],
         cot: view
-          ? { slug: view.market.slug, history: view.history.map((h) => h.value * view.market.pairSign), bias: view.pairBias }
+          ? { slug: view.market.slug, history: view.history.map((h) => h.value * view.market.pairSign) }
           : null,
       };
     });

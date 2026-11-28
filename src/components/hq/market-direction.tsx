@@ -13,15 +13,14 @@ import { TrendIcon } from "./trend-icon";
 /**
  * The overview's first card: where gold and the majors are heading. Each row
  * is one instrument with the speculators' net position over eight weeks (the
- * sparkline), how the wire's stories lean in the chosen window, and which way
- * the funds sit. Picking a row puts its price chart (TradingView) on the left.
+ * sparkline) and how the wire's stories lean in the chosen window. Picking a row puts its price chart (TradingView) on the left.
  */
 
 export type DirectionRow = {
   symbol: string;
   name: string;
   leans: Record<WindowId, Lean>;
-  cot: { slug: string; history: number[]; bias: "Bullish" | "Bearish" | "Flat" } | null;
+  cot: { slug: string; history: number[] } | null;
 };
 
 const UP = "var(--hq-up)";
@@ -60,12 +59,6 @@ function leanWords({ up, down }: Lean): string {
   if (up + down === 0) return "No stories";
   return `${up} up · ${down} down`;
 }
-
-const FUNDS: Record<"Bullish" | "Bearish" | "Flat", { label: string; className: string }> = {
-  Bullish: { label: "Funds long", className: "border-up/30 bg-up-soft text-up" },
-  Bearish: { label: "Funds short", className: "border-down/30 bg-down-soft text-down" },
-  Flat: { label: "Funds flat", className: "border-border bg-muted text-muted-foreground" },
-};
 
 export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; base: string; today: string }) {
   const [win, setWin] = useState<WindowId>("1d");
@@ -154,7 +147,6 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
             {rows.map((row) => {
               const lean = row.leans[win];
               const trend = leanTrend(lean);
-              const funds = row.cot ? FUNDS[row.cot.bias] : null;
               const active = row.symbol === current.symbol;
               return (
                 <li key={row.symbol}>
@@ -163,7 +155,7 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
                     onClick={() => setPicked(row.symbol)}
                     aria-pressed={active}
                     className={cn(
-                      "grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 text-left transition-colors sm:grid-cols-[minmax(0,1fr)_5rem_7.5rem_6rem] sm:px-5",
+                      "grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5 text-left transition-colors sm:grid-cols-[minmax(0,1fr)_5rem_8rem] sm:px-5",
                       active ? "bg-highlight/60" : "hover:bg-muted/50",
                     )}
                   >
@@ -179,18 +171,6 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
                       <TrendIcon trend={trend} className="size-4" label={`news ${trend}`} />
                       <span className="text-muted-foreground tabular-nums">{leanWords(lean)}</span>
                     </span>
-                    {funds ? (
-                      <span
-                        className={cn(
-                          "hidden justify-self-end rounded-full border px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap sm:inline-block",
-                          funds.className,
-                        )}
-                      >
-                        {funds.label}
-                      </span>
-                    ) : (
-                      <span className="hidden sm:block" />
-                    )}
                   </button>
                 </li>
               );
@@ -199,7 +179,7 @@ export function MarketDirection({ rows, base, today }: { rows: DirectionRow[]; b
         </div>
         <p className="border-t border-border px-4 py-2.5 text-[11px] text-muted-foreground sm:px-5">
           Arrows count the wire&apos;s stories that point each way in the window. The line is the speculators&apos;
-          net COT position on the pair over eight weeks; Funds long or short is how they sit on the pair.
+          net COT position on the pair over eight weeks.
         </p>
       </section>
     </MotionConfig>
