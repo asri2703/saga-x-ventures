@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ago } from "@/components/hq/story-badges";
-import { BreakingBanner, StoryCard } from "@/components/hq/story-card";
+import { BreakingBanner } from "@/components/hq/story-card";
+import { HeadlineGrid, KeepReading } from "@/components/hq/headline-grid";
 import { CotOverviewBlock } from "@/components/hq/cot-blocks";
 import { ComingUp } from "@/components/hq/macro-blocks";
 import { PageHead, SectionHead } from "@/components/hq/page-head";
@@ -30,7 +31,7 @@ async function load() {
     const [stats, breakdown, top, cot] = await Promise.all([
       readStats(day),
       readBreakdown(day),
-      readFeed({ since: day, minImpact: "medium", limit: 12 }),
+      readFeed({ since: day, minImpact: "medium", limit: 16 }),
       readCotLatest(new Date(now)).catch((error) => {
         console.error("hq overview: could not read COT", error);
         return [];
@@ -41,7 +42,7 @@ async function load() {
       now,
       stats,
       breakdown,
-      top: top.filter((t) => t.category).slice(0, 6),
+      top: top.filter((t) => t.category).slice(0, 9),
       cot,
       next: nextRelease(new Date(now)),
     };
@@ -130,13 +131,10 @@ export default async function Overview() {
             </CardContent>
           </Card>
         ) : (
-          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {top.map((item) => (
-              <li key={item.id}>
-                <StoryCard item={item} base={base} now={now} />
-              </li>
-            ))}
-          </ol>
+          <>
+            <HeadlineGrid items={top} base={base} now={now} />
+            <KeepReading href={`${base}/terminal`} />
+          </>
         )}
       </section>
     </div>
