@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { EVENTS, nextEvent, nextEventFor, upcoming } from "@/lib/macro/calendar";
-import { cpiYoyEstimate, estimateFor, rateLean, shiftMonth, toneOf, trendEstimate } from "@/lib/macro/expect";
+import { cpiYoyEstimate, estimateFor, rateLean, shiftMonth, toneOf, trendEstimate, unpublishedYoy } from "@/lib/macro/expect";
 import { deriveBls } from "@/lib/macro/fetchers";
 import { SERIES } from "@/lib/macro/series";
 
@@ -63,19 +63,54 @@ test("trend estimate is the three-month average, for the month after", () => {
   expect(trendEstimate([{ date: "2026-10-01", value: 1 }], 3, 0, "K")).toBeNull();
 });
 
-test("year-on-year CPI by base effect: last + new month - month dropping out", () => {
-  const yoy = [{ date: "2026-10-01", value: 3.0 }];
-  const mom = [
-    { date: "2025-11-01", value: 0.1 },
-    { date: "2026-08-01", value: 0.2 },
-    { date: "2026-09-01", value: 0.3 },
-    { date: "2026-10-01", value: 0.4 },
-  ];
-  const est = cpiYoyEstimate(yoy, mom);
-  expect(est?.value).toBe(3.2);
+// The real gap: no October 2025 index (2025 shutdown), November 2025 present.
+const INDEX = [
+  { date: "2025-09-01", value: 324.8 },
+  { date: "2025-11-01", value: 324.122 },
+  { date: "2026-08-01", value: 334.98 },
+  { date: "2026-09-01", value: 336.94 },
+  { date: "2026-10-01", value: 337.511 },
+];
+const MOM = [
+  { date: "2026-08-01", value: 0.4 },
+  { date: "2026-09-01", value: 0.6 },
+  { date: "2026-10-01", value: 0.4 },
+];
+
+test("year-on-year CPI estimate rolls the index forward and reaches past the missing month", () => {
+  const est = cpiYoyEstimate(INDEX, MOM);
+  // 337.511 × 1.004667 ÷ 324.122 − 1 = 4.62%
   expect(est?.period).toBe("2026-11-01");
-  // Without the month that drops out, there is no honest estimate.
-  expect(cpiYoyEstimate(yoy, mom.slice(1))).toBeNull();
+  expect(est?.value).toBe(4.6);
+  expect(est?.working).toBe("337.5 × (1 + 0.47%) ÷ 324.1 − 1");
+});
+
+test("no year-on-year estimate without the base month or with stale momentum", () => {
+  expect(cpiYoyEstimate(INDEX.filter((p) => p.date !== "2025-11-01"), MOM)).toBeNull();
+  expect(cpiYoyEstimate(INDEX, MOM.slice(0, 2).concat({ date: "2026-07-01", value: 0.1 }))).toBeNull();
+});
+
+test("a month with an index but no year-on-year is flagged as unpublished", () => {
+  const yoy = [{ date: "2026-09-01", value: 3.7 }];
+  expect(unpublishedYoy(yoy, INDEX)).toBe("2026-10-01");
+  expect(unpublishedYoy([{ date: "2026-10-01", value: 4 }], INDEX)).toBeNull();
+});
+
+test("BLS rows marked unavailable are skipped, and CPI feeds both year-on-year and the index", () => {
+  const raw = new Map([
+    [
+      "CUUR0000SA0",
+      new Map([
+        ["2025-11", 324.122],
+        ["2026-10", 337.511],
+        ["2026-11", 338.0],
+      ]),
+    ],
+  ]);
+  const points = deriveBls(raw);
+  // No 2025-10 base: October 2026 gets no year-on-year; November does.
+  expect(points.filter((p) => p.series === "cpi-yoy").map((p) => p.date)).toEqual(["2026-11-01"]);
+  expect(points.filter((p) => p.series === "cpi-index")).toHaveLength(3);
 });
 
 test("estimateFor picks the right method per series and none for daily ones", () => {

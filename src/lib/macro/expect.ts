@@ -11,9 +11,8 @@ import type { Obs } from "./store";
  *
  *  - CPI, month on month: the average of the last three seasonally
  *    adjusted months (momentum).
- *  - CPI, year on year: base effect. The new year-on-year rate is roughly
- *    the last one, plus the expected new month, minus the month that drops
- *    out of the twelve-month window:  next ≈ last + m(new) − m(12 months ago).
+ *  - CPI, year on year: base effect, from the index level rolled forward
+ *    one month at its 3-month pace, against the same month a year before.
  *  - Payrolls, unemployment, earnings: the three-month average, the trend
  *    desks use to smooth one noisy month.
  *  - Fed funds: no number. The two-year Treasury yield against the middle of
@@ -63,26 +62,47 @@ export function trendEstimate(points: Obs[], n: number, decimals: number, suffix
 }
 
 /**
- * Next year-on-year CPI by base effect, from the last year-on-year reading
- * and the seasonally adjusted month-on-month history.
+ * Next year-on-year CPI by base effect, from the price index itself: roll
+ * the latest index forward one month at the recent monthly pace, then set
+ * it against the same month a year earlier.
+ *
+ *   next ≈ index(last) × (1 + average of the last 3 monthly changes) ÷ index(12 months before next) − 1
+ *
+ * Working from index levels rather than the last year-on-year rate means a
+ * month with no published year-on-year figure (October 2026, whose October
+ * 2025 base was never collected) does not stop the estimate for the month
+ * after it. If the base month itself is missing, there is no estimate.
  */
-export function cpiYoyEstimate(yoy: Obs[], mom: Obs[]): Estimate | null {
-  const last = yoy[yoy.length - 1];
+export function cpiYoyEstimate(index: Obs[], mom: Obs[]): Estimate | null {
+  const last = index[index.length - 1];
   if (!last || mom.length < 3) return null;
   const target = shiftMonth(last.date, 1);
-  const byMonth = new Map(mom.map((p) => [p.date, p.value]));
-  const recent = [0, -1, -2].map((k) => byMonth.get(shiftMonth(last.date, k)));
-  if (recent.some((v) => v === undefined)) return null;
-  const mNew = avg(recent as number[]);
-  const mDrop = byMonth.get(shiftMonth(target, -12));
-  if (mDrop === undefined) return null;
-  const value = round(last.value + mNew - mDrop, 1);
+  const recent = mom.slice(-3);
+  // The momentum must run up to the index's own latest month.
+  if (recent[recent.length - 1].date !== last.date) return null;
+  const mNew = avg(recent.map((p) => p.value));
+  const base = index.find((p) => p.date === shiftMonth(target, -12));
+  if (!base) return null;
+  const projected = last.value * (1 + mNew / 100);
+  const value = round((projected / base.value - 1) * 100, 1);
   return {
     value,
     period: target,
-    method: "Base effect: last year-on-year rate, plus the expected new month, minus the month that drops out.",
-    working: `${last.value.toFixed(1)}% + ${mNew.toFixed(2)}% − ${mDrop.toFixed(2)}%`,
+    method:
+      "Base effect: the latest price index rolled forward at its 3-month pace, against the same month a year earlier.",
+    working: `${last.value.toFixed(1)} × (1 + ${mNew.toFixed(2)}%) ÷ ${base.value.toFixed(1)} − 1`,
   };
+}
+
+/**
+ * When the price index has a newer month than year-on-year, that month's
+ * year-on-year change was not published (no base a year earlier). Returns
+ * that month, or null.
+ */
+export function unpublishedYoy(yoy: Obs[], index: Obs[]): string | null {
+  const y = yoy.at(-1)?.date;
+  const i = index.at(-1)?.date;
+  return y && i && i > y ? i : null;
 }
 
 /** Each series' estimate, given every series' history by slug. */
@@ -93,9 +113,9 @@ export function estimateFor(slug: string, data: Record<string, Obs[] | undefined
     case "core-cpi-mom":
       return trendEstimate(own, 3, 1, "%");
     case "cpi-yoy":
-      return cpiYoyEstimate(own, data["cpi-mom"] ?? []);
+      return cpiYoyEstimate(data["cpi-index"] ?? [], data["cpi-mom"] ?? []);
     case "core-cpi-yoy":
-      return cpiYoyEstimate(own, data["core-cpi-mom"] ?? []);
+      return cpiYoyEstimate(data["core-cpi-index"] ?? [], data["core-cpi-mom"] ?? []);
     case "nfp":
       return trendEstimate(own, 3, 0, "K");
     case "unemployment":

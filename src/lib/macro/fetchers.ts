@@ -36,17 +36,32 @@ export async function fetchNyFed(from: string, to: string): Promise<Point[]> {
  * BLS: CPI, core CPI, unemployment, payrolls, earnings.
  * ------------------------------------------------------------------ */
 
-/** BLS series id → how it becomes one of ours. */
-export const BLS_SERIES = {
-  CUUR0000SA0: { slug: "cpi-yoy", derive: "yoy" },
-  CUUR0000SA0L1E: { slug: "core-cpi-yoy", derive: "yoy" },
+type Rule = { slug: string; derive: "level" | "change" | "mom" | "yoy" };
+
+/**
+ * BLS series id → how it becomes ours (one id can feed several series).
+ *
+ * The CPI index levels are kept too (cpi-index, core-cpi-index), unlisted
+ * on the page, for the year-on-year estimate. BLS collected no October
+ * 2025 prices (2025 shutdown), so it publishes no year-on-year change for
+ * October 2026; levels let the estimate reach November regardless.
+ */
+export const BLS_SERIES: Record<string, readonly Rule[]> = {
+  CUUR0000SA0: [
+    { slug: "cpi-yoy", derive: "yoy" },
+    { slug: "cpi-index", derive: "level" },
+  ],
+  CUUR0000SA0L1E: [
+    { slug: "core-cpi-yoy", derive: "yoy" },
+    { slug: "core-cpi-index", derive: "level" },
+  ],
   // Seasonally adjusted, for the month-on-month change the market quotes.
-  CUSR0000SA0: { slug: "cpi-mom", derive: "mom" },
-  CUSR0000SA0L1E: { slug: "core-cpi-mom", derive: "mom" },
-  LNS14000000: { slug: "unemployment", derive: "level" },
-  CES0000000001: { slug: "nfp", derive: "change" },
-  CES0500000003: { slug: "earnings-yoy", derive: "yoy" },
-} as const;
+  CUSR0000SA0: [{ slug: "cpi-mom", derive: "mom" }],
+  CUSR0000SA0L1E: [{ slug: "core-cpi-mom", derive: "mom" }],
+  LNS14000000: [{ slug: "unemployment", derive: "level" }],
+  CES0000000001: [{ slug: "nfp", derive: "change" }],
+  CES0500000003: [{ slug: "earnings-yoy", derive: "yoy" }],
+};
 
 type Monthly = Map<string, number>; // "2026-10" → value
 
@@ -81,9 +96,10 @@ function previousMonth(key: string, back: number): string {
 /** Turns raw BLS months into our points: levels, monthly changes or year-on-year %. */
 export function deriveBls(raw: Map<string, Monthly>): Point[] {
   const out: Point[] = [];
-  for (const [id, rule] of Object.entries(BLS_SERIES)) {
+  for (const [id, rules] of Object.entries(BLS_SERIES)) {
     const months = raw.get(id);
     if (!months) continue;
+    for (const rule of rules)
     for (const [key, value] of months) {
       let derived: number | null = null;
       if (rule.derive === "level") derived = value;

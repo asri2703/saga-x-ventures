@@ -6,7 +6,7 @@ import { ComingUp, eventTime } from "@/components/hq/macro-blocks";
 import { PageHead, SectionHead } from "@/components/hq/page-head";
 import { hqBase } from "@/lib/hq";
 import { nextEventFor, upcoming } from "@/lib/macro/calendar";
-import { estimateFor } from "@/lib/macro/expect";
+import { estimateFor, unpublishedYoy } from "@/lib/macro/expect";
 import { formatDate, formatValue } from "@/lib/macro/format";
 import { SERIES, type SeriesDef } from "@/lib/macro/series";
 import { readSeries, stats, type Obs } from "@/lib/macro/store";
@@ -35,15 +35,20 @@ const GROUPS: { title: string; note: string; slugs: string[] }[] = [
 
 async function load() {
   const now = Date.now();
+  // The CPI index levels are not shown, but the year-on-year estimates use them.
+  const wanted = [
+    ...SERIES.map((def) => ({ slug: def.slug, daily: def.frequency === "Daily" })),
+    { slug: "cpi-index", daily: false },
+    { slug: "core-cpi-index", daily: false },
+  ];
   const results = await Promise.all(
-    SERIES.map(async (def) => {
-      const back = def.frequency === "Daily" ? 365 : 3 * 365;
-      const since = new Date(now - back * 86_400_000).toISOString().slice(0, 10);
+    wanted.map(async ({ slug, daily }) => {
+      const since = new Date(now - (daily ? 365 : 3 * 365) * 86_400_000).toISOString().slice(0, 10);
       try {
-        return [def.slug, await readSeries(def.slug, since)] as const;
+        return [slug, await readSeries(slug, since)] as const;
       } catch (error) {
-        console.error(`hq macro: could not read ${def.slug}`, error);
-        return [def.slug, [] as Obs[]] as const;
+        console.error(`hq macro: could not read ${slug}`, error);
+        return [slug, [] as Obs[]] as const;
       }
     }),
   );
@@ -69,12 +74,15 @@ function rowsFor(slugs: string[], data: Record<string, Obs[]>, now: number): Row
     const s = stats(points);
     const est = estimateFor(slug, data);
     const next = nextEventFor(slug, new Date(now));
+    const index = slug === "cpi-yoy" ? data["cpi-index"] : slug === "core-cpi-yoy" ? data["core-cpi-index"] : undefined;
+    const gap = index ? unpublishedYoy(points, index) : null;
+    const dated = s ? formatDate(s.actual.date, def.frequency) : "Fills in on the next refresh";
     return [
       {
         def,
         points: def.frequency === "Daily" ? points.slice(-90) : points.slice(-24),
         latest: s ? formatValue(s.actual.value, def) : "-",
-        latestDate: s ? formatDate(s.actual.date, def.frequency) : "Fills in on the next refresh",
+        latestDate: gap ? `${dated}. ${formatDate(gap, "Monthly")} not published (2025 shutdown)` : dated,
         previous: s?.previous ? formatValue(s.previous.value, def) : "-",
         change: s?.previous ? s.actual.value - s.previous.value : 0,
         estimate: est ? formatValue(est.value, def) : "-",

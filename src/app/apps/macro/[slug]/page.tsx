@@ -8,7 +8,7 @@ import { hqBase } from "@/lib/hq";
 import { seriesBySlug } from "@/lib/macro/series";
 import { readSeries, stats, type Obs } from "@/lib/macro/store";
 import { nextEventFor } from "@/lib/macro/calendar";
-import { estimateFor, rateLean, toneOf } from "@/lib/macro/expect";
+import { estimateFor, rateLean, shiftMonth, toneOf, unpublishedYoy } from "@/lib/macro/expect";
 import { ExpectPanel, FedLeanPanel } from "@/components/hq/macro-blocks";
 import { SectionHead } from "@/components/hq/page-head";
 import type { Category } from "@/lib/terminal/classify";
@@ -28,8 +28,8 @@ type Range = keyof typeof RANGES;
 
 /** Other series an estimate or the Fed panel needs, by the page's series. */
 const NEEDS: Record<string, string[]> = {
-  "cpi-yoy": ["cpi-mom"],
-  "core-cpi-yoy": ["core-cpi-mom"],
+  "cpi-yoy": ["cpi-mom", "cpi-index"],
+  "core-cpi-yoy": ["core-cpi-mom", "core-cpi-index"],
   "fed-funds": ["us2y"],
   effr: ["fed-funds", "us2y"],
 };
@@ -79,6 +79,8 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
   const upper = (def.slug === "fed-funds" ? all : data["fed-funds"] ?? []).at(-1)?.value;
   const twoYear = data.us2y?.at(-1)?.value;
   const lean = isFed && upper !== undefined && twoYear !== undefined ? rateLean(upper, twoYear) : null;
+  const index = data["cpi-index"] ?? data["core-cpi-index"];
+  const gap = index ? unpublishedYoy(all, index) : null;
   const cutoff = RANGES[range] ? new Date(now - RANGES[range] * 86_400_000).toISOString().slice(0, 10) : "";
   const shown = cutoff ? all.filter((p) => p.date >= cutoff) : all;
 
@@ -112,6 +114,14 @@ export default async function SeriesPage(props: PageProps<"/apps/macro/[slug]">)
             <span className="text-sm font-normal text-muted-foreground">
               {formatDate(s.actual.date, def.frequency)}
             </span>
+          </p>
+        ) : null}
+        {gap ? (
+          <p className="max-w-3xl rounded-lg border border-[#e0c98f] bg-[#f0dcae]/40 px-3 py-2 text-sm">
+            BLS did not publish a year-on-year figure for {formatDate(gap, "Monthly")}: it collected no prices in{" "}
+            {formatDate(shiftMonth(gap, -12), "Monthly")} because of the 2025 government shutdown, so there is no
+            base to compare against. The monthly change for {formatDate(gap, "Monthly")} is published; see CPI month
+            on month.
           </p>
         ) : null}
         <p className="max-w-3xl text-sm text-muted-foreground">{def.about}</p>
