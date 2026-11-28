@@ -8,6 +8,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Newspaper,
+  NotebookPen,
   Radio,
   Scale,
   type LucideIcon,
@@ -43,6 +44,7 @@ export const MAIN: NavItem[] = [
   { name: "Feeds", href: "/terminal", icon: Newspaper },
   { name: "Economy", href: "/macro", icon: ChartLine },
   { name: "Smart Money", href: "/cot", icon: Scale },
+  { name: "Insights", href: "/insights", icon: NotebookPen },
 ];
 
 export const SETTINGS: NavItem[] = [

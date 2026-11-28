@@ -14,6 +14,7 @@ import { eventTime, ExpectPanel, FedLeanPanel } from "@/components/hq/macro-bloc
 import { SectionHead } from "@/components/hq/page-head";
 import { readFeed } from "@/lib/terminal/store";
 import { formatDate, formatValue } from "@/lib/macro/format";
+import { NEEDS } from "@/lib/macro/needs";
 
 /**
  * One economic series: its history as a chart, the stats a trader looks for
@@ -25,18 +26,6 @@ export const dynamic = "force-dynamic";
 
 const RANGES = { "1y": 365, "5y": 5 * 365, "10y": 10 * 365, max: 0 } as const;
 type Range = keyof typeof RANGES;
-
-/** Other series an estimate or the Fed panel needs, by the page's series. */
-const NEEDS: Record<string, string[]> = {
-  "cpi-yoy": ["cpi-mom", "cpi-index"],
-  "core-cpi-yoy": ["core-cpi-mom", "core-cpi-index"],
-  "pce-yoy": ["pce-mom", "pce-index"],
-  "core-pce-yoy": ["core-pce-mom", "core-pce-index"],
-  "ppi-yoy": ["ppi-mom", "ppi-index"],
-  "core-ppi-yoy": ["core-ppi-mom", "core-ppi-index"],
-  "fed-funds": ["us2y"],
-  effr: ["fed-funds", "us2y"],
-};
 
 const FED_TONE_DAYS = 14;
 /** How far back the related stories reach, and how many show at most. */
